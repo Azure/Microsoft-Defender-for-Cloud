@@ -1,0 +1,27 @@
+{
+    "properties": {
+        "mode": "All",
+        "parameters": {},
+        "displayName": "Ensure https traffic only for storage account",
+        "description": "Ensure https traffic only for storage account",
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Storage/storageAccounts"
+                    },
+                    {
+                        "not": {
+                            "field": "Microsoft.Storage/storageAccounts/supportsHttpsTrafficOnly",
+                            "equals": "true"
+                        }
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deny"
+            }
+        }
+    }
+}

@@ -1,0 +1,339 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the logic app to create.",
+                "defaultValue": "Enable-Storage-HTTPs"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('logicAppName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "tags": {
+                "displayName": "LogicApp"
+            },
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "recurrence": {
+                            "type": "recurrence",
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            }
+                        }
+                    },
+                    "actions": {
+                            "For_each": {
+                            "foreach": "@body('Parse_JSON')?['value']",
+                            "actions": {
+                                "For_each_2": {
+                                    "foreach": "@body('Parse_JSON_2')?['value']",
+                                    "actions": {
+                                        "Condition": {
+                                            "actions": {
+                                                "HTTP_3": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "body": {
+                                                            "properties": {
+                                                                "supportsHttpsTrafficOnly": true
+                                                            }
+                                                        },
+                                                        "method": "PATCH",
+                                                        "uri": "https://management.azure.com/@{items('For_each_2')?['id']}?api-version=2018-11-01"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@items('For_each_2')?['properties']?['supportsHttpsTrafficOnly']",
+                                                            false
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Parse_JSON_2": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "HTTP_2": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/@{items('For_each')?['id']}/providers/Microsoft.Storage/storageAccounts?api-version=2018-11-01"
+                                    }
+                                },
+                                "Parse_JSON_2": {
+                                    "runAfter": {
+                                        "HTTP_2": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('HTTP_2')",
+                                        "schema": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "kind": {
+                                                                "type": "string"
+                                                            },
+                                                            "location": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "creationTime": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "encryption": {
+                                                                        "properties": {
+                                                                            "keySource": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "services": {
+                                                                                "properties": {
+                                                                                    "blob": {
+                                                                                        "properties": {
+                                                                                            "enabled": {
+                                                                                                "type": "boolean"
+                                                                                            },
+                                                                                            "lastEnabledTime": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "file": {
+                                                                                        "properties": {
+                                                                                            "enabled": {
+                                                                                                "type": "boolean"
+                                                                                            },
+                                                                                            "lastEnabledTime": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "networkAcls": {
+                                                                        "properties": {
+                                                                            "bypass": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "defaultAction": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "ipRules": {
+                                                                                "type": "array"
+                                                                            },
+                                                                            "virtualNetworkRules": {
+                                                                                "type": "array"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "primaryEndpoints": {
+                                                                        "properties": {
+                                                                            "blob": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "file": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "queue": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "table": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "primaryLocation": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "provisioningState": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "statusOfPrimary": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "supportsHttpsTrafficOnly": {
+                                                                        "type": "boolean"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "sku": {
+                                                                "properties": {
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "tier": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "tags": {
+                                                                "properties": {},
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "sku",
+                                                            "kind",
+                                                            "id",
+                                                            "name",
+                                                            "type",
+                                                            "location",
+                                                            "tags",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "HTTP": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "subscriptionId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies",
+                                                    "authorizationSource"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ],
+    "outputs": {}
+}
