@@ -1,12 +1,12 @@
 # PowerShell script to remediate
 
-This sample script is provided to remediate the "Enable Network Security Group on subnet" 
+This sample script is provided to remediate the "Enable Network Security Group on subnet"
 recommendation in Azure Security Center.  The script will enumerate the task from Security Center,
 loop through each subscription and associate an existing NSG to a subnet. For this script to work, you need
 to have a NSG already created. If you don't have an NSG, you can use New-AzureRmNetworkSecurityGroup to create one.
 For more information, read [New-AzureRmNetworkSecurityGroup](https://docs.microsoft.com/en-us/powershell/module/azurerm.network/new-azurermnetworksecuritygroup?view=azurermps-6.13.0)
 
-# Contributing
+#Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
