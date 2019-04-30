@@ -1,0 +1,118 @@
+{
+    "if": {
+       "field": "type",
+       "equals": "Microsoft.Sql/servers"
+    },
+    "then": {
+       "effect": "DeployIfNotExists",
+       "details": {
+          "type": "Microsoft.Sql/servers/auditingSettings",
+          "name": "Default",
+          "existenceCondition": {
+             "field": "Microsoft.Sql/auditingSettings.state",
+             "equals": "Enabled"
+          },
+          "roleDefinitionIds": [
+             "/providers/microsoft.authorization/roleDefinitions/056cd41c-7e88-42e1-933e-88ba6a50c9c3",
+             "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "deployment": {
+             "properties": {
+                "mode": "incremental",
+                "template": {
+                   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                   "contentVersion": "1.0.0.0",
+                   "parameters": {
+                      "serverName": {
+                         "type": "string"
+                      },
+                      "workspacesResourceGroup": {
+                         "type": "string"
+                      },
+                      "location": {
+                         "type": "string"
+                      }
+                   },
+                   "variables": {
+                      "subscriptionId": "[subscription().subscriptionId]",
+                      "uniqueWorkspace": "[uniqueString(variables('subscriptionId'), parameters('location'), parameters('workspacesResourceGroup'))]",
+                      "locationCode": "[substring(parameters('location'), 0, 3)]",
+                      "workspaceName": "[tolower(concat('sqlaudit', variables('locationCode'), variables('uniqueWorkspace')))]",
+                      "createWorkspaceDeploymentName": "[concat('sqlServerAuditingWorkspace-', uniqueString(variables('locationCode'), parameters('serverName')))]"
+                   },
+                   "resources": [
+                      {
+                         "apiVersion": "2015-11-01-preview",
+                         "name": "[variables('createWorkspaceDeploymentName')]",
+                         "type": "Microsoft.Resources/deployments",
+                         "resourceGroup": "[parameters('workspacesResourceGroup')]",
+                         "properties": {
+                            "mode": "Incremental",
+                            "parameters": {
+                               "location": {
+                                  "value": "[parameters('location')]"
+                               },
+                               "workspaceName": {
+                                  "value": "[variables('workspaceName')]"
+                               }
+                            },
+                            "templateLink": {
+                               "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/Secure Score/Enable auditing for the SQL server/Azure Policy - DeployIfNotExists/Log Analytics/createLogAnalytics.template.json",
+                               "contentVersion": "1.0.0.0"
+                            }
+                         }
+                      },
+                      {
+                         "name": "[concat(parameters('serverName'), '/Default')]",
+                         "type": "Microsoft.Sql/servers/auditingSettings",
+                         "apiVersion": "2017-03-01-preview",
+                         "properties": {
+                            "state": "Enabled",
+                            "isAzureMonitorTargetEnabled": true
+                        }
+                      },
+                      {
+                         "type": "databases/providers/diagnosticSettings",
+                         "name": "master/microsoft.insights/SQLServerAuditingSettings",
+                         "dependsOn": [
+                              "[parameters('serverName')]",
+                              "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+                              "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/master')]"
+                         ],
+                         "apiVersion": "2017-05-01-preview",
+                         "properties": {
+                         "name": "SQLServerAuditingSettings",
+                         "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', )]
+                         "logs": [
+                            {
+                                "category": "SQLSecurityAuditEvents",
+                                "enabled": true,
+                                "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                }
+                            }
+                         ]
+                         }
+                     }
+                   ]
+                },
+                "parameters": {
+                   "serverName": {
+                      "value": "[field('name')]"
+                   },
+                   "auditRetentionDays": {
+                      "value": "[parameters('retentionDays')]"
+                   },
+                   "storageAccountsResourceGroup": {
+                      "value": "[parameters('storageAccountsResourceGroup')]"
+                   },
+                   "location": {
+                      "value": "[field('location')]"
+                   }
+                }
+             }
+          }
+       }
+    }
+ }

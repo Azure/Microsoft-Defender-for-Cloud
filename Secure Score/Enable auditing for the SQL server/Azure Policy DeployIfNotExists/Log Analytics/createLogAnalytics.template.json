@@ -44,6 +44,10 @@
             "workspaceName": {
                 "type": "string",
                 "value": "[reference(parameters('workspaceName'))]"
+            },
+            "workspaceId": {
+                "type": "string",
+                "value": "[reference("
             }
         }
     }
