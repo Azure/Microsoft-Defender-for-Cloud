@@ -104,8 +104,8 @@
                    "serverName": {
                       "value": "[field('name')]"
                    },
-                   "storageAccountsResourceGroup": {
-                      "value": "[parameters('storageAccountsResourceGroup')]"
+                   "workspacesResourceGroup": {
+                      "value": "[parameters('workspacesResourceGroup')]"
                    },
                    "location": {
                       "value": "[field('location')]"
