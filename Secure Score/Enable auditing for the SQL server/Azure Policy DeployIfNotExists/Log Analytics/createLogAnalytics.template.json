@@ -47,7 +47,7 @@
             },
             "workspaceId": {
                 "type": "string",
-                "value": "[reference("
+                "value": "[reference(parameters('workspaceName')).properties.customerId]"
             }
         }
     }

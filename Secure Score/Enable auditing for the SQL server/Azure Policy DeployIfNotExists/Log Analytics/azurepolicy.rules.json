@@ -54,6 +54,9 @@
                                },
                                "workspaceName": {
                                   "value": "[variables('workspaceName')]"
+                               },
+                               "workspaceId": {
+                                   "value": "[reference(variables('createworkspaceDeploymentName')).outputs.workspaceId.value]"
                                }
                             },
                             "templateLink": {
@@ -82,7 +85,7 @@
                          "apiVersion": "2017-05-01-preview",
                          "properties": {
                          "name": "SQLServerAuditingSettings",
-                         "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', )]
+                         "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', variables('workspaceId')]",
                          "logs": [
                             {
                                 "category": "SQLSecurityAuditEvents",
@@ -100,9 +103,6 @@
                 "parameters": {
                    "serverName": {
                       "value": "[field('name')]"
-                   },
-                   "auditRetentionDays": {
-                      "value": "[parameters('retentionDays')]"
                    },
                    "storageAccountsResourceGroup": {
                       "value": "[parameters('storageAccountsResourceGroup')]"
