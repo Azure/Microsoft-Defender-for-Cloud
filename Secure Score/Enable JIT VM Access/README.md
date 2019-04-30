@@ -1,7 +1,3 @@
-# Powershell Script to Remediate
-
-This script will find all Security Center recommendations for VM Disk Encryption, then create Key Vaults in each subscription and location, encrypt disks with Azure Disk Encryption, and store keys in the Key Vaults that were created.
-
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

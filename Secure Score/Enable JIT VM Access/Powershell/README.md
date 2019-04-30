@@ -1,6 +1,6 @@
 # Powershell Script to Remediate
 
-This script will find all Security Center recommendations for VM Disk Encryption, then create Key Vaults in each subscription and location, encrypt disks with Azure Disk Encryption, and store keys in the Key Vaults that were created.
+This script will find all Security Score recommendations for JIT VM Access and create access policies for each VM for ports 22 and 3389.
 
 # Contributing
 
