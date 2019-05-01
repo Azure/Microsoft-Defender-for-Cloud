@@ -1,7 +1,3 @@
-# PowerShell script to remediate
-
-This sample script is provided to remediate the "Provision an Azure AD Administrator on SQL Server" recommendation.
-
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
