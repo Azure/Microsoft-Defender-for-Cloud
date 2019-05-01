@@ -1,7 +1,5 @@
-# PowerShell script to set an Azure Active Directory User or Group as the Azure SQL Server Admin(s)
-# ToDo: login to Azure and set your Azure Context
-#Login-AzAccount
-#Set-AzContext -Subscription <yourSubscription>
+Login-AzAccount
+Set-AzContext -Subscription <yourSubscription>
 
 param(
     [parameter(Mandatory=$true)]
