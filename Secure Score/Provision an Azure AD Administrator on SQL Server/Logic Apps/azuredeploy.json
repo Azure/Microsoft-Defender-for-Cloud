@@ -2,9 +2,9 @@
     "$connections": {
         "value": {
             "azuread": {
-                "connectionId": "/subscriptions/44e4eff8-1fcb-4a22-a7d6-992ac7286382/resourceGroups/CxE-Tiander/providers/Microsoft.Web/connections/azuread",
+                "connectionId": "/subscriptions/<YourSubscriptionID>/resourceGroups/<YourResourceGroupName/providers/Microsoft.Web/connections/azuread",
                 "connectionName": "azuread",
-                "id": "/subscriptions/44e4eff8-1fcb-4a22-a7d6-992ac7286382/providers/Microsoft.Web/locations/westeurope/managedApis/azuread"
+                "id": "/subscriptions/<YourSubscriptionID>/providers/Microsoft.Web/locations/westeurope/managedApis/azuread"
             }
         }
     },
@@ -81,7 +81,7 @@
                         {
                             "name": "ADTenantId",
                             "type": "String",
-                            "value": "4b2462a4-bbee-495a-a0e1-f23ae524cc9c"
+                            "value": "<YourADTenantID>"
                         }
                     ]
                 },
@@ -94,7 +94,7 @@
                         {
                             "name": "ADadminAccountUPN",
                             "type": "String",
-                            "value": "TianderSPN@seccxpninja.onmicrosoft.com"
+                            "value": "<YourADaccountUPN>"
                         }
                     ]
                 },
@@ -111,7 +111,7 @@
                         {
                             "name": "SqlResourceGroupName",
                             "type": "String",
-                            "value": "cxe-tiander"
+                            "value": "<YourSqlResourceGroupName>"
                         }
                     ]
                 },
@@ -128,7 +128,7 @@
                         {
                             "name": "SqlServerName",
                             "type": "String",
-                            "value": "tiander-sql2"
+                            "value": "<YourSqlServerName>"
                         }
                     ]
                 },
