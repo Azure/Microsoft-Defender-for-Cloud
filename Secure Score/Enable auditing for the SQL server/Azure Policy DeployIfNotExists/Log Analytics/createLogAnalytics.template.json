@@ -2,24 +2,24 @@
     "$schema": "https://schema.management.azure.com/schemas/2014-04-01-preview/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workspaceName": {
-            "type": "String",
-             "metadata": {
-              "description": "Specifies the name of the workspace."
-            }
-        },
         "location": {
-            "type": "String",
+            "type": "string",
              "metadata": {
                "description": "Specifies the location in which to create the workspace."
              }
         },
+        "workspaceName": {
+            "type": "string",
+             "metadata": {
+              "description": "Specifies the name of the workspace."
+            }
+        },
         "sku": {
-            "type": "String",
+            "type": "string",
              "allowedValues": [
               "Standalone",
               "PerNode",
-               "PerGB2018"
+              "PerGB2018"
             ],
              "defaultValue": "PerGB2018",
              "metadata": {
@@ -35,7 +35,7 @@
             "location": "[parameters('location')]",
             "properties": {
                 "sku": {
-                    "Name": "[parameters('sku')]"
+                    "name": "[parameters('sku')]"
                 }
             }
           }
