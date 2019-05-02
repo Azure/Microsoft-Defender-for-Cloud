@@ -60,7 +60,7 @@
                                }
                             },
                             "templateLink": {
-                               "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/Secure Score/Enable auditing for the SQL server/Azure Policy - DeployIfNotExists/Log Analytics/createLogAnalytics.template.json",
+                               "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Secure%20Score/Enable%20auditing%20for%20the%20SQL%20server/Azure%20Policy%20DeployIfNotExists/Log%20Analytics/createLogAnalytics.template.json",
                                "contentVersion": "1.0.0.0"
                             }
                          }
