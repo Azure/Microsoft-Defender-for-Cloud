@@ -85,7 +85,7 @@
                          "apiVersion": "2017-05-01-preview",
                          "properties": {
                          "name": "SQLServerAuditingSettings",
-                         "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', variables('workspaceId')]",
+                         "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', variables('workspaceId'))]",
                          "logs": [
                             {
                                 "category": "SQLSecurityAuditEvents",

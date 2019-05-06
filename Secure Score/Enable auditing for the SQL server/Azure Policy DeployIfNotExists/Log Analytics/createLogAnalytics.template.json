@@ -3,16 +3,10 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "location": {
-            "type": "string",
-             "metadata": {
-               "description": "Specifies the location in which to create the workspace."
-             }
+            "type": "string"
         },
         "workspaceName": {
-            "type": "string",
-             "metadata": {
-              "description": "Specifies the name of the workspace."
-            }
+            "type": "string"
         },
         "sku": {
             "type": "string",
