@@ -5,9 +5,9 @@ In July 31, 2019, Azure Security Center will retire 3 legacy Log Analytics' dash
 
 The following files provide the Log Analytics' queries used to populate the retired dashboards, in case you'd like to reproduce the data visualized in these dashboards. You're encouraged to review the [retirement documentation](https://docs.microsoft.com/azure/security-center/security-center-features-retirement-july2019) to learn more on suggested alternatives.
 
-- Identity and access dashboard
-- Threat intelligence dashboard (Security events map)
-- Security & audit dashboard
+- [Identity and access dashboard](./IdentityDashboard.ts)
+- [Threat intelligence dashboard (Security events map)](./ThreatIntelligenceDashboard.ts)
+- [Security & audit dashboard](./SecurityAndAuditDashboard.ts)
 
 Provided files are in Typescript (.ts) format.
 
