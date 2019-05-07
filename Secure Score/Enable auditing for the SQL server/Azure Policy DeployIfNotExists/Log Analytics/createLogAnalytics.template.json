@@ -15,11 +15,11 @@
               "PerNode",
               "PerGB2018"
             ],
-             "defaultValue": "PerGB2018",
-             "metadata": {
-            "description": "Specifies the service tier of the workspace: Standalone, PerNode, Per-GB"
-         }
-          }
+            "defaultValue": "PerGB2018",
+            "metadata": {
+                "description": "Specifies the service tier of the workspace: Standalone, PerNode, Per-GB"
+            }
+        }
     },
     "resources": [
         {

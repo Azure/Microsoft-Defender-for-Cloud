@@ -1,9 +1,8 @@
 # Logic App sample to remediate
 
 This Logic App deployment template is provided to remediate the "Enable auditing on SQL Server" 
-recommendation in Azure Security Center.  The workflow will enumerate all subscriptions via the API, loop 
-through each subscrption and enumerate all storage accounts and their properties.  It will then check the 
-HTTS only property for each storage account and if it is not enabled it will set it to enabled.
+recommendation in Azure Security Center.  The workflow has some variables that are static that
+you must initalize at the start.
 
 This logic app is configured to use a managed service principal.  After deploying the logic app, you will
 need to add the managed identity to the subscriptions for access.
