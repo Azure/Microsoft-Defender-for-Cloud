@@ -1,5 +1,10 @@
 # Azure Policy - Deny
-This Azure Policy definition will **deny** the creation of new Web Applications which do not have HTTPS enabled. Also it will prevent someone from changing the setting from HTTPS to HTTP for existing resources
+This Azure Policy definition will **deny** the creation of new Web Applications which do not have HTTPS enabled. Also it will prevent someone from changing the setting from HTTPS to HTTP for existing resources. <br><br>
+After deployment you need to assign it and set the desired scope.
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
 
 # Contributing
 
