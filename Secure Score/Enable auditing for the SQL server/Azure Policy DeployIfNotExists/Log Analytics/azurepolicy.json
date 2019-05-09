@@ -71,9 +71,6 @@
                                    },
                                    "workspaceName": {
                                       "value": "[variables('workspaceName')]"
-                                   },
-                                   "workspaceId": {
-                                       "value": "[reference(variables('createworkspaceDeploymentName')).outputs.workspaceId.value]"
                                    }
                                 },
                                 "templateLink": {
@@ -92,28 +89,28 @@
                             }
                           },
                           {
-                             "type": "databases/providers/diagnosticSettings",
-                             "name": "master/microsoft.insights/SQLServerAuditingSettings",
-                             "dependsOn": [
-                                  "[parameters('serverName')]",
-                                  "[concat('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
-                                  "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/master')]"
-                             ],
-                             "apiVersion": "2017-05-01-preview",
-                             "properties": {
-                             "name": "SQLServerAuditingSettings",
-                             "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', variables('workspaceId'))]",
-                             "logs": [
-                                {
-                                    "category": "SQLSecurityAuditEvents",
-                                    "enabled": true,
-                                    "retentionPolicy": {
-                                        "days": 0,
-                                        "enabled": false
-                                    }
-                                }
-                             ]
-                             }
+                           "type": "Microsoft.Sql/servers/databases/providers/diagnosticSettings",
+                           "name": "master/Microsoft.Insights/default",
+                           "dependsOn": [
+                              "[parameters('serverName')]",
+                              "[concat('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+                              "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/master')]"
+                           ],
+                           "apiVersion": "2017-05-01-preview",
+                           "properties": {
+                           "name": "SQLServerAuditingSettings",
+                           "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourcegroups/', parameters('workspacesResourceGroup'), '/providers/microsoft.operationalinsights/workspaces/', reference(variables('createworkspaceDeploymentName').outputs.workspaceId.value))]",
+                           "logs": [
+                              {
+                                 "category": "SQLSecurityAuditEvents",
+                                 "enabled": true,
+                                 "retentionPolicy": {
+                                    "days": 0,
+                                    "enabled": false
+                                 }
+                              }
+                           ]
+                           }
                          }
                        ]
                     },

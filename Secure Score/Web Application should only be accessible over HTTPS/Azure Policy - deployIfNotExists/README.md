@@ -1,3 +1,7 @@
+# Azure Policy - deployIfNotExists
+This Azure Policy definition will ensure that during the creation of new Web Applications, HTTPS will be enabled. Also it will enable you to create a remediation task which will change the Web Application setting to enable HTTPS.
+
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
