@@ -12,7 +12,8 @@ Step 1. (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup"
 Step 2. Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -Name "mystorageaccount" -DefaultAction Deny
 Step 3. (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount").VirtualNetworkRules
 Step 4. (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount").IPRules
-Step 5. Add-AzStorageAccountNetworkRule -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount" -IPAddressOrRange "16.17.18.0/24"
+Step 5. Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -Name "mystorageaccount" -Bypass AzureServices,Metrics,Logging
+Step 6. Add-AzStorageAccountNetworkRule -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount" -IPAddressOrRange "16.17.18.0/24"
 
 .Requirements
 
@@ -27,8 +28,11 @@ Step 5. Add-AzStorageAccountNetworkRule -ResourceGroupName "myresourcegroup" -Ac
 
 #>
 
-Clear-Variable SecurityTasks
+if ((Test-Path variable:SecurityTasks) -eq $true ) {
 
+Clear-Variable SecurityTasks -Force
+
+}
 
 Write-Verbose "Checking for Azure module..."
 
@@ -126,6 +130,7 @@ if  (-not ((Get-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask
 
   Write-Host  'Changing Storage Network to "Deny", Required Configuration Change to add IP restrctions see "https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security"'
   Update-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -AccountName ($SecurityTask.ResourceId.Split("/")[8]) -DefaultAction Deny
+  Update-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -Name ($SecurityTask.ResourceId.Split("/")[8]) -Bypass AzureServices,Metrics,Logging
   
   }   
 Else  {
@@ -133,7 +138,7 @@ Else  {
   Write-Host 'Rule Set is already configured for Deny - Collecting current network configuration of StorageAccount (Blank Line = Nothing configured)'
   (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -AccountName ($SecurityTask.ResourceId.Split("/")[8])).VirtualNetworkRules
   (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -AccountName ($SecurityTask.ResourceId.Split("/")[8])).IpRules
-     
+  Update-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -Name ($SecurityTask.ResourceId.Split("/")[8]) -Bypass AzureServices,Metrics,Logging   
 
   }
   
