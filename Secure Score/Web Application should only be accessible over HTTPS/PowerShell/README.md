@@ -1,5 +1,12 @@
-# Azure Policy - deployIfNotExists
-This Azure Policy definition will ensure that during the creation of new Web Applications, HTTPS will be enabled. Also it will enable you to create a remediation task which will change the Web Application setting to enable HTTPS.
+# PowerShell script to remediate
+This PowerShell sample script allows you to enable HTTPS for all your Web Applications.
+
+Please ensure that you have installed the Azure Az Module.
+You can install the module by running the following in a PowerShell session:
+```powershell
+Install-Module Az
+```
+
 
 
 # Contributing
