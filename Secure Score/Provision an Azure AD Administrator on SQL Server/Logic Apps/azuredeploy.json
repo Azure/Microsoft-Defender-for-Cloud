@@ -7,7 +7,7 @@
             "type": "String"
         },
         "connections_azuread_externalid": {
-            "defaultValue": "/subscriptions/44e4eff8-1fcb-4a22-a7d6-992ac7286382/resourceGroups/CxE-Tiander/providers/Microsoft.Web/connections/azuread",
+            "defaultValue": "",
             "type": "String"
         }
     },
@@ -133,7 +133,7 @@
                                     {
                                         "name": "ADadminAccountUPN",
                                         "type": "String",
-                                        "value": "TianderSPN@seccxpninja.onmicrosoft.com"
+                                        "value": ""
                                     }
                                 ]
                             }
@@ -150,7 +150,7 @@
                                     {
                                         "name": "SqlResourceGroupName",
                                         "type": "String",
-                                        "value": "cxe-tiander"
+                                        "value": ""
                                     }
                                 ]
                             }
@@ -167,7 +167,7 @@
                                     {
                                         "name": "SqlServerName",
                                         "type": "String",
-                                        "value": "tiander-sql2"
+                                        "value": ""
                                     }
                                 ]
                             }
