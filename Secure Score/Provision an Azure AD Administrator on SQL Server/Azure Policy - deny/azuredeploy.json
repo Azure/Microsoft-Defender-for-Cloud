@@ -1,0 +1,40 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "Deny deployment of SQL Server if No AAD admin account is added",
+            "apiVersion": "2018-03-01",
+            "properties": {
+              "mode": "All",
+              "metadata":{
+                "category": "Security Center"
+            },
+              "parameters": {},
+              "policyRule": {
+                "if": {
+                  "allof": [
+                    {
+                      "field": "type",
+                      "equals": "Microsoft.SQL/servers"
+                    }
+                  ]
+                },
+                "then": {
+                      "effect": "deny",
+                      "details": {
+                        "type": "Microsoft.SQL/servers/administrators",
+                        "existenceCondition": {
+                          "field": "Microsoft.Sql/servers/administrators/administratorType",
+                          "equals": "ActiveDirectory"
+                        }
+                      }
+                    }
+               }
+              }
+        }
+    ]
+}
