@@ -1,10 +1,11 @@
-# Azure Policy - Deny
-This Azure Policy definition will **deny** the creation of a SQL Server if a Azure AD administrator is not added to the deployment or if the AAD administrator is removed. <br><br>
-After deployment you need to assign it and set the desired scope.
+# Azure Policy - deployIfNotExists
+This Azure Policy definition will ensure that during the creation of new Web Applications, HTTPS will be enabled. Also it will enable you to create a remediation task which will change the Web Application setting to enable HTTPS.<br>
+
+After the deployment, you need to assign it and set the desired scope.
 
 ### Deployment with PowerShell
 ```powershell
-New-AzDeployment -Name <yourDeploymentName> -Location <yourLocation> -TemplateFile 'https://github.com/Azure/Azure-Security-Center/blob/master/Secure%20Score/Provision%20an%20Azure%20AD%20Administrator%20on%20SQL%20Server/Azure%20Policy%20-%20deny/azuredeploy.json' -Verbose
+New-AzDeployment -Name <yourDeploymentName> -Location <yourLocation> -TemplateFile 'https://github.com/Azure/Azure-Security-Center/blob/master/Secure%20Score/Web%20Application%20should%20only%20be%20accessible%20over%20HTTPS/Azure%20Policy%20-%20deployIfNotExists/azuredeploy.json' -Verbose
 ```
 
 
