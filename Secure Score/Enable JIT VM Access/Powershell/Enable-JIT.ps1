@@ -49,7 +49,7 @@ Import-Module Az.Security
 Login-AzAccount
 
 # Get All Subs
-$Subscriptions = Get-AzSubscription -SubscriptionId 44e4eff8-1fcb-4a22-a7d6-992ac7286382
+$Subscriptions = Get-AzSubscription
 
 # Loop Through Subs for Tasks
 foreach($Subscription in $Subscriptions){
