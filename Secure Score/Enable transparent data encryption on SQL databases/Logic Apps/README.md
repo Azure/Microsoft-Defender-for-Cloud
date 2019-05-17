@@ -1,12 +1,11 @@
-# Azure Policy - Deny
-This Azure Policy definition will **deny** the creation of a SQL Server if a Azure AD administrator is not added to the deployment or if the AAD administrator is removed. <br><br>
-After deployment you need to assign it and set the desired scope.
+# Logic Apps sample playbook to remediate
+This sample playbook allows you to remediate Web Application instances that do not have HTTPS enabled according to ASC's recommendation *"Web Application should only be accessible over HTTPS"*
 
-### Deployment with PowerShell
-```powershell
-New-AzDeployment -Name <yourDeploymentName> -Location <yourLocation> -TemplateFile 'https://github.com/Azure/Azure-Security-Center/blob/master/Secure%20Score/Provision%20an%20Azure%20AD%20Administrator%20on%20SQL%20Server/Azure%20Policy%20-%20deny/azuredeploy.json' -Verbose
-```
+The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions on the resources that you would like to remediate.
 
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
 
 # Contributing
 
