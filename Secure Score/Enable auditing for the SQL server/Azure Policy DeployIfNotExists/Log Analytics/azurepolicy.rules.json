@@ -67,53 +67,53 @@
                         "location": "[parameters('location')]",
                         "name": "[parameters('serverName')]",
                         "resources": [
-                          {
-                            "type": "databases",
-                            "apiVersion": "2014-04-01",
-                            "location": "[parameters('location')]",
-                            "dependsOn": [
-                              "[parameters('serverName')]"
-                            ],
-                            "name": "master",
-                            "properties": {}
-                          },
-                          {
-                            "type": "databases/providers/diagnosticSettings",
-                            "name": "master/microsoft.insights/SQLServerAuditingSettings",
-                            "dependsOn": [
-                              "[parameters('serverName')]",
-                              "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/master')]"
-                            ],
-                            "apiVersion": "2017-05-01-preview",
-                            "properties": {
-                              "name": "SQLServerAuditingSettings",
-                              "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]",
-                              "logs": [
-                                {
-                                  "category": "SQLSecurityAuditEvents",
-                                  "enabled": true,
-                                  "retentionPolicy": {
-                                    "days": 0,
-                                    "enabled": false
-                                  }
-                                }
-                              ]
-                            }
-                          },
-                          {
-                            "apiVersion": "2017-03-01-preview",
-                            "type": "auditingSettings",
-                            "name": "DefaultAuditingSettings",
-                            "dependsOn": [
-                              "[parameters('serverName')]"
-                            ],
-                            "properties": {
-                              "State": "Enabled",
-                              "isAzureMonitorTargetEnabled": true
-                            }
-                          }
+                           {
+                              "type": "databases",
+                              "apiVersion": "2014-04-01",
+                              "location": "[parameters('location')]",
+                              "dependsOn": [
+                                 "[parameters('serverName')]"
+                              ],
+                              "name": "master",
+                              "properties": {}
+                           },
+                           {
+                              "type": "databases/providers/diagnosticSettings",
+                              "name": "master/microsoft.insights/SQLServerAuditingSettings",
+                              "dependsOn": [
+                                 "[parameters('serverName')]",
+                                 "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/databases/master')]"
+                              ],
+                              "apiVersion": "2017-05-01-preview",
+                              "properties": {
+                                 "name": "SQLServerAuditingSettings",
+                                 "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspaceName'))]",
+                                 "logs": [
+                                    {
+                                       "category": "SQLSecurityAuditEvents",
+                                       "enabled": true,
+                                       "retentionPolicy": {
+                                          "days": 0,
+                                          "enabled": false
+                                       }
+                                    }
+                                 ]
+                              }
+                           },
+                           {
+                              "apiVersion": "2017-03-01-preview",
+                              "type": "auditingSettings",
+                              "name": "DefaultAuditingSettings",
+                              "dependsOn": [
+                                 "[parameters('serverName')]"
+                              ],
+                              "properties": {
+                                 "State": "Enabled",
+                                 "isAzureMonitorTargetEnabled": true
+                              }
+                           }
                         ]
-                      }
+                     }
                   ]
                },
                "parameters": {
