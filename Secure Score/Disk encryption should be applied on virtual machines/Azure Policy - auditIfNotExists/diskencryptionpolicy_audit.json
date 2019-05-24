@@ -1,0 +1,47 @@
+{
+    "properties": {
+      "displayName": "Azure Disk Encryption - auditIfNotExists",
+      "policyType": "Custom",
+      "mode": "All",
+      "metadata": {
+        "category": "Anthony",
+        "createdBy": "2b2e5983-18b7-4b63-b87e-34de934cc906",
+        "createdOn": "2019-05-17T17:48:35.6015865Z",
+        "updatedBy": "2b2e5983-18b7-4b63-b87e-34de934cc906",
+        "updatedOn": "2019-05-17T19:54:00.5085977Z"
+      },
+      "parameters": {},
+      "policyRule": {
+        "if": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/disks/encryptionSettingsCollection.enabled",
+                  "equals": "False"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/disks/encryptionSettingsCollection.enabled",
+                  "exists": "False"
+                },
+                {
+                  "field": "type",
+                  "equals": "Microsoft.Compute/disks"
+                }
+              ]
+            }
+          ]
+        },
+        "then": {
+          "effect": "audit"
+        }
+      }
+    },
+    "id": "/subscriptions/44e4eff8-1fcb-4a22-a7d6-992ac7286382/providers/Microsoft.Authorization/policyDefinitions/84cf88d4-02ef-4f0f-a826-d3b36e74219a",
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "84cf88d4-02ef-4f0f-a826-d3b36e74219a"
+  }

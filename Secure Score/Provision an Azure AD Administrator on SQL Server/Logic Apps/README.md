@@ -1,13 +1,11 @@
-# Samples for remediating "Web Application should only be accessible over HTTPS"
-These samples provide various ways to resolve the "*Web Application should only be accessible over HTTPS*" recommendation in Azure Security Center. There are four samples:
-* PowerShell script - will loop through and remediate each instance 
-    * Requires the Azure (Az) PowerShell module
-* Logic Apps Playbook - uses the REST API to enumerate and remediate each instance 
-    * Will create a managed service principal. This will need to be added to the subscription with the appropriete access
-* Azure Policy definitions
-    * Deny Policy - This will prevent someone from changing the HTTPS setting back to disabled and prevents the creation of new instances which are not using HTTPS
-    * deployIfNotExist Policy - This allows to run a remediation task
+# Logic Apps sample playbook to remediate
+This sample playbook allows you to provision a AzureAD administrator on your SQL Server, according to ASC's recommendation *"Provision an Azure AD Administrator on SQL Server"*
 
+The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriate permissions on the resources that you would like to remediate.
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FProvision%2520an%2520Azure%2520AD%2520Administrator%2520on%2520SQL%2520Server%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
 
 # Contributing
 
