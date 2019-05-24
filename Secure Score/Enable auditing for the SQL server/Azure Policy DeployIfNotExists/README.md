@@ -14,7 +14,7 @@ We copied the built-in policy for Storage and edited for Log A.
 
 # Event Hub
 
-We copied the built-in policy for Storage and edited for Event Hub.
+No samples creted, but if you create one please contribute to this site.
 
 # Contributing
 
