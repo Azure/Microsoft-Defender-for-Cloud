@@ -1,26 +1,15 @@
+# Samples for discoverying tenant wide subscprtion management
 
-# What this PowerShell script walks through
+These samples provide various ways to discover your tenant information with mulitlpe subscrptions for Azure Security Center.
 
-  1. Seeking all of your subscrptions within your tenant, looking for the following rule "Restrict access to App Services" within your Azure Security Center recommendtations list
-  2. You'll be prompted for the WebApp service that is too not meeting the correct restrctions for your secure score, asking for the following required configurations
-
-    A. Name
-    B. Action ( "Alloy or Deny' )
-    C. Priority
-    D. IP address block
-  3. This process will repeat untill all App services have been configured
-More information mentioned here : https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions
+* AzASCSubCount.ps1
+    - This is walking through the following: (precheck for modules included in script)
+        1. Logging into your tenant - suggested global admin to get full tenant/all subscrption infromation
+        2. Checking each subscrption within your tenant and collecting the information to be pasred (Note this can take up to 30 seconds per subscrption)
+        3. After checking each subscrption it'll provide a text format of which subscrptions it searched, which subscrptions have "free" and "standard" enabled, for which type. Addtionaly it's checking to see a total of Virtual Machines that have been provisioned or not provisioned within your Azure Tenant.
 
 
-## Module Requirements
 
-  Az.Resources
-  Az.Accounts
-  Az.Security
-
-## Known Issues
-    
-  AzureRM Module mixed in with Az Module will break scripting due to conflict of current migration
 
 
 # Contributing

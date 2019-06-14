@@ -10,10 +10,10 @@
         },
         "sku": {
             "type": "string",
-             "allowedValues": [
-              "Standalone",
-              "PerNode",
-              "PerGB2018"
+            "allowedValues": [
+                "Standalone",
+                "PerNode",
+                "PerGB2018"
             ],
             "defaultValue": "PerGB2018",
             "metadata": {
@@ -32,12 +32,12 @@
                     "name": "[parameters('sku')]"
                 }
             }
-          }
-       ],
-       "outputs": {
-            "workspaceId": {
-                "type": "string",
-                "value": "[reference(parameters('workspaceName')).customerId]"
-            }
+        }
+    ],
+    "outputs": {
+        "workspaceId": {
+            "type": "string",
+            "value": "[reference(parameters('workspaceName')).customerId]"
         }
     }
+}

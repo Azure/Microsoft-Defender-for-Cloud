@@ -119,13 +119,10 @@ foreach($SecurityTask in $SecurityTasks){
 
 if  (-not ( ((Get-AzContext).Subscription.id) -eq ($SecurityTask.ResourceId.Split("/")[2])) ) {
 
-  Clear-AzContext -Force
-  Connect-AzAccount -SubscriptionId ($SecurityTask.ResourceId.Split("/")[2])
+  Select-AzSubscription ($SecurityTask.ResourceId.Split("/")[2])
   
   }   
  
-
-
 if  (-not ((Get-AzStorageAccountNetworkRuleSet -ResourceGroupName ($SecurityTask.ResourceId.Split("/")[4]) -AccountName ($SecurityTask.ResourceId.Split("/")[8])).DefaultAction -eq $Deny) ) {
 
   Write-Host  'Changing Storage Network to "Deny", Required Configuration Change to add IP restrctions see "https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security"'

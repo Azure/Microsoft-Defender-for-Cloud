@@ -1,26 +1,5 @@
-
-# What this PowerShell script walks through
-
-  1. Seeking all of your subscrptions within your tenant, looking for the following rule "Restrict access to App Services" within your Azure Security Center recommendtations list
-  2. You'll be prompted for the WebApp service that is too not meeting the correct restrctions for your secure score, asking for the following required configurations
-
-    A. Name
-    B. Action ( "Alloy or Deny' )
-    C. Priority
-    D. IP address block
-  3. This process will repeat untill all App services have been configured
-More information mentioned here : https://docs.microsoft.com/en-us/azure/app-service/app-service-ip-restrictions
-
-
-## Module Requirements
-
-  Az.Resources
-  Az.Accounts
-  Az.Security
-
-## Known Issues
-    
-  AzureRM Module mixed in with Az Module will break scripting due to conflict of current migration
+# Azure Policy samples for configuring ASC
+These Azure Policy samples showcase how Security Center can be configured through Policy.
 
 
 # Contributing

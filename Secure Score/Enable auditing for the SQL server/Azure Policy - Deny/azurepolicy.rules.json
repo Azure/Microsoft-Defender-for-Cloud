@@ -1,0 +1,17 @@
+{
+    "if": {
+        "field": "type",
+        "equals": "Microsoft.Sql/servers"
+    },
+    "then": {
+        "effect": "Deny",
+        "details": {
+            "type": "Microsoft.Sql/servers/auditingSettings",
+            "name": "default",
+            "existenceCondition": {
+                "field": "Microsoft.Sql/auditingSettings.state",
+                "equals": "Disabled"
+            }
+        }
+    }
+}

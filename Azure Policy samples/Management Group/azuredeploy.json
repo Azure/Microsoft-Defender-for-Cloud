@@ -1,15 +1,29 @@
 {
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
-    "parameters": {},
+    "parameters": {
+      "policyDefinitionName": {
+          "type": "string",
+          "defaultValue": "deny-unsecure-web"
+      },
+      "policyAssignmentName": {
+          "type": "string",
+          "defaultValue": "assign-deny-unsecure-web"
+      },
+      "mgmtGroupId": {
+          "type": "string",
+          "defaultValue": "Root"
+      }
+  },
     "variables": {},
     "resources": [
         {
             "type": "Microsoft.Authorization/policyDefinitions",
-            "name": "Web Application - Deny if HTTPS is not enabled",
+            "name": "[parameters('policyDefinitionName')]",
             "apiVersion": "2018-03-01",
             "properties": {
                 "policyType": "Custom",
+                "parameters": {},
                 "metadata":{
                     "category": "Security Center"
                 },
@@ -39,9 +53,20 @@
                       }
                     }
                   }
-                },
-                "parameters": {}
+                }
               }
-        }
+        },
+        {
+          "type": "Microsoft.Authorization/policyAssignments",
+          "name": "[parameters('policyAssignmentName')]",
+          "apiVersion": "2016-12-01",
+          "dependsOn": [
+              "[parameters('policyDefinitionName')]"
+          ],
+          "properties": {
+              "scope": "[concat('/providers/Microsoft.Management/managementGroups/', parameters('mgmtGroupId'))]",
+              "policyDefinitionId": "[concat('/providers/Microsoft.Management/managementGroups/', parameters('mgmtGroupId'), '/providers/', 'Microsoft.Authorization/policyDefinitions/', parameters('policyDefinitionName'))]"
+          }
+      }
     ]
 }
