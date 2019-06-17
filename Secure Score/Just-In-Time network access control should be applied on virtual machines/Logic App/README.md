@@ -2,7 +2,7 @@
 
 This logic app will find all Security Score recommendations for JIT VM Access and create access policies for each VM for ports 22 and 3389.
 
-The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions on the resources that you would like to remediate.
+The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete subscription permissions (contributor) on the resources (subscriptions, tasks, and VMs) that you would like to remediate.
 
 # Contributing
 
