@@ -4,6 +4,10 @@ This logic app will find all Security Score recommendations for JIT VM Access an
 
 The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete subscription permissions (contributor) on the resources (subscriptions, tasks, and VMs) that you would like to remediate.
 
+<a href="https://azuredeploy.net/" target="_blank">
+    <img src="https://azuredeploy.net/deploybutton.png"/>
+</a>
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
