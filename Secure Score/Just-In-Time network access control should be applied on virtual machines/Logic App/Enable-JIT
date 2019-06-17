@@ -1,0 +1,298 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "For_each": {
+                "actions": {
+                    "For_each_2": {
+                        "actions": {
+                            "Condition": {
+                                "actions": {
+                                    "HTTP_3": {
+                                        "description": "Create Security Center 'Jit Network Access Policy' per VM",
+                                        "inputs": {
+                                            "authentication": {
+                                                "type": "ManagedServiceIdentity"
+                                            },
+                                            "body": {
+                                                "kind": "Basic",
+                                                "properties": {
+                                                    "virtualMachines": [
+                                                        {
+                                                            "id": "@{variables('Resource ID')}",
+                                                            "ports": [
+                                                                {
+                                                                    "allowedSourceAddressPrefix": "*",
+                                                                    "maxRequestAccessDuration": "PT3H",
+                                                                    "number": 22,
+                                                                    "protocol": "*"
+                                                                },
+                                                                {
+                                                                    "allowedSourceAddressPrefix": "*",
+                                                                    "maxRequestAccessDuration": "PT3H",
+                                                                    "number": 3389,
+                                                                    "protocol": "*"
+                                                                }
+                                                            ]
+                                                        }
+                                                    ]
+                                                }
+                                            },
+                                            "method": "PUT",
+                                            "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{first(skip(split(variables('Resource ID'), '/'), 4))}/providers/Microsoft.Security/locations/@{first(skip(split(variables('JIT Policy'), '/'), 8))}/jitNetworkAccessPolicies/@{first(skip(split(variables('Resource ID'), '/'), 8))}JITPolicy?api-version=2015-06-01-preview"
+                                        },
+                                        "runAfter": {
+                                            "Set_variable_2": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "Http"
+                                    },
+                                    "Set_variable": {
+                                        "inputs": {
+                                            "name": "JIT Policy",
+                                            "value": "@items('For_each_2')?['id']"
+                                        },
+                                        "runAfter": {},
+                                        "type": "SetVariable"
+                                    },
+                                    "Set_variable_2": {
+                                        "inputs": {
+                                            "name": "Resource ID",
+                                            "value": "@items('For_each_2')?['properties']?['securityTaskParameters']?['resourceId']"
+                                        },
+                                        "runAfter": {
+                                            "Set_variable": [
+                                                "Succeeded"
+                                            ]
+                                        },
+                                        "type": "SetVariable"
+                                    }
+                                },
+                                "description": "Check if task is regarding the Apply a Just-In-Time network access control Policy",
+                                "expression": {
+                                    "and": [
+                                        {
+                                            "equals": [
+                                                "@items('For_each_2')?['properties']?['securityTaskParameters']?['policyName']",
+                                                "Apply a Just-In-Time network access control"
+                                            ]
+                                        }
+                                    ]
+                                },
+                                "runAfter": {},
+                                "type": "If"
+                            }
+                        },
+                        "description": "For Each Task",
+                        "foreach": "@body('Parse_JSON_2')?['value']",
+                        "runAfter": {
+                            "Parse_JSON_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "Foreach"
+                    },
+                    "HTTP_2": {
+                        "description": "Get Security Center Recommendations (Tasks)",
+                        "inputs": {
+                            "authentication": {
+                                "type": "ManagedServiceIdentity"
+                            },
+                            "method": "GET",
+                            "uri": "https://management.azure.com@{items('For_each')?['id']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
+                        },
+                        "runAfter": {},
+                        "type": "Http"
+                    },
+                    "Parse_JSON_2": {
+                        "description": "Parse Tasks",
+                        "inputs": {
+                            "content": "@body('HTTP_2')",
+                            "schema": {
+                                "properties": {
+                                    "value": {
+                                        "items": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "properties": {
+                                                    "properties": {
+                                                        "securityTaskParameters": {
+                                                            "properties": {
+                                                                "policyName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "resourceId": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "type",
+                                                "properties"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "type": "array"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "runAfter": {
+                            "HTTP_2": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ParseJson"
+                    }
+                },
+                "description": "For Each Subscription",
+                "foreach": "@body('Parse_JSON')?['value']",
+                "runAfter": {
+                    "Parse_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "HTTP": {
+                "description": "Get Subscriptions",
+                "inputs": {
+                    "authentication": {
+                        "type": "ManagedServiceIdentity"
+                    },
+                    "method": "GET",
+                    "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
+                },
+                "runAfter": {
+                    "Initialize_variable_2": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_variable": {
+                "description": "Create variable to hold resource ID",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "Resource ID",
+                            "type": "String",
+                            "value": "null"
+                        }
+                    ]
+                },
+                "runAfter": {},
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_2": {
+                "description": "Create variable to hold Task ID relevant for Create JIT API",
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "JIT Policy",
+                            "type": "String",
+                            "value": "null"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Parse_JSON": {
+                "description": "Parse Subscriptions",
+                "inputs": {
+                    "content": "@body('HTTP')",
+                    "schema": {
+                        "properties": {
+                            "value": {
+                                "items": {
+                                    "properties": {
+                                        "authorizationSource": {
+                                            "type": "string"
+                                        },
+                                        "displayName": {
+                                            "type": "string"
+                                        },
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "state": {
+                                            "type": "string"
+                                        },
+                                        "subscriptionId": {
+                                            "type": "string"
+                                        },
+                                        "subscriptionPolicies": {
+                                            "properties": {
+                                                "locationPlacementId": {
+                                                    "type": "string"
+                                                },
+                                                "quotaId": {
+                                                    "type": "string"
+                                                },
+                                                "spendingLimit": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "subscriptionId",
+                                        "displayName",
+                                        "state",
+                                        "subscriptionPolicies",
+                                        "authorizationSource"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "HTTP": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {},
+        "triggers": {
+            "Recurrence": {
+                "recurrence": {
+                    "frequency": "Day",
+                    "interval": 1
+                },
+                "type": "Recurrence"
+            }
+        }
+    }
+}
