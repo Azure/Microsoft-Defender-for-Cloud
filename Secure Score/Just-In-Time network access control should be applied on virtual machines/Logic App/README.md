@@ -4,7 +4,7 @@ This logic app will find all Security Score recommendations for JIT VM Access an
 
 The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete subscription permissions (contributor) on the resources (subscriptions, tasks, and VMs) that you would like to remediate.
 
-<a href="https://azuredeploy.net/" target="_blank">
+<a href="href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FJust-In-Time%2520network%2520access%2520control%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-JIT.json" target="_blank">>
     <img src="https://azuredeploy.net/deploybutton.png"/>
 </a>
 
