@@ -1,3 +1,12 @@
+# Azure Security Center - improving your Secure Score
+This repository contains several samples to help you automate the remediation of Security Center's recommendations, which will lead to a higher <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">secure score</a>.
+The samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.<br>
+
+The samples that are provided are from the following type:
+* **Azure Policy definitions** - allow you to deny, enforce and remediate the configuration of your Azure resources
+* **Logic Apps playbooks** - allow you to remediate non-compliant resources using orchestration automation
+* **PowerShell scripts** - allow you to remediate non-compliant resources using PowerShell
+
 
 # Contributing
 
