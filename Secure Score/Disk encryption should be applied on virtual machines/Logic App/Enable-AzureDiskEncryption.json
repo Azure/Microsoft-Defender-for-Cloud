@@ -15,8 +15,8 @@
             "name": "[parameters('workflows_ApplyDiskEncryption_name')]",
             "location": "eastus",
             "identity": {
-                "principalId": "f221d6b3-5ae8-4e0a-91f7-ed9df3b201e1",
-                "tenantId": "e830a05e-3fc4-44b5-969f-165ee88f6c27",
+                "principalId": "",
+                "tenantId": "",
                 "type": "SystemAssigned"
             },
             "properties": {
@@ -35,23 +35,23 @@
                         }
                     },
                     "actions": {
-                        "For_each": {
-                            "foreach": "@body('Parse_JSON')?['value']",
+                        "For_Each_Subscription": {
+                            "foreach": "@body('Parse_Subscriptions')?['value']",
                             "actions": {
-                                "For_each_2": {
-                                    "foreach": "@body('Parse_JSON_2')?['value']",
+                                "For_Each_Security_Task": {
+                                    "foreach": "@body('Parse_Security_Tasks')?['value']",
                                     "actions": {
-                                        "Condition": {
+                                        "If_Task_Contains_Unencrypted_Disks": {
                                             "actions": {
-                                                "For_each_3": {
-                                                    "foreach": "@body('Parse_JSON_3')?['resources']",
+                                                "For_Each_VM": {
+                                                    "foreach": "@body('Parse_VM_Details')?['resources']",
                                                     "actions": {
-                                                        "For_each_4": {
-                                                            "foreach": "@body('Parse_JSON_4')?['value']",
+                                                        "For_Each_Tenant": {
+                                                            "foreach": "@body('Parse_Tenants')?['value']",
                                                             "actions": {
-                                                                "Condition_2": {
+                                                                "If_VM_Is_Linux": {
                                                                     "actions": {
-                                                                        "HTTP_5": {
+                                                                        "Apply_Disk_Encryption_For_Linux": {
                                                                             "runAfter": {},
                                                                             "type": "Http",
                                                                             "inputs": {
@@ -59,13 +59,13 @@
                                                                                     "type": "ManagedServiceIdentity"
                                                                                 },
                                                                                 "body": {
-                                                                                    "location": "@{body('Parse_JSON_8')?['location']}",
+                                                                                    "location": "@{body('Parse_Key_Vaults')?['location']}",
                                                                                     "properties": {
                                                                                         "autoUpgradeMinorVersion": true,
                                                                                         "settings": {
                                                                                             "EncryptionOperation": "EnableEncryption",
-                                                                                            "KeyVaultResourceId": "@{body('Parse_JSON_8')?['id']}",
-                                                                                            "KeyVaultURL": "@{body('Parse_JSON_8')?['properties']?['vaultUri']}",
+                                                                                            "KeyVaultResourceId": "@{body('Parse_Key_Vaults')?['id']}",
+                                                                                            "KeyVaultURL": "@{body('Parse_Key_Vaults')?['properties']?['vaultUri']}",
                                                                                             "VolumeType": "All"
                                                                                         },
                                                                                         "type": "AzureDiskEncryptionForLinux",
@@ -73,18 +73,18 @@
                                                                                     }
                                                                                 },
                                                                                 "method": "PUT",
-                                                                                "uri": "https://management.azure.com/@{items('For_each')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_JSON_3')?['name']}/extensions/AzureDiskEncryptionForLinux?api-version=2018-06-01"
+                                                                                "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_VM_Details')?['name']}/extensions/AzureDiskEncryptionForLinux?api-version=2018-06-01"
                                                                             }
                                                                         }
                                                                     },
                                                                     "runAfter": {
-                                                                        "Parse_JSON_8": [
+                                                                        "Parse_Key_Vaults": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
                                                                     "else": {
                                                                         "actions": {
-                                                                            "HTTP_10": {
+                                                                            "Apply_Disk_Encryption_For_Windows": {
                                                                                 "runAfter": {},
                                                                                 "type": "Http",
                                                                                 "inputs": {
@@ -92,14 +92,14 @@
                                                                                         "type": "ManagedServiceIdentity"
                                                                                     },
                                                                                     "body": {
-                                                                                        "location": "@{body('Parse_JSON_3')?['location']}",
+                                                                                        "location": "@{body('Parse_VM_Details')?['location']}",
                                                                                         "properties": {
                                                                                             "autoUpgradeMinorVersion": true,
                                                                                             "publisher": "Microsoft.Azure.Security",
                                                                                             "settings": {
                                                                                                 "EncryptionOperation": "EnableEncryption",
-                                                                                                "KeyVaultResourceId": "@{body('Parse_JSON_8')?['id']}",
-                                                                                                "KeyVaultURL": "@{body('Parse_JSON_8')?['properties']?['vaultUri']}",
+                                                                                                "KeyVaultResourceId": "@{body('Parse_Key_Vaults')?['id']}",
+                                                                                                "KeyVaultURL": "@{body('Parse_Key_Vaults')?['properties']?['vaultUri']}",
                                                                                                 "ResizeOSDisk": "false",
                                                                                                 "VolumeType": "All"
                                                                                             },
@@ -108,7 +108,7 @@
                                                                                         }
                                                                                     },
                                                                                     "method": "PUT",
-                                                                                    "uri": "https://management.azure.com/@{items('For_each')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_JSON_3')?['name']}/extensions/AzureDiskEncryption?api-version=2018-06-01"
+                                                                                    "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_VM_Details')?['name']}/extensions/AzureDiskEncryption?api-version=2018-06-01"
                                                                                 }
                                                                             }
                                                                         }
@@ -117,7 +117,7 @@
                                                                         "and": [
                                                                             {
                                                                                 "equals": [
-                                                                                    "@body('Parse_JSON_3')?['properties']?['storageProfile']?['osDisk']?['osType']",
+                                                                                    "@body('Parse_VM_Details')?['properties']?['storageProfile']?['osDisk']?['osType']",
                                                                                     "Linux"
                                                                                 ]
                                                                             }
@@ -125,7 +125,7 @@
                                                                     },
                                                                     "type": "If"
                                                                 },
-                                                                "HTTP_8": {
+                                                                "Create_Key_Vault": {
                                                                     "runAfter": {},
                                                                     "type": "Http",
                                                                     "inputs": {
@@ -133,7 +133,7 @@
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "body": {
-                                                                            "location": "@{body('Parse_JSON_7')?['location']}",
+                                                                            "location": "@{body('Parse_Resource_Groups')?['location']}",
                                                                             "properties": {
                                                                                 "accessPolicies": [],
                                                                                 "enabledForDeployment": true,
@@ -143,22 +143,22 @@
                                                                                     "family": "A",
                                                                                     "name": "standard"
                                                                                 },
-                                                                                "tenantId": "@{items('For_each_4')?['tenantId']}"
+                                                                                "tenantId": "@{items('For_Each_Tenant')?['tenantId']}"
                                                                             }
                                                                         },
                                                                         "method": "PUT",
-                                                                        "uri": "https://management.azure.com/@{items('For_each')?['id']}/resourceGroups/@{body('Parse_JSON_7')?['name']}/providers/Microsoft.KeyVault/vaults/@{body('Parse_JSON_7')?['location']}@{substring(first(split(first(skip(split(variables('VMRG'), '/'), 2)), '-')), 0, 5)}?api-version=2018-02-14"
+                                                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{body('Parse_Resource_Groups')?['name']}/providers/Microsoft.KeyVault/vaults/@{body('Parse_Resource_Groups')?['location']}@{substring(first(split(first(skip(split(variables('VMRG'), '/'), 2)), '-')), 0, 5)}?api-version=2018-02-14"
                                                                     }
                                                                 },
-                                                                "Parse_JSON_8": {
+                                                                "Parse_Key_Vaults": {
                                                                     "runAfter": {
-                                                                        "HTTP_8": [
+                                                                        "Create_Key_Vault": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
                                                                     "type": "ParseJson",
                                                                     "inputs": {
-                                                                        "content": "@body('HTTP_8')",
+                                                                        "content": "@body('Create_Key_Vault')",
                                                                         "schema": {
                                                                             "properties": {
                                                                                 "id": {
@@ -221,15 +221,15 @@
                                                                 }
                                                             },
                                                             "runAfter": {
-                                                                "Parse_JSON_4": [
+                                                                "Parse_Tenants": [
                                                                     "Succeeded"
                                                                 ]
                                                             },
                                                             "type": "Foreach"
                                                         },
-                                                        "HTTP_4": {
+                                                        "Get_Tenants": {
                                                             "runAfter": {
-                                                                "Parse_JSON_7": [
+                                                                "Parse_Resource_Groups": [
                                                                     "Succeeded"
                                                                 ]
                                                             },
@@ -242,7 +242,7 @@
                                                                 "uri": "https://management.azure.com/tenants?api-version=2016-06-01"
                                                             }
                                                         },
-                                                        "HTTP_9": {
+                                                        "Create_Resource_Group": {
                                                             "runAfter": {},
                                                             "type": "Http",
                                                             "inputs": {
@@ -250,21 +250,21 @@
                                                                     "type": "ManagedServiceIdentity"
                                                                 },
                                                                 "body": {
-                                                                    "location": "@{body('Parse_JSON_3')?['location']}"
+                                                                    "location": "@{body('Parse_VM_Details')?['location']}"
                                                                 },
                                                                 "method": "PUT",
-                                                                "uri": "https://management.azure.com/@{items('For_each')?['id']}/resourcegroups/DiskEncryptionRG-@{body('Parse_JSON_3')?['location']}?api-version=2018-05-01"
+                                                                "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourcegroups/DiskEncryptionRG-@{body('Parse_VM_Details')?['location']}?api-version=2018-05-01"
                                                             }
                                                         },
-                                                        "Parse_JSON_4": {
+                                                        "Parse_Tenants": {
                                                             "runAfter": {
-                                                                "HTTP_4": [
+                                                                "Get_Tenants": [
                                                                     "Succeeded"
                                                                 ]
                                                             },
                                                             "type": "ParseJson",
                                                             "inputs": {
-                                                                "content": "@body('HTTP_4')",
+                                                                "content": "@body('Get_Tenants')",
                                                                 "schema": {
                                                                     "properties": {
                                                                         "value": {
@@ -290,15 +290,15 @@
                                                                 }
                                                             }
                                                         },
-                                                        "Parse_JSON_7": {
+                                                        "Parse_Resource_Groups": {
                                                             "runAfter": {
-                                                                "HTTP_9": [
+                                                                "Create_Resource_Group": [
                                                                     "Succeeded"
                                                                 ]
                                                             },
                                                             "type": "ParseJson",
                                                             "inputs": {
-                                                                "content": "@body('HTTP_9')",
+                                                                "content": "@body('Create_Resource_Group')",
                                                                 "schema": {
                                                                     "properties": {
                                                                         "id": {
@@ -325,16 +325,16 @@
                                                         }
                                                     },
                                                     "runAfter": {
-                                                        "Parse_JSON_3": [
+                                                        "Parse_VM_Details": [
                                                             "Succeeded"
                                                         ]
                                                     },
                                                     "type": "Foreach",
                                                     "description": "For Each VM Not Encrypted"
                                                 },
-                                                "HTTP_3": {
+                                                "Get_VM_Details": {
                                                     "runAfter": {
-                                                        "Set_variable": [
+                                                        "Set_RG_Variable": [
                                                             "Succeeded"
                                                         ]
                                                     },
@@ -344,19 +344,19 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
-                                                        "uri": "https://management.azure.com/@{items('For_each')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{items('For_each_2')?['properties']?['securityTaskParameters']?['vmName']}?api-version=2018-06-01"
+                                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['vmName']}?api-version=2018-06-01"
                                                     },
                                                     "description": "Get VM Information"
                                                 },
-                                                "Parse_JSON_3": {
+                                                "Parse_VM_Details": {
                                                     "runAfter": {
-                                                        "HTTP_3": [
+                                                        "Get_VM_Details": [
                                                             "Succeeded"
                                                         ]
                                                     },
                                                     "type": "ParseJson",
                                                     "inputs": {
-                                                        "content": "@body('HTTP_3')",
+                                                        "content": "@body('Get_VM_Details')",
                                                         "schema": {
                                                             "properties": {
                                                                 "id": {
@@ -559,12 +559,12 @@
                                                     },
                                                     "description": "Parse VM Information"
                                                 },
-                                                "Set_variable": {
+                                                "Set_RG_Variable": {
                                                     "runAfter": {},
                                                     "type": "SetVariable",
                                                     "inputs": {
                                                         "name": "VMRG",
-                                                        "value": "@items('For_each_2')?['properties']?['securityTaskParameters']?['vmId']"
+                                                        "value": "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['vmId']"
                                                     }
                                                 }
                                             },
@@ -573,13 +573,13 @@
                                                 "or": [
                                                     {
                                                         "equals": [
-                                                            "@items('For_each_2')?['properties']?['securityTaskParameters']?['isOsDiskEncrypted']",
+                                                            "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['isOsDiskEncrypted']",
                                                             false
                                                         ]
                                                     },
                                                     {
                                                         "equals": [
-                                                            "@items('For_each_2')?['properties']?['securityTaskParameters']?['isDataDiskEncrypted']",
+                                                            "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['isDataDiskEncrypted']",
                                                             false
                                                         ]
                                                     }
@@ -590,14 +590,14 @@
                                         }
                                     },
                                     "runAfter": {
-                                        "Parse_JSON_2": [
+                                        "Parse_Security_Tasks": [
                                             "Succeeded"
                                         ]
                                     },
                                     "type": "Foreach",
                                     "description": "For Each Task"
                                 },
-                                "HTTP_2": {
+                                "Get_Security_Tasks": {
                                     "runAfter": {},
                                     "type": "Http",
                                     "inputs": {
@@ -605,19 +605,19 @@
                                             "type": "ManagedServiceIdentity"
                                         },
                                         "method": "GET",
-                                        "uri": "https://management.azure.com/@{items('For_each')?['id']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
+                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
                                     },
                                     "description": "Get Security Center Recommendations (Tasks)"
                                 },
-                                "Parse_JSON_2": {
+                                "Parse_Security_Tasks": {
                                     "runAfter": {
-                                        "HTTP_2": [
+                                        "Get_Security_Tasks": [
                                             "Succeeded"
                                         ]
                                     },
                                     "type": "ParseJson",
                                     "inputs": {
-                                        "content": "@body('HTTP_2')",
+                                        "content": "@body('Get_Security_Tasks')",
                                         "schema": {
                                             "properties": {
                                                 "value": {
@@ -697,16 +697,16 @@
                                 }
                             },
                             "runAfter": {
-                                "Parse_JSON": [
+                                "Parse_Subscriptions": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "Foreach",
                             "description": "For Each Subscription"
                         },
-                        "HTTP": {
+                        "Get_Subscriptions": {
                             "runAfter": {
-                                "Initialize_variable": [
+                                "Initialize_RG_Variable": [
                                     "Succeeded"
                                 ]
                             },
@@ -720,7 +720,7 @@
                             },
                             "description": "Get Subscriptions"
                         },
-                        "Initialize_variable": {
+                        "Initialize_RG_Variable": {
                             "runAfter": {},
                             "type": "InitializeVariable",
                             "inputs": {
@@ -733,15 +733,15 @@
                                 ]
                             }
                         },
-                        "Parse_JSON": {
+                        "Parse_Subscriptions": {
                             "runAfter": {
-                                "HTTP": [
+                                "Get_Subscriptions": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "ParseJson",
                             "inputs": {
-                                "content": "@body('HTTP')",
+                                "content": "@body('Get_Subscriptions')",
                                 "schema": {
                                     "properties": {
                                         "value": {
