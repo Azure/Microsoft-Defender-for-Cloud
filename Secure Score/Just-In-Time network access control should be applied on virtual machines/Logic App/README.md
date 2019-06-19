@@ -1,12 +1,13 @@
-# Azure Security Center - improving your Secure Score
-This repository contains several samples to help you improve your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">secure score</a>.<br>
-The samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.<br>
+# Logic Apps sample playbook to remediate
 
-The samples that are provided are from the following type:
-* **Azure Policy definitions** - allow you to deny, enforce and remediate the configuration of your Azure resources
-* **Logic Apps playbooks** - allow you to remediate non-compliant resources using orchestration automation
-* **PowerShell scripts** - allow you to remediate non-compliant resources using PowerShell
+This logic app will find all Security Score recommendations for JIT VM Access and create access policies for each VM for ports 22 and 3389.
 
+The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete subscription permissions (contributor) on the resources (subscriptions, tasks, and VMs) that you would like to remediate.
+
+<a
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FJust-In-Time%2520network%2520access%2520control%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-JIT.json" target="_blank">
+    <img src="https://azuredeploy.net/deploybutton.png"/>
+</a>
 
 # Contributing
 
