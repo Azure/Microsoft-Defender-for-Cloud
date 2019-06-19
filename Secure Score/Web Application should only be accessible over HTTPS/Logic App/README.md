@@ -1,22 +1,12 @@
 # Logic Apps sample playbook to remediate
 This sample playbook allows you to remediate Web Application instances that do not have HTTPS enabled according to ASC's recommendation *"Web Application should only be accessible over HTTPS"*
 
-The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions on the resources that you would like to remediate.
+**Post deployment steps**<br>
+* The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions for the resources that you would like to remediate
+* A schedule has been configured to run each month, modify this according your need
+
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520App%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
-# Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
-
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
