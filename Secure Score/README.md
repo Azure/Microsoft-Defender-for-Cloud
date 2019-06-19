@@ -1,5 +1,5 @@
 # Azure Security Center - improving your Secure Score
-This repository contains several samples to help you automate the remediation of Security Center's recommendations, which will lead to a higher <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">secure score</a>.
+This repository contains several samples to help you improve your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">secure score</a>.<br>
 The samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.<br>
 
 The samples that are provided are from the following type:
