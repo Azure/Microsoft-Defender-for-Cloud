@@ -1,6 +1,6 @@
-# Azure Policy - auditIfNotExists
+# Azure Policy - deployIfNotExists
 
-The policy will audit any OS or data disks that are not encrypted with Azure Disk Encryption.
+The policy will audit any Linux disks that are not encrypted with Azure Disk Encryption and provide the ability to remediate. This policy needs to be assigned to a specific location, and requires a Key Vault to exist in that location that is enabled for disk encryption. The permissions of the Managed Identity must also be changed to allow interaction with the Key Vault (default permissions are Virtual Machine Contributor).
 
 # Contributing
 
