@@ -40,20 +40,39 @@ foreach($VM in $targetVMs)
     Write-Output "`r`n"
     Write-Host "*** Trying to install the MMA VM extension on" $VM.VMname "- Subscription:" $VM.SubScriptionName -ForegroundColor Green
     Write-Host "Setting subscription..." -ForegroundColor Green
-    try
-    {
-        Set-AzContext -Subscription $VM.SubScriptionName
-        Write-Host "Installing....please wait..." -ForeGroundColor Green
+    if ($VMs.StorageProfile.OsDisk.OsType -eq "Windows") {
+        try
+        {
+            Set-AzContext -Subscription $VM.SubScriptionName
+            Write-Host "Installing....please wait..." -ForeGroundColor Green
+            Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
+            -Name MicrosoftMonitoringAgent `
+            -TypeHandlerVersion 1.0 `
+            -Publisher Microsoft.EnterpriseCloud.Monitoring  `
+            -ExtensionType MicrosoftMonitoringAgent `
+            -Settings $publicSettings `
+            -ProtectedSettings $protectedSettings `
+            -Location $VM.Location
+            Write-Host "Done!" -ForeGroundColor Green
+        
+        }
+        catch {Write-Host "Could not set subscription or could not install the VM extension" -ForegroundColor Red}
+        
+    }
+    #VM is of type Linux
+    elseif ($VMs.StorageProfile.OsDisk.OsType -eq "Linux") {
         Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
         -Name MicrosoftMonitoringAgent `
-        -TypeHandlerVersion 1.0 `
+        -TypeHandlerVersion 1.7 `
         -Publisher Microsoft.EnterpriseCloud.Monitoring  `
-        -ExtensionType MicrosoftMonitoringAgent `
+        -ExtensionType OmsAgentForLinux `
         -Settings $publicSettings `
         -ProtectedSettings $protectedSettings `
         -Location $VM.Location
         Write-Host "Done!" -ForeGroundColor Green
-    
     }
-    catch {Write-Host "Could not set subscription" -ForegroundColor Red}
+    else {
+        Write-Host "No valid OS type found!" -ForegroundColor Red
+    }
 }
+
