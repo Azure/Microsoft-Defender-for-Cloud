@@ -48,7 +48,7 @@ foreach($VM in $targetVMs)
             try
             {
                 # check if the VM extension has already been installed
-                Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Out-Null
+                Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Select-Object VMName, ProvisioningState, ResourceGroupName
                 Write-Host "Extension has already been installed, so skipping...." -ForegroundColor Red
 
             }
@@ -77,7 +77,7 @@ foreach($VM in $targetVMs)
         try
         {
             # check if the VM extension has already been installed
-            Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Out-Null
+            Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Select-Object VMName, ProvisioningState, ResourceGroupName
             Write-Host "Extension has already been installed, so skipping...." -ForegroundColor Red
 
         }
@@ -98,3 +98,4 @@ foreach($VM in $targetVMs)
         Write-Host "No valid OS type found!" -ForegroundColor Red
     }
 }
+

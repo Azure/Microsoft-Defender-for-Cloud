@@ -17,15 +17,15 @@ $mySubs = $null                         # My Azure subscriptions that I have acc
 $VMs = @()                              # VM Output table
 
 #Get Azure subscriptions I have access to
-
+Write-Host "Running script, this can take a couple of minutes, please be patient..." -ForegroundColor Green
+Write-Host "Trying to get VMs..." -ForegroundColor Green  
 $mySubs = Get-AzContext -ListAvailable
 foreach ($sub in $mySubs.Subscription)
 {
-    Write-Host "Running script, this can take a couple of minutes, please be patient..." -ForegroundColor Green
-    Write-Host "Trying to get VMs..." -ForegroundColor Green  
     Write-Output "`r`n"
-    Write-Host "*** Going through subscription: " $sub.Name " ***" -ForegroundColor Green
-    try{
+    Write-Host "*** Going through subscription:" $sub.Name " ***" -ForegroundColor Green
+    try
+    {
         Set-AzContext -Subscription $sub.Name | Out-Null
         $myVMs = Get-AzVM
         #$myVMs.Name #remove comment character (#) to see VMs flow by
@@ -34,32 +34,27 @@ foreach ($sub in $mySubs.Subscription)
         {
             try # check if the VM has the MMA extension, if not, we execute the catch part
             {
-                $securedVMs = $securedVMs + (Get-AzVMExtension -ResourceGroupName $VM.ResourceGroupName -VMName $VM.Name -Name MicrosoftMonitoringAgent)
-
-                $VMproperties = New-Object psobject -Property @{
-                    VMname = $VM.Name;
-                    Location = $VM.Location
-                    ResourceGroup = $VM.ResourceGroupName;
-                    SubscriptionName = $sub.Name;
-                    SubscriptionID = $sub.ID;
-                    MMAExtensioninstalled = "Yes"
-                    OsType = $VM.StorageProfile.OsDisk.OsType
-                }
-                $VMs += $VMproperties
+                Get-AzVMExtension -ResourceGroupName $VM.ResourceGroupName -VMName $VM.Name -Name MicrosoftMonitoringAgent
+                $VMextensionInstalled = $true
+                Write-Host "VM Extension found" -ForegroundColor Green
             }
+
             catch # We did not find the MMA extension
             {
-                $VMproperties = New-Object psobject -Property @{
-                    VMname = $VM.Name;
-                    Location = $VM.Location;
-                    ResourceGroup = $VM.ResourceGroupName;
-                    SubscriptionName = $sub.Name;
-                    SubscriptionID = $sub.ID;
-                    MMAExtensionInstalled = "No"
-                    OsType = $VM.StorageProfile.OsDisk.OsType
-                }
-                $VMs += $VMproperties
+                $VMextensionInstalled = $false
+                Write-Host "VM Extension not found" -ForegroundColor Red
+
             }
+            $VMproperties = New-Object psobject -Property @{
+                VMname = $VM.Name;
+                Location = $VM.Location;
+                ResourceGroup = $VM.ResourceGroupName;
+                SubscriptionName = $sub.Name;
+                SubscriptionID = $sub.ID;
+                MMAExtensionInstalled = $VMextensionInstalled
+                OsType = $VM.StorageProfile.OsDisk.OsType
+            }
+            $VMs += $VMproperties
         }
     }
     catch{
