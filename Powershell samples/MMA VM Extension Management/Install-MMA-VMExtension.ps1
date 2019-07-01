@@ -39,40 +39,62 @@ foreach($VM in $targetVMs)
 {
     Write-Output "`r`n"
     Write-Host "*** Trying to install the MMA VM extension on" $VM.VMname "- Subscription:" $VM.SubScriptionName -ForegroundColor Green
-    Write-Host "Setting subscription..." -ForegroundColor Green
-    if ($VMs.StorageProfile.OsDisk.OsType -eq "Windows") {
+    Write-Host "Changing to subscription:" $VM.SubScriptionName -ForegroundColor Green
+    if ($VM.OsType -eq "Windows") {
         try
         {
             Set-AzContext -Subscription $VM.SubScriptionName
-            Write-Host "Installing....please wait..." -ForeGroundColor Green
-            Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
-            -Name MicrosoftMonitoringAgent `
-            -TypeHandlerVersion 1.0 `
-            -Publisher Microsoft.EnterpriseCloud.Monitoring  `
-            -ExtensionType MicrosoftMonitoringAgent `
-            -Settings $publicSettings `
-            -ProtectedSettings $protectedSettings `
-            -Location $VM.Location
-            Write-Host "Done!" -ForeGroundColor Green
+            Write-Host "Installing VM Extension of type Windows....please wait..." -ForeGroundColor Green
+            try
+            {
+                # check if the VM extension has already been installed
+                Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Out-Null
+                Write-Host "Extension has already been installed, so skipping...." -ForegroundColor Red
+
+            }
+            catch
+            {
+                Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
+                -Name MicrosoftMonitoringAgent `
+                -TypeHandlerVersion 1.0 `
+                -Publisher Microsoft.EnterpriseCloud.Monitoring  `
+                -ExtensionType MicrosoftMonitoringAgent `
+                -Settings $publicSettings `
+                -ProtectedSettings $protectedSettings `
+                -Location $VM.Location
+                Write-Host "Done!" -ForeGroundColor Green
+            }
+
         
         }
         catch {Write-Host "Could not set subscription or could not install the VM extension" -ForegroundColor Red}
         
     }
     #VM is of type Linux
-    elseif ($VMs.StorageProfile.OsDisk.OsType -eq "Linux") {
-        Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
-        -Name MicrosoftMonitoringAgent `
-        -TypeHandlerVersion 1.7 `
-        -Publisher Microsoft.EnterpriseCloud.Monitoring  `
-        -ExtensionType OmsAgentForLinux `
-        -Settings $publicSettings `
-        -ProtectedSettings $protectedSettings `
-        -Location $VM.Location
-        Write-Host "Done!" -ForeGroundColor Green
+    elseif ($VM.OsType -eq "Linux") {
+        Set-AzContext -Subscription $VM.SubScriptionName
+        Write-Host "Installing VM Extension of type Linux....please wait..." -ForeGroundColor Green
+        try
+        {
+            # check if the VM extension has already been installed
+            Get-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup -Name "MicrosoftMonitoringAgent" | Out-Null
+            Write-Host "Extension has already been installed, so skipping...." -ForegroundColor Red
+
+        }
+        catch
+        {
+            Set-AzVMExtension -VMName $VM.VMname -ResourceGroupName $VM.ResourceGroup `
+            -Name MicrosoftMonitoringAgent `
+            -TypeHandlerVersion 1.7 `
+            -Publisher Microsoft.EnterpriseCloud.Monitoring  `
+            -ExtensionType OmsAgentForLinux `
+            -Settings $publicSettings `
+            -ProtectedSettings $protectedSettings `
+            -Location $VM.Location
+            Write-Host "Done!" -ForeGroundColor Green
+        }
     }
     else {
         Write-Host "No valid OS type found!" -ForegroundColor Red
     }
 }
-

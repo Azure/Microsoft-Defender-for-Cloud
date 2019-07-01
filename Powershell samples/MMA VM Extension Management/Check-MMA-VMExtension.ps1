@@ -43,6 +43,7 @@ foreach ($sub in $mySubs.Subscription)
                     SubscriptionName = $sub.Name;
                     SubscriptionID = $sub.ID;
                     MMAExtensioninstalled = "Yes"
+                    OsType = $VM.StorageProfile.OsDisk.OsType
                 }
                 $VMs += $VMproperties
             }
@@ -55,6 +56,7 @@ foreach ($sub in $mySubs.Subscription)
                     SubscriptionName = $sub.Name;
                     SubscriptionID = $sub.ID;
                     MMAExtensionInstalled = "No"
+                    OsType = $VM.StorageProfile.OsDisk.OsType
                 }
                 $VMs += $VMproperties
             }
@@ -66,9 +68,9 @@ foreach ($sub in $mySubs.Subscription)
 }
 
 # Uncomment to view the VM table
-# $VMs | Format-Table VMname, MMAExtensionInstalled, Location, ResourceGroup, SubscriptionName, SubscriptionID
+# $VMs | Format-Table VMname, MMAExtensionInstalled, Location, ResourceGroup, SubscriptionName, SubscriptionID, OsType
 
 # Export to output file
 Write-Host "*** Creating Output file: " ($outputFolder + $outputFileName)  "***" -ForegroundColor Green
-try {$VMs | Select-Object "VMname", "Location", "MMAExtensionInstalled", "ResourceGroup", "SubscriptionName", "SubscriptionID" | Export-Csv -Path ($outputFolder + $outputFileName) -Force -NoTypeInformation}
+try {$VMs | Select-Object "VMname", "Location", "MMAExtensionInstalled", "ResourceGroup", "SubscriptionName", "SubscriptionID", "OsType" | Export-Csv -Path ($outputFolder + $outputFileName) -Force -NoTypeInformation}
 catch {Write-Host "Could not create output file.... Please your path, filename and write permissions." -ForeGroundColor Red}
