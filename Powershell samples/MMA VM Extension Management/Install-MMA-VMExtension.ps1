@@ -13,8 +13,8 @@ $VMinputFile = "ASC-inputFile.csv"  # We will install the MMA VM extension based
 
 
 #fill in your workspaceID, workspaceKey, resourcegroup name and location
-$publicSettings = @{"workspaceId" = "34fcaad3-11c3-45f0-a830-16b5dcb4fea9"}
-$protectedSettings = @{"workspaceKey" = "gHc819/Yr77MSWEMuU+FFNO75WkClpK67/dcRrBMKVmZ0M7IP7xzn5ru6if6VRvzzw666CQmRM5jB9+hYZxVEA=="}
+$publicSettings = @{"workspaceId" = "<YourWorkspaceID>"}
+$protectedSettings = @{"workspaceKey" = "<YourWorkspaceKey>"}
 
 # Importing CSV file
 Write-Host "*** Trying to import file:" ($VMinputFolder + $VMinputFile) " ***" -ForegroundColor Green

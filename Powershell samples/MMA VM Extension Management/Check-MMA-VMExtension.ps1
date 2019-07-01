@@ -34,16 +34,13 @@ foreach ($sub in $mySubs.Subscription)
         {
             try # check if the VM has the MMA extension, if not, we execute the catch part
             {
-                Get-AzVMExtension -ResourceGroupName $VM.ResourceGroupName -VMName $VM.Name -Name MicrosoftMonitoringAgent
+                Get-AzVMExtension -ResourceGroupName $VM.ResourceGroupName -VMName $VM.Name -Name MicrosoftMonitoringAgent | Out-Null
                 $VMextensionInstalled = $true
-                Write-Host "VM Extension found" -ForegroundColor Green
             }
 
             catch # We did not find the MMA extension
             {
                 $VMextensionInstalled = $false
-                Write-Host "VM Extension not found" -ForegroundColor Red
-
             }
             $VMproperties = New-Object psobject -Property @{
                 VMname = $VM.Name;
