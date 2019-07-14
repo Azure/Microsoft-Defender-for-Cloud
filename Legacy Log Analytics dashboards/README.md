@@ -17,7 +17,7 @@ In addition, the notable events dashboard queries are available under "Saved sea
 - Security Warning Notable Issues
 - Security Info Notable Issues
 
-You can either copy the relevant queries from the "Saved searches" page in your workspace, or visit the [following]() page to view them.
+You can either copy the relevant queries from the "Saved searches" page in your workspace, or visit the [following](./NotableEventsQueries.md) page to view them.
 
 # Contributing
 
