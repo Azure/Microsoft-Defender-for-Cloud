@@ -7,7 +7,7 @@
 #######################################################################################
 
 $ErrorActionPreference = 'Stop'
-$outputFolder = "<Your Output Folder>"
+$outputFolder = "<Your Output Folder>" # use format "c:\temp"
 $outputFileName = "ASC-Recommendations.csv"
 $Subscriptions = Get-AzSubscription
 $RecommendationTable = @()
@@ -46,10 +46,10 @@ foreach($Subscription in $Subscriptions)
     }
 }
 
-Write-Host "*** Creating Output file: " ($outputFolder + $outputFileName)  "***" -ForegroundColor Green
+Write-Host "*** Creating Output file: " ($outputFolder + "\" + $outputFileName)  "***" -ForegroundColor Green
 try
 {
-    $RecommendationTable | Select-Object "SubscriptionName", "SubscriptionId", "Resource", "Recommendation", "ResourceGroup" | Export-Csv -Path ($outputFolder + $outputFileName) -Force -NoTypeInformation
+    $RecommendationTable | Select-Object "SubscriptionName", "SubscriptionId", "Resource", "Recommendation", "ResourceGroup" | Export-Csv -Path ($outputFolder + "\" + $outputFileName) -Force -NoTypeInformation
     Write-Host "Done!" -ForegroundColor Yellow
 }
 catch {Write-Host "Could not create output file.... Please check your path, filename and write permissions." -ForeGroundColor Red}
