@@ -1,3 +1,12 @@
+# Samples for remediating "Disk encryption should be applied on VMs"
+
+* PowerShell script - Will loop through and rememdiate each instance
+    - Requires Azure (Az) PowerShell module
+* Logic App - Uses the REST API to enumerate and remediate each instance
+    - Requires a Managed Identity, which must be enabled and granted appropriate access to the resources to the subscriptions.
+* Policy
+    - Policy does not yet fully support Azure Disk Encryption operations.
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
