@@ -9,6 +9,9 @@ href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.
     <img src="https://azuredeploy.net/deploybutton.png"/>
 </a>
 
+
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/ https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FEnable%2520Network%2520Security%2520Groups%2520on%2520subnets%2FAzure%2520Policy%2520-%2520Deny%2FAssignNSGtoSub%2520Deny.json)
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
