@@ -1,7 +1,13 @@
 # Azure Policy Enable NSG on Subnets Sample
 
 This policy sample will allow you to assign an existing network security group (NSG) to every virtual subnet. You specify the ID of the network security group to use.  
-You can deploy the template using Azure CLI or Azure PowerShell.
+You can deploy the template using Azure CLI, Azure PowerShell or the deploy to Azure button below:
+
+<a
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fgithub.com%2FAzure%2FAzure-Security-Center%2Fblob%2Fmaster%2FSecure%2520Score%2FEnable%2520Network%2520Security%2520Groups%2520on%2520subnets%2FAzure%2520Policy%2520-%2520Deny%2FAssignNSGtoSub%2520Deny.json" target="_blank">
+    <img src="http://azuredeploy.net/deploybutton.png"/>
+</a>
+
 
 # Azure PowerShell
 
