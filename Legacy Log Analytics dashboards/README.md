@@ -9,7 +9,15 @@ The following files provide the Log Analytics' queries used to populate the reti
 - [Threat intelligence dashboard (Security events map)](./ThreatIntelligenceDashboard.ts)
 - [Security & audit dashboard](./SecurityAndAuditDashboard.ts)
 
-Provided files are in Typescript (.ts) format.
+Provided files are in Typescript (.ts) format, which can be opened with any text editor. You can copy the applicable queries from these files to custom dashboards you'll create.
+
+In addition, the notable events dashboard queries are available under "Saved searches" in your workspace. They appear in 3 categories:
+
+- Security Critical Notable Issues
+- Security Warning Notable Issues
+- Security Info Notable Issues
+
+You can either copy the relevant queries from the "Saved searches" page in your workspace, or visit the [following](./NotableEventsQueries.md) page to view them.
 
 # Contributing
 

@@ -1,0 +1,805 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_ApplyDiskEncryption_name": {
+            "defaultValue": "ApplyDiskEncryption",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_ApplyDiskEncryption_name')]",
+            "location": "eastus",
+            "identity": {
+                "principalId": "",
+                "tenantId": "",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Month",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "For_Each_Subscription": {
+                            "foreach": "@body('Parse_Subscriptions')?['value']",
+                            "actions": {
+                                "For_Each_Security_Task": {
+                                    "foreach": "@body('Parse_Security_Tasks')?['value']",
+                                    "actions": {
+                                        "If_Task_Contains_Unencrypted_Disks": {
+                                            "actions": {
+                                                "For_Each_VM": {
+                                                    "foreach": "@body('Parse_VM_Details')?['resources']",
+                                                    "actions": {
+                                                        "For_Each_Tenant": {
+                                                            "foreach": "@body('Parse_Tenants')?['value']",
+                                                            "actions": {
+                                                                "If_VM_Is_Linux": {
+                                                                    "actions": {
+                                                                        "Apply_Disk_Encryption_For_Linux": {
+                                                                            "runAfter": {},
+                                                                            "type": "Http",
+                                                                            "inputs": {
+                                                                                "authentication": {
+                                                                                    "type": "ManagedServiceIdentity"
+                                                                                },
+                                                                                "body": {
+                                                                                    "location": "@{body('Parse_Key_Vaults')?['location']}",
+                                                                                    "properties": {
+                                                                                        "autoUpgradeMinorVersion": true,
+                                                                                        "settings": {
+                                                                                            "EncryptionOperation": "EnableEncryption",
+                                                                                            "KeyVaultResourceId": "@{body('Parse_Key_Vaults')?['id']}",
+                                                                                            "KeyVaultURL": "@{body('Parse_Key_Vaults')?['properties']?['vaultUri']}",
+                                                                                            "VolumeType": "All"
+                                                                                        },
+                                                                                        "type": "AzureDiskEncryptionForLinux",
+                                                                                        "typeHandlerVersion": "1.1"
+                                                                                    }
+                                                                                },
+                                                                                "method": "PUT",
+                                                                                "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_VM_Details')?['name']}/extensions/AzureDiskEncryptionForLinux?api-version=2018-06-01"
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "runAfter": {
+                                                                        "Parse_Key_Vaults": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "else": {
+                                                                        "actions": {
+                                                                            "Apply_Disk_Encryption_For_Windows": {
+                                                                                "runAfter": {},
+                                                                                "type": "Http",
+                                                                                "inputs": {
+                                                                                    "authentication": {
+                                                                                        "type": "ManagedServiceIdentity"
+                                                                                    },
+                                                                                    "body": {
+                                                                                        "location": "@{body('Parse_VM_Details')?['location']}",
+                                                                                        "properties": {
+                                                                                            "autoUpgradeMinorVersion": true,
+                                                                                            "publisher": "Microsoft.Azure.Security",
+                                                                                            "settings": {
+                                                                                                "EncryptionOperation": "EnableEncryption",
+                                                                                                "KeyVaultResourceId": "@{body('Parse_Key_Vaults')?['id']}",
+                                                                                                "KeyVaultURL": "@{body('Parse_Key_Vaults')?['properties']?['vaultUri']}",
+                                                                                                "ResizeOSDisk": "false",
+                                                                                                "VolumeType": "All"
+                                                                                            },
+                                                                                            "type": "AzureDiskEncryption",
+                                                                                            "typeHandlerVersion": "2.2"
+                                                                                        }
+                                                                                    },
+                                                                                    "method": "PUT",
+                                                                                    "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{body('Parse_VM_Details')?['name']}/extensions/AzureDiskEncryption?api-version=2018-06-01"
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    },
+                                                                    "expression": {
+                                                                        "and": [
+                                                                            {
+                                                                                "equals": [
+                                                                                    "@body('Parse_VM_Details')?['properties']?['storageProfile']?['osDisk']?['osType']",
+                                                                                    "Linux"
+                                                                                ]
+                                                                            }
+                                                                        ]
+                                                                    },
+                                                                    "type": "If"
+                                                                },
+                                                                "Create_Key_Vault": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
+                                                                    "inputs": {
+                                                                        "authentication": {
+                                                                            "type": "ManagedServiceIdentity"
+                                                                        },
+                                                                        "body": {
+                                                                            "location": "@{body('Parse_Resource_Groups')?['location']}",
+                                                                            "properties": {
+                                                                                "accessPolicies": [],
+                                                                                "enabledForDeployment": true,
+                                                                                "enabledForDiskEncryption": true,
+                                                                                "enabledForTemplateDeployment": true,
+                                                                                "sku": {
+                                                                                    "family": "A",
+                                                                                    "name": "standard"
+                                                                                },
+                                                                                "tenantId": "@{items('For_Each_Tenant')?['tenantId']}"
+                                                                            }
+                                                                        },
+                                                                        "method": "PUT",
+                                                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{body('Parse_Resource_Groups')?['name']}/providers/Microsoft.KeyVault/vaults/@{body('Parse_Resource_Groups')?['location']}@{substring(first(split(first(skip(split(variables('VMRG'), '/'), 2)), '-')), 0, 5)}?api-version=2018-02-14"
+                                                                    }
+                                                                },
+                                                                "Parse_Key_Vaults": {
+                                                                    "runAfter": {
+                                                                        "Create_Key_Vault": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "ParseJson",
+                                                                    "inputs": {
+                                                                        "content": "@body('Create_Key_Vault')",
+                                                                        "schema": {
+                                                                            "properties": {
+                                                                                "id": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "location": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "name": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "properties": {
+                                                                                    "properties": {
+                                                                                        "accessPolicies": {
+                                                                                            "type": "array"
+                                                                                        },
+                                                                                        "enabledForDeployment": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "enabledForDiskEncryption": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "enabledForTemplateDeployment": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "provisioningState": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "sku": {
+                                                                                            "properties": {
+                                                                                                "family": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "name": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        },
+                                                                                        "tenantId": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "vaultUri": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "tags": {
+                                                                                    "properties": {},
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Parse_Tenants": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Foreach"
+                                                        },
+                                                        "Get_Tenants": {
+                                                            "runAfter": {
+                                                                "Parse_Resource_Groups": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "method": "GET",
+                                                                "uri": "https://management.azure.com/tenants?api-version=2016-06-01"
+                                                            }
+                                                        },
+                                                        "Create_Resource_Group": {
+                                                            "runAfter": {},
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "body": {
+                                                                    "location": "@{body('Parse_VM_Details')?['location']}"
+                                                                },
+                                                                "method": "PUT",
+                                                                "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourcegroups/DiskEncryptionRG-@{body('Parse_VM_Details')?['location']}?api-version=2018-05-01"
+                                                            }
+                                                        },
+                                                        "Parse_Tenants": {
+                                                            "runAfter": {
+                                                                "Get_Tenants": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "ParseJson",
+                                                            "inputs": {
+                                                                "content": "@body('Get_Tenants')",
+                                                                "schema": {
+                                                                    "properties": {
+                                                                        "value": {
+                                                                            "items": {
+                                                                                "properties": {
+                                                                                    "id": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "tenantId": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "id",
+                                                                                    "tenantId"
+                                                                                ],
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": "array"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "Parse_Resource_Groups": {
+                                                            "runAfter": {
+                                                                "Create_Resource_Group": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "ParseJson",
+                                                            "inputs": {
+                                                                "content": "@body('Create_Resource_Group')",
+                                                                "schema": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "location": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "name": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "properties": {
+                                                                            "properties": {
+                                                                                "provisioningState": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_VM_Details": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Foreach",
+                                                    "description": "For Each VM Not Encrypted"
+                                                },
+                                                "Get_VM_Details": {
+                                                    "runAfter": {
+                                                        "Set_RG_Variable": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/resourceGroups/@{first(skip(split(variables('VMRG'), '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['vmName']}?api-version=2018-06-01"
+                                                    },
+                                                    "description": "Get VM Information"
+                                                },
+                                                "Parse_VM_Details": {
+                                                    "runAfter": {
+                                                        "Get_VM_Details": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson",
+                                                    "inputs": {
+                                                        "content": "@body('Get_VM_Details')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "location": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "diagnosticsProfile": {
+                                                                            "properties": {
+                                                                                "bootDiagnostics": {
+                                                                                    "properties": {
+                                                                                        "enabled": {
+                                                                                            "type": "boolean"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "hardwareProfile": {
+                                                                            "properties": {
+                                                                                "vmSize": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "networkProfile": {
+                                                                            "properties": {
+                                                                                "networkInterfaces": {
+                                                                                    "items": {
+                                                                                        "properties": {
+                                                                                            "id": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "id"
+                                                                                        ],
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": "array"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "osProfile": {
+                                                                            "properties": {
+                                                                                "adminUsername": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "allowExtensionOperations": {
+                                                                                    "type": "boolean"
+                                                                                },
+                                                                                "computerName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "secrets": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "windowsConfiguration": {
+                                                                                    "properties": {
+                                                                                        "enableAutomaticUpdates": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "provisionVMAgent": {
+                                                                                            "type": "boolean"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "provisioningState": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "storageProfile": {
+                                                                            "properties": {
+                                                                                "dataDisks": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "imageReference": {
+                                                                                    "properties": {
+                                                                                        "offer": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "publisher": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "sku": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "version": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "osDisk": {
+                                                                                    "properties": {
+                                                                                        "caching": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "createOption": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "diskSizeGB": {
+                                                                                            "type": "integer"
+                                                                                        },
+                                                                                        "managedDisk": {
+                                                                                            "properties": {
+                                                                                                "id": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "storageAccountType": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        },
+                                                                                        "name": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "osType": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "vmId": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "resources": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "location": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "autoUpgradeMinorVersion": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "provisioningState": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "publisher": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "typeHandlerVersion": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "properties",
+                                                                            "type",
+                                                                            "location",
+                                                                            "id",
+                                                                            "name"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "description": "Parse VM Information"
+                                                },
+                                                "Set_RG_Variable": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "VMRG",
+                                                        "value": "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['vmId']"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "expression": {
+                                                "or": [
+                                                    {
+                                                        "equals": [
+                                                            "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['isOsDiskEncrypted']",
+                                                            false
+                                                        ]
+                                                    },
+                                                    {
+                                                        "equals": [
+                                                            "@items('For_Each_Security_Task')?['properties']?['securityTaskParameters']?['isDataDiskEncrypted']",
+                                                            false
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If",
+                                            "description": "If Task Contains Unencrypted VM Disks"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Parse_Security_Tasks": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "description": "For Each Task"
+                                },
+                                "Get_Security_Tasks": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/@{items('For_Each_Subscription')?['id']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
+                                    },
+                                    "description": "Get Security Center Recommendations (Tasks)"
+                                },
+                                "Parse_Security_Tasks": {
+                                    "runAfter": {
+                                        "Get_Security_Tasks": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('Get_Security_Tasks')",
+                                        "schema": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "creationTimeUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "lastStateChangeTimeUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "securityTaskParameters": {
+                                                                        "properties": {
+                                                                            "isDataDiskEncrypted": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "isOsDiskEncrypted": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "resourceId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "severity": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "uniqueKey": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "vmId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "vmName": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "subState": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "type",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "description": "Parse Tasks"
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_Subscriptions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "For Each Subscription"
+                        },
+                        "Get_Subscriptions": {
+                            "runAfter": {
+                                "Initialize_RG_Variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
+                            },
+                            "description": "Get Subscriptions"
+                        },
+                        "Initialize_RG_Variable": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VMRG",
+                                        "type": "String",
+                                        "value": "null"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_Subscriptions": {
+                            "runAfter": {
+                                "Get_Subscriptions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_Subscriptions')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "subscriptionId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies",
+                                                    "authorizationSource"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "description": "Parse Subscriptions"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}

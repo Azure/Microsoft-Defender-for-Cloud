@@ -1,9 +1,9 @@
-# Logic Apps sample playbook to remediate
-This sample playbook allows you to remediate Web Application instances that do not have HTTPS enabled according to ASC's recommendation *"Web Application should only be accessible over HTTPS"*
+# Logic App sample to remediate
 
-The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions on the resources that you would like to remediate.
+This Logic App deployment template is provided to apply Azure Disk Encryption to VMs. It will loop through all Security Center recommendations in all subscriptions to find unencrypted VM disks, then encrypt the VMs. Note that this will also create Key Vaults in each region VMs exist. This Logic App relies on a Managed Identity, which must be enabled for the app and given appropriate permissions in the subscriptions.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
+<a
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDisk%2520encryption%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-AzureDiskEncryption.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 

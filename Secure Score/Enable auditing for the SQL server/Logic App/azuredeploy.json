@@ -2,53 +2,71 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "logicAppName": {
-            "type": "string",
-            "metadata": {
-                "description": "The name of the logic app to create.",
-                "defaultValue": "Enable-Storage-HTTPs"
-            }
+        "workflows_FixSQLAuditing_name": {
+            "defaultValue": "FixSQLAuditing",
+            "type": "String"
+        },
+        "workspaces_@{variables('WorkspaceName')}_externalid": {
+            "defaultValue": "/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/microsoft.operationalinsights/workspaces/@{variables('WorkspaceName')}",
+            "type": "String"
         }
     },
     "variables": {},
     "resources": [
         {
             "type": "Microsoft.Logic/workflows",
-            "apiVersion": "2016-06-01",
-            "name": "[parameters('logicAppName')]",
-            "location": "[resourceGroup().location]",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_FixSQLAuditing_name')]",
+            "location": "eastus",
             "identity": {
                 "type": "SystemAssigned"
             },
-            "tags": {
-                "displayName": "LogicApp"
-            },
             "properties": {
+                "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
                     "actions": {
                         "For_each": {
+                            "foreach": "@body('Parse_JSON')?['value']",
                             "actions": {
                                 "For_each_6": {
+                                    "foreach": "@body('Parse_JSON_12')?['value']",
                                     "actions": {
                                         "Condition_4": {
                                             "actions": {
                                                 "HTTP_23": {
+                                                    "runAfter": {
+                                                        "Set_variable_4": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
                                                     "inputs": {
                                                         "authentication": {
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Security/locations/@{variables('ASCLocation')}/tasks/@{items('For_each_6')?['name']}?api-version=2015-06-01-preview"
-                                                    },
+                                                    }
+                                                },
+                                                "Parse_JSON_13": {
                                                     "runAfter": {
-                                                        "Set_variable_4": [
+                                                        "HTTP_23": [
                                                             "Succeeded"
                                                         ]
                                                     },
-                                                    "type": "Http"
-                                                },
-                                                "Parse_JSON_13": {
+                                                    "type": "ParseJson",
                                                     "inputs": {
                                                         "content": "@body('HTTP_23')",
                                                         "schema": {
@@ -111,45 +129,48 @@
                                                             },
                                                             "type": "object"
                                                         }
-                                                    },
-                                                    "runAfter": {
-                                                        "HTTP_23": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "ParseJson"
+                                                    }
                                                 },
                                                 "Set_variable_3": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
                                                     "inputs": {
                                                         "name": "ASCLocation",
                                                         "value": "@{first(skip(split(body('Parse_JSON_12')?['id'], '/'), 8))}"
-                                                    },
-                                                    "runAfter": {},
-                                                    "type": "SetVariable"
+                                                    }
                                                 },
                                                 "Set_variable_4": {
-                                                    "inputs": {
-                                                        "name": "ResourceGroup",
-                                                        "value": "@{first(skip(split(body('Parse_JSON_12')?['id'], '/'), 4))}"
-                                                    },
                                                     "runAfter": {
                                                         "Set_variable_3": [
                                                             "Succeeded"
                                                         ]
                                                     },
-                                                    "type": "SetVariable"
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "ResourceGroup",
+                                                        "value": "@{first(skip(split(body('Parse_JSON_12')?['id'], '/'), 4))}"
+                                                    }
                                                 },
                                                 "Switch_3": {
+                                                    "runAfter": {
+                                                        "Parse_JSON_13": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
                                                     "cases": {
                                                         "Case": {
+                                                            "case": "Storage",
                                                             "actions": {
                                                                 "For_each_2": {
+                                                                    "foreach": "@body('Parse_JSON_2')?['value']",
                                                                     "actions": {
                                                                         "Condition": {
                                                                             "actions": {
                                                                                 "Condition_2": {
                                                                                     "actions": {
                                                                                         "HTTP_4": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "Http",
                                                                                             "inputs": {
                                                                                                 "authentication": {
                                                                                                     "type": "ManagedServiceIdentity"
@@ -164,10 +185,13 @@
                                                                                                 },
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_2')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                            },
-                                                                                            "runAfter": {},
-                                                                                            "type": "Http"
+                                                                                            }
                                                                                         }
+                                                                                    },
+                                                                                    "runAfter": {
+                                                                                        "Parse_JSON_3": [
+                                                                                            "Succeeded"
+                                                                                        ]
                                                                                     },
                                                                                     "expression": {
                                                                                         "and": [
@@ -181,25 +205,26 @@
                                                                                             }
                                                                                         ]
                                                                                     },
-                                                                                    "runAfter": {
-                                                                                        "Parse_JSON_3": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
                                                                                     "type": "If"
                                                                                 },
                                                                                 "HTTP_3": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "Http",
                                                                                     "inputs": {
                                                                                         "authentication": {
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
                                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_2')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                    },
-                                                                                    "runAfter": {},
-                                                                                    "type": "Http"
+                                                                                    }
                                                                                 },
                                                                                 "Parse_JSON_3": {
+                                                                                    "runAfter": {
+                                                                                        "HTTP_3": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "ParseJson",
                                                                                     "inputs": {
                                                                                         "content": "@body('HTTP_3')",
                                                                                         "schema": {
@@ -245,15 +270,10 @@
                                                                                             },
                                                                                             "type": "object"
                                                                                         }
-                                                                                    },
-                                                                                    "runAfter": {
-                                                                                        "HTTP_3": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
-                                                                                    "type": "ParseJson"
+                                                                                    }
                                                                                 }
                                                                             },
+                                                                            "runAfter": {},
                                                                             "expression": {
                                                                                 "and": [
                                                                                     {
@@ -266,11 +286,9 @@
                                                                                     }
                                                                                 ]
                                                                             },
-                                                                            "runAfter": {},
                                                                             "type": "If"
                                                                         }
                                                                     },
-                                                                    "foreach": "@body('Parse_JSON_2')?['value']",
                                                                     "runAfter": {
                                                                         "Parse_JSON_2": [
                                                                             "Succeeded"
@@ -279,18 +297,20 @@
                                                                     "type": "Foreach"
                                                                 },
                                                                 "For_each_7": {
+                                                                    "foreach": "@body('Parse_JSON_15')?['keys']",
                                                                     "actions": {
                                                                         "Condition_5": {
                                                                             "actions": {
                                                                                 "Set_variable_5": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "SetVariable",
                                                                                     "inputs": {
                                                                                         "name": "StorageKey",
                                                                                         "value": "@items('For_each_7')?['value']"
-                                                                                    },
-                                                                                    "runAfter": {},
-                                                                                    "type": "SetVariable"
+                                                                                    }
                                                                                 }
                                                                             },
+                                                                            "runAfter": {},
                                                                             "expression": {
                                                                                 "and": [
                                                                                     {
@@ -301,11 +321,9 @@
                                                                                     }
                                                                                 ]
                                                                             },
-                                                                            "runAfter": {},
                                                                             "type": "If"
                                                                         }
                                                                     },
-                                                                    "foreach": "@body('Parse_JSON_15')?['keys']",
                                                                     "runAfter": {
                                                                         "Parse_JSON_15": [
                                                                             "Succeeded"
@@ -314,47 +332,53 @@
                                                                     "type": "Foreach"
                                                                 },
                                                                 "HTTP_2": {
+                                                                    "runAfter": {
+                                                                        "HTTP_26": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases?api-version=2017-10-01-preview"
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "HTTP_26": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "Http"
+                                                                    }
                                                                 },
                                                                 "HTTP_24": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Storage/storageAccounts/@{variables('StorageName')}?api-version=2018-11-01"
-                                                                    },
-                                                                    "runAfter": {},
-                                                                    "type": "Http"
+                                                                    }
                                                                 },
                                                                 "HTTP_25": {
+                                                                    "runAfter": {
+                                                                        "Parse_JSON_14": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "POST",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Storage/storageAccounts/@{variables('StorageName')}/listKeys?api-version=2018-11-01"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_26": {
                                                                     "runAfter": {
-                                                                        "Parse_JSON_14": [
+                                                                        "For_each_7": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_26": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
@@ -369,15 +393,15 @@
                                                                         },
                                                                         "method": "PUT",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_14": {
                                                                     "runAfter": {
-                                                                        "For_each_7": [
+                                                                        "HTTP_24": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "Parse_JSON_14": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_24')",
                                                                         "schema": {
@@ -508,15 +532,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_15": {
                                                                     "runAfter": {
-                                                                        "HTTP_24": [
+                                                                        "HTTP_25": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_15": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_25')",
                                                                         "schema": {
@@ -546,15 +570,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_2": {
                                                                     "runAfter": {
-                                                                        "HTTP_25": [
+                                                                        "HTTP_2": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_2": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_2')",
                                                                         "schema": {
@@ -643,26 +667,27 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "HTTP_2": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "ParseJson"
+                                                                    }
                                                                 }
-                                                            },
-                                                            "case": "Storage"
+                                                            }
                                                         },
                                                         "Case_2": {
+                                                            "case": "LogA",
                                                             "actions": {
                                                                 "For_each_3": {
+                                                                    "foreach": "@body('Parse_JSON_4')?['value']",
                                                                     "actions": {
                                                                         "Condition_3": {
                                                                             "actions": {
                                                                                 "Condition_6": {
                                                                                     "actions": {
                                                                                         "HTTP_14": {
+                                                                                            "runAfter": {
+                                                                                                "HTTP_9": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "Http",
                                                                                             "inputs": {
                                                                                                 "authentication": {
                                                                                                     "type": "ManagedServiceIdentity"
@@ -679,20 +704,16 @@
                                                                                                                 }
                                                                                                             }
                                                                                                         ],
-                                                                                                        "workspaceId": "/subscriptions/@{items('For_each')?['subscriptionId']}/resourcegroups/@{variables('ResourceGroup')}/providers/microsoft.operationalinsights/workspaces/@{variables('WorkspaceName')}"
+                                                                                                        "workspaceId": "[parameters('workspaces_@{variables('WorkspaceName')}_externalid')]"
                                                                                                     }
                                                                                                 },
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/@{items('For_each_6')?['id']}/databases/@{items('For_each_3')?['name']}/providers/microsoft.insights/diagnosticSettings/SQLServerAuditingSettings?api-version=2017-05-01-preview"
-                                                                                            },
-                                                                                            "runAfter": {
-                                                                                                "HTTP_9": [
-                                                                                                    "Succeeded"
-                                                                                                ]
-                                                                                            },
-                                                                                            "type": "Http"
+                                                                                            }
                                                                                         },
                                                                                         "HTTP_9": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "Http",
                                                                                             "inputs": {
                                                                                                 "authentication": {
                                                                                                     "type": "ManagedServiceIdentity"
@@ -705,10 +726,13 @@
                                                                                                 },
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_3')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                            },
-                                                                                            "runAfter": {},
-                                                                                            "type": "Http"
+                                                                                            }
                                                                                         }
+                                                                                    },
+                                                                                    "runAfter": {
+                                                                                        "Parse_JSON_5": [
+                                                                                            "Succeeded"
+                                                                                        ]
                                                                                     },
                                                                                     "expression": {
                                                                                         "and": [
@@ -722,25 +746,26 @@
                                                                                             }
                                                                                         ]
                                                                                     },
-                                                                                    "runAfter": {
-                                                                                        "Parse_JSON_5": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
                                                                                     "type": "If"
                                                                                 },
                                                                                 "HTTP_7": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "Http",
                                                                                     "inputs": {
                                                                                         "authentication": {
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
                                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_3')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                    },
-                                                                                    "runAfter": {},
-                                                                                    "type": "Http"
+                                                                                    }
                                                                                 },
                                                                                 "Parse_JSON_5": {
+                                                                                    "runAfter": {
+                                                                                        "HTTP_7": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "ParseJson",
                                                                                     "inputs": {
                                                                                         "content": "@body('HTTP_7')",
                                                                                         "schema": {
@@ -786,15 +811,10 @@
                                                                                             },
                                                                                             "type": "object"
                                                                                         }
-                                                                                    },
-                                                                                    "runAfter": {
-                                                                                        "HTTP_7": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
-                                                                                    "type": "ParseJson"
+                                                                                    }
                                                                                 }
                                                                             },
+                                                                            "runAfter": {},
                                                                             "expression": {
                                                                                 "and": [
                                                                                     {
@@ -807,11 +827,9 @@
                                                                                     }
                                                                                 ]
                                                                             },
-                                                                            "runAfter": {},
                                                                             "type": "If"
                                                                         }
                                                                     },
-                                                                    "foreach": "@body('Parse_JSON_4')?['value']",
                                                                     "runAfter": {
                                                                         "Parse_JSON_4": [
                                                                             "Succeeded"
@@ -820,6 +838,12 @@
                                                                     "type": "Foreach"
                                                                 },
                                                                 "HTTP_13": {
+                                                                    "runAfter": {
+                                                                        "HTTP_8": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
@@ -836,46 +860,46 @@
                                                                                         }
                                                                                     }
                                                                                 ],
-                                                                                "workspaceId": "/subscriptions/@{items('For_each')?['subscriptionId']}/resourcegroups/@{variables('ResourceGroup')}/providers/microsoft.operationalinsights/workspaces/@{variables('WorkspaceName')}"
+                                                                                "workspaceId": "[parameters('workspaces_@{variables('WorkspaceName')}_externalid')]"
                                                                             }
                                                                         },
                                                                         "method": "PUT",
                                                                         "uri": "https://management.azure.com/@{item()?['id']}/databases/master/providers/microsoft.insights/diagnosticSettings/SQLServerAuditingSettings?api-version=2017-05-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_5": {
                                                                     "runAfter": {
-                                                                        "HTTP_8": [
+                                                                        "HTTP_13": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_5": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases?api-version=2017-10-01-preview"
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "HTTP_13": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "Http"
+                                                                    }
                                                                 },
                                                                 "HTTP_6": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourcegroups/@{variables('ResourceGroup')}/providers/Microsoft.OperationalInsights/workspaces/@{variables('WorkspaceName')}?api-version=2015-11-01-preview"
-                                                                    },
-                                                                    "runAfter": {},
-                                                                    "type": "Http"
+                                                                    }
                                                                 },
                                                                 "HTTP_8": {
+                                                                    "runAfter": {
+                                                                        "Parse_JSON_6": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
@@ -888,15 +912,15 @@
                                                                         },
                                                                         "method": "PUT",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{item()?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_4": {
                                                                     "runAfter": {
-                                                                        "Parse_JSON_6": [
+                                                                        "HTTP_5": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "Parse_JSON_4": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_5')",
                                                                         "schema": {
@@ -985,15 +1009,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_6": {
                                                                     "runAfter": {
-                                                                        "HTTP_5": [
+                                                                        "HTTP_6": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_6": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_6')",
                                                                         "schema": {
@@ -1051,26 +1075,23 @@
                                                                             },
                                                                             "type": "array"
                                                                         }
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "HTTP_6": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "ParseJson"
+                                                                    }
                                                                 }
-                                                            },
-                                                            "case": "LogA"
+                                                            }
                                                         },
                                                         "Case_3": {
+                                                            "case": "EventHub",
                                                             "actions": {
                                                                 "For_each_4": {
+                                                                    "foreach": "@body('Parse_JSON_7')?['value']",
                                                                     "actions": {
                                                                         "Condition_7": {
                                                                             "actions": {
                                                                                 "Condition_8": {
                                                                                     "actions": {
                                                                                         "HTTP_19": {
+                                                                                            "runAfter": {},
+                                                                                            "type": "Http",
                                                                                             "inputs": {
                                                                                                 "authentication": {
                                                                                                     "type": "ManagedServiceIdentity"
@@ -1082,11 +1103,15 @@
                                                                                                 },
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_4')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                            },
-                                                                                            "runAfter": {},
-                                                                                            "type": "Http"
+                                                                                            }
                                                                                         },
                                                                                         "HTTP_20": {
+                                                                                            "runAfter": {
+                                                                                                "HTTP_19": [
+                                                                                                    "Succeeded"
+                                                                                                ]
+                                                                                            },
+                                                                                            "type": "Http",
                                                                                             "inputs": {
                                                                                                 "authentication": {
                                                                                                     "type": "ManagedServiceIdentity"
@@ -1109,14 +1134,13 @@
                                                                                                 },
                                                                                                 "method": "PUT",
                                                                                                 "uri": "https://management.azure.com/@{items('For_each_6')?['id']}/databases/@{items('For_each_4')?['name']}/providers/microsoft.insights/diagnosticSettings/SQLServerAuditingSettings?api-version=2017-05-01-preview"
-                                                                                            },
-                                                                                            "runAfter": {
-                                                                                                "HTTP_19": [
-                                                                                                    "Succeeded"
-                                                                                                ]
-                                                                                            },
-                                                                                            "type": "Http"
+                                                                                            }
                                                                                         }
+                                                                                    },
+                                                                                    "runAfter": {
+                                                                                        "Parse_JSON_11": [
+                                                                                            "Succeeded"
+                                                                                        ]
                                                                                     },
                                                                                     "expression": {
                                                                                         "and": [
@@ -1130,25 +1154,26 @@
                                                                                             }
                                                                                         ]
                                                                                     },
-                                                                                    "runAfter": {
-                                                                                        "Parse_JSON_11": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
                                                                                     "type": "If"
                                                                                 },
                                                                                 "HTTP_18": {
+                                                                                    "runAfter": {},
+                                                                                    "type": "Http",
                                                                                     "inputs": {
                                                                                         "authentication": {
                                                                                             "type": "ManagedServiceIdentity"
                                                                                         },
                                                                                         "method": "GET",
                                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases/@{items('For_each_4')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                                    },
-                                                                                    "runAfter": {},
-                                                                                    "type": "Http"
+                                                                                    }
                                                                                 },
                                                                                 "Parse_JSON_11": {
+                                                                                    "runAfter": {
+                                                                                        "HTTP_18": [
+                                                                                            "Succeeded"
+                                                                                        ]
+                                                                                    },
+                                                                                    "type": "ParseJson",
                                                                                     "inputs": {
                                                                                         "content": "@body('HTTP_18')",
                                                                                         "schema": {
@@ -1194,15 +1219,10 @@
                                                                                             },
                                                                                             "type": "object"
                                                                                         }
-                                                                                    },
-                                                                                    "runAfter": {
-                                                                                        "HTTP_18": [
-                                                                                            "Succeeded"
-                                                                                        ]
-                                                                                    },
-                                                                                    "type": "ParseJson"
+                                                                                    }
                                                                                 }
                                                                             },
+                                                                            "runAfter": {},
                                                                             "expression": {
                                                                                 "and": [
                                                                                     {
@@ -1215,11 +1235,9 @@
                                                                                     }
                                                                                 ]
                                                                             },
-                                                                            "runAfter": {},
                                                                             "type": "If"
                                                                         }
                                                                     },
-                                                                    "foreach": "@body('Parse_JSON_7')?['value']",
                                                                     "runAfter": {
                                                                         "Parse_JSON_7": [
                                                                             "Succeeded"
@@ -1228,62 +1246,68 @@
                                                                     "type": "Foreach"
                                                                 },
                                                                 "HTTP_10": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.EventHub/namespaces/@{variables('EventHubNamespace')}?api-version=2017-04-01"
-                                                                    },
-                                                                    "runAfter": {},
-                                                                    "type": "Http"
+                                                                    }
                                                                 },
                                                                 "HTTP_11": {
+                                                                    "runAfter": {
+                                                                        "Parse_JSON_8": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.EventHub/namespaces/@{variables('EventHubNamespace')}/eventhubs/@{variables('EventHubName')}?api-version=2017-04-01"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_12": {
                                                                     "runAfter": {
-                                                                        "Parse_JSON_8": [
+                                                                        "Parse_JSON_9": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_12": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.EventHub/namespaces/@{variables('EventHubNamespace')}/eventhubs/@{variables('EventHubName')}/authorizationRules/@{variables('EventHubAuthRule')}?api-version=2017-04-01"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_15": {
                                                                     "runAfter": {
-                                                                        "Parse_JSON_9": [
+                                                                        "HTTP_17": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_15": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
                                                                         },
                                                                         "method": "GET",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{first(skip(split(body('Parse_JSON_13')?['properties']?['securityTaskParameters']?['resourceId'], '/'), 8))}/databases?api-version=2017-10-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_16": {
                                                                     "runAfter": {
-                                                                        "HTTP_17": [
+                                                                        "Parse_JSON_10": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_16": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
@@ -1295,15 +1319,15 @@
                                                                         },
                                                                         "method": "PUT",
                                                                         "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Sql/servers/@{items('For_each_6')?['name']}/auditingSettings/default?api-version=2017-03-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "HTTP_17": {
                                                                     "runAfter": {
-                                                                        "Parse_JSON_10": [
+                                                                        "HTTP_16": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "HTTP_17": {
+                                                                    "type": "Http",
                                                                     "inputs": {
                                                                         "authentication": {
                                                                             "type": "ManagedServiceIdentity"
@@ -1326,15 +1350,15 @@
                                                                         },
                                                                         "method": "PUT",
                                                                         "uri": "https://management.azure.com/@{items('For_each_6')?['id']}/databases/master/providers/microsoft.insights/diagnosticSettings/SQLServerAuditingSettings?api-version=2017-05-01-preview"
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_10": {
                                                                     "runAfter": {
-                                                                        "HTTP_16": [
+                                                                        "HTTP_12": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "Http"
-                                                                },
-                                                                "Parse_JSON_10": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_12')",
                                                                         "schema": {
@@ -1362,15 +1386,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_7": {
                                                                     "runAfter": {
-                                                                        "HTTP_12": [
+                                                                        "HTTP_15": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_7": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_15')",
                                                                         "schema": {
@@ -1459,15 +1483,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_8": {
                                                                     "runAfter": {
-                                                                        "HTTP_15": [
+                                                                        "HTTP_10": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_8": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_10')",
                                                                         "schema": {
@@ -1538,15 +1562,15 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_9": {
                                                                     "runAfter": {
-                                                                        "HTTP_10": [
+                                                                        "HTTP_11": [
                                                                             "Succeeded"
                                                                         ]
                                                                     },
-                                                                    "type": "ParseJson"
-                                                                },
-                                                                "Parse_JSON_9": {
+                                                                    "type": "ParseJson",
                                                                     "inputs": {
                                                                         "content": "@body('HTTP_11')",
                                                                         "schema": {
@@ -1642,31 +1666,19 @@
                                                                             },
                                                                             "type": "object"
                                                                         }
-                                                                    },
-                                                                    "runAfter": {
-                                                                        "HTTP_11": [
-                                                                            "Succeeded"
-                                                                        ]
-                                                                    },
-                                                                    "type": "ParseJson"
+                                                                    }
                                                                 }
-                                                            },
-                                                            "case": "EventHub"
+                                                            }
                                                         }
                                                     },
                                                     "default": {
                                                         "actions": {}
                                                     },
                                                     "expression": "@variables('AuditType')",
-                                                    "runAfter": {
-                                                        "Parse_JSON_13": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
                                                     "type": "Switch"
                                                 }
                                             },
-                                            "description": "IF the task is Enable SQL Auditing",
+                                            "runAfter": {},
                                             "expression": {
                                                 "and": [
                                                     {
@@ -1677,21 +1689,21 @@
                                                     }
                                                 ]
                                             },
-                                            "runAfter": {},
-                                            "type": "If"
+                                            "type": "If",
+                                            "description": "IF the task is Enable SQL Auditing"
                                         }
                                     },
-                                    "description": "For each Azure Security Task",
-                                    "foreach": "@body('Parse_JSON_12')?['value']",
                                     "runAfter": {
                                         "Parse_JSON_12": [
                                             "Succeeded"
                                         ]
                                     },
-                                    "type": "Foreach"
+                                    "type": "Foreach",
+                                    "description": "For each Azure Security Task"
                                 },
                                 "HTTP_22": {
-                                    "description": "Get Azure Security Tasks",
+                                    "runAfter": {},
+                                    "type": "Http",
                                     "inputs": {
                                         "authentication": {
                                             "type": "ManagedServiceIdentity"
@@ -1699,11 +1711,15 @@
                                         "method": "GET",
                                         "uri": "https://management.azure.com/@{items('For_each')?['id']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
                                     },
-                                    "runAfter": {},
-                                    "type": "Http"
+                                    "description": "Get Azure Security Tasks"
                                 },
                                 "Parse_JSON_12": {
-                                    "description": "Parse Azure Security Tasks",
+                                    "runAfter": {
+                                        "HTTP_22": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
                                     "inputs": {
                                         "content": "@body('HTTP_22')",
                                         "schema": {
@@ -1781,25 +1797,24 @@
                                             "type": "object"
                                         }
                                     },
-                                    "runAfter": {
-                                        "HTTP_22": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ParseJson"
+                                    "description": "Parse Azure Security Tasks"
                                 }
                             },
-                            "description": "For each Subscription",
-                            "foreach": "@body('Parse_JSON')?['value']",
                             "runAfter": {
                                 "Parse_JSON": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "Foreach"
+                            "type": "Foreach",
+                            "description": "For each Subscription"
                         },
                         "HTTP": {
-                            "description": "Get Subscriptions",
+                            "runAfter": {
+                                "Initialize_variable_9": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
                             "inputs": {
                                 "authentication": {
                                     "type": "ManagedServiceIdentity"
@@ -1807,15 +1822,11 @@
                                 "method": "GET",
                                 "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
                             },
-                            "runAfter": {
-                                "Initialize_variable_9": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "Http"
+                            "description": "Get Subscriptions"
                         },
                         "Initialize_variable": {
-                            "description": "This variable sets which type of storage to use for SQL Auditing. Storage, LogA or EventHub",
+                            "runAfter": {},
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1825,11 +1836,15 @@
                                     }
                                 ]
                             },
-                            "runAfter": {},
-                            "type": "InitializeVariable"
+                            "description": "This variable sets which type of storage to use for SQL Auditing. Storage, LogA or EventHub"
                         },
                         "Initialize_variable_2": {
-                            "description": "The name of the storage to use",
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1839,15 +1854,15 @@
                                     }
                                 ]
                             },
+                            "description": "The name of the storage to use"
+                        },
+                        "Initialize_variable_3": {
                             "runAfter": {
-                                "Initialize_variable": [
+                                "Initialize_variable_2": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_3": {
-                            "description": "Variable for the Log A Workspace Name",
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1857,14 +1872,15 @@
                                     }
                                 ]
                             },
+                            "description": "Variable for the Log A Workspace Name"
+                        },
+                        "Initialize_variable_4": {
                             "runAfter": {
-                                "Initialize_variable_2": [
+                                "Initialize_variable_3": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_4": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1873,15 +1889,15 @@
                                         "value": "cxenicholas"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_5": {
                             "runAfter": {
-                                "Initialize_variable_3": [
+                                "Initialize_variable_4": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_5": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1890,15 +1906,15 @@
                                         "value": "cxenicholas"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_6": {
                             "runAfter": {
-                                "Initialize_variable_4": [
+                                "Initialize_variable_7": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_6": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1907,15 +1923,15 @@
                                         "value": "null"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_7": {
                             "runAfter": {
-                                "Initialize_variable_7": [
+                                "Initialize_variable_5": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_7": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1924,15 +1940,15 @@
                                         "value": "RootManageSharedAccessKey"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_8": {
                             "runAfter": {
-                                "Initialize_variable_5": [
+                                "Initialize_variable_6": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_8": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1941,15 +1957,15 @@
                                         "value": "null"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Initialize_variable_9": {
                             "runAfter": {
-                                "Initialize_variable_6": [
+                                "Initialize_variable_8": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Initialize_variable_9": {
+                            "type": "InitializeVariable",
                             "inputs": {
                                 "variables": [
                                     {
@@ -1958,16 +1974,15 @@
                                         "value": "null"
                                     }
                                 ]
-                            },
+                            }
+                        },
+                        "Parse_JSON": {
                             "runAfter": {
-                                "Initialize_variable_8": [
+                                "HTTP": [
                                     "Succeeded"
                                 ]
                             },
-                            "type": "InitializeVariable"
-                        },
-                        "Parse_JSON": {
-                            "description": "Parse Subscriptions",
+                            "type": "ParseJson",
                             "inputs": {
                                 "content": "@body('HTTP')",
                                 "schema": {
@@ -2021,30 +2036,13 @@
                                     "type": "object"
                                 }
                             },
-                            "runAfter": {
-                                "HTTP": [
-                                    "Succeeded"
-                                ]
-                            },
-                            "type": "ParseJson"
+                            "description": "Parse Subscriptions"
                         }
                     },
-                    "contentVersion": "1.0.0.0",
-                    "outputs": {},
-                    "parameters": {},
-                    "triggers": {
-                        "Recurrence": {
-                            "recurrence": {
-                                "frequency": "Day",
-                                "interval": 1
-                            },
-                            "type": "Recurrence"
-                        }
-                    }
+                    "outputs": {}
                 },
                 "parameters": {}
             }
         }
-    ],
-    "outputs": {}
+    ]
 }

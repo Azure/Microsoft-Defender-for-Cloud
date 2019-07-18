@@ -1,4 +1,35 @@
 
+
+# What this PowerShell script walks through
+
+More information: https://docs.microsoft.com/en-us/azure/storage/common/storage-network-security 
+
+
+ 1. Seeking all of your subscrptions within your tenant, looking for the following rule "Restrict access to storage accounts with firewall and virtual network configurations" within your Azure Security Center recommendtations list
+ 2. The script will check if the service has been configured for harderning, if not, it'll change the "Allow all" to "Deny All"
+ 2. You'll be prompted for the IP address or IP Address range for your stroage acccounts
+ 3. This process will repeat untill all stroage Accounts have been configured
+
+- (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount").DefaultAction
+- Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -Name "mystorageaccount" -DefaultAction Deny
+- (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount").VirtualNetworkRules
+- (Get-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount").IPRules
+- Update-AzStorageAccountNetworkRuleSet -ResourceGroupName "myresourcegroup" -Name "mystorageaccount" -Bypass AzureServices,Metrics,Logging
+ - Add-AzStorageAccountNetworkRule -ResourceGroupName "myresourcegroup" -AccountName "mystorageaccount" -IPAddressOrRange "16.17.18.0/24"
+
+## Module Requirements
+
+  Az.Resources
+  Az.Accounts
+  Az.Storage
+  Az.Security
+
+## Known Issues
+    
+  AzureRM Module mixed in with Az Module will break scripting due to conflict of current migration
+
+
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

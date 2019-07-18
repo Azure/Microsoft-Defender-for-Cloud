@@ -1,11 +1,16 @@
-# Logic Apps sample playbook to remediate
-This sample playbook allows you to remediate Web Application instances that do not have HTTPS enabled according to ASC's recommendation *"Web Application should only be accessible over HTTPS"*
+# Samples for discoverying tenant wide subscprtion management
 
-The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete permissions on the resources that you would like to remediate.
+These samples provide various ways to discover your tenant information with mulitlpe subscrptions for Azure Security Center.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
+* AzASCSubCount.ps1
+    - This is walking through the following: (precheck for modules included in script)
+        1. Logging into your tenant - suggested global admin to get full tenant/all subscrption infromation
+        2. Checking each subscrption within your tenant and collecting the information to be pasred (Note this can take up to 30 seconds per subscrption)
+        3. After checking each subscrption it'll provide a text format of which subscrptions it searched, which subscrptions have "free" and "standard" enabled, for which type. Addtionaly it's checking to see a total of Virtual Machines that have been provisioned or not provisioned within your Azure Tenant.
+
+
+
+
 
 # Contributing
 

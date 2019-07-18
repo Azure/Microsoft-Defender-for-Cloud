@@ -6,7 +6,7 @@
     "resources": [
         {
             "type": "Microsoft.Authorization/policyDefinitions",
-            "name": "locationDef01",
+            "name": "Web Application - Deny if HTTPS is not enabled",
             "apiVersion": "2018-03-01",
             "properties": {
                 "policyType": "Custom",

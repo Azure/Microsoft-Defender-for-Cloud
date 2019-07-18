@@ -1,7 +1,4 @@
-﻿# Improvements to make
-# 1) Add KEK support
-
-Write-Verbose "Checking for Azure module..."
+﻿Write-Verbose "Checking for Azure module..."
 $AzModule = Get-Module -Name "Az.*" -ListAvailable
 if ($AzModule -eq $null) 
 {
@@ -97,13 +94,6 @@ foreach($SecurityTask in $SecurityTasks)
     {
     $localvaultdetails = Get-AzKeyVault -VaultName $localvault[0]
     
-    # Create a KEK
-    #$kekname = "KeyEncryptionKey${vm}"
-    #$upn = (Get-AzContext).Account.Id
-    #Add-AzKeyVaultKey -VaultName $vaultdetails.VaultName -Name $kekname -Destination 'Software'
-    #Set-AzKeyVaultAccessPolicy -VaultName $vaultdetails.VaultName -ResourceGroupName $vaultdetails.ResourceGroupName -UserPrincipalName ${upn} -PermissionsToKeys list,create
-    #$kekdetails = Get-AzKeyVaultKey -VaultName $vaultdetails.VaultName -Name $kekname
-    
     # Encrypt VM using existing KV 
     Set-AzVMDiskEncryptionExtension -ResourceGroupName $vmrg -VMName $vm -DiskEncryptionKeyVaultUrl $localvaultdetails.VaultUri -DiskEncryptionKeyVaultId $localvaultdetails.ResourceId -VolumeType All -SkipVmBackup -Force
     } 
@@ -111,18 +101,15 @@ foreach($SecurityTask in $SecurityTasks)
     # If no local KV exists, create one.
     else 
     {
-    $vaultname = "DiskEncryptionKV${vmlocation}"
-    $vaultRG = "DiskEncryptionKV${vmlocation}RG"
+    # Create KV with unique name, allowing for long location names
+    $subid = $sub.split("-")[0].substring(0,4)
+    $vaultname = "${vmlocation}${subid}"
+    $vaultRG = "DiskEncryptionRG-${vmlocation}"
     New-AzResourceGroup –Name $vaultRG –Location $vmlocation
     New-AzKeyVault -VaultName $vaultname -ResourceGroupName $vaultRG -Location $vmlocation -EnableSoftDelete -EnabledForDeployment -EnabledForTemplateDeployment -EnabledForDiskEncryption
     $kvid = (Get-AzKeyVault -VaultName $vaultname -ResourceGroupName $vaultRG).ResourceId
     $kvurl = (Get-AzKeyVault -VaultName $vaultname -ResourceGroupName $vaultRG).VaultUri
 
-    # Create a KEK
-    #$kekname = "KeyEncryptionKey${vm}"
-    #Add-AzKeyVaultKey -VaultName $vaultname -Name $kekname -Destination 'Software'
-    #$kekurl = (Get-AzKeyVaultKey -VaultName $vaultname -Name $kekname).Key.kid
-    
     # Encrypt VM
     Set-AzVMDiskEncryptionExtension -ResourceGroupName $vmrg -VMName $vm -DiskEncryptionKeyVaultUrl $kvurl -DiskEncryptionKeyVaultId $kvid -VolumeType All -SkipVmBackup -Force 
     }
