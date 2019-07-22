@@ -1,4 +1,5 @@
-# This sample script enumerates through all your subscriptions you have access to #####
+#######################################################################################
+# This sample script enumerates through all your subscriptions you have access to     #
 # and creates a CSV file with all recommendations across your subscriptions           #
 # Prerequisites:                                                                      #
 # - Latest Az PowerShell module                                                       #
@@ -45,9 +46,8 @@ else
             Write-Warning -Message "Can not install Az Security Module.  You are not running as Administrator"
             Write-Warning -Message "Installing Az Security Module to Current User Scope"
             Install-Module Az.Security -Scope CurrentUser -Force
-        }
-
-        else
+    }
+    else
         {
             # Admin, install to all users
             Install-Module Az.Security -Force
@@ -114,7 +114,8 @@ try
 catch {Write-Host "Could not create output file.... Please check your path, filename and write permissions." -ForeGroundColor Red}
 
 # list missing subscriptions, in case we could not get recommendations for a certain subscription due to an error
-if($MissingSubscriptions -ne $null){
+if($MissingSubscriptions -ne $null)
+{
     Write-Host "Recommendations for the following subscriptions could not be retrieved:" -ForegroundColor Red
-$MissingSubscriptions
+    $MissingSubscriptions
 }
