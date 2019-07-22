@@ -1,6 +1,6 @@
 # This sample script enumerates through all your subscriptions you have access to #####
 # and creates a CSV file with all recommendations across your subscriptions           #
-# Prerequisites:                                                                        #
+# Prerequisites:                                                                      #
 # - Latest Az PowerShell module                                                       #
 # - logged into to Azure (login-AzAccount)                                            #
 # - output folder and filename                                                        #
