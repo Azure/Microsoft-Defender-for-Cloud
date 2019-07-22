@@ -2,9 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_IPForwarding_Disabled_name": {
+        "logicAppName": {
+            "type": "string",
+            "metadata": {
+            "description": "The name of the logic app to create.",
             "defaultValue": "IPForwarding-Disabled",
             "type": "String"
+            }
         }
     },
     "variables": {},
@@ -12,12 +16,13 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_IPForwarding_Disabled_name')]",
+            "name":"[parameters('logicAppName')]",
             "location": "[resourceGroup().location]",
             "identity": {
-                "principalId": "",
-                "tenantId": "",
                 "type": "SystemAssigned"
+            },
+            "tags": {
+                "displayName": "LogicApp"
             },
             "properties": {
                 "state": "Enabled",
