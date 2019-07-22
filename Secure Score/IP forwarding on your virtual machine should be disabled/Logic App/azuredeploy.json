@@ -13,7 +13,12 @@
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
             "name": "[parameters('workflows_IPForwarding_Disabled_name')]",
-            "location": "centralus",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "principalId": "",
+                "tenantId": "",
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "state": "Enabled",
                 "definition": {
