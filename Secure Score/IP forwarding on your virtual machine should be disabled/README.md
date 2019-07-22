@@ -1,5 +1,5 @@
-# Samples for remediating "Function App should only be accessible over HTTPs"
-These samples provide various ways to resolve the "*Function App should only be accessible over HTTPs*" recommendation in Azure Security Center. There are four samples:
+# Samples for remediating "IP forwarding on your virtual machine should be disabled"
+These samples provide various ways to resolve the "*IP forwarding on your virtual machine should be disabled*" recommendation in Azure Security Center. There are four samples:
 * **PowerShell script** - will loop through and remediate each instance 
     * Requires the Azure (Az) PowerShell module
 * **Logic App Playbook** - uses the REST API to enumerate and remediate each instance 
