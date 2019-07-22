@@ -1,6 +1,7 @@
 # Powershell Script to Remediate
 
-This script will Help to find all the Nics under a given subscription with Ip forwarder set to ON, and change to to OFF, by doing so it willremidiate the recomendation IP forwarding on your virtual machine should be disabled
+This script will help customers to find all the network card under a given subscription, with IP forwarder set to ON and change to to OFF.
+By doing so it will remidiate Azure security Center recomendation: IP forwarding on your virtual machine should be disabled.
 
 # Contributing
 
