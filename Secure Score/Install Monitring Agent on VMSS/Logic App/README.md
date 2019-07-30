@@ -1,5 +1,5 @@
 # Logic Apps sample playbook to remediate
-This sample playbook allows you to install the monitring agent on your Linux and windiws virtual machine scale set. according to ASC's recommendation *"Monitoring agent should be installed on virtual machine scale sets"*
+This sample playbook allows you to install the monitoring agent on your Linux and Windows virtual machine scale set. According to ASC's recommendation *"Monitoring agent should be installed on virtual machine scale sets"*
 The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriate permissions on the resources that you would like to remediate.
 
 
