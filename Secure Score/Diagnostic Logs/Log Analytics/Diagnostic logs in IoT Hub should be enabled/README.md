@@ -4,7 +4,7 @@ Deploy auditing of diagnostic logs in IoT Hub. This enables you to recreate acti
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com/Azure/Azure-Security-Center/Secure%20Score/Diagnostic%20logs/Log%20Analytics/Diagnostic%20logs%20in%20IoT%20Hub%20should%20be%20enabled/azurepolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2FLog%2520Analytics%2FDiagnostic%2520logs%2520in%2520IoT%2520Hub%2520should%2520be%2520enabled%2Fazurepolicy.json)
 
 [Learn more about Azure diagnostic logs](https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs)
 
