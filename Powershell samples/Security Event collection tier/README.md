@@ -2,7 +2,7 @@
 
 This sample snippet provides you with the ability to configure Azure Security Center's security event collection tier. To learn more about data collection in Security Center, please visit the [documentation page](https://docs.microsoft.com/en-us/azure/security-center/security-center-enable-data-collection).
 
-*The below snippets require retrieving an Azure Authorization token. To do via PowerShell, please see visit the following [article](../../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md).*
+*The below snippets require retrieving an Azure Authorization token. To do via PowerShell, please see visit the following [article](../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md).*
 
 
 ## Users of Security Center's default (managed) workspaces
@@ -30,7 +30,7 @@ $RESTURI = "https://management.azure.com/subscriptions/" + $subscriptionId + "pr
 Invoke-RestMethod -Uri $RESTURI -Method PUT -Headers $requestHeader -Body $jsonBody
 ```
 
-(`requestHeader` should be generated via this [article](../../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md))
+(`requestHeader` should be generated via this [article](../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md))
 
 ## Users of an existing user workspace
 In case you're collecting data to an existing [user workspace](https://docs.microsoft.com/azure/security-center/security-center-enable-data-collection#using-an-existing-workspace), please use the following code snippet:
@@ -61,7 +61,7 @@ $RESTURI = "https://management.azure.com/subscriptions/" + $subscriptionId + `
 Invoke-RestMethod -Uri $RESTURI -Method PUT -Headers $requestHeader -Body $jsonBody
 ```
 
-(`requestHeader` should be generated via this [article](../../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md))
+(`requestHeader` should be generated via this [article](../Authorization%20token%20retrieval%20for%20REST%20APIs/README.md))
 
 # Contributing
 
