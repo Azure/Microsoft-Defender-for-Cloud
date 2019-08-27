@@ -1,0 +1,42 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "audit-sensitive-information-types-scan",
+    "properties": {
+    "displayName": "Sensitive information type scanning should be enabled for storage accounts",
+    "mode": "All",
+    "description": "Information type scanning should be enabled for storage accounts to detect sensitive information that you can then take steps to protect",
+    "metadata": {
+      "category": "Storage"
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "defaultValue": "Audit",
+            "allowedValues": ["Audit", "Disabled"],
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Enable or disable the execution of the policy" 
+            }
+        }
+    }, 
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "not": {
+              "field": "tags['SensitiveInfomationScan']",
+              "equals": "True"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}
