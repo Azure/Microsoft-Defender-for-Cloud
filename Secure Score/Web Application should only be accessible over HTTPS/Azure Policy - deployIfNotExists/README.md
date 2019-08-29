@@ -3,7 +3,7 @@ This Azure Policy definition will ensure that during the creation of new Web App
 
 After the deployment, you need to assign it and set the desired scope.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FLogic%2520App%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FWeb%2520Application%2520should%2520only%2520be%2520accessible%2520over%2520HTTPS%2FAzure%2520Policy%2520-%2520deployIfNotExists%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
