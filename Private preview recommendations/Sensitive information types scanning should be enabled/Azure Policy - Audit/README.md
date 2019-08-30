@@ -1,13 +1,9 @@
-# Azure Policy - deployIfNotExists
-This Azure Policy definition will ensure that during the creation of new Web Applications, HTTPS will be enabled. Also it will enable you to create a remediation task which will change the Web Application setting to enable HTTPS.<br>
+# Azure Policy Sensitive information types scanning
 
-After the deployment, you need to assign it and set the desired scope.
+This policy sample will allow you to you to audit information type scanning for storage accounts.  
+You can deploy the template using Azure CLI, Azure PowerShell or the deploy to Azure button below:
 
-### Deployment with PowerShell
-```powershell
-New-AzDeployment -Name <yourDeploymentName> -Location <yourLocation> -TemplateFile 'https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Secure%20Score/Web%20Application%20should%20only%20be%20accessible%20over%20HTTPS/Azure%20Policy%20-%20deployIfNotExists/azuredeploy.json' -Verbose
-```
-
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%20preview%20recommendations%2FSensitive%20information%20types%20scanning%20should%20be%20enabled%2FAzure%20Policy%20-%20Audit%2FStorageSensitivityScan-Audit.json)
 
 # Contributing
 
