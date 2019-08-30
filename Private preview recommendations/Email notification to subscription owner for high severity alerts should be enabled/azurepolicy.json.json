@@ -1,0 +1,44 @@
+{
+  "properties": {
+    "displayName": "Email notification to subscription owner for high severity alerts should be enabled",
+    "policyType": "BuiltIn",
+    "mode": "All",
+    "description": "Enable emailing security alerts to the subscription owner, in order to have them receive security alert emails from Microsoft. This ensures that they are aware of any potential security issues and can mitigate the risk in a timely fashion",
+    "metadata": {
+      "category": "Security Center"
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "AuditIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "AuditIfNotExists"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Security/securityContacts",
+          "existenceCondition": {
+            "field": "Microsoft.Security/securityContacts/alertsToAdmins",
+            "notEquals": "Off"
+          }
+        }
+      }
+    }
+  },
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/0b15565f-aa9e-48ba-8619-45960f2c314d",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "0b15565f-aa9e-48ba-8619-45960f2c314d"
+}
