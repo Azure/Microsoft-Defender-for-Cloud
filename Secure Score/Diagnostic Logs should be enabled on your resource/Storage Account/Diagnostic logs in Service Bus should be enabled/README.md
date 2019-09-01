@@ -4,7 +4,7 @@ Deploy auditing of diagnostic logs in Service Bus. This enables you to recreate 
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2FStorage%252Account%2FDiagnostic%2520logs%2520in%2520Service%2520Bus%2520should%2520be%2520enabled%2Fazurepolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2520should%2520be%2520enabled%2520on%2520your%2520resource%2FStorage%2520Account%2FDiagnostic%2520logs%2520in%2520Service%2520Bus%2520should%2520be%2520enabled%2FREADME.md)
 
 [Learn more about Azure diagnostic logs](https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs)
 
