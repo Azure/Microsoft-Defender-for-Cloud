@@ -1,10 +1,10 @@
-# Diagnostic logs in Search Services should be enabled
+# Diagnostic logs in Key Vault should be enabled
 
-Deploy auditing of diagnostic logs in Search Services. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
+Deploy auditing of diagnostic logs in Key Vault. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2FLog%2520Analytics%2FDiagnostic%2520logs%2520in%2520Search%2520Service%2520should%2520be%2520enabled%2Fazurepolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2520should%2520be%2520enabled%2520on%2520your%2520resource%2FLog%2520Analytics%2FDiagnostic%2520logs%2520in%2520Key%2520Vault%2520should%2520be%2520enabled%2FREADME.md)
 
 [Learn more about Azure diagnostic logs](https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs)
 
