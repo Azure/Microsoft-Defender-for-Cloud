@@ -8,6 +8,7 @@ Deploy auditing of diagnostic logs in Stream Analytics. This enables you to recr
 
 [Learn more about Azure diagnostic logs](https://docs.microsoft.com/en-us/azure/cdn/cdn-azure-diagnostic-logs)
 
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
