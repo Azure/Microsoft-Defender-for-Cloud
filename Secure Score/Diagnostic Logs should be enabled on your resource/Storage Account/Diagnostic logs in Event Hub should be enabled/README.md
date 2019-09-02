@@ -1,9 +1,10 @@
-# Azure Policy Sensitive information types scanning
+# Diagnostic logs in Event Hub should be enabled
 
-This policy sample will allow you to you to audit information type scanning for storage accounts.  
-You can deploy the template using Azure CLI, Azure PowerShell or the deploy to Azure button below:
+Deploy auditing of diagnostic logs in Event Hub. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%20preview%20recommendations%2FSensitive%20information%20types%20scanning%20should%20be%20enabled%2FAzure%20Policy%20-%20Audit%2FStorageSensitivityScan-Audit.json)
+## Try on Portal
+
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDiagnostic%2520Logs%2520should%2520be%2520enabled%2520on%2520your%2520resource%2FStorage%2520Account%2FDiagnostic%2520logs%2520in%2520Event%2520Hub%2520should%2520be%2520enabled%2Fazurepolicy.json)
 
 # Contributing
 
