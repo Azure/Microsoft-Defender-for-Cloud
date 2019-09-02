@@ -1,4 +1,4 @@
-Email notification to subscription owner for high severity alerts should be enabled
+Enforces a required tag and its value. Does not apply to resource groups.
 
 ## Try on Portal
 
