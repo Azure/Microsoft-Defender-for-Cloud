@@ -1,6 +1,6 @@
 {
   "properties": {
-    "displayName": "Require tag and its value",
+    "displayName": "[ASC Preview] Require tag and its value",
     "policyType": "BuiltIn",
     "mode": "Indexed",
     "description": "Enforces a required tag and its value. Does not apply to resource groups.",
