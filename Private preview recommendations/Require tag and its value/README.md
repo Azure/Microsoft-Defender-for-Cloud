@@ -2,7 +2,7 @@ Enforces a required tag and its value. Does not apply to resource groups.
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%2520preview%2520recommendations%2FRequire%2520tag%2520and%2520its%2520value%2Fazurepolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/?PolicyPackages=true#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%2520preview%2520recommendations%2FRequire%2520tag%2520and%2520its%2520value%2Fazurepolicy.json)
 
 # Contributing
 

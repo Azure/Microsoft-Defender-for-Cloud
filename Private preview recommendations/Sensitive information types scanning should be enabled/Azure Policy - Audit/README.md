@@ -3,7 +3,7 @@
 This policy sample will allow you to you to audit information type scanning for storage accounts.  
 You can deploy the template using Azure CLI, Azure PowerShell or the deploy to Azure button below:
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%20preview%20recommendations%2FSensitive%20information%20types%20scanning%20should%20be%20enabled%2FAzure%20Policy%20-%20Audit%2FStorageSensitivityScan-Audit.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/?PolicyPackages=true#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPrivate%20preview%20recommendations%2FSensitive%20information%20types%20scanning%20should%20be%20enabled%2FAzure%20Policy%20-%20Audit%2FStorageSensitivityScan-Audit.json)
 
 # Contributing
 
