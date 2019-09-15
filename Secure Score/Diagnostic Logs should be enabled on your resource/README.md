@@ -19,6 +19,8 @@ You can export data to Azure Monitor logs and view data in your own Log Analytic
 
 [Learn more about policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure)
 
+E-mail us at libaruch@microsoft.com with your questions.
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
