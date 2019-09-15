@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Logic Apps (send to Log Analytics workspace)",
+    "displayName": "Deploy Diagnostic Settings for Logic Apps to Log Analytics workspace",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Logic Apps. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Logic Apps to stream to a regional Log Analytics workspace when any Logic Apps which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Logic Apps"
     },

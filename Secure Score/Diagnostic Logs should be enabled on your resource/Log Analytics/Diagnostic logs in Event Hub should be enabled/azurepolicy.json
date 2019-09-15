@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Event Hubs (send to Log Analytics workspace)",
+    "displayName": "Deploy Diagnostic Settings for Event Hub to Log Analytics workspace",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Event Hubs. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Event Hub to stream to a regional Log Analytics workspace when any Event Hub which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Event Hubs"
     },
