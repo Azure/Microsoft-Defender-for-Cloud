@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Stream Analytics (stream to event hub)",
+    "displayName": "Deploy Diagnostic Settings for Stream Analytics to Event Hub",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Stream Analytics. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Stream Analytics to stream to a regional Event Hub when any Stream Analytics which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Stream Analytics"
     },
@@ -25,7 +25,7 @@
         "metadata": {
           "displayName": "Event Hub shared access policies key",
           "description": "Insert event hub shared access policies key. Please notice that the event hub should be in the same location as the resource.",
-          "strongType": "eventHub",
+          "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
           "assignPermissions": true
         }
       }

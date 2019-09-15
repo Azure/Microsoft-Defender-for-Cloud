@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Iot Hub (send to Log Analytics workspace)",
+    "displayName": "Deploy Diagnostic Settings for Iot Hub to Log Analytics workspace",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Iot Hub. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Iot Hub to stream to a regional Log Analytics workspace when any Iot Hub which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Iot Hub"
     },

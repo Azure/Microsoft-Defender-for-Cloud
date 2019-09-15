@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Key Vault (stream to event hub)",
+    "displayName": "Deploy Diagnostic Settings for Key Vault to Event Hub",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Key Vault. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Key Vault to stream to a regional Event Hub when any Key Vault which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Key Vault"
     },
@@ -25,8 +25,8 @@
         "metadata": {
           "displayName": "Event Hub shared access policies key",
           "description": "Insert event hub shared access policies key. Please notice that the event hub should be in the same location as the resource.",
-          "strongType": "eventHub",
-          "assignPermissions": true
+          "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+		  "assignPermissions": true
         }
       }
     },

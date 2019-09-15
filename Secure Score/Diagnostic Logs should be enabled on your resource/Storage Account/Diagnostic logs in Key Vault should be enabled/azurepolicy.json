@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Key Vault (Archive to a Storage Account)",
+    "displayName": "Deploy Diagnostic Settings for Key Vault to Storage Account",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Key Vault. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Key Vault to archive to a regional Storage Account when any Key Vault which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Key Vault"
     },
@@ -111,7 +111,7 @@
                     "type": "string"
                   },
                   "requiredRetentionDays": {
-                    "type": "int"
+                    "type": "string"
                   }
                 },
                 "variables": {},
@@ -130,7 +130,7 @@
                           "enabled": true,
                           "retentionPolicy": {
                             "enabled": false,
-                            "days": "[int(parameters('requiredRetentionDays'))]"
+                            "days": "[parameters('requiredRetentionDays')]"
                           }
                         }
                       ],
@@ -140,7 +140,7 @@
                           "enabled": true,
                           "retentionPolicy": {
                             "enabled": false,
-                            "days": "[int(parameters('requiredRetentionDays'))]"
+                            "days": "[parameters('requiredRetentionDays')]"
                           }
                         }
                       ]
@@ -160,7 +160,7 @@
                   "value": "[field('location')]"
                 },
                 "requiredRetentionDays": {
-                  "value": "[int(parameters('requiredRetentionDays'))]"
+                  "value": "[parameters('requiredRetentionDays')]"
                 }
               }
             }
