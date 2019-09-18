@@ -2,8 +2,8 @@
 
 ## Azure Policy - deployIfNotExists
 
-This collection of samples are providing a better security logs to your resources by enabling Diagnostic Logs and retain them up to a year in Azure Policy. When configuring your diagnostic logs settings, you can export the logs to three targets. After the deployment, you need to assign it and set the desired scope. Also it will enable you to create a remediation task which will change the resource settings to enable Diagnostic Logs.
-You can use each target that is not in the same subscription as the one emitting logs. The user who configures the setting must have the appropriate RBAC access to both subscriptions.
+This collection of samples are providing better security logs to your resources by enabling Diagnostic Logs and retaining them up to a year in Azure Policy. When configuring your diagnostic logs settings, you can export the logs into three targets. After the deployment, you need to assign it and set the desired scope. Also it will enable you to create a remediation task which will change the resource settings to enable Diagnostic Logs.
+You can use each target, that is not in the same subscription, as the one emitting logs. The user who configures the setting must have the appropriate RBAC access to both subscriptions.
 
 ## Storage Account
 
@@ -18,7 +18,7 @@ You can export data to Event Hubs and correlate with data from other Azure servi
 You can export data to Azure Monitor logs and view data in your own Log Analytics workspace.
 
 [Learn more about policy definition structure](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/definition-structure)
-
+Please provide us your input and suggestions on [this form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR_CzuCpXTVhBswcSTF6htOtUMkJKR0pLWUNES0VHVVU1QUMwWFRaR0VCWC4u)
 E-mail us at libaruch@microsoft.com with your questions.
 
 # Contributing
