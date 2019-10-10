@@ -1,9 +1,9 @@
 {
   "properties": {
-    "displayName": "Deploy auditing of diagnostic logs in Stream Analytics (send to Log Analytics workspace)",
+    "displayName": "Deploy Diagnostic Settings for Stream Analytics to Log Analytics workspace",
     "policyType": "Custom",
     "mode": "Indexed",
-    "description": "Deploy auditing of diagnostic logs in Stream Analytics. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised",
+    "description": "Deploys the diagnostic settings for Stream Analytics to stream to a regional Log Analytics workspace when any Stream Analytics which is missing this diagnostic settings is created or updated.",
     "metadata": {
       "category": "Stream Analytics"
     },
