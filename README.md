@@ -1,5 +1,7 @@
 # Azure Security Center
-Welcome to the Azure Security Center repository! This repository contains security recommendations, remediation templates, PowerShell scripts, Policy snippets and playbooks to help you work programmatically at scale with Azure Security Center and provide you security content to secure your environment. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com) 
+Welcome to the Azure Security Center repository! This repository contains security recommendations, remediation templates, PowerShell scripts, Policy snippets and playbooks to help you work programmatically at scale with Azure Security Center and provide you security content to secure your environment. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). 
+
+For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com) 
 
 # Community Resources
 
