@@ -1,6 +1,8 @@
 # PowerShell samples
 In this section you can find PowerShall samples for working with Azure Security Center data and APIs.
 
+# Questions
+
 For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
 
 # Contributing
