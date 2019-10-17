@@ -1,4 +1,4 @@
-# PowerShell samples
+# Security recommendations
 In this section you can find custom security recommendations you can onboard to Azure Security Center.
 
 # Questions
