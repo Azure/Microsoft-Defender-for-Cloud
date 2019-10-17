@@ -1,6 +1,7 @@
-# Azure Security Center - improving your Secure Score
-This repository contains several samples to help you improve your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">secure score</a>.<br>
-The samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.<br>
+# Progremmatic remediation tools
+This section contains several samples to help you progremmaticaly remediate your Security Center recommendations, and thus improving your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">Secure score</a>.
+
+These samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.
 
 The samples that are provided are from the following type:
 * **Azure Policy definitions** - allow you to deny, enforce and remediate the configuration of your Azure resources
