@@ -1,5 +1,5 @@
 # Azure Security Center
-Welcome to the Azure Security Center repository. This repository contains:
+Welcome to the Azure Security Center community repository. This repository contains:
 - Security recommendations that are in private preview
 - Custom additional recommendations
 - Recommendations remediation templates
