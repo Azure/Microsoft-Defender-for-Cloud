@@ -1,20 +1,25 @@
 # Azure Security Center
-Welcome to the Azure Security Center repository! This repository contains security recommendations, remediation templates, PowerShell scripts, Policy snippets and playbooks to help you work programmatically at scale with Azure Security Center and provide you security content to secure your environment. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). 
+Welcome to the Azure Security Center repository. This repository contains:
+- Security recommendations that are in private preview
+- Custom additional recommendations
+- Recommendations remediation templates
+- PowerShell scripts for progremmatic management
+- Azure Policy custom definitions for at-scale management via Azure Policy
+- Logic App templates that work with Security Center's Logic App connectors (to automate response to Security alerts and recommendations)
 
-For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com) 
+All of the above will help you work programmatically at scale with Azure Security Center and provide you additional security value to secure your environment, some of which has not yet been embedded into the product. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). 
 
-# Community Resources
+For questions and feedback, please contact [asc_community@microsoft.com](asc_community@microsoft.com).
 
-[Azure Security Center Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
+# Additional resources
 
-[Azure Security Center Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
+Please visit the following additional resources to learn more about Azure Security and participate in discussions: 
 
-[Azure Security Center Feature suggestion](https://feedback.azure.com/forums/347535-azure-security-center)
-
-
-# Learn more
-
-[Azure Security Center documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
+- [Azure Security Center Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
+- [Azure Security Center Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
+- [Azure Security Center Feature suggestion](https://feedback.azure.com/forums/347535-azure-security-center)
+- [Azure Security Center documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
+- [Azure Security Center API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
 
 # Contributing
 
