@@ -1,3 +1,9 @@
+# PowerShell samples
+In this section you can find code snippets for deploying Azure Security Center pricing & settings configurations programmatically and at scale.
+
+# Questions
+
+For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
 
 # Contributing
 
