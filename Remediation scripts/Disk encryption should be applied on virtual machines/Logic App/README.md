@@ -3,7 +3,7 @@
 This Logic App deployment template is provided to apply Azure Disk Encryption to VMs. It will loop through all Security Center recommendations in all subscriptions to find unencrypted VM disks, then encrypt the VMs. Note that this will also create Key Vaults in each region VMs exist. This Logic App relies on a Managed Identity, which must be enabled for the app and given appropriate permissions in the subscriptions.
 
 <a
-href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FDisk%2520encryption%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-AzureDiskEncryption.json" target="_blank">
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FDisk%2520encryption%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-AzureDiskEncryption.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
