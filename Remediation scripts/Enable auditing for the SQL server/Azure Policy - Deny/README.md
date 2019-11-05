@@ -1,6 +1,6 @@
 # Deny disable of Auditing on SQL servers
 
-This policy ensures that Auditing can not be set to disbaled on SQL Servers for enhanced security & compliance.
+This policy ensures that Auditing cannot be set to disabled on SQL Servers for enhanced security & compliance.
 
 ## Try on Portal
 
