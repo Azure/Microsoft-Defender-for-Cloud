@@ -46,13 +46,13 @@ if ($AzModule -eq $null) {
 Write-Verbose "Logging into Azure Tenant"
 Login-AzAccount
 
-# Pulling subscrptions this user has access to
-Write-Verbose " Pulling all subscrptions assoicated to the AAD Token"
+# Pulling subscriptions this user has access to
+Write-Verbose " Pulling all subscriptions assoicated to the AAD Token"
 $Subscriptions = Get-AzSubscription
 
 # Collecting events per subscrption, this will take time.
-Write-Verbose "Searching each subscrption can take up to 30 seconds each"
-Write-Host " Please wait while searching all" ($Subscriptions).Count "subscrptions"
+Write-Verbose "Searching each subscription can take up to 30 seconds each"
+Write-Host " Please wait while searching all" ($Subscriptions).Count "subscriptions"
 
 foreach($Subscription in $Subscriptions){
 
@@ -66,11 +66,11 @@ foreach($Subscription in $Subscriptions){
 
 }
 
-#Total Subscrptions you've collected
-Write-Host " Here is a list of all the subscrptions you've just searched"
+#Total Subscriptions you've collected
+Write-Host " Here is a list of all the subscriptions you've just searched"
 $Subscriptions | ft
 
-# Providing count of Free and Standard within Subscrptions:
+# Providing count of Free and Standard within Subscriptions:
 
 $FreeAppServices = $ASC | where{$_.PricingTier -eq "Free"} | where{$_.Name -eq "AppServices"}
 $FreeStorageAccounts = $ASC | where{$_.PricingTier -eq "Free"} | where{$_.Name -eq "StorageAccounts"}
@@ -81,7 +81,7 @@ $StandardStorageAccounts = $ASC | where{$_.PricingTier -eq "Standard"} | where{$
 $StandardSQLServers = $ASC | where{$_.PricingTier -eq "Standard"} | where{$_.Name -eq "SqlServers"}
 $StandardVirtualMachines = $ASC | where{$_.PricingTier -eq "Standard"} | where{$_.Name -eq "VirtualMachines"}
 
-Write-Host " The Total Count of Azure Security Center 'Free' subscrptions " -NoNewline
+Write-Host " The Total Count of Azure Security Center 'Free' subscriptions " -NoNewline
 Write-Host ($ASC | where{$_.PricingTier -eq "Free"} | Measure-Object).Count -ForegroundColor Red
 Write-Host " Free Sub - App Services " -NoNewline
 Write-Host ($ASC | where{$_.PricingTier -eq "Free"} | where{$_.Name -eq "AppServices"} | Measure-Object).Count -ForegroundColor Red
