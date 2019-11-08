@@ -1,12 +1,12 @@
-# Samples for discoverying tenant wide subscprtion management
+# Samples for discovering tenant wide subscription management
 
-These samples provide various ways to discover your tenant information with mulitlpe subscrptions for Azure Security Center.
+These samples provide various ways to discover your tenant information with mulitlpe subscriptions for Azure Security Center.
 
 * AzASCSubCount.ps1
     - This is walking through the following: (precheck for modules included in script)
-        1. Logging into your tenant - suggested global admin to get full tenant/all subscrption infromation
-        2. Checking each subscrption within your tenant and collecting the information to be pasred (Note this can take up to 30 seconds per subscrption)
-        3. After checking each subscrption it'll provide a text format of which subscrptions it searched, which subscrptions have "free" and "standard" enabled, for which type. Addtionaly it's checking to see a total of Virtual Machines that have been provisioned or not provisioned within your Azure Tenant.
+        1. Logging into your tenant - suggested global admin to get full tenant/all subscription information
+        2. Checking each subscription within your tenant and collecting the information to be parsed (Note this can take up to 30 seconds per subscription)
+        3. After checking each subscription it'll provide a text format of which subscrptions it searched, which subscriptions have "free" and "standard" enabled, for which type. Addtionaly it's checking to see a total of Virtual Machines that have been provisioned or not provisioned within your Azure Tenant.
 
 
 
