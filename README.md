@@ -1,7 +1,7 @@
 # Azure Security Center
 Welcome to the Azure Security Center community repository. This repository contains:
 - Security recommendations that are in private preview
-- Progrematic remediation tools for security recommendations
+- Programmatic remediation tools for security recommendations
 - PowerShell scripts for progremmatic management
 - Azure Policy custom definitions for at-scale management via Azure Policy
 - Logic App templates that work with Security Center's Logic App connectors (to automate response to Security alerts and recommendations)
