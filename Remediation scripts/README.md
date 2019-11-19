@@ -1,5 +1,5 @@
-# Progremmatic remediation tools
-This section contains several samples to help you progremmaticaly remediate your Security Center recommendations, and thus improving your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">Secure score</a>.
+# Programmatic remediation tools
+This section contains several samples to help you programmatic remediate your Security Center recommendations, and thus improving your <a href="https://docs.microsoft.com/en-us/azure/security-center/security-center-secure-score" target="_blank">Secure score</a>.
 
 These samples are officially not supported by Microsoft and are meant for you to explore, test and adopt where applicable in your organization.
 
