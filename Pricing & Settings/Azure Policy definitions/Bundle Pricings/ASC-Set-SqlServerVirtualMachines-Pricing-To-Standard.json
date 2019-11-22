@@ -13,7 +13,7 @@
         "effect": "DeployIfNotExists",
         "details": {
           "type": "Microsoft.Security/pricings",
-          "name": "StorageAccounts",
+          "name": "SqlServerVirtualMachines",
           "deploymentScope": "Subscription",
           "existenceScope": "Subscription",
           "roleDefinitionIds": [
@@ -37,7 +37,7 @@
                       {
                           "type": "Microsoft.Security/pricings",
                           "apiVersion": "2018-06-01",
-                          "name": "StorageAccounts",
+                          "name": "SqlServerVirtualMachines",
                           "properties":{
                               "pricingTier": "Standard"
                           }
