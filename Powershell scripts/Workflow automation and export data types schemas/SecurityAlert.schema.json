@@ -5,13 +5,11 @@
     5   "type": "object",
     6   "title": "The Root Schema",
     7   "required": [
-        8     "Version",
         10     "VendorName",
         11     "AlertType",
         12     "StartTimeUtc",
         13     "TimeGenerated",
         14     "ReportedSeverity",
-        15     "ProviderAlertId",
         16     "SystemAlertId",
         17     "AzureResourceId",
         18     "AzureResourceSubscriptionId",
@@ -28,16 +26,6 @@
         32     "ResourceIdentifiers"
    36   ],
    37   "properties": {
-   38     "Version": {
-   39       "$id": "#/properties/Version",
-   40       "type": "string",
-   41       "title": "The Version Schema",
-   42       "default": "",
-   43       "examples": [
-   44         "3.0"
-   45       ],
-   46       "pattern": "^(.*)$"
-   47     },
    48     "VendorName": {
    49       "$id": "#/properties/VendorName",
    50       "type": "string",
@@ -137,16 +125,6 @@
   144       ],
   145       "pattern": "^(.*)$"
   146     },
-  147     "ProviderAlertId": {
-  148       "$id": "#/properties/ProviderAlertId",
-  149       "type": "string",
-  150       "title": "The Provideralertid Schema",
-  151       "default": "",
-  152       "examples": [
-  153         "F2BFED55-5997-4FEA-95BD-BB7C6DDCD061"
-  154       ],
-  155       "pattern": "^(.*)$"
-  156     },
   157     "SystemAlertId": {
   158       "$id": "#/properties/SystemAlertId",
   159       "type": "string",
@@ -329,11 +307,6 @@
   336       "type": "array",
   337       "title": "The Entities Schema"
   338     },
-  339     "Edges": {
-  340       "$id": "#/properties/Edges",
-  341       "type": "array",
-  342       "title": "The Edges Schema"
-  343     },
   344     "ResourceIdentifiers": {
   345       "$id": "#/properties/ResourceIdentifiers",
   346       "type": "array",
