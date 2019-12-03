@@ -1,0 +1,290 @@
+1 {
+    2   "definitions": {},
+    3   "$schema": "http://json-schema.org/draft-07/schema#",
+    4   "$id": "http://example.com/root.json",
+    5   "type": "object",
+    6   "title": "The Root Schema",
+    7   "required": [
+    9     "id",
+   10     "name",
+   11     "type",
+   12     "properties"
+   13   ],
+   14   "properties": {
+   15     "AssessmentEventDataEnrichment": {
+   16       "$id": "#/properties/AssessmentEventDataEnrichment",
+   17       "type": "object",
+   18       "title": "The Assessmenteventdataenrichment Schema",
+   19       "required": [
+   20         "Action",
+   21         "ApiVersion"
+   22       ],
+   23       "properties": {
+   24         "Action": {
+   25           "$id": "#/properties/AssessmentEventDataEnrichment/properties/Action",
+   26           "type": "string",
+   27           "title": "The Action Schema",
+   28           "default": "",
+   29           "examples": [
+   30             "Insert"
+   31           ],
+   32           "pattern": "^(.*)$"
+   33         },
+   34         "ApiVersion": {
+   35           "$id": "#/properties/AssessmentEventDataEnrichment/properties/ApiVersion",
+   36           "type": "string",
+   37           "title": "The Apiversion Schema",
+   38           "default": "",
+   39           "examples": [
+   40             "2019-01-01"
+   41           ],
+   42           "pattern": "^(.*)$"
+   43         }
+   44       }
+   45     },
+   46     "id": {
+   47       "$id": "#/properties/id",
+   48       "type": "string",
+   49       "title": "The Id Schema",
+   50       "default": "",
+   51       "examples": [
+   52         "/subscriptions/a27e854a-8578-4395-8eaf-6fc7849f3050/providers/Microsoft.Security/assessments/151e82c5-5341-a74b-1eb0-bc38d2c84bb5"
+   53       ],
+   54       "pattern": "^(.*)$"
+   55     },
+   56     "name": {
+   57       "$id": "#/properties/name",
+   58       "type": "string",
+   59       "title": "The Name Schema",
+   60       "default": "",
+   61       "examples": [
+   62         "151e82c5-5341-a74b-1eb0-bc38d2c84bb5"
+   63       ],
+   64       "pattern": "^(.*)$"
+   65     },
+   66     "type": {
+   67       "$id": "#/properties/type",
+   68       "type": "string",
+   69       "title": "The Type Schema",
+   70       "default": "",
+   71       "examples": [
+   72         "Microsoft.Security/assessments"
+   73       ],
+   74       "pattern": "^(.*)$"
+   75     },
+   76     "properties": {
+   77       "$id": "#/properties/properties",
+   78       "type": "object",
+   79       "title": "The Properties Schema",
+   80       "required": [
+   81         "resourceDetails",
+   82         "displayName",
+   83         "status",
+   84         "additionalData",
+   85         "metadata"
+   87       ],
+   88       "properties": {
+   89         "resourceDetails": {
+   90           "$id": "#/properties/properties/properties/resourceDetails",
+   91           "type": "object",
+   92           "title": "The Resourcedetails Schema",
+   93           "required": [
+   94             "source"
+   96           ],
+   97           "properties": {
+   98             "source": {
+   99               "$id": "#/properties/properties/properties/resourceDetails/properties/source",
+  100               "type": "string",
+  101               "title": "The Source Schema",
+  102               "default": "",
+  103               "examples": [
+  104                 "Azure"
+  105               ],
+  106               "pattern": "^(.*)$"
+  107             },
+  108             "id": {
+  109               "$id": "#/properties/properties/properties/resourceDetails/properties/id",
+  110               "type": "string",
+  111               "title": "The Id Schema",
+  112               "default": "",
+  113               "examples": [
+  114                 "/subscriptions/a27e854a-8578-4395-8eaf-6fc7849f3050"
+  115               ],
+  116               "pattern": "^(.*)$"
+  117             }
+  118           }
+  119         },
+  120         "displayName": {
+  121           "$id": "#/properties/properties/properties/displayName",
+  122           "type": "string",
+  123           "title": "The Displayname Schema",
+  124           "default": "",
+  125           "examples": [
+  126             "Enable MFA for Azure Management App accounts with read permissions on your subscription"
+  127           ],
+  128           "pattern": "^(.*)$"
+  129         },
+  130         "status": {
+  131           "$id": "#/properties/properties/properties/status",
+  132           "type": "object",
+  133           "title": "The Status Schema",
+  134           "required": [
+  135             "code"
+  138           ],
+  139           "properties": {
+  140             "code": {
+  141               "$id": "#/properties/properties/properties/status/properties/code",
+  142               "type": "string",
+  143               "title": "The Code Schema",
+  144               "default": "",
+  145               "examples": [
+  146                 "Unhealthy"
+  147               ],
+  148               "pattern": "^(.*)$"
+  149             },
+  150             "cause": {
+  151               "$id": "#/properties/properties/properties/status/properties/cause",
+  152               "type": "string",
+  153               "title": "The Cause Schema",
+  154               "default": "",
+  155               "examples": [
+  156                 "N/A"
+  157               ],
+  158               "pattern": "^(.*)$"
+  159             },
+  160             "description": {
+  161               "$id": "#/properties/properties/properties/status/properties/description",
+  162               "type": "string",
+  163               "title": "The Description Schema",
+  164               "default": "",
+  165               "examples": [
+  166                 "N/A"
+  167               ],
+  168               "pattern": "^(.*)$"
+  169             }
+  170           }
+  171         },
+  172         "additionalData": {
+  173           "$id": "#/properties/properties/properties/additionalData",
+  174           "type": "object",
+  175           "title": "The Additionaldata Schema",
+  176           "required": [
+  178           ],
+  179           "properties": {
+  180             "usersWithNoMfaObjectIdList": {
+  181               "$id": "#/properties/properties/properties/additionalData/properties/usersWithNoMfaObjectIdList",
+  182               "type": "array",
+  183               "title": "The Userswithnomfaobjectidlist Schema",
+  184               "items": {
+  185                 "$id": "#/properties/properties/properties/additionalData/properties/usersWithNoMfaObjectIdList/items",
+  186                 "type": "string",
+  187                 "title": "The Items Schema",
+  188                 "default": "",
+  189                 "examples": [
+  190                   "4da84f70-3bf5-4537-ab16-01100fd5c378",
+  191                   "271edb6b-4bfd-44dc-bde7-25286a2e1dc1"
+  192                 ],
+  193                 "pattern": "^(.*)$"
+  194               }
+  195             }
+  196           }
+  197         },
+  198         "metadata": {
+  199           "$id": "#/properties/properties/properties/metadata",
+  200           "type": "object",
+  201           "title": "The Metadata Schema",
+  202           "required": [
+  203             "displayName",
+  204             "assessmentType",
+  205             "policyDefinitionId",
+  206             "description",
+  207             "remediationDescription",
+  208             "severity"
+  209           ],
+  210           "properties": {
+  211             "displayName": {
+  212               "$id": "#/properties/properties/properties/metadata/properties/displayName",
+  213               "type": "string",
+  214               "title": "The Displayname Schema",
+  215               "default": "",
+  216               "examples": [
+  217                 "Enable MFA for Azure Management App accounts with read permissions on your subscription"
+  218               ],
+  219               "pattern": "^(.*)$"
+  220             },
+  221             "assessmentType": {
+  222               "$id": "#/properties/properties/properties/metadata/properties/assessmentType",
+  223               "type": "string",
+  224               "title": "The Assessmenttype Schema",
+  225               "default": "",
+  226               "examples": [
+  227                 "BuiltIn"
+  228               ],
+  229               "pattern": "^(.*)$"
+  230             },
+  231             "policyDefinitionId": {
+  232               "$id": "#/properties/properties/properties/metadata/properties/policyDefinitionId",
+  233               "type": "string",
+  234               "title": "The Policydefinitionid Schema",
+  235               "default": "",
+  236               "examples": [
+  237                 "/providers/Microsoft.Authorization/policyDefinitions/760a85ff-6162-42b3-8d70-698e268f648c"
+  238               ],
+  239               "pattern": "^(.*)$"
+  240             },
+  241             "description": {
+  242               "$id": "#/properties/properties/properties/metadata/properties/description",
+  243               "type": "string",
+  244               "title": "The Description Schema",
+  245               "default": "",
+  246               "examples": [
+  247                 "N/A"
+  248               ],
+  249               "pattern": "^(.*)$"
+  250             },
+  251             "remediationDescription": {
+  252               "$id": "#/properties/properties/properties/metadata/properties/remediationDescription",
+  253               "type": "string",
+  254               "title": "The Remediationdescription Schema",
+  255               "default": "",
+  256               "examples": [
+  257                 "N/A"
+  258               ],
+  259               "pattern": "^(.*)$"
+  260             },
+  261             "severity": {
+  262               "$id": "#/properties/properties/properties/metadata/properties/severity",
+  263               "type": "string",
+  264               "title": "The Severity Schema",
+  265               "default": "",
+  266               "examples": [
+  267                 "Low"
+  268               ],
+  269               "pattern": "^(.*)$"
+  270             }
+  271           }
+  272         },
+  273         "links": {
+  274           "$id": "#/properties/properties/properties/links",
+  275           "type": "object",
+  276           "title": "The Links Schema",
+  277           "required": [
+  278             "azurePortal"
+  279           ],
+  280           "properties": {
+  281             "azurePortal": {
+  282               "$id": "#/properties/properties/properties/links/properties/azurePortal",
+  283               "type": "string",
+  284               "title": "The Azureportal Schema",
+  285               "default": "",
+  286               "examples": [
+  287                 "https://ms.portal.azure.com/?fea#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/01b1ed4c-b733-4fee-b145-f23236e70cf3"
+  288               ],
+  289               "pattern": "^(.*)$"
+  290             }
+  291           }
+  292         }
+  293       }
+  294     }
+  295   }
+  296 }
