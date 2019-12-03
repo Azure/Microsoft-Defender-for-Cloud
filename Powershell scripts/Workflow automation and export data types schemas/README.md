@@ -63,7 +63,6 @@ Below is a sample JSON representing an alert, as would be read from Event Hub (i
 
 ```
 {
-  "Version": "3.0",
   "VendorName": "Microsoft",
   "AlertType": "SUSPECT_SVCHOST",
   "StartTimeUtc": "2016-12-20T13:38:00.000Z",
@@ -74,7 +73,6 @@ Below is a sample JSON representing an alert, as would be read from Event Hub (i
   "Severity": "High",
   "Status": "New",
   "ProductName": "Azure Security Center",
-  "ProviderAlertId": "F2BFED55-5997-4FEA-95BD-BB7C6DDCD061",
   "SystemAlertId": "2342409243234234_F2BFED55-5997-4FEA-95BD-BB7C6DDCD061",
   "AzureResourceId": "/subscriptions/86057C9F-3CDD-484E-83B1-7BF1C17A9FF8/resourceGroups/backend-srv/providers/Microsoft.Compute/WebSrv1",
   "AzureResourceSubscriptionId": "86057C9F-3CDD-484E-83B1-7BF1C17A9FF8",
@@ -94,7 +92,6 @@ Below is a sample JSON representing an alert, as would be read from Event Hub (i
     "ActionTaken": "Detected"
   },
   "Entities": [],
-  "Edges": [],
   "ResourceIdentifiers": [
 		{
 			Type: "AzureResource",
