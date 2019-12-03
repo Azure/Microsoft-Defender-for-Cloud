@@ -1,6 +1,6 @@
-# Workflow automation and continuos export data types schemas
+# Workflow automation and continuous export data types schemas
 
-When using Azure Security Center's [Continuos export](https://docs.microsoft.com/azure/security-center/continuous-export) or [Workflow automation](https://docs.microsoft.com/azure/security-center/workflow-automation) features [programmatically](https://docs.microsoft.com/rest/api/securitycenter/automations), you'll need to have the data types (recommendations or alerts) schemas in order to know on which fields to define your set of filtering rules on.
+When using Azure Security Center's [Continuous export](https://docs.microsoft.com/azure/security-center/continuous-export) or [Workflow automation](https://docs.microsoft.com/azure/security-center/workflow-automation) features [programmatically](https://docs.microsoft.com/rest/api/securitycenter/automations), you'll need to have the data types (recommendations or alerts) schemas in order to know on which fields to define your set of filtering rules on.
 
 In addition, when exporting to an Event Hub or when triggering Workflow automation with generic HTTP connectors, you could use the schemas to properly [parse the JSON objects](https://docs.microsoft.com/azure/logic-apps/logic-apps-perform-data-operations#parse-json-action). 
 
@@ -10,7 +10,7 @@ The recommendations JSON schema is available in the included [Recommendation.sch
 
 ### Sample JSON event
 
-Below is a sample JSON representing an assessment (which can be healthy or unhealthy. In the latter case, it will be surfaced as a recommendation in Security Center), as would be read from Event Hub (in case of configuring continuos export) or as will be passed to Logic App instances (when using workflow automation).
+Below is a sample JSON representing an assessment (which can be healthy or unhealthy. In the latter case, it will be surfaced as a recommendation in Security Center), as would be read from Event Hub (in case of configuring continuous export) or as will be passed to Logic App instances (when using workflow automation).
 
 ```
 {
@@ -59,7 +59,7 @@ The security alerts JSON schema is available in the included [SecurityAlert.sche
 
 ### Sample JSON event
 
-Below is a sample JSON representing an alert, as would be read from Event Hub (in case of configuring continuos export) or as will be passed to Logic App instances (when using workflow automation)
+Below is a sample JSON representing an alert, as would be read from Event Hub (in case of configuring continuous export) or as will be passed to Logic App instances (when using workflow automation)
 
 ```
 {
