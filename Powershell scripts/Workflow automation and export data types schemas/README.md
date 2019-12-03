@@ -64,12 +64,16 @@ Below is a sample JSON representing an alert, as would be read from Event Hub (i
 ```
 {
   "Version": "3.0",
-  "ProviderName": "Detection",
   "VendorName": "Microsoft",
   "AlertType": "SUSPECT_SVCHOST",
   "StartTimeUtc": "2016-12-20T13:38:00.000Z",
+  "EndTimeUtc": "2019-12-20T13:40:01.733Z",
+  "ProcessingEndTime": "2019-09-16T12:10:19.5673533Z",
   "TimeGenerated": "2016-12-20T13:38:03.000Z",
-  "ReportedSeverity": "High",
+  "IsIncident": false,
+  "Severity": "High",
+  "Status": "New",
+  "ProductName": "Azure Security Center",
   "ProviderAlertId": "F2BFED55-5997-4FEA-95BD-BB7C6DDCD061",
   "SystemAlertId": "2342409243234234_F2BFED55-5997-4FEA-95BD-BB7C6DDCD061",
   "AzureResourceId": "/subscriptions/86057C9F-3CDD-484E-83B1-7BF1C17A9FF8/resourceGroups/backend-srv/providers/Microsoft.Compute/WebSrv1",
@@ -82,14 +86,13 @@ Below is a sample JSON representing an alert, as would be read from Event Hub (i
   "Intent": "Execution",
   "AlertDisplayName": "Suspicious process detected",
   "Description": "Suspicious process named ‘SVCHOST.EXE’ was running from path: %{Process Path}",
-  "RemediationSteps": "contact your security information team",
+  "RemediationSteps": ["contact your security information team"],
   "ExtendedProperties": {
     "Process Path": "c:\\temp\\svchost.exe",
     "Account": "Contoso\\administrator",
     "PID": 944,
     "ActionTaken": "Detected"
   },
-  "Metadata": {},
   "Entities": [],
   "Edges": [],
   "ResourceIdentifiers": [
