@@ -85,7 +85,7 @@ With the [Continuous export](https://docs.microsoft.com/azure/security-center/co
 - Type - constant ('SecurityRecommendation')
 ```
 
-## Security alerts objects schema (recommendations)
+## Security alerts objects schema
 
 The security alerts JSON schema is available in the included [SecurityAlert.schema.json](./SecurityAlert.schema.json) file. It includes list of mandatory fields and their types, along with sample values for each field.
 
