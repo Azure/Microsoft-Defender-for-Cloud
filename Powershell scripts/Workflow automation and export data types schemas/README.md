@@ -53,7 +53,39 @@ Below is a sample JSON representing an assessment (which can be healthy or unhea
 }
 ```
 
-## Security alerts objects schema
+### Log Analytics table schema (recommendations)
+
+With the [Continuous export](https://docs.microsoft.com/azure/security-center/continuous-export) you can continuously export Security Center's recommendation to a Log Analytics workspace, under the _SecurityRecommendation_ data type (available under the 'Security and Audit'('Security') or 'SecurityCenterFree' solutions):
+
+```
+- AgentId - unused
+- AssessedResourceId - The Azure resource ID the assessment pertains to
+- Description - Description text for the recommendation
+- DeviceId - unused
+- DiscoveredTimeUTC - UTC timestamp on which the assessment took place (Security Center's scan time. Identical to the TimeGenerated field)
+- NotApplicableReason - In case the assessment is not applicable to the resource, details the reason why this is the case
+- PolicyDefinitionId - The associated Azure Policy definition identifier based on which the assessment was evaluated
+- ProviderName - constant ('AzureSecurityCenter')
+- RecommendationAdditionalData - unused at this point. May be populated with additional data that is relevant for each individual recommendation
+- RecommendationDisplayName - The display name of the assessment, as seen in Azure Security Center
+- RecommendationId - unique identifier of the assessment
+- RecommendationName - Identical to RecommendationDisplayName
+- RecommendationSeverity - the severity of the assessment
+- RecommendationState - the state of the assessment (Healthy/Unhealthy/Removed/NotApplicable)
+- RemediationDescription - details of remediation steps needed to remediate the assessment
+- ResolvedTimeUTC - 
+    In case the assessment's state is Unhealthy or NotApplicable, this will be set to DateTime.MinTime (1/1/1, 12:00:00.000 AM).
+    In case it is healthy, this will be set to the time Security Center's detected the assessment to be healthy (UTC timezone).
+    In case the assessment is removed (e.g. resource deleted), will be set to DateTime.MinTime
+- ResourceRegion - unused
+- ResourceTenantId - unused
+- SourceSystem - constant ('Security')
+- TenantId - the identifier of the parent Azure Active directory tenant of the subscription under which the scanned resource resides
+- TimeGenerated - UTC timestamp on which the assessment took place (Security Center's scan time) (identical to DiscoveredTimeUTC)
+- Type - constant ('SecurityRecommendation')
+```
+
+## Security alerts objects schema (recommendations)
 
 The security alerts JSON schema is available in the included [SecurityAlert.schema.json](./SecurityAlert.schema.json) file. It includes list of mandatory fields and their types, along with sample values for each field.
 
@@ -129,3 +161,39 @@ The currently supported kill chain intents are:
 |Exfiltration|Exfiltration refers to techniques and attributes that result or aid in the adversary removing files and information from a target network. This category also covers locations on a system or network where the adversary may look for information to exfiltrate.|
 |CommandAndControl|The command and control tactic represents how adversaries communicate with systems under their control within a target network.|
 |Impact|The impact intent primary objective is to directly reduce the availability or integrity of a system, service, or network; including manipulation of data to impact a business or operational process. This would often refer to techniques such as ransom-ware, defacement, data manipulation and others.|
+
+### Log Analytics table schema (alerts)
+
+With the [Continuous export](https://docs.microsoft.com/azure/security-center/continuous-export) you can continuously export Security Center's alerts to a Log Analytics workspace, under the _SecurityAlert_ data type (available under the 'Security and Audit'('Security') or 'SecurityCenterFree' solutions):
+
+```
+- AlertName - Alert display name
+- Severity - The alert severity (High/Medium/Low/Informational)
+- AlertType - unique alert identifier
+- ConfidenceLevel - (Optional) The confidence level of this alert (High/Low)
+- ConfidenceScore - (Optional) Numeric confidence indicator of the security alert
+- Description - Description text for the alert
+- DisplayName - The alert's display name
+- EndTime - The impact end time of the alert (the time of the last event contributing to the alert)
+- Entities - A list of entities related to the alert. This list can hold a mixture of entities of diverse types
+- ExtendedLinks - (Optional) A bag for all links related to the alert. This bag can hold a mixture of links for diverse types
+- ExtendedProperties - A bag of additional fields which are relevant to the alert
+- IsIncident - Determines if the alert is an incident or a regular alert. An incident is a security alert that aggregates multiple alerts into one security incident
+- ProcessingEndTime - UTC timestamp in which the alert was created
+- ProductComponentName - (Optional) The name of a component inside the product which generated the alert.
+- ProductName - constant ('Azure Security Center')
+- ProviderName - unused
+- RemediationSteps - Manual action items to take to remediate the security threat
+- ResourceId - Full identifier of the affected resource
+- SourceComputerId - a unique GUID for the affected server (if the alert is generated on the server)
+- SourceSystem - unused
+- StartTime - The impact start time of the alert (the time of the first event contributing to the alert)
+- SystemAlertId - Unique identifier of this security alert instance
+- TenantId - the identifier of the parent Azure Active directory tenant of the subscription under which the scanned resource resides
+- TimeGenerated - UTC timestamp on which the assessment took place (Security Center's scan time) (identical to DiscoveredTimeUTC)
+- Type - constant ('SecurityAlert')
+- VendorName - The name of the vendor that provided the alert (e.g. 'Microsoft')
+- VendorOriginalId - unused
+- WorkspaceResourceGroup - in case the alert is generated on a VM, Server, VMSS or App Service instance that reports to a workspace, contains that workspace resource group name
+- WorkspaceSubscriptionId - in case the alert is generated on a VM, Server, VMSS or App Service instance that reports to a workspace, contains that workspace subscriptionId
+```
