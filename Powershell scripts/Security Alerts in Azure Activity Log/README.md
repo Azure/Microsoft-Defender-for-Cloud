@@ -67,5 +67,34 @@ The JSON schema of the Activity log event is available in the included [Activity
 }
 ```
 
+The data model of the schema is as follows:
+- channels: Constant, "Operation"
+- correlationId: The Azure Security Center alert ID
+- description: Description of the alert
+- eventDataId: See *correlationId*
+- eventName: The *value* and *localizedValue* sub-fields contain the alert display name
+- category: The *value* and *localizedValue* sub-fields are constant - "Security"
+- eventTimestamp: UTC timestamp for when the alert was generated
+- id: The fully qualified alert ID
+- level: Constant, "Informational"
+- operationId: See *correlationId*
+- operationName: The *value* field is constant - "Microsoft.Security/locations/alerts/activate/action", and the localized value will be "Activate Alert" (can potentially be localized par the user locale)
+- resourceGroupName: Will include the resource group name
+- resourceProviderName: The *value* and *localizedValue* sub-fields are constant - "Microsoft.Security"
+- resourceType: The *value* and *localizedValue* sub-fields are constant - "Microsoft.Security/locations/alerts"
+- resourceId: The fully qualified Azure resource ID
+- status: The *value* and *localizedValue* sub-fields are constant - "Active"
+- subStatus: The *value* and *localizedValue* sub-fields are empty
+- submissionTimestamp: The UTC timestamp of event submission to Activity Log
+- subscriptionId: The subscription ID of the compromised resource
+- properties: A JSON bag of additional properties pertaining to the alert. These can change from one alert to the other, however, the following fields will appear in all alerts:
 
-
+  severity: The severity of the attack
+  
+  compromisedEntity: The name of the comrpomised resource
+  
+  remediationSteps: Array of remediation steps to be taken
+  
+  intent: The kill-chain intent of the alert. Possible intents are documented [here](https://github.com/Azure/Azure-Security-Center/tree/master/Powershell%20scripts/Workflow%20automation%20and%20export%20data%20types%20schemas#kill-chain-intent)
+  
+- relatedEvents: Constnt - empty array
