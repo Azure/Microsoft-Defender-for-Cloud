@@ -3,7 +3,7 @@ This sample playbook allows you to provision a AzureAD administrator on your SQL
 
 The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriate permissions on the resources that you would like to remediate.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FProvision%2520an%2520Azure%2520AD%2520Administrator%2520on%2520SQL%2520Server%2FLogic%2520Apps%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FProvision%2520an%2520Azure%2520AD%2520Administrator%2520on%2520SQL%2520Server%2FLogic%2520App%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
