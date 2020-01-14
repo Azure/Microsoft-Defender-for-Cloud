@@ -1,0 +1,133 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the name of your Log Analytics workspace to collect ASC data."
+            }
+        },
+        "workspaceResourceGroup": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the resource group where the Log Analytics workspace is deployed."
+            }
+        },
+        "azureSubscriptionId": {
+            "type": "string",
+            "metadata": {
+                "description": "Specify the subscriptionId where the Log Analytics workspace is deployed."
+            }
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Security/autoProvisioningSettings",
+            "name": "default",
+            "apiVersion": "2017-08-01-preview",
+            "properties": {
+                "autoProvision": "Off"
+            }
+        },
+        {
+            "type": "Microsoft.Security/workspaceSettings",
+            "apiVersion": "2017-08-01-preview",
+            "name": "default",
+            "properties": {
+                "workspaceId": "[concat('/subscriptions/', parameters('azureSubscriptionId'), '/resourceGroups/', parameters('workspaceResourceGroup'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]",
+                "scope": "[subscription().id]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "AppServices",
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "ContainerRegistry",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/AppServices')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "KeyVaults",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/ContainerRegistry')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "KubernetesService",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/KeyVaults')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "SqlServers",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/KubernetesService')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "SqlServerVirtualMachines",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/SqlServers')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "StorageAccounts",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/SqlServerVirtualMachines')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "VirtualMachines",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/StorageAccounts')]"
+            ],
+            "properties": {
+                "pricingTier": "Standard"
+            }
+        }
+
+    ],
+    "outputs": {
+    }
+}
