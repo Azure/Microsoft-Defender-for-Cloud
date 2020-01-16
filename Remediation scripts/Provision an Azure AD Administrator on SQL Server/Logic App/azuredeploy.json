@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_Set_ADadmin_ForSqlDb_name": {
+        "workflowName": {
             "defaultValue": "Add-AADadmin-ForSqlServer",
             "type": "String"
         },
@@ -16,7 +16,7 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_Set_ADadmin_ForSqlDb_name')]",
+            "name": "[parameters('workflowName')]",
             "location": "westeurope",
             "identity": {
                 "principalId": "",
@@ -116,7 +116,7 @@
                                     {
                                         "name": "ADTenantId",
                                         "type": "String",
-                                        "value": "4b2462a4-bbee-495a-a0e1-f23ae524cc9c"
+                                        "value": ""
                                     }
                                 ]
                             }
@@ -242,7 +242,7 @@
                             "azuread": {
                                 "connectionId": "[parameters('connections_azuread_externalid')]",
                                 "connectionName": "azuread",
-                                "id": "/subscriptions/44e4eff8-1fcb-4a22-a7d6-992ac7286382/providers/Microsoft.Web/locations/westeurope/managedApis/azuread"
+                                "id": "/subscriptions/<subIdHere>/providers/Microsoft.Web/locations/westeurope/managedApis/azuread"
                             }
                         }
                     }
