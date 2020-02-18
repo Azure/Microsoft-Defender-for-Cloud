@@ -1,7 +1,7 @@
 
 # Azure Security Center Simulation Playbook
 
-There are many ways to simulate an alert in Azure Security Center. Below you have some scenarios for alert simulation based on different threat detections capabilities available in Azure Security Center.
+There are many ways to simulate an alert in Azure Security Center and if you just want a simple validation to get an alert, use the procedures described in [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-alert-validation). For a more scenario-based approach, you have the resources below that you can use to validate different threat detections capabilities available in Azure Security Center.
 
 ## Alert Simulation for Windows (Azure and Non-Azure VMs)
 
@@ -11,6 +11,7 @@ There are many ways to simulate an alert in Azure Security Center. Below you hav
 
 - [Potential alerts for Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-windows)
 
+If you are testing the integration with Microsoft Defender ATP for Servers, use [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-wdatp#test-the-feature) to validate the alert integration. Make sure that the server that you are testing this procedure is already onboarded and using MDATP.
 
 ## Alert Simulation for Linux (Azure and Non-Azure VMs)
 
