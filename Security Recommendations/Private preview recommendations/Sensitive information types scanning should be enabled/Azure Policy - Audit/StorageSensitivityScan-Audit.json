@@ -1,0 +1,42 @@
+{
+    "type": "Microsoft.Authorization/policyDefinitions",
+    "name": "audit-sensitive-information-types-scan",
+    "properties": {
+    "displayName": "Sensitive information types scanning should be enabled for storage accounts",
+    "mode": "All",
+    "description": "Remediation steps To enable information type scanning on storage accounts :<br>1. Go to the “Azure Information Protection” blade: https://portal.azure.com/#blade/Microsoft_Azure_InformationProtection/DataClassGroupEditBlade/ipForAzureBlade\n<br>2. “Azure resources”->\"Scanned resources \". \n<br>3. Click \"+Add\"\n<br> a. Select a subscription , \n<br> b. Optionally , change the scanning schedule \n<br> c. Select “Azure Blob storage” and container and click “Save”",
+    "metadata": {
+      "category": "Storage"
+    },
+    "parameters": {
+        "effect": {
+            "type": "String",
+            "defaultValue": "Audit",
+            "allowedValues": ["Audit", "Disabled"],
+            "metadata": {
+                "displayName": "Effect",
+                "description": "Enable or disable the execution of the policy" 
+            }
+        }
+    }, 
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Storage/storageAccounts"
+          },
+          {
+            "not": {
+              "field": "tags['SensitiveInfomationScan']",
+              "equals": "True"
+            }
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  }
+}

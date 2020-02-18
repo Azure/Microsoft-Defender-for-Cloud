@@ -1,0 +1,54 @@
+{
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Resources/subscriptions"
+          }
+        ]
+      },
+      "then": {
+        "effect": "DeployIfNotExists",
+        "details": {
+          "type": "Microsoft.Security/pricings",
+          "name": "StorageAccounts",
+          "deploymentScope": "Subscription",
+          "existenceScope": "Subscription",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+          ],
+          "existenceCondition": {
+            "field": "Microsoft.Security/pricings/pricingTier",
+            "equals": "Standard"
+          },
+          "deployment": {
+            "location": "westeurope",
+            "properties": {
+                "mode": "incremental",
+                "parameters": {},
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                      {
+                          "type": "Microsoft.Security/pricings",
+                          "apiVersion": "2018-06-01",
+                          "name": "StorageAccounts",
+                          "properties":{
+                              "pricingTier": "Standard"
+                          }
+                      }
+                  ],
+                    "outputs": {}
+                }
+            }
+         }
+        }
+      }
+    },
+    "parameters": {}
+  }

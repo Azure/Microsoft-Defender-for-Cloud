@@ -1,0 +1,121 @@
+{
+  "properties": {
+    "displayName": "Deploy Diagnostic Settings for Batch Account to Event Hub",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Deploys the diagnostic settings for Batch Account to stream to a regional Event Hub when any Batch Account which is missing this diagnostic settings is created or updated.",
+    "metadata": {
+      "category": "Batch"
+    },
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "defaultValue": "DeployIfNotExists",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "eventHub": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Event Hub shared access policies key",
+          "description": "Insert event hub shared access policies key. Please notice that the event hub should be in the same location as the resource.",
+          "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+          "assignPermissions": true
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Batch/batchAccounts"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+            "equals": "true"
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "eventHub": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.Batch/batchAccounts/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/DiagnosticSettings_eventHub')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [],
+                    "properties": {
+                      "eventHubAuthorizationRuleId": "[parameters('eventHub')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": 0
+                          }
+                        }
+                      ],
+                      "logs": [
+                        {
+                          "category": "ServiceLog",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": 0
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {}
+              },
+              "parameters": {
+                "resourceName": {
+                  "value": "[field('name')]"
+                },
+                "eventHub": {
+                  "value": "[parameters('eventHub')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "id": "/providers/Microsoft.Authorization/policyDefinitions/2816a3cb-e297-43e7-b0a7-0fe4229aba92",
+    "name": "2816a3cb-e297-43e7-b0a7-0fe4229aba92"
+  }
+}

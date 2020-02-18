@@ -1,0 +1,79 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "pricingTierVMs": {
+            "type": "string",
+            "allowedValues": [
+                "Standard",
+                "Free"
+            ]
+        },
+    "pricingTierSqlServers": {
+        "type": "string",
+        "allowedValues": [
+            "Standard",
+            "Free"
+            ]
+        },
+    "pricingTierAppServices": {
+        "type": "string",
+        "allowedValues": [
+            "Standard",
+            "Free"
+            ]
+        },
+    "pricingTierStorageAccounts": {
+        "type": "string",
+         "allowedValues": [
+            "Standard",
+            "Free"
+                ]
+            }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "VirtualMachines",
+            "properties":{
+                "pricingTier": "[parameters('pricingTierVMs')]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "SqlServers",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/AppServices')]"
+            ],
+            "properties":{
+                "pricingTier": "[parameters('pricingTierSqlServers')]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "AppServices",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/StorageAccounts')]"
+            ],
+            "properties":{
+                "pricingTier": "[parameters('pricingTierAppServices')]"
+            }
+        },
+        {
+            "type": "Microsoft.Security/pricings",
+            "apiVersion": "2018-06-01",
+            "name": "StorageAccounts",
+            "dependsOn": [
+                "[concat('Microsoft.Security/pricings/VirtualMachines')]"
+            ],            
+            "properties":{
+                "pricingTier": "[parameters('pricingTierStorageAccounts')]"
+            }
+        }        
+        
+    ],
+    "outputs": {}
+}

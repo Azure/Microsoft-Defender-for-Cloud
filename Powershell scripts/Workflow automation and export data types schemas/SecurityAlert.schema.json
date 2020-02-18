@@ -1,0 +1,316 @@
+1 {
+    2   "definitions": {},
+    3   "$schema": "http://json-schema.org/draft-07/schema#",
+    4   "$id": "http://example.com/root.json",
+    5   "type": "object",
+    6   "title": "The Root Schema",
+    7   "required": [
+        10     "VendorName",
+        11     "AlertType",
+        12     "StartTimeUtc",
+        13     "TimeGenerated",
+        14     "ReportedSeverity",
+        16     "SystemAlertId",
+        17     "AzureResourceId",
+        18     "AzureResourceSubscriptionId",
+        19     "WorkspaceId",
+        20     "WorkspaceSubscriptionId",
+        21     "WorkspaceResourceGroup",
+        22     "AgentId",
+        23     "CompromisedEntity",
+        24     "Intent",
+        25     "AlertDisplayName",
+        26     "Description",
+        27     "RemediationSteps",
+        28     "ExtendedProperties",
+        32     "ResourceIdentifiers"
+   36   ],
+   37   "properties": {
+   48     "VendorName": {
+   49       "$id": "#/properties/VendorName",
+   50       "type": "string",
+   51       "title": "The Vendorname Schema",
+   52       "default": "",
+   53       "examples": [
+   54         "Microsoft"
+   55       ],
+   56       "pattern": "^(.*)$"
+   57     },
+   58     "AlertType": {
+   59       "$id": "#/properties/AlertType",
+   60       "type": "string",
+   61       "title": "The Alerttype Schema",
+   62       "default": "",
+   63       "examples": [
+   64         "SUSPECT_SVCHOST"
+   65       ],
+   66       "pattern": "^(.*)$"
+   67     },
+   68     "StartTimeUtc": {
+   69       "$id": "#/properties/StartTimeUtc",
+   70       "type": "string",
+   71       "title": "The Starttimeutc Schema",
+   72       "default": "",
+   73       "examples": [
+   74         "2016-12-20T13:38:00.000Z"
+   75       ],
+   76       "pattern": "^(.*)$"
+   77     },
+   78     "EndTimeUtc": {
+   79       "$id": "#/properties/EndTimeUtc",
+   80       "type": "string",
+   81       "title": "The Endtimeutc Schema",
+   82       "default": "",
+   83       "examples": [
+   84         "2019-12-20T13:40:01.733Z"
+   85       ],
+   86       "pattern": "^(.*)$"
+   87     },
+   88     "ProcessingEndTime": {
+   89       "$id": "#/properties/ProcessingEndTime",
+   90       "type": "string",
+   91       "title": "The Processingendtime Schema",
+   92       "default": "",
+   93       "examples": [
+   94         "2019-09-16T12:10:19.5673533Z"
+   95       ],
+   96       "pattern": "^(.*)$"
+   97     },
+   98     "TimeGenerated": {
+   99       "$id": "#/properties/TimeGenerated",
+  100       "type": "string",
+  101       "title": "The Timegenerated Schema",
+  102       "default": "",
+  103       "examples": [
+  104         "2016-12-20T13:38:03.000Z"
+  105       ],
+  106       "pattern": "^(.*)$"
+  107     },
+  108     "IsIncident": {
+  109       "$id": "#/properties/IsIncident",
+  110       "type": "boolean",
+  111       "title": "The Isincident Schema",
+  112       "default": false,
+  113       "examples": [
+  114         false
+  115       ]
+  116     },
+  117     "Severity": {
+  118       "$id": "#/properties/Severity",
+  119       "type": "string",
+  120       "title": "The Severity Schema",
+  121       "default": "",
+  122       "examples": [
+  123         "High"
+  124       ],
+  125       "pattern": "^(.*)$"
+  126     },
+  127     "Status": {
+  128       "$id": "#/properties/Status",
+  129       "type": "string",
+  130       "title": "The Status Schema",
+  131       "default": "",
+  132       "examples": [
+  133         "New"
+  134       ],
+  135       "pattern": "^(.*)$"
+  136     },
+  137     "ProductName": {
+  138       "$id": "#/properties/ProductName",
+  139       "type": "string",
+  140       "title": "The Productname Schema",
+  141       "default": "",
+  142       "examples": [
+  143         "Azure Security Center"
+  144       ],
+  145       "pattern": "^(.*)$"
+  146     },
+  157     "SystemAlertId": {
+  158       "$id": "#/properties/SystemAlertId",
+  159       "type": "string",
+  160       "title": "The Systemalertid Schema",
+  161       "default": "",
+  162       "examples": [
+  163         "2342409243234234_F2BFED55-5997-4FEA-95BD-BB7C6DDCD061"
+  164       ],
+  165       "pattern": "^(.*)$"
+  166     },
+  167     "AzureResourceId": {
+  168       "$id": "#/properties/AzureResourceId",
+  169       "type": "string",
+  170       "title": "The Azureresourceid Schema",
+  171       "default": "",
+  172       "examples": [
+  173         "/subscriptions/86057C9F-3CDD-484E-83B1-7BF1C17A9FF8/resourceGroups/backend-srv/providers/Microsoft.Compute/WebSrv1"
+  174       ],
+  175       "pattern": "^(.*)$"
+  176     },
+  177     "AzureResourceSubscriptionId": {
+  178       "$id": "#/properties/AzureResourceSubscriptionId",
+  179       "type": "string",
+  180       "title": "The Azureresourcesubscriptionid Schema",
+  181       "default": "",
+  182       "examples": [
+  183         "86057C9F-3CDD-484E-83B1-7BF1C17A9FF8"
+  184       ],
+  185       "pattern": "^(.*)$"
+  186     },
+  187     "WorkspaceId": {
+  188       "$id": "#/properties/WorkspaceId",
+  189       "type": "string",
+  190       "title": "The Workspaceid Schema",
+  191       "default": "",
+  192       "examples": [
+  193         "077BA6B7-8759-4F41-9F97-017EB7D3E0A8"
+  194       ],
+  195       "pattern": "^(.*)$"
+  196     },
+  197     "WorkspaceSubscriptionId": {
+  198       "$id": "#/properties/WorkspaceSubscriptionId",
+  199       "type": "string",
+  200       "title": "The Workspacesubscriptionid Schema",
+  201       "default": "",
+  202       "examples": [
+  203         "86057C9F-3CDD-484E-83B1-7BF1C17A9FF8"
+  204       ],
+  205       "pattern": "^(.*)$"
+  206     },
+  207     "WorkspaceResourceGroup": {
+  208       "$id": "#/properties/WorkspaceResourceGroup",
+  209       "type": "string",
+  210       "title": "The Workspaceresourcegroup Schema",
+  211       "default": "",
+  212       "examples": [
+  213         "omsrg"
+  214       ],
+  215       "pattern": "^(.*)$"
+  216     },
+  217     "AgentId": {
+  218       "$id": "#/properties/AgentId",
+  219       "type": "string",
+  220       "title": "The Agentid Schema",
+  221       "default": "",
+  222       "examples": [
+  223         "5A651129-98E6-4E6C-B2CE-AB89BD815616"
+  224       ],
+  225       "pattern": "^(.*)$"
+  226     },
+  227     "CompromisedEntity": {
+  228       "$id": "#/properties/CompromisedEntity",
+  229       "type": "string",
+  230       "title": "The Compromisedentity Schema",
+  231       "default": "",
+  232       "examples": [
+  233         "WebSrv1"
+  234       ],
+  235       "pattern": "^(.*)$"
+  236     },
+  237     "Intent": {
+  238       "$id": "#/properties/Intent",
+  239       "type": "string",
+  240       "title": "The Intent Schema",
+  241       "default": "",
+  242       "examples": [
+  243         "Execution"
+  244       ],
+  245       "pattern": "^(.*)$"
+  246     },
+  247     "AlertDisplayName": {
+  248       "$id": "#/properties/AlertDisplayName",
+  249       "type": "string",
+  250       "title": "The Alertdisplayname Schema",
+  251       "default": "",
+  252       "examples": [
+  253         "Suspicious process detected"
+  254       ],
+  255       "pattern": "^(.*)$"
+  256     },
+  257     "Description": {
+  258       "$id": "#/properties/Description",
+  259       "type": "string",
+  260       "title": "The Description Schema",
+  261       "default": "",
+  262       "examples": [
+  263         "Suspicious process named ‘SVCHOST.EXE’ was running from path: %{Process Path}"
+  264       ],
+  265       "pattern": "^(.*)$"
+  266     },
+  267     "RemediationSteps": {
+  268       "$id": "#/properties/RemediationSteps",
+  269       "type": "array",
+  270       "title": "The Remediationsteps Schema",
+  271       "items": {
+  272         "$id": "#/properties/RemediationSteps/items",
+  273         "type": "string",
+  274         "title": "The Items Schema",
+  275         "default": "",
+  276         "examples": [
+  277           "contact your security information team"
+  278         ],
+  279         "pattern": "^(.*)$"
+  280       }
+  281     },
+  282     "ExtendedProperties": {
+  283       "$id": "#/properties/ExtendedProperties",
+  284       "type": "object",
+  285       "title": "The Extendedproperties Schema",
+  286       "required": [
+  287         "Process Path",
+  288         "Account",
+  289         "PID",
+  290         "ActionTaken"
+  291       ],
+  292       "properties": {
+  293         "Process Path": {
+  294           "$id": "#/properties/ExtendedProperties/properties/Process Path",
+  295           "type": "string",
+  296           "title": "The Process path Schema",
+  297           "default": "",
+  298           "examples": [
+  299             "c:\\temp\\svchost.exe"
+  300           ],
+  301           "pattern": "^(.*)$"
+  302         },
+  303         "Account": {
+  304           "$id": "#/properties/ExtendedProperties/properties/Account",
+  305           "type": "string",
+  306           "title": "The Account Schema",
+  307           "default": "",
+  308           "examples": [
+  309             "Contoso\\administrator"
+  310           ],
+  311           "pattern": "^(.*)$"
+  312         },
+  313         "PID": {
+  314           "$id": "#/properties/ExtendedProperties/properties/PID",
+  315           "type": "integer",
+  316           "title": "The Pid Schema",
+  317           "default": 0,
+  318           "examples": [
+  319             944
+  320           ]
+  321         },
+  322         "ActionTaken": {
+  323           "$id": "#/properties/ExtendedProperties/properties/ActionTaken",
+  324           "type": "string",
+  325           "title": "The Actiontaken Schema",
+  326           "default": "",
+  327           "examples": [
+  328             "Detected"
+  329           ],
+  330           "pattern": "^(.*)$"
+  331         }
+  332       }
+  333     },
+  334     "Entities": {
+  335       "$id": "#/properties/Entities",
+  336       "type": "array",
+  337       "title": "The Entities Schema"
+  338     },
+  344     "ResourceIdentifiers": {
+  345       "$id": "#/properties/ResourceIdentifiers",
+  346       "type": "array",
+  347       "title": "The Resourceidentifiers Schema"
+  348     }
+  349   }
+  350 }

@@ -1,0 +1,93 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {
+        "singleQuote": "'",
+        "websiteName" : "[concat('[concat(parameters(', variables('singleQuote') ,'websiteName', variables('singleQuote'), '),', variables('singleQuote'), '*', variables('singleQuote') ,')]')]",
+        "location" : "[concat('[field', '(', variables('singleQuote') ,'location', variables('singleQuote'), ')]')]",
+        "field" : "[concat('[field', '(', variables('singleQuote') ,'name', variables('singleQuote'), ')]')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policyDefinitions",
+            "name": "web-application-deployifnotexists-if-https-is-not-enabled",
+            "apiVersion": "2018-03-01",
+            "properties": {
+                "displayName" : "Web Application - deployIfNotExists if HTTPS is not enabled",
+                "policyType": "Custom",
+                "metadata":{
+                    "category": "Security Center"
+                },
+                    "mode": "All",
+                    "policyRule": {
+                      "if": {
+                        "allof": [
+                          {
+                            "field": "type",
+                            "equals": "Microsoft.Web/sites"
+                          },
+                          {
+                            "not": {
+                              "field": "Microsoft.Web/sites/httpsOnly",
+                              "equals": "true"
+                            }
+                          }
+                        ]
+                      },
+                      "then": {
+                        "effect": "deployIfNotExists",
+                        "details": {
+                          "type": "Microsoft.Web/sites",
+                          "existenceCondition": {
+                            "field": "Microsoft.Web/sites/httpsOnly",
+                            "equals": "true"
+                          },
+                          "roleDefinitionIds": [
+                            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                          ],
+                          "deployment": {
+                            "properties": {
+                              "mode": "incremental",
+                              "template": {
+                                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                "contentVersion": "1.0.0.0",
+                                "parameters": {
+                                  "websiteName": {
+                                    "type": "string"
+                                  },
+                                  "location": {
+                                    "type": "string"
+                                  }
+                                },
+                                "variables": {},
+                                "resources": [
+                                  {
+                                    "name": "[variables('websiteName')]",
+                                    "location": "[variables('location')]",
+                                    "type": "Microsoft.Web/sites",
+                                    "apiVersion": "2018-11-01",
+                                    "properties": {
+                                      "httpsOnly": "true"
+                                    }
+                                  }
+                                ]
+                              },
+                              "parameters": {
+                                "websiteName": {
+                                    "value": "[concat(variables('field'))]"
+                                },
+                                "location": {
+                                    "value": "[concat(variables('location'))]"
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "parameters": {}
+                  }
+              }
+    ]
+}

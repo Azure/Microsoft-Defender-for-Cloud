@@ -1,0 +1,423 @@
+1 {
+    2   "definitions": {},
+    3   "$schema": "http://json-schema.org/draft-07/schema#",
+    4   "$id": "http://example.com/root.json",
+    5   "type": "object",
+    6   "title": "The Root Schema",
+    7   "required": [
+    8     "channels",
+    9     "correlationId",
+   10     "description",
+   11     "eventDataId",
+   12     "eventName",
+   13     "category",
+   14     "eventTimestamp",
+   15     "id",
+   16     "level",
+   17     "operationId",
+   18     "operationName",
+   19     "resourceGroupName",
+   20     "resourceProviderName",
+   21     "resourceType",
+   22     "resourceId",
+   23     "status",
+   24     "subStatus",
+   25     "submissionTimestamp",
+   26     "subscriptionId",
+   27     "properties",
+   28     "relatedEvents"
+   29   ],
+   30   "properties": {
+   31     "channels": {
+   32       "$id": "#/properties/channels",
+   33       "type": "string",
+   34       "title": "The Channels Schema",
+   35       "default": "",
+   36       "examples": [
+   37         "Operation"
+   38       ],
+   39       "pattern": "^(.*)$"
+   40     },
+   41     "correlationId": {
+   42       "$id": "#/properties/correlationId",
+   43       "type": "string",
+   44       "title": "The Correlationid Schema",
+   45       "default": "",
+   46       "examples": [
+   47         "2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff"
+   48       ],
+   49       "pattern": "^(.*)$"
+   50     },
+   51     "description": {
+   52       "$id": "#/properties/description",
+   53       "type": "string",
+   54       "title": "The Description Schema",
+   55       "default": "",
+   56       "examples": [
+   57         "PREVIEW - Role binding to the cluster-admin role detected. Kubernetes audit log analysis detected a new binding to the cluster-admin role which gives administrator privileges.\r\nUnnecessary administrator privileges might cause privilege escalation in the cluster."
+   58       ],
+   59       "pattern": "^(.*)$"
+   60     },
+   61     "eventDataId": {
+   62       "$id": "#/properties/eventDataId",
+   63       "type": "string",
+   64       "title": "The Eventdataid Schema",
+   65       "default": "",
+   66       "examples": [
+   67         "2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff"
+   68       ],
+   69       "pattern": "^(.*)$"
+   70     },
+   71     "eventName": {
+   72       "$id": "#/properties/eventName",
+   73       "type": "object",
+   74       "title": "The Eventname Schema",
+   75       "required": [
+   76         "value",
+   77         "localizedValue"
+   78       ],
+   79       "properties": {
+   80         "value": {
+   81           "$id": "#/properties/eventName/properties/value",
+   82           "type": "string",
+   83           "title": "The Value Schema",
+   84           "default": "",
+   85           "examples": [
+   86             "PREVIEW - Role binding to the cluster-admin role detected"
+   87           ],
+   88           "pattern": "^(.*)$"
+   89         },
+   90         "localizedValue": {
+   91           "$id": "#/properties/eventName/properties/localizedValue",
+   92           "type": "string",
+   93           "title": "The Localizedvalue Schema",
+   94           "default": "",
+   95           "examples": [
+   96             "PREVIEW - Role binding to the cluster-admin role detected"
+   97           ],
+   98           "pattern": "^(.*)$"
+   99         }
+  100       }
+  101     },
+  102     "category": {
+  103       "$id": "#/properties/category",
+  104       "type": "object",
+  105       "title": "The Category Schema",
+  106       "required": [
+  107         "value",
+  108         "localizedValue"
+  109       ],
+  110       "properties": {
+  111         "value": {
+  112           "$id": "#/properties/category/properties/value",
+  113           "type": "string",
+  114           "title": "The Value Schema",
+  115           "default": "",
+  116           "examples": [
+  117             "Security"
+  118           ],
+  119           "pattern": "^(.*)$"
+  120         },
+  121         "localizedValue": {
+  122           "$id": "#/properties/category/properties/localizedValue",
+  123           "type": "string",
+  124           "title": "The Localizedvalue Schema",
+  125           "default": "",
+  126           "examples": [
+  127             "Security"
+  128           ],
+  129           "pattern": "^(.*)$"
+  130         }
+  131       }
+  132     },
+  133     "eventTimestamp": {
+  134       "$id": "#/properties/eventTimestamp",
+  135       "type": "string",
+  136       "title": "The Eventtimestamp Schema",
+  137       "default": "",
+  138       "examples": [
+  139         "2019-12-25T18:52:36.801035Z"
+  140       ],
+  141       "pattern": "^(.*)$"
+  142     },
+  143     "id": {
+  144       "$id": "#/properties/id",
+  145       "type": "string",
+  146       "title": "The Id Schema",
+  147       "default": "",
+  148       "examples": [
+  149         "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Security/locations/centralus/alerts/2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff/events/2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff/ticks/637128967568010350"
+  150       ],
+  151       "pattern": "^(.*)$"
+  152     },
+  153     "level": {
+  154       "$id": "#/properties/level",
+  155       "type": "string",
+  156       "title": "The Level Schema",
+  157       "default": "",
+  158       "examples": [
+  159         "Informational"
+  160       ],
+  161       "pattern": "^(.*)$"
+  162     },
+  163     "operationId": {
+  164       "$id": "#/properties/operationId",
+  165       "type": "string",
+  166       "title": "The Operationid Schema",
+  167       "default": "",
+  168       "examples": [
+  169         "2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff"
+  170       ],
+  171       "pattern": "^(.*)$"
+  172     },
+  173     "operationName": {
+  174       "$id": "#/properties/operationName",
+  175       "type": "object",
+  176       "title": "The Operationname Schema",
+  177       "required": [
+  178         "value",
+  179         "localizedValue"
+  180       ],
+  181       "properties": {
+  182         "value": {
+  183           "$id": "#/properties/operationName/properties/value",
+  184           "type": "string",
+  185           "title": "The Value Schema",
+  186           "default": "",
+  187           "examples": [
+  188             "Microsoft.Security/locations/alerts/activate/action"
+  189           ],
+  190           "pattern": "^(.*)$"
+  191         },
+  192         "localizedValue": {
+  193           "$id": "#/properties/operationName/properties/localizedValue",
+  194           "type": "string",
+  195           "title": "The Localizedvalue Schema",
+  196           "default": "",
+  197           "examples": [
+  198             "Activate Alert"
+  199           ],
+  200           "pattern": "^(.*)$"
+  201         }
+  202       }
+  203     },
+  204     "resourceGroupName": {
+  205       "$id": "#/properties/resourceGroupName",
+  206       "type": "string",
+  207       "title": "The Resourcegroupname Schema",
+  208       "default": "",
+  209       "examples": [
+  210         "RESOURCE_GROUP_NAME"
+  211       ],
+  212       "pattern": "^(.*)$"
+  213     },
+  214     "resourceProviderName": {
+  215       "$id": "#/properties/resourceProviderName",
+  216       "type": "object",
+  217       "title": "The Resourceprovidername Schema",
+  218       "required": [
+  219         "value",
+  220         "localizedValue"
+  221       ],
+  222       "properties": {
+  223         "value": {
+  224           "$id": "#/properties/resourceProviderName/properties/value",
+  225           "type": "string",
+  226           "title": "The Value Schema",
+  227           "default": "",
+  228           "examples": [
+  229             "Microsoft.Security"
+  230           ],
+  231           "pattern": "^(.*)$"
+  232         },
+  233         "localizedValue": {
+  234           "$id": "#/properties/resourceProviderName/properties/localizedValue",
+  235           "type": "string",
+  236           "title": "The Localizedvalue Schema",
+  237           "default": "",
+  238           "examples": [
+  239             "Microsoft.Security"
+  240           ],
+  241           "pattern": "^(.*)$"
+  242         }
+  243       }
+  244     },
+  245     "resourceType": {
+  246       "$id": "#/properties/resourceType",
+  247       "type": "object",
+  248       "title": "The Resourcetype Schema",
+  249       "required": [
+  250         "value",
+  251         "localizedValue"
+  252       ],
+  253       "properties": {
+  254         "value": {
+  255           "$id": "#/properties/resourceType/properties/value",
+  256           "type": "string",
+  257           "title": "The Value Schema",
+  258           "default": "",
+  259           "examples": [
+  260             "Microsoft.Security/locations/alerts"
+  261           ],
+  262           "pattern": "^(.*)$"
+  263         },
+  264         "localizedValue": {
+  265           "$id": "#/properties/resourceType/properties/localizedValue",
+  266           "type": "string",
+  267           "title": "The Localizedvalue Schema",
+  268           "default": "",
+  269           "examples": [
+  270             "Microsoft.Security/locations/alerts"
+  271           ],
+  272           "pattern": "^(.*)$"
+  273         }
+  274       }
+  275     },
+  276     "resourceId": {
+  277       "$id": "#/properties/resourceId",
+  278       "type": "string",
+  279       "title": "The Resourceid Schema",
+  280       "default": "",
+  281       "examples": [
+  282         "/subscriptions/SUBSCRIPTION_ID/resourceGroups/RESOURCE_GROUP_NAME/providers/Microsoft.Security/locations/centralus/alerts/2518250008431989649_e7313e05-edf4-466d-adfd-35974921aeff"
+  283       ],
+  284       "pattern": "^(.*)$"
+  285     },
+  286     "status": {
+  287       "$id": "#/properties/status",
+  288       "type": "object",
+  289       "title": "The Status Schema",
+  290       "required": [
+  291         "value",
+  292         "localizedValue"
+  293       ],
+  294       "properties": {
+  295         "value": {
+  296           "$id": "#/properties/status/properties/value",
+  297           "type": "string",
+  298           "title": "The Value Schema",
+  299           "default": "",
+  300           "examples": [
+  301             "Active"
+  302           ],
+  303           "pattern": "^(.*)$"
+  304         },
+  305         "localizedValue": {
+  306           "$id": "#/properties/status/properties/localizedValue",
+  307           "type": "string",
+  308           "title": "The Localizedvalue Schema",
+  309           "default": "",
+  310           "examples": [
+  311             "Active"
+  312           ],
+  313           "pattern": "^(.*)$"
+  314         }
+  315       }
+  316     },
+  317     "subStatus": {
+  318       "$id": "#/properties/subStatus",
+  319       "type": "object",
+  320       "title": "The Substatus Schema",
+  321       "required": [
+  322         "value",
+  323         "localizedValue"
+  324       ],
+  325       "properties": {
+  326         "value": {
+  327           "$id": "#/properties/subStatus/properties/value",
+  328           "type": "string",
+  329           "title": "The Value Schema",
+  330           "default": "",
+  331           "examples": [
+  332             ""
+  333           ],
+  334           "pattern": "^(.*)$"
+  335         },
+  336         "localizedValue": {
+  337           "$id": "#/properties/subStatus/properties/localizedValue",
+  338           "type": "string",
+  339           "title": "The Localizedvalue Schema",
+  340           "default": "",
+  341           "examples": [
+  342             ""
+  343           ],
+  344           "pattern": "^(.*)$"
+  345         }
+  346       }
+  347     },
+  348     "submissionTimestamp": {
+  349       "$id": "#/properties/submissionTimestamp",
+  350       "type": "string",
+  351       "title": "The Submissiontimestamp Schema",
+  352       "default": "",
+  353       "examples": [
+  354         "2019-12-25T19:14:03.5507487Z"
+  355       ],
+  356       "pattern": "^(.*)$"
+  357     },
+  358     "subscriptionId": {
+  359       "$id": "#/properties/subscriptionId",
+  360       "type": "string",
+  361       "title": "The Subscriptionid Schema",
+  362       "default": "",
+  363       "examples": [
+  364         "SUBSCRIPTION_ID"
+  365       ],
+  366       "pattern": "^(.*)$"
+  367     },
+  368     "properties": {
+  369       "$id": "#/properties/properties",
+  370       "type": "object",
+  371       "title": "The Properties Schema",
+  372       "required": [
+  384       ],
+  385       "properties": {
+  446         "severity": {
+  447           "$id": "#/properties/properties/properties/severity",
+  448           "type": "string",
+  449           "title": "The Severity Schema",
+  450           "default": "",
+  451           "examples": [
+  452             "Low"
+  453           ],
+  454           "pattern": "^(.*)$"
+  455         },
+  456         "intent": {
+  457           "$id": "#/properties/properties/properties/intent",
+  458           "type": "string",
+  459           "title": "The Intent Schema",
+  460           "default": "",
+  461           "examples": [
+  462             "[\"Persistence\"]"
+  463           ],
+  464           "pattern": "^(.*)$"
+  465         },
+  466         "compromisedEntity": {
+  467           "$id": "#/properties/properties/properties/compromisedEntity",
+  468           "type": "string",
+  469           "title": "The Compromisedentity Schema",
+  470           "default": "",
+  471           "examples": [
+  472             "ASC-IGNITE-DEMO"
+  473           ],
+  474           "pattern": "^(.*)$"
+  475         },
+  476         "remediationSteps": {
+  477           "$id": "#/properties/properties/properties/remediationSteps",
+  478           "type": "string",
+  479           "title": "The Remediationsteps Schema",
+  480           "default": "",
+  481           "examples": [
+  482             "[\"Review the user in the alert details. If cluster-admin is unnecessary for this user, consider granting lower privileges to the user.\"]"
+  483           ],
+  484           "pattern": "^(.*)$"
+  485         }
+  496       }
+  497     },
+  498     "relatedEvents": {
+  499       "$id": "#/properties/relatedEvents",
+  500       "type": "array",
+  501       "title": "The Relatedevents Schema"
+  502     }
+  503   }
+  504 }

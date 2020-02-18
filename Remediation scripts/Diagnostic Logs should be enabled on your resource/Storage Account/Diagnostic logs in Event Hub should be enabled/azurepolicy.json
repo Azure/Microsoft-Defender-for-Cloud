@@ -1,0 +1,214 @@
+{
+  "properties": {
+    "displayName": "Deploy Diagnostic Settings for Event Hub to Storage Account",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Deploys the diagnostic settings for Event Hub to archive to a regional Storage Account when any Event Hub which is missing this diagnostic settings is created or updated.",
+    "metadata": {
+      "category": "Event Hubs"
+    },
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "defaultValue": "DeployIfNotExists",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "storageAccount": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Storage Account ID ",
+          "description": "Storage Account ID. If this storage account is outside of the scope of the assignment you must manually grant 'Storage Account Contributor' permissions (or similar) to the policy assignment's principal ID. The storage account should be in the same region as the resource.",
+          "strongType": "storageAccount",
+          "assignPermissions": true
+        }
+      },
+      "requiredRetentionDays": {
+        "type": "string",
+        "defaultValue": "365",
+        "metadata": {
+          "displayName": "Required retention (days)",
+          "description": "The required diagnostic logs retention in days ",
+          "assignPermissions": true
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.EventHub/namespaces"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "anyOf": [
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.enabled",
+                    "equals": "true"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.days",
+                        "equals": "0"
+                      },
+                      {
+                        "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.days",
+                        "greaterOrEquals": "[int(parameters('requiredRetentionDays'))]"
+                      }
+                    ]
+                  },
+                  {
+                    "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                    "equals": "true"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "not": {
+                      "field": "Microsoft.Insights/diagnosticSettings/logs[*].retentionPolicy.enabled",
+                      "equals": "true"
+                    }
+                  },
+                  {
+                    "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+                    "equals": "true"
+                  }
+                ]
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "storageAccount": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "requiredRetentionDays": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.EventHub/namespaces/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/DiagnosticSettings_storageAccount')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [],
+                    "properties": {
+                      "storageAccountId": "[parameters('storageAccount')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        }
+                      ],
+                      "logs": [
+                        {
+                          "category": "ArchiveLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        },
+                        {
+                          "category": "OperationalLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        },
+                        {
+                          "category": "AutoScaleLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        },
+                        {
+                          "category": "KafkaCoordinatorLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        },
+                        {
+                          "category": "EventHubVNetConnectionEvent",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        },
+                        {
+                          "category": "CustomerManagedKeyUserLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": "[parameters('requiredRetentionDays')]"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {}
+              },
+              "parameters": {
+                "resourceName": {
+                  "value": "[field('name')]"
+                },
+                "storageAccount": {
+                  "value": "[parameters('storageAccount')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "requiredRetentionDays": {
+                  "value": "[parameters('requiredRetentionDays')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "id": "/providers/Microsoft.Authorization/policyDefinitions/ff4256ea-0bcc-46fe-8ff6-d0b7f53f23d3",
+    "name": "ff4256ea-0bcc-46fe-8ff6-d0b7f53f23d3"
+  }
+}

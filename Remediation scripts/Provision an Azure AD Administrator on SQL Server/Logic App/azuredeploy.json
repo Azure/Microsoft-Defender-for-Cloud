@@ -1,0 +1,253 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflowName": {
+            "defaultValue": "Add-AADadmin-ForSqlServer",
+            "type": "String"
+        },
+        "connections_azuread_externalid": {
+            "defaultValue": "",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflowName')]",
+            "location": "westeurope",
+            "identity": {
+                "principalId": "",
+                "tenantId": "",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Month",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "For_each": {
+                            "foreach": "@body('Parse_Azure_subscription')?['value']",
+                            "actions": {
+                                "Set_AzureAD_SQL_Server_Admin": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "id": "/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups//providers/Microsoft.Sql/servers/@{variables('SqlServerName')}/@{variables('ADadminAccountUPN')}/activeDirectory",
+                                            "name": "activeDirectory",
+                                            "properties": {
+                                                "administratorType": "ActiveDirectory",
+                                                "login": "@{body('Get_user')?['userPrincipalName']}",
+                                                "sid": "@{body('Get_user')?['id']}",
+                                                "tenantId": "@{variables('ADTenantId')}"
+                                            }
+                                        },
+                                        "method": "PUT",
+                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/resourceGroups/@{variables('SqlResourceGroupName')}/providers/Microsoft.Sql/servers/@{variables('SqlServerName')}/administrators/activeDirectory?api-version=2014-04-01"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Get_user": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_Azure_subscription": {
+                            "runAfter": {
+                                "Initialize_variable_ADadminAccountUPN": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
+                            }
+                        },
+                        "Get_user": {
+                            "runAfter": {
+                                "Parse_Azure_subscription": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuread']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/v1.0/users/@{encodeURIComponent(variables('ADadminAccountUPN'))}"
+                            }
+                        },
+                        "Initialize_variable_ADTenantId": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ADTenantId",
+                                        "type": "String",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_ADadminAccountUPN": {
+                            "runAfter": {
+                                "Initialize_variable_SqlResourceGroupName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ADadminAccountUPN",
+                                        "type": "String",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_SqlResourceGroupName": {
+                            "runAfter": {
+                                "Initialize_variable_SqlServerName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SqlResourceGroupName",
+                                        "type": "String",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_SqlServerName": {
+                            "runAfter": {
+                                "Initialize_variable_ADTenantId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SqlServerName",
+                                        "type": "String",
+                                        "value": ""
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_Azure_subscription": {
+                            "runAfter": {
+                                "Get_Azure_subscription": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Get_Azure_subscription')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "subscriptionId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies",
+                                                    "authorizationSource"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuread": {
+                                "connectionId": "[parameters('connections_azuread_externalid')]",
+                                "connectionName": "azuread",
+                                "id": "/subscriptions/<subIdHere>/providers/Microsoft.Web/locations/westeurope/managedApis/azuread"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

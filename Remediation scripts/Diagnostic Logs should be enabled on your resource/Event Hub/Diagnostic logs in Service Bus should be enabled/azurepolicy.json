@@ -1,0 +1,121 @@
+{
+  "properties": {
+    "displayName": "Deploy Diagnostic Settings for Service Bus to Event Hub",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "description": "Deploys the diagnostic settings for Service Bus to stream to a regional Event Hub when any Service Bus which is missing this diagnostic settings is created or updated.",
+    "metadata": {
+      "category": "Service Bus"
+    },
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "defaultValue": "DeployIfNotExists",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "eventHub": {
+        "type": "string",
+        "metadata": {
+          "displayName": "Event Hub shared access policies key",
+          "description": "Insert event hub shared access policies key. Please notice that the event hub should be in the same location as the resource.",
+          "strongType": "Microsoft.EventHub/Namespaces/AuthorizationRules",
+          "assignPermissions": true
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.ServiceBus/namespaces"
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/diagnosticSettings",
+          "existenceCondition": {
+            "field": "Microsoft.Insights/diagnosticSettings/logs.enabled",
+            "equals": "true"
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceName": {
+                    "type": "string"
+                  },
+                  "eventHub": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "type": "Microsoft.ServiceBus/namespaces/providers/diagnosticSettings",
+                    "apiVersion": "2017-05-01-preview",
+                    "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/DiagnosticSettings_eventHub')]",
+                    "location": "[parameters('location')]",
+                    "dependsOn": [],
+                    "properties": {
+                      "eventHubAuthorizationRuleId": "[parameters('eventHub')]",
+                      "metrics": [
+                        {
+                          "category": "AllMetrics",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": 0
+                          }
+                        }
+                      ],
+                      "logs": [
+                        {
+                          "category": "OperationalLogs",
+                          "enabled": true,
+                          "retentionPolicy": {
+                            "enabled": false,
+                            "days": 0
+                          }
+                        }
+                      ]
+                    }
+                  }
+                ],
+                "outputs": {}
+              },
+              "parameters": {
+                "resourceName": {
+                  "value": "[field('name')]"
+                },
+                "eventHub": {
+                  "value": "[parameters('eventHub')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "id": "/providers/Microsoft.Authorization/policyDefinitions/4eb315fe-33ec-4b62-b970-d91327a9546b",
+    "name": "4eb315fe-33ec-4b62-b970-d91327a9546b"
+  }
+}
