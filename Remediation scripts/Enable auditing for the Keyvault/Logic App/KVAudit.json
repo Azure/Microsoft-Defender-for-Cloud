@@ -1,0 +1,48 @@
+{
+      "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "resourceName": {
+          "type": "string"
+        },
+        "logAnalytics": {
+          "type": "string"
+        },
+        "retentionDays": {
+          "type": "string"
+        }
+      },
+      "variables": {},
+      "resources": [
+        {
+          "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
+          "apiVersion": "2017-05-01-preview",
+          "name": "[concat(parameters('resourceName'), '/', 'Microsoft.Insights/DiagnosticSettings_workspace')]",
+          "dependsOn": [],
+          "properties": {
+            "workspaceId": "[parameters('logAnalytics')]",
+            "metrics": [
+              {
+                "category": "AllMetrics",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": "[parameters('retentionDays')]"
+                }
+              }
+            ],
+            "logs": [
+              {
+                "category": "AuditEvent",
+                "enabled": true,
+                "retentionPolicy": {
+                  "enabled": false,
+                  "days": "[parameters('retentionDays')]"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "outputs": {}
+}
