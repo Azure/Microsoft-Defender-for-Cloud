@@ -1,0 +1,376 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "metadata":{
+        "comments": "This playbook will automatically remediate Just-in-Time VM Access in Azure Security Center based on recommendation trigger",
+        "author": "Charbel Nemnom"
+    },
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "WA-JIT-ASCRemediation",
+            "type": "String"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "AzureSecurityCenterConnectionName": "[concat('securitycenter-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureSecurityCenterConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+             "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureSecurityCenterConnectionName'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                      "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "HTTP_Apply_JIT_VM_Access": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "kind": "Basic",
+                                    "properties": {
+                                        "virtualMachines": [
+                                            {
+                                                "id": "@{triggerBody()?['properties']?['resourceDetails']?['id']}",
+                                                "ports": [
+                                                    {
+                                                        "allowedSourceAddressPrefix": "*",
+                                                        "maxRequestAccessDuration": "PT3H",
+                                                        "number": 22,
+                                                        "protocol": "*"
+                                                    },
+                                                    {
+                                                        "allowedSourceAddressPrefix": "*",
+                                                        "maxRequestAccessDuration": "PT3H",
+                                                        "number": 3389,
+                                                        "protocol": "*"
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                },
+                                "method": "PUT",
+                                "uri": "https://management.azure.com/subscriptions/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 2))}/resourceGroups/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 4))}/providers/Microsoft.Security/locations/@{body('Parse_JSON')['location']}/jitNetworkAccessPolicies/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 8))}JITPolicy?api-version=2015-06-01-preview"
+                            },
+                            "description": "Create Security Center 'Jit Network Access Policy' for the recommended VM"
+                        },
+                        "HTTP_Get-VM_Location": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 2))}/resourceGroups/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 4))}/providers/Microsoft.Compute/virtualMachines/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'), 8))}?api-version=2019-07-01"
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "HTTP_Get-VM_Location": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_Get-VM_Location')",
+                                "schema": {
+                                    "$schema": "http://json-schema.org/draft-04/schema#",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "location": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "properties": {
+                                            "properties": {
+                                                "hardwareProfile": {
+                                                    "properties": {
+                                                        "vmSize": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "vmSize"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "networkProfile": {
+                                                    "properties": {
+                                                        "networkInterfaces": {
+                                                            "items": [
+                                                                {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "id"
+                                                                    ],
+                                                                    "type": "object"
+                                                                }
+                                                            ],
+                                                            "type": "array"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "networkInterfaces"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "osProfile": {
+                                                    "properties": {
+                                                        "adminUsername": {
+                                                            "type": "string"
+                                                        },
+                                                        "allowExtensionOperations": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "computerName": {
+                                                            "type": "string"
+                                                        },
+                                                        "requireGuestProvisionSignal": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "secrets": {
+                                                            "items": {},
+                                                            "type": "array"
+                                                        },
+                                                        "windowsConfiguration": {
+                                                            "properties": {
+                                                                "enableAutomaticUpdates": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "provisionVMAgent": {
+                                                                    "type": "boolean"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "provisionVMAgent",
+                                                                "enableAutomaticUpdates"
+                                                            ],
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "computerName",
+                                                        "adminUsername",
+                                                        "windowsConfiguration",
+                                                        "secrets",
+                                                        "allowExtensionOperations",
+                                                        "requireGuestProvisionSignal"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "provisioningState": {
+                                                    "type": "string"
+                                                },
+                                                "storageProfile": {
+                                                    "properties": {
+                                                        "dataDisks": {
+                                                            "items": {},
+                                                            "type": "array"
+                                                        },
+                                                        "imageReference": {
+                                                            "properties": {
+                                                                "exactVersion": {
+                                                                    "type": "string"
+                                                                },
+                                                                "offer": {
+                                                                    "type": "string"
+                                                                },
+                                                                "publisher": {
+                                                                    "type": "string"
+                                                                },
+                                                                "sku": {
+                                                                    "type": "string"
+                                                                },
+                                                                "version": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "publisher",
+                                                                "offer",
+                                                                "sku",
+                                                                "version",
+                                                                "exactVersion"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "osDisk": {
+                                                            "properties": {
+                                                                "caching": {
+                                                                    "type": "string"
+                                                                },
+                                                                "createOption": {
+                                                                    "type": "string"
+                                                                },
+                                                                "diskSizeGB": {
+                                                                    "type": "integer"
+                                                                },
+                                                                "managedDisk": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "storageAccountType": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "storageAccountType",
+                                                                        "id"
+                                                                    ],
+                                                                    "type": "object"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "osType": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "osType",
+                                                                "name",
+                                                                "createOption",
+                                                                "caching",
+                                                                "managedDisk",
+                                                                "diskSizeGB"
+                                                            ],
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "imageReference",
+                                                        "osDisk",
+                                                        "dataDisks"
+                                                    ],
+                                                    "type": "object"
+                                                },
+                                                "vmId": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "vmId",
+                                                "hardwareProfile",
+                                                "storageProfile",
+                                                "osProfile",
+                                                "networkProfile",
+                                                "provisioningState"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "tags": {
+                                            "properties": {
+                                                "CostCenter": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "required": [
+                                                "CostCenter"
+                                            ],
+                                            "type": "object"
+                                        },
+                                        "type": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "id",
+                                        "type",
+                                        "location",
+                                        "tags",
+                                        "properties"
+                                    ],
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                        "$connections": {
+                            "value": {
+                                "ascassessment": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSecurityCenterConnectionName'))]",
+                                "connectionName": "[variables('AzureSecurityCenterConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+    ]
+}
