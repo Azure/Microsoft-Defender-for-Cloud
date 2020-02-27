@@ -110,7 +110,7 @@
                                                     {
                                                         "equals": [
                                                             "@items('For_each_2')?['properties']?['securityTaskParameters']?['policyName']",
-                                                            "Apply a Just-In-Time network access control"
+                                                            "Just-In-Time network access control should be applied on virtual machines"
                                                         ]
                                                     }
                                                 ]

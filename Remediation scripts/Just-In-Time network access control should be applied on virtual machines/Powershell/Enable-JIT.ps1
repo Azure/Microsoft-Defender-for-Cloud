@@ -55,7 +55,7 @@ $Subscriptions = Get-AzSubscription
 foreach($Subscription in $Subscriptions){
     $Id = ($Subscription.Id)
     Select-AzSubscription $Id
-    $SecurityTasks += Get-AzSecurityTask | Where-Object {$_.RecommendationType -eq "Apply a Just-In-Time network access control"}
+    $SecurityTasks += Get-AzSecurityTask | Where-Object {$_.RecommendationType -eq "Just-In-Time network access control should be applied on virtual machines"}
 }
 
 # Enable JIT
