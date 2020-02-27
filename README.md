@@ -20,7 +20,7 @@ Please visit the following additional resources to learn more about Azure Securi
 - [Azure Security Center documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
 - [Azure Security Center API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
 
-#Logic App Playbooks
+# Logic App Playbooks
 ## Instructions for templatizing a playbook
 Once you have created a playbook that you want to export to share, go to the Logic App resource in Azure.
 > Note: this is the generic instructions there may be other steps depending how complex or what connectors are used for the playbook.
