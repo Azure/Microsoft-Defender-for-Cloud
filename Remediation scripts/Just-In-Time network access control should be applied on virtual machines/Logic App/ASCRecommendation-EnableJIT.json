@@ -16,23 +16,9 @@
         }
     },
     "variables": {
-        "AzureADConnectionName": "[concat('azuread-', parameters('PlaybookName'))]",
         "AzureSecurityCenterConnectionName": "[concat('securitycenter-', parameters('PlaybookName'))]"
     },
     "resources": [
-        {
-            "type": "Microsoft.Web/connections",
-            "apiVersion": "2016-06-01",
-            "name": "[variables('AzureADConnectionName')]",
-            "location": "[resourceGroup().location]",
-            "properties": {
-                "displayName": "[parameters('UserName')]",
-                "customParameterValues": {},
-                "api": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
-                }
-            }
-        },
         {
             "type": "Microsoft.Web/connections",
             "apiVersion": "2016-06-01",
@@ -58,7 +44,6 @@
                 "type": "SystemAssigned"
             },
              "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables('AzureADConnectionName'))]",
                 "[resourceId('Microsoft.Web/connections', variables('AzureSecurityCenterConnectionName'))]"
             ],
             "properties": {
@@ -376,11 +361,6 @@
                 "parameters": {
                         "$connections": {
                             "value": {
-                                "azuread": {
-                                    "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureADConnectionName'))]",
-                                    "connectionName": "[variables('AzureADConnectionName')]",
-                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
-                                },
                                 "ascassessment": {
                                 "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSecurityCenterConnectionName'))]",
                                 "connectionName": "[variables('AzureSecurityCenterConnectionName')]",
