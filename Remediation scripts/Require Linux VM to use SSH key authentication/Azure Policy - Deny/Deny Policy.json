@@ -5,1079 +5,1079 @@
         "displayName": "Deny SSH Auth on New VMs",
         "description": "This policy denies a deployment when any Linux VMs use password-only authentication for SSH.",
         "policyRule": {
-			"if": {
-				"allOf": [
-					{
-						"field": "type",
-						"equals": "Microsoft.Compute/virtualMachines"
-					},
-					{
-						"anyof": [
-							{
-								"field": "Microsoft.Compute/virtualMachines/osProfile.linuxConfiguration.disablePasswordAuthentication",
-								"exists": "False"
-							},
-							{
-								"field": "Microsoft.Compute/virtualMachines/osProfile.linuxConfiguration.disablePasswordAuthentication",
-								"equals": "false"
-							}
-						]
-					},
-					{
-						"anyOf": [{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "7isolutions"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"sapp"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "128technology"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"128t_networking_platform"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "4psa"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"voipnow"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "a10networks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"a10-lightning-adc",
-											"a10-vthunder-adc"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "accellion"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"kiteworks-by-accellion"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "abiquo"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"abiquo-hybrid-cloud-34"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "accops"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"hysecure5050"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "actian_matrix"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"actian_matrix"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "actifio"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"actifio-sky"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "actian-corp"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"vector-community",
-											"vector-enterprise"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "Acronis"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"storage"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "activeeon"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"activeeon-workload-scheduler"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "aerospike"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"aerospike-database-vm"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "affinio"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"platform"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "aiscaler-cache-control-ddos-and-url-rewriting-"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"aimobile-site-acceleration",
-											"aiprotect-ddos-firewall",
-											"aiscaler-traffic-manager-caching",
-											"aivideo"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "akamai-technologies"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"enterprise-application-access"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "alces-flight-limited"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"alces-flight-compute-solo"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "alertlogic"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"alert-logic-tm",
-											"alert-logic-wsm"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "alienvault"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"unified-security-management-anywhere"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "alldigital-brevity"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"alldigital-brevity-uploader"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "altair-engineering-inc"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"altair_hwulva"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "altamira-corporation"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"lumify"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "antmedia"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"ams_community_edition",
-											"ant_media_server_enterprise"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "apigee"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"apigee-edge"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "appcara"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"app360v43-001"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "appcelerator"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"appcelerator-arrow-azure-vm"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "appex-networks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"cloudexpress"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "appistry"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"genomepilot"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "appscale-marketplace"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"appscale"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "arangodb"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"arangodb"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "arista-networks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"veos-router"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "array_networks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"array-networks-vapv"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "astadia-1148316"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"astadia-ui-automation-tee"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "atomicorp"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"secure-os",
-											"secure-ubuntu-os"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "audiocodes"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"mediantsessionbordercontroller"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "auriq-systems"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"essentia"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "awingu"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"awingu"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "aviatrix-systems"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"aviatrix-cloud-services",
-											"aviatrix-companion-gateway",
-											"aviatrix-companion-gateway-v2",
-											"aviatrix-vpn-gw",
-											"aviatrix_multi_cloud_service",
-											"aviatrix_openvpn_service",
-											"aviatrix_openvpn_service10",
-											"aviatrix_openvpn_service25",
-											"aviatrix_openvpn_service50"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "avi-networks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"avi-vantage-adc",
-											"internal-avi-vantage-adc"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "axway"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"axway-mailgate-secure-collaboration-advanced",
-											"axway-mailgate-secure-collaboration-premium",
-											"axway-mailgate-secure-collaboration-standard"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "azul"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"azul-zulu-ubuntu-1804"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "azurecyclecloud"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"azure-cyclecloud-vm"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "AzureDatabricks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"Databricks"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "baas-techbureau"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"b1327623-d29b-4cc1-b833-85067dcc7bce"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "baffle-io"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"baffle-application-data-protection"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "balabit"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"balabit-shell-control-box",
-											"psm",
-											"sps"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "barracudanetworks"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"barracuda-app-sec-control-center",
-											"barracuda-email-security-gateway",
-											"barracuda-ng-cc",
-											"barracuda-ng-firewall",
-											"waf"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "basho"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"riak-2-0-1"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "batch"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"autodesk-maya-arnold-centos73",
-											"rendering-centos73"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "bdy"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"buddy"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "Bitnami"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"3-4",
-											"abantecart",
-											"activemq",
-											"akeneo",
-											"alfrescocommunity",
-											"apachesolr",
-											"artifactory",
-											"canvaslms",
-											"cassandra",
-											"civicrm",
-											"cmsmadesimple",
-											"codiad",
-											"concrete5",
-											"consul",
-											"coppermine",
-											"couchdb",
-											"diaspora",
-											"discourse",
-											"djangostack",
-											"dokuwiki",
-											"dolibarr",
-											"DreamFactory",
-											"drupal",
-											"elastic-search",
-											"elk",
-											"erpnext",
-											"espocrm",
-											"etcd",
-											"eXo-Platform",
-											"exoplatform",
-											"fatfreecrm",
-											"ghost",
-											"gitlab",
-											"grafana",
-											"hadoop",
-											"hhvmstack",
-											"hordegroupwarewebmail",
-											"jasperreports",
-											"jenkins",
-											"joomla",
-											"jrubystack",
-											"kafka",
-											"kong",
-											"kubernetessandbox",
-											"lampstack",
-											"lappstack",
-											"letschat",
-											"liferay",
-											"limesurvey",
-											"livehelperchat",
-											"magento",
-											"mahara",
-											"mantis",
-											"mariadb",
-											"mattermost",
-											"mautic",
-											"mean",
-											"mediawiki",
-											"memcached",
-											"modx",
-											"mongodb",
-											"moodle",
-											"multicraft",
-											"mybb",
-											"mysql",
-											"nats",
-											"neo4j",
-											"neos",
-											"nginxstack",
-											"noalyss",
-											"nodejs",
-											"ocportal",
-											"odoo",
-											"openatrium",
-											"opencart",
-											"openedx",
-											"openfire",
-											"openproject",
-											"orangehrm",
-											"osclass",
-											"owncloud",
-											"oxid-eshop",
-											"parseserver",
-											"phabricator",
-											"phpbb",
-											"phplist",
-											"pimcore",
-											"piwik",
-											"plone",
-											"pootle",
-											"postgresql",
-											"prestashop",
-											"processmakerenterprise",
-											"processmakeropensourceedition",
-											"processwire",
-											"publify",
-											"rabbitmq",
-											"redash",
-											"redis",
-											"redmine",
-											"redmineplusagile",
-											"reportserver",
-											"reportserverenterprise",
-											"resourcespace",
-											"reviewboard",
-											"reviewboardpowerpack",
-											"roundcube",
-											"rubystack",
-											"seopanel",
-											"shopware",
-											"silverstripe",
-											"simplemachinesforum",
-											"sonarqube",
-											"spree",
-											"subversion",
-											"suitecrm",
-											"tensorflowserving",
-											"testlink",
-											"tikiwikicmsgroupware",
-											"tinytinyrss",
-											"tom-cat",
-											"trac",
-											"typo3",
-											"weblate",
-											"webmailpro",
-											"wildfly",
-											"wordpress",
-											"wordpress-multisite",
-											"wordpresspro",
-											"x2enginesalescrm",
-											"xoops",
-											"youtrack",
-											"zookeeper",
-											"zurmo"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "black-duck-software"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"blackduck_hub_vm"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "blk-technologies"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"blk-io-erc-20-rest-service"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "blockapps"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"strato-blockchain-base-template-latest"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "blockstack"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"blockstack-core-v14"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "blockchain-foundry"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"syscoin-api",
-											"syscoin-full-node",
-											"syscoin-price-peg"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "bloombase"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"bloombase-storesafe-3_4_7_0_el7_x86_64"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "bluecat"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"bluecat-bam-for-azure",
-											"bluecat-dns-for-azure",
-											"bluecat-edge-service-point-vm-for-azure"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "bluetalon"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"bluetalon"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "brocade_communications"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"brocade-virtual-traffic-manager",
-											"brocade-virtual-traffic-manager-with-waf-module",
-											"brocade-virtual-web-application-firewall"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "bt-americas-inc"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"diamondip-sapphire-ev10",
-											"diamondip-sapphire-ev20",
-											"diamondip-sapphire-v10",
-											"diamondip-sapphire-v20",
-											"diamondip-sapphire-v5",
-											"diamondip-sapphire-vcaa20"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "buddhalabs"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"sles_12_pci"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
-									{
-										"field": "Microsoft.Compute/imagePublisher",
-										"equals": "carto"
-									},
-									{
-										"field": "Microsoft.Compute/imageOffer",
-										"in": [
-											"cartobuilder2"
-										]
-									}
-								]
-							},
-							{
-								"allOf": [
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Compute/virtualMachines"
+                    },
+                    {
+                        "anyof": [
+                            {
+                                "field": "Microsoft.Compute/virtualMachines/osProfile.linuxConfiguration.disablePasswordAuthentication",
+                                "exists": "False"
+                            },
+                            {
+                                "field": "Microsoft.Compute/virtualMachines/osProfile.linuxConfiguration.disablePasswordAuthentication",
+                                "equals": "false"
+                            }
+                        ]
+                    },
+                    {
+                        "anyOf": [{
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "7isolutions"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "sapp"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "128technology"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "128t_networking_platform"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "4psa"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "voipnow"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "a10networks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "a10-lightning-adc",
+                                            "a10-vthunder-adc"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "accellion"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "kiteworks-by-accellion"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "abiquo"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "abiquo-hybrid-cloud-34"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "accops"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "hysecure5050"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "actian_matrix"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "actian_matrix"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "actifio"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "actifio-sky"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "actian-corp"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "vector-community",
+                                            "vector-enterprise"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "Acronis"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "storage"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "activeeon"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "activeeon-workload-scheduler"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "aerospike"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "aerospike-database-vm"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "affinio"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "platform"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "aiscaler-cache-control-ddos-and-url-rewriting-"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "aimobile-site-acceleration",
+                                            "aiprotect-ddos-firewall",
+                                            "aiscaler-traffic-manager-caching",
+                                            "aivideo"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "akamai-technologies"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "enterprise-application-access"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "alces-flight-limited"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "alces-flight-compute-solo"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "alertlogic"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "alert-logic-tm",
+                                            "alert-logic-wsm"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "alienvault"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "unified-security-management-anywhere"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "alldigital-brevity"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "alldigital-brevity-uploader"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "altair-engineering-inc"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "altair_hwulva"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "altamira-corporation"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "lumify"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "antmedia"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "ams_community_edition",
+                                            "ant_media_server_enterprise"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "apigee"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "apigee-edge"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "appcara"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "app360v43-001"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "appcelerator"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "appcelerator-arrow-azure-vm"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "appex-networks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "cloudexpress"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "appistry"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "genomepilot"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "appscale-marketplace"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "appscale"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "arangodb"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "arangodb"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "arista-networks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "veos-router"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "array_networks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "array-networks-vapv"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "astadia-1148316"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "astadia-ui-automation-tee"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "atomicorp"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "secure-os",
+                                            "secure-ubuntu-os"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "audiocodes"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "mediantsessionbordercontroller"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "auriq-systems"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "essentia"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "awingu"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "awingu"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "aviatrix-systems"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "aviatrix-cloud-services",
+                                            "aviatrix-companion-gateway",
+                                            "aviatrix-companion-gateway-v2",
+                                            "aviatrix-vpn-gw",
+                                            "aviatrix_multi_cloud_service",
+                                            "aviatrix_openvpn_service",
+                                            "aviatrix_openvpn_service10",
+                                            "aviatrix_openvpn_service25",
+                                            "aviatrix_openvpn_service50"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "avi-networks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "avi-vantage-adc",
+                                            "internal-avi-vantage-adc"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "axway"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "axway-mailgate-secure-collaboration-advanced",
+                                            "axway-mailgate-secure-collaboration-premium",
+                                            "axway-mailgate-secure-collaboration-standard"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "azul"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "azul-zulu-ubuntu-1804"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "azurecyclecloud"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "azure-cyclecloud-vm"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "AzureDatabricks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "Databricks"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "baas-techbureau"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "b1327623-d29b-4cc1-b833-85067dcc7bce"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "baffle-io"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "baffle-application-data-protection"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "balabit"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "balabit-shell-control-box",
+                                            "psm",
+                                            "sps"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "barracudanetworks"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "barracuda-app-sec-control-center",
+                                            "barracuda-email-security-gateway",
+                                            "barracuda-ng-cc",
+                                            "barracuda-ng-firewall",
+                                            "waf"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "basho"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "riak-2-0-1"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "batch"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "autodesk-maya-arnold-centos73",
+                                            "rendering-centos73"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "bdy"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "buddy"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "Bitnami"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "3-4",
+                                            "abantecart",
+                                            "activemq",
+                                            "akeneo",
+                                            "alfrescocommunity",
+                                            "apachesolr",
+                                            "artifactory",
+                                            "canvaslms",
+                                            "cassandra",
+                                            "civicrm",
+                                            "cmsmadesimple",
+                                            "codiad",
+                                            "concrete5",
+                                            "consul",
+                                            "coppermine",
+                                            "couchdb",
+                                            "diaspora",
+                                            "discourse",
+                                            "djangostack",
+                                            "dokuwiki",
+                                            "dolibarr",
+                                            "DreamFactory",
+                                            "drupal",
+                                            "elastic-search",
+                                            "elk",
+                                            "erpnext",
+                                            "espocrm",
+                                            "etcd",
+                                            "eXo-Platform",
+                                            "exoplatform",
+                                            "fatfreecrm",
+                                            "ghost",
+                                            "gitlab",
+                                            "grafana",
+                                            "hadoop",
+                                            "hhvmstack",
+                                            "hordegroupwarewebmail",
+                                            "jasperreports",
+                                            "jenkins",
+                                            "joomla",
+                                            "jrubystack",
+                                            "kafka",
+                                            "kong",
+                                            "kubernetessandbox",
+                                            "lampstack",
+                                            "lappstack",
+                                            "letschat",
+                                            "liferay",
+                                            "limesurvey",
+                                            "livehelperchat",
+                                            "magento",
+                                            "mahara",
+                                            "mantis",
+                                            "mariadb",
+                                            "mattermost",
+                                            "mautic",
+                                            "mean",
+                                            "mediawiki",
+                                            "memcached",
+                                            "modx",
+                                            "mongodb",
+                                            "moodle",
+                                            "multicraft",
+                                            "mybb",
+                                            "mysql",
+                                            "nats",
+                                            "neo4j",
+                                            "neos",
+                                            "nginxstack",
+                                            "noalyss",
+                                            "nodejs",
+                                            "ocportal",
+                                            "odoo",
+                                            "openatrium",
+                                            "opencart",
+                                            "openedx",
+                                            "openfire",
+                                            "openproject",
+                                            "orangehrm",
+                                            "osclass",
+                                            "owncloud",
+                                            "oxid-eshop",
+                                            "parseserver",
+                                            "phabricator",
+                                            "phpbb",
+                                            "phplist",
+                                            "pimcore",
+                                            "piwik",
+                                            "plone",
+                                            "pootle",
+                                            "postgresql",
+                                            "prestashop",
+                                            "processmakerenterprise",
+                                            "processmakeropensourceedition",
+                                            "processwire",
+                                            "publify",
+                                            "rabbitmq",
+                                            "redash",
+                                            "redis",
+                                            "redmine",
+                                            "redmineplusagile",
+                                            "reportserver",
+                                            "reportserverenterprise",
+                                            "resourcespace",
+                                            "reviewboard",
+                                            "reviewboardpowerpack",
+                                            "roundcube",
+                                            "rubystack",
+                                            "seopanel",
+                                            "shopware",
+                                            "silverstripe",
+                                            "simplemachinesforum",
+                                            "sonarqube",
+                                            "spree",
+                                            "subversion",
+                                            "suitecrm",
+                                            "tensorflowserving",
+                                            "testlink",
+                                            "tikiwikicmsgroupware",
+                                            "tinytinyrss",
+                                            "tom-cat",
+                                            "trac",
+                                            "typo3",
+                                            "weblate",
+                                            "webmailpro",
+                                            "wildfly",
+                                            "wordpress",
+                                            "wordpress-multisite",
+                                            "wordpresspro",
+                                            "x2enginesalescrm",
+                                            "xoops",
+                                            "youtrack",
+                                            "zookeeper",
+                                            "zurmo"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "black-duck-software"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "blackduck_hub_vm"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "blk-technologies"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "blk-io-erc-20-rest-service"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "blockapps"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "strato-blockchain-base-template-latest"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "blockstack"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "blockstack-core-v14"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "blockchain-foundry"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "syscoin-api",
+                                            "syscoin-full-node",
+                                            "syscoin-price-peg"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "bloombase"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "bloombase-storesafe-3_4_7_0_el7_x86_64"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "bluecat"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "bluecat-bam-for-azure",
+                                            "bluecat-dns-for-azure",
+                                            "bluecat-edge-service-point-vm-for-azure"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "bluetalon"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "bluetalon"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "brocade_communications"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "brocade-virtual-traffic-manager",
+                                            "brocade-virtual-traffic-manager-with-waf-module",
+                                            "brocade-virtual-web-application-firewall"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "bt-americas-inc"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "diamondip-sapphire-ev10",
+                                            "diamondip-sapphire-ev20",
+                                            "diamondip-sapphire-v10",
+                                            "diamondip-sapphire-v20",
+                                            "diamondip-sapphire-v5",
+                                            "diamondip-sapphire-vcaa20"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "buddhalabs"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "sles_12_pci"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                                "allOf": [
+                                    {
+                                        "field": "Microsoft.Compute/imagePublisher",
+                                        "equals": "carto"
+                                    },
+                                    {
+                                        "field": "Microsoft.Compute/imageOffer",
+                                        "in": [
+                                            "cartobuilder2"
+                                        ]
+                                    }
+                                ]
+                            },
+                            {
+                            	"allOf": [
 									{
 										"field": "Microsoft.Compute/imagePublisher",
 										"equals": "cask"
