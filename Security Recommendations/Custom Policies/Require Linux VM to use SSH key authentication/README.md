@@ -1,7 +1,7 @@
-# Sample for remediating "Require Linux VM to use SSH key authentication"
-These samples provide various ways to resolve the "*Require Linux VM to use SSH key authentication*" recommendation in Azure Security Center. There is one sample:
-* **Azure Policy definitions**
-    * Deny policy - This will prevent the creation of Linux VMs which use password instead of SSH key authentication for SSH.
+# Azure Policy to require Linux VM to use SSH key authentication
+This policy sample will block the creation of Linux VMs which use password instead of SSH key authentication for SSH. Use of SSH key is more secure than passwords. The policy checks if the VM Publisher and Offer are in a list of known Linux offers..
+You can not deploy this via template deployment in the Azure Portal.  You can deploy the template
+using Azure CLI or Azure PowerShell.
 
 
 # Contributing
