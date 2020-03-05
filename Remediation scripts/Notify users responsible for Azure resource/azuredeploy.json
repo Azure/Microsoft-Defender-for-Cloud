@@ -62,6 +62,9 @@
                 "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
                 "[resourceId('Microsoft.Web/connections', variables('ASCAssessmentConnectionName'))]"
             ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
             "properties": {
                 "state": "Enabled",
                 "definition": {

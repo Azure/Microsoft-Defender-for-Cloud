@@ -12,7 +12,7 @@ This Logic App for Workflow Automations will notify ASC generated recommendation
 
 **Additional Post Install Notes:**
 
-The Logic App uses a Managed System Identity (MSI) to authenticate and authorize against management.azure.com to obtain PrincipalIDs assigned to the Azure Resource. The MSI is also used to authenticate and authorize against graph.windows.net to obtains RBAC Objects by PrincipalIDs. Be sure to turn on the System Assigned Identity in the Logic App. 
+The Logic App creates and uses a Managed System Identity (MSI) to authenticate and authorize against management.azure.com to obtain PrincipalIDs assigned to the Azure Resource. The MSI is also used to authenticate and authorize against graph.windows.net to obtains RBAC Objects by PrincipalIDs. 
 
 Assign RBAC 'Reader' role to the Logic App at the Subscription level.
 Assign AAD Directory Role 'Directory readers' role to the Logic App.
