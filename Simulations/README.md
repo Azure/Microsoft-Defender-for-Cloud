@@ -35,6 +35,11 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 - [Threat detection for Azure Storage](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-data-services#azure-storage-)
 
+## Alert Simulation for Key Vault Threat Protection
+- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-key-vault-threat-detection-in-azure-security/ba-p/1220336) go over the steps to simulate an anonymizer access to the Key Vault using a TOR browser.
+
+- [Threat detection for Key Vault](https://docs.microsoft.com/en-us/azure/security-center/threat-protection#threat-protection-for-azure-key-vault-preview)
+
 ## Threat Hunting in Azure Security Center and Log Analytics Workspace
 
 - This simulation playbook go over a threat hunting scenario using Azure Security Center and searching for evidences of attack in Log Analtyics workspace.
