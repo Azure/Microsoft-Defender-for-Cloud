@@ -1,4 +1,4 @@
-# Notify-ASCRecommendationsAzureResourceTagOwner
+# Notify-ASCRecommendationsAzureResource
 author: Nathan Swift
 
 This Logic App for Workflow Automations will notify ASC generated recommendations to RBAC assigned Owners and Contributors both user and mail enabled security groups on the Azure Resource.
