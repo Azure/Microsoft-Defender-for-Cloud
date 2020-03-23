@@ -27,7 +27,7 @@ Once you have created a playbook that you want to export to share, go to the Log
 ```json
     "variables": {
         "AzureADConnectionName": "[concat('azuread-', parameters('PlaybookName'))]",
-        "AzureSentinelConnectionName": "[concat('azuresentinel-', parameters('PlaybookName'))]"
+        "ascalertConnectionName": "[concat('ascalert-', parameters('PlaybookName'))]"
     },
 ```
 * The variables will be the connection names.  Here we are creating a connection name using the connection (AzureAD) and "-" and the playbook name.
@@ -59,10 +59,10 @@ Once you have created a playbook that you want to export to share, go to the Log
                                 "connectionName": "[variables('AzureADConnectionName')]",
                                 "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
                             },
-                            "azuresentinel": {
-                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureSentinelConnectionName'))]",
-                                "connectionName": "[variables('AzureSentinelConnectionName')]",
-                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuresentinel')]"
+                            "ascalert": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]",
+                                "connectionName": "[variables('ascalertConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
                             }
                         }
                     }
