@@ -1,7 +1,9 @@
 
 # What this PowerShell script walks through
 
-  Can be used when there are dual levels of ASC policies assignments at Management group and subscription level. If you want ASC policy to be inherited correctly at the management group, 
+When using Azure Management Group to manage policy assignment to subscriptions, you need to ensuare that the ASC Defaul Policy is assigned to the Management Group level and that the default ASC policy is removed from the subscription level. For more information about this scenario, read [Gain tenant-wide visibility for Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-management-groups).
+
+This script can be used when there are dual levels of ASC policies assignments at Management group and subscription level. If you want ASC policy to be inherited correctly at the management group, 
   this script Removes ASC Default policy assignment at subscription level by doing the following steps
 
   1. Seeking all of your management groups and a match for a ASC Default definition in policy assignment at Management Group Level.
