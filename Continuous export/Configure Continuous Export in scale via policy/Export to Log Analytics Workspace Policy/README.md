@@ -10,7 +10,7 @@ This Azure Policy definition will ensure that during the creation of new Azure s
 2) Name (For example "Deploy Export of Azure Security Center Alerts and/or Recommendations to Log Analytics Workspace")
 3) Optional parameters are: description and category.
 
-[![Deploy to Azure](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FContinuous%2520export%252FConfigure%2520Continuous%2520Export%2520in%2520scale%2520via%2520policy%252FExport%2520to%2520Log%2520Analytics%2520Workspace%2520Policy%252FExportASCAlertsAndRecommendationsToLogAnalyticsWorkspacePolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FContinuous%2520export%252FConfigure%2520Continuous%2520Export%2520in%2520scale%2520via%2520policy%252FExport%2520to%2520Log%2520Analytics%2520Workspace%2520Policy%252FExportASCAlertsAndRecommendationsToLogAnalyticsWorkspacePolicy.json)
 
 [Learn more about Continuous Export](https://docs.microsoft.com/en-us/azure/security-center/continuous-export)
 
