@@ -92,7 +92,7 @@
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Workflow Automation for Azure Security Center Alerts",
+                            "description": "Workflow Automation for Azure Security Center Alerts via Policy",
                             "isEnabled": true,
                             "scopes": [
                               {

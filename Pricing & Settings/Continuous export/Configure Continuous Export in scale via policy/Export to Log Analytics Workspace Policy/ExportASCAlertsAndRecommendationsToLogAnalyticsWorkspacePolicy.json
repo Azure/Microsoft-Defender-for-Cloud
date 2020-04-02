@@ -9,7 +9,7 @@
       "effect": "deployIfNotExists",
       "details": {
         "type": "Microsoft.Security/automations",
-        "name": "[parameters('automationName')]",
+        "name": "ExportToWorkspace",
         "existenceScope": "resourcegroup",
         "ResourceGroupName": "[parameters('resourceGroupName')]",
         "deploymentScope": "subscription",
@@ -24,14 +24,14 @@
               "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
               "contentVersion": "1.0.0.0",
               "parameters": {
-                "automationName": {
-                  "type": "string"
-                },
                 "resourceGroupName": {
                   "type": "string"
                 },
                 "resourceGroupLocation": {
                   "type": "string"
+                },
+                "exportedDataTypes": {
+                  "type": "array"
                 },
                 "recommendationNames": {
                   "type": "array"
@@ -39,13 +39,10 @@
                 "recommendationSeverities": {
                   "type": "array"
                 },
-                "recommendationStates": {
+                "alertSeverities": {
                   "type": "array"
                 },
-                "logicAppResourceId": {
-                  "type": "string"
-                },
-                "logicAppTrigger": {
+                "workspaceResourceId": {
                   "type": "string"
                 },
                 "subscriptionAzureResourceId": {
@@ -59,15 +56,58 @@
                 "scopeDescription": "scope for subscription {0}",
                 "recommendationNamesLength": "[length(parameters('recommendationNames'))]",
                 "recommendationSeveritiesLength": "[length(parameters('recommendationSeverities'))]",
-                "recommendationStatesLength": "[length(parameters('recommendationStates'))]",
+                "alertSeveritiesLength": "[length(parameters('alertSeverities'))]",
                 "recommendationNamesLengthIfEmpty": "[if(equals(variables('recommendationNamesLength'), 0), 1, variables('recommendationNamesLength'))]",
                 "recommendationSeveritiesLengthIfEmpty": "[if(equals(variables('recommendationSeveritiesLength'), 0), 1, variables('recommendationSeveritiesLength'))]",
-                "recommendationStatesLengthIfEmpty": "[if(equals(variables('recommendationStatesLength'), 0), 1, variables('recommendationStatesLength'))]",
-                "totalRuleCombinationsForOneRecommendationName": "[mul(variables('recommendationSeveritiesLengthIfEmpty'),variables('recommendationStatesLengthIfEmpty'))]",
-                "totalRuleCombinationsForOneRecommendationSeverity": "[variables('recommendationStatesLengthIfEmpty')]",
-                "totalRuleCombinationsForOneRecommendationState": 1,
-                "stateMap" : {"Healthy" : "healthy", "Unhealthy" : "unhealthy", "Not Applicable" : "notapplicable"},
-                "triggerMap" : {"Manual (Incoming HTTP request)" : "manual", "When an Azure Security Center Recommendation is created or triggered" : "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered"}
+                "alertSeveritiesLengthIfEmpty": "[if(equals(variables('alertSeveritiesLength'), 0), 1, variables('alertSeveritiesLength'))]",
+                "totalRuleCombinationsForOneRecommendationName": "[variables('recommendationSeveritiesLengthIfEmpty')]",
+                "totalRuleCombinationsForOneRecommendationSeverity": 1,
+                "exportedDataTypesLength" : "[length(parameters('exportedDataTypes'))]",
+                "exportedDataTypesLengthIfEmpty" : "[if(equals(variables('exportedDataTypesLength'), 0), 1, variables('exportedDataTypesLength'))]",
+                "dataTypeMap" : {"Security recommendations" : "Assessments", "Security alerts" : "Alerts"},
+                "alertSeverityMap" : {"High" : "high", "Medium" : "medium", "Low" : "low"},
+                "ruleSetsForAssessmentsObj": {
+                    "copy": [
+                      {
+                        "name": "ruleSetsForAssessmentsArr",
+                        "count": "[mul(variables('recommendationNamesLengthIfEmpty'),variables('recommendationSeveritiesLengthIfEmpty'))]",
+                        "input": {
+                        "rules": [
+                            {
+                            "propertyJPath": "[if(equals(variables('recommendationNamesLength'),0),'type','name')]",
+                            "propertyType": "string",
+                            "expectedValue": "[if(equals(variables('recommendationNamesLength'),0),'Microsoft.Security/assessments',parameters('recommendationNames')[mod(div(copyIndex('ruleSetsForAssessmentsArr'),variables('totalRuleCombinationsForOneRecommendationName')),variables('recommendationNamesLength'))])]",
+                            "operator": "Contains"
+                            }, 
+                            {
+                            "propertyJPath": "properties.metadata.severity",
+                            "propertyType": "string",
+                            "expectedValue": "[parameters('recommendationSeverities')[mod(div(copyIndex('ruleSetsForAssessmentsArr'),variables('totalRuleCombinationsForOneRecommendationSeverity')),variables('recommendationSeveritiesLength'))]]",
+                            "operator": "Equals"
+                            }
+                        ]
+                        }
+                      }
+                    ]
+                },
+                "ruleSetsForAlertsObj": {
+                    "copy": [
+                      {
+                        "name": "ruleSetsForAlertsArr",
+                        "count": "[variables('alertSeveritiesLengthIfEmpty')]",
+                        "input": {
+                        "rules": [
+                            {
+                            "propertyJPath": "Severity",
+                            "propertyType": "string",
+                            "expectedValue": "[variables('alertSeverityMap')[parameters('alertSeverities')[mod(copyIndex('ruleSetsForAlertsArr'),variables('alertSeveritiesLengthIfEmpty'))]]]",
+                            "operator": "Equals"
+                            }
+                        ]
+                        }
+                      }
+                    ]
+                } 
               },
               "resources": [
                 {
@@ -98,11 +138,11 @@
                           "tags": {},
                           "apiVersion": "2019-01-01-preview",
                           "location": "[parameters('resourceGroupLocation')]",
-                          "name": "[parameters('automationName')]",
+                          "name": "ExportToWorkspace",
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Workflow Automation for Azure Security Center Recommendations via Policy",
+                            "description": "Export Azure Security Center Alerts and/or Recommendations to Log Analytics Workspace via Policy",
                             "isEnabled": true,
                             "scopes": [
                               {
@@ -110,44 +150,20 @@
                                 "scopePath": "[parameters('subscriptionAzureResourceId')]"
                               }
                             ],
-                            "sources": [
+                            "copy": [
                               {
-                                "eventSource": "Assessments",
-                                "copy": [
-                                  {
-                                    "name": "ruleSets",
-                                    "count": "[mul(variables('recommendationNamesLengthIfEmpty'), mul(variables('recommendationSeveritiesLengthIfEmpty'),variables('recommendationStatesLengthIfEmpty')))]",
-                                    "input": {
-                                      "rules": [
-                                        {
-                                          "propertyJPath": "[if(equals(variables('recommendationNamesLength'), 0), 'type', 'name')]",
-                                          "propertyType": "string",
-                                          "expectedValue": "[if(equals(variables('recommendationNamesLength'), 0), 'Microsoft.Security/assessments', parameters('recommendationNames')[mod(div(copyIndex('ruleSets'), variables('totalRuleCombinationsForOneRecommendationName')), variables('recommendationNamesLength'))])]",
-                                          "operator": "Contains"
-                                        },
-                                        {
-                                          "propertyJPath": "properties.metadata.severity",
-                                          "propertyType": "string",
-                                          "expectedValue": "[parameters('recommendationSeverities')[mod(div(copyIndex('ruleSets'), variables('totalRuleCombinationsForOneRecommendationSeverity')), variables('recommendationSeveritiesLength'))]]",
-                                          "operator": "Equals"
-                                        },
-                                        {
-                                          "propertyJPath": "properties.status.code",
-                                          "propertyType": "string",
-                                          "expectedValue": "[variables('stateMap')[parameters('recommendationStates')[mod(div(copyIndex('ruleSets'), variables('totalRuleCombinationsForOneRecommendationState')), variables('recommendationStatesLength'))]]]",
-                                          "operator": "Contains"
-                                        }
-                                      ]
-                                    }
-                                  }
-                                ]
+                                "name": "sources",
+                                "count": "[variables('exportedDataTypesLengthIfEmpty')]",
+                                "input": {
+                                    "eventSource": "[variables('dataTypeMap')[parameters('exportedDataTypes')[copyIndex('sources')]]]",
+                                    "ruleSets" : "[if(equals(parameters('exportedDataTypes')[copyIndex('sources')], 'Security recommendations'), variables('ruleSetsForAssessmentsObj').ruleSetsForAssessmentsArr, variables('ruleSetsForAlertsObj').ruleSetsForAlertsArr)]"
+                                }
                               }
                             ],
                             "actions": [
                               {
-                                "actionType": "LogicApp",
-                                "logicAppResourceId": "[parameters('LogicAppResourceId')]",
-                                "uri": "[listCallbackUrl(concat(parameters('LogicAppResourceId'), '/triggers/', variables('triggerMap')[parameters('logicAppTrigger')]),'2016-06-01').value]"
+                                "actionType":"Workspace",
+						        "workspaceResourceId":"[parameters('workspaceResourceId')]"
                               }
                             ]
                           }
@@ -159,14 +175,14 @@
               ]
             },
             "parameters": {
-              "automationName": {
-                "value": "[parameters('automationName')]"
-              },
               "resourceGroupName": {
                 "value": "[parameters('resourceGroupName')]"
               },
               "resourceGroupLocation": {
                 "value": "[parameters('resourceGroupLocation')]"
+              },
+              "exportedDataTypes": {
+                "value": "[parameters('exportedDataTypes')]"
               },
               "recommendationNames": {
                 "value": "[parameters('recommendationNames')]"
@@ -174,14 +190,11 @@
               "recommendationSeverities": {
                 "value": "[parameters('recommendationSeverities')]"
               },
-              "recommendationStates": {
-                "value": "[parameters('recommendationStates')]"
+              "alertSeverities": {
+                "value": "[parameters('alertSeverities')]"
               },
-              "logicAppResourceId": {
-                "value": "[parameters('logicAppResourceId')]"
-              },
-              "logicAppTrigger": {
-                "value": "[parameters('logicAppTrigger')]"
+              "workspaceResourceId": {
+                "value": "[parameters('workspaceResourceId')]"
               },
               "subscriptionAzureResourceId": {
                 "value": "[subscription().id]"
@@ -196,18 +209,11 @@
     }
   },
   "parameters": {
-    "automationName": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Automation name",
-        "description": "This will be the automation name"
-      }
-    },
     "resourceGroupName": {
       "type": "String",
       "metadata": {
         "displayName": "Resource group name",
-        "description": "Insert the resource group name where the workflow automation will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription"
+        "description": "Insert the resource group name where the export to Log Analytics Workspace configuration will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription. Please note that there can only be one export to Log Analytics Workspace configuration per resource group."
       }
     },
     "resourceGroupLocation": {
@@ -218,10 +224,25 @@
         "strongType": "location"
       }
     },
+    "exportedDataTypes": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Exported data types",
+        "description": "Choose the data type/s to be exported"
+      },
+      "allowedValues": [
+        "Security recommendations",
+        "Security alerts"
+      ],
+      "defaultValue": [
+        "Security recommendations",
+        "Security alerts"
+      ]
+    },
     "recommendationNames": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation IDs",
+        "displayName": "Recommendation IDs (applicable only for export of security recommendations)",
         "description": "For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
       },
       "defaultValue": []
@@ -229,7 +250,7 @@
     "recommendationSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation severities",
+        "displayName": "Recommendation severities (applicable only for export of security recommendations)",
         "description": "To select specific recommendation severities, please untick the appropriate ones"
       },
       "allowedValues": [
@@ -243,40 +264,29 @@
         "Low"
       ]
     },
-    "recommendationStates": {
+    "alertSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation states",
-        "description": "To select specific recommendation states, please untick the appropriate ones. Recommendations with unhealthy state require your attention to resolve. When a recommendation state is healthy, it no longer applies to the resource as Security Center detects it as healthy. A recommendation is not-applicable if, for example, it was disabled in the Security Policy"
+        "displayName": "Alert severities (applicable only for export of security alerts)",
+        "description": "To select specific alert severities, please untick the appropriate ones"
       },
       "allowedValues": [
-        "Healthy",
-        "Unhealthy",
-        "Not Applicable"
+        "High",
+        "Medium",
+        "Low"
       ],
       "defaultValue": [
-        "Healthy",
-        "Unhealthy",
-        "Not Applicable"
+        "High",
+        "Medium",
+        "Low"
       ]
     },
-    "logicAppResourceId": {
+    "workspaceResourceId": {
       "type": "String",
       "metadata": {
-        "displayName": "Logic app resource ID",
-        "description": "Insert the resource ID of the logic app that will be triggered. The provided logic app must be in this policy's assignment scope. If you do not already have a logic app, please visit Logic Apps to create one (https://ms.portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Logic%2Fworkflows)"
+        "displayName": "Log Analytics Workspace resource ID",
+        "description": "Insert the resource ID of the Log Analytics Workspace for export"
       }
-    },
-    "logicAppTrigger": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Logic app trigger",
-        "description": "Please choose the trigger connector of the logic app that will be triggered"
-      },
-      "allowedValues": [
-        "Manual (Incoming HTTP request)",
-        "When an Azure Security Center Recommendation is created or triggered"
-      ]
     }
   }
 }
