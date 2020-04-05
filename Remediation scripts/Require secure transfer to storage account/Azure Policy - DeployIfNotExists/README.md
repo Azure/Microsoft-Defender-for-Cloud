@@ -1,7 +1,7 @@
-# Azure Policy Deny Sample
+# Azure Policy DeployIfNotExists Sample
 
 This policy sample will remediate and set HTTPs only to storage accounts.
-You can not deploy this via template deployment in the Azure Portal.  You can deploy the template
+You can deploy this via template deployment in the Azure Portal. You can deploy the template
 using Azure CLI or Azure PowerShell.
 
 # Azure PowerShell
