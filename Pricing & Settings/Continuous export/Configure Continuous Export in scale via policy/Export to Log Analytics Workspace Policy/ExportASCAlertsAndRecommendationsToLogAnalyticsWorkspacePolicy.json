@@ -242,16 +242,16 @@
     "recommendationNames": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation IDs (applicable only for export of security recommendations)",
-        "description": "For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
+        "displayName": "Recommendation IDs",
+        "description": "Applicable only for export of security recommendations. For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
       },
       "defaultValue": []
     },
     "recommendationSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation severities (applicable only for export of security recommendations)",
-        "description": "To select specific recommendation severities, please untick the appropriate ones"
+        "displayName": "Recommendation severities",
+        "description": "Applicable only for export of security recommendations. To select specific recommendation severities, please untick the appropriate ones"
       },
       "allowedValues": [
         "High",
@@ -267,8 +267,8 @@
     "alertSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Alert severities (applicable only for export of security alerts)",
-        "description": "To select specific alert severities, please untick the appropriate ones"
+        "displayName": "Alert severities",
+        "description": "Applicable only for export of security alerts. To select specific alert severities, please untick the appropriate ones"
       },
       "allowedValues": [
         "High",
