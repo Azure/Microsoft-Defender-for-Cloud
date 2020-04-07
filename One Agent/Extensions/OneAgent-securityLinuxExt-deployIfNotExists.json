@@ -1,0 +1,41 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "vmExtensionPublisherSecurity": {
+      "type": "string"
+    },
+    "vmExtensionTypeSecurity": {
+      "type": "string"
+    },
+    "vmExtensionTypeHandlerVersionSecurity": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [{
+    "type": "Microsoft.Compute/virtualMachines/extensions",
+    "name": "[concat(parameters('vmName'), '/', 'AzureSecurityLinuxAgent')]",
+    "apiVersion": "2019-03-01",
+    "location": "[parameters('location')]",
+    "properties": {
+      "publisher": "[parameters('vmExtensionPublisherSecurity')]",
+      "type": "[parameters('vmExtensionTypeSecurity')]",
+      "typeHandlerVersion": "[parameters('vmExtensionTypeHandlerVersionSecurity')]",
+      "autoUpgradeMinorVersion": true,
+      "settings": {},
+      "protectedsettings": {
+        "vsaIngestionEndpoint": "https://shavsadevsf01.westus2.cloudapp.azure.com:443/api/assets/{ASSETID}/scanOrders?api-version=v1",
+        "vsaClientConfigURI": "https://shavsadevstrgtc1.blob.core.windows.net/tenants/validtenantconfig",
+        "vsaIngestionAPIKey": "1219c206-b4d5-4ae6-83d0-9cc993aee5a5",
+        "vsaManifestStoreEndpoint": "https://shavamanifestcusprod1.blob.core.windows.net/50a1a297-d97e-4c80-a44d-8fdeb2f7946e/"
+      }
+    }
+  }]
+}

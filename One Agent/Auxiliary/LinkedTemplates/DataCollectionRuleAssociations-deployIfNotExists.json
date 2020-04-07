@@ -1,0 +1,21 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "dataCollectionRuleId": {
+            "type": "string"
+        },
+        "vmName": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [{
+        "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
+        "name": "[concat(parameters('vmName'),'/Microsoft.Insights/', 'defaultDataCollectionRuleAssociation')]",
+        "apiVersion": "2019-11-01-preview",
+        "properties": {
+            "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
+        }
+    }]
+}

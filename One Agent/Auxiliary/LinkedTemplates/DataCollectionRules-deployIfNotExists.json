@@ -1,0 +1,182 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "type": "string"
+        },
+        "workspaceId": {
+            "type": "string"
+        }
+    },
+    "variables": {},
+    "resources": [{
+        "type": "Microsoft.Insights/dataCollectionRules",
+        "name": "defaultDataCollectionRules",
+        "location": "[parameters('location')]",
+        "apiVersion": "2019-11-01-preview",
+        "properties": {
+            "dataSources": {
+                "performanceCounters": [],
+                "windowsEventLogs": [],
+                "syslog": [{
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "kern",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogKern"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "auth",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogAuth"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "authpriv",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogAuthpriv"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "cron",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogCron"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "user",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogUser"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "daemon",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogDaemon"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "syslog",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogSyslog"
+                    },
+                    {
+                        "stream": "LogManagement.Microsoft-Syslog",
+                        "facilityName": "local0",
+                        "logLevels": [
+                            "Debug",
+                            "Critical",
+                            "Emergency"
+                        ],
+                        "name": "syslogLocal0"
+                    }
+                ],
+                "extensions": [{
+                        "name": "myExtensionDataSource1",
+                        "stream": "LogManagement.OPERATION_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    },
+                    {
+                        "name": "myExtensionDataSource2",
+                        "stream": "Security.SECURITY_BASELINE_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    },
+                    {
+                        "name": "myExtensionDataSource3",
+                        "stream": "Security.SECURITY_BASELINE_SUMMARY_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    },
+                    {
+                        "name": "myExtensionDataSource4",
+                        "stream": "LogManagement.PROCESS_INVESTIGATOR_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    },
+                    {
+                        "name": "myExtensionDataSource5",
+                        "stream": "Security.LINUX_AUDITD_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    },
+                    {
+                        "name": "myExtensionDataSource6",
+                        "stream": "LogManagement.HEALTH_ASSESSMENT_BLOB",
+                        "extensionName": "AzureSecurityLinuxAgent",
+                        "extensionSettings": {
+                            "auditLevel": "4",
+                            "maxQueueSize": 1234
+                        }
+                    }
+                ]
+
+            },
+            "destinations": {
+                "logAnalytics": [{
+                    "workspaceResourceId": "[parameters('workspaceId')]",
+                    "workspaceId": "[reference(parameters('workspaceId'), '2015-03-20').customerId]",
+                    "name": "LogAnalyticsDest"
+                }]
+            },
+            "dataFlows": [{
+                "streams": [
+                    "Microsoft-Syslog",
+                    "OPERATION_BLOB",
+                    "LINUX_AUDITD_BLOB",
+                    "SECURITY_BASELINE_BLOB",
+                    "HEALTH_ASSESSMENT_BLOB",
+                    "PROCESS_INVESTIGATOR_BLOB"
+                ],
+                "destinations": [
+                    "LogAnalyticsDest"
+                ]
+            }]
+        }
+    }]
+}

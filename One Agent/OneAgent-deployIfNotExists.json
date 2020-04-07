@@ -1,0 +1,298 @@
+{
+    "properties": {
+        "displayName": "Deploy One Agent monitor onaboarding to Azure Security Center",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "This policy ensures that onboarding is enabled on virtual machines. It will automatically create a resource group and log analytics workspace in the same region as the virtual machine to store audit records.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Security Center"
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [{
+                        "field": "type",
+                        "equals": "Microsoft.Compute/virtualMachines"
+                    },
+                    {
+                        "field": "location",
+                        "equals": "eastus"
+                    },
+                    {
+                        "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.osType",
+                        "equals": "Linux"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "deployIfNotExists",
+                "details": {
+                    "type": "Microsoft.Compute/virtualMachines",
+                    "deploymentScope": "Subscription",
+                    "name": "current",
+                    "existenceCondition": {
+                        "allOf": [{
+                                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                                "equals": "OmsAgentForLinux"
+                            },
+                            {
+                                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                                "equals": "Microsoft.EnterpriseCloud.Monitoring"
+                            },
+                            {
+                                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                                "equals": "Succeeded"
+                            }
+                        ]
+                    },
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+                        "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+                    ],
+                    "deployment": {
+                        "location": "eastus",
+                        "properties": {
+                            "mode": "incremental",
+                            "template": {
+                                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                                "contentVersion": "1.0.0.1",
+                                "parameters": {
+                                    "location": {
+                                        "type": "string"
+                                    },
+                                    "vmName": {
+                                        "type": "string"
+                                    },
+                                    "resourceGroup": {
+                                        "type": "string"
+                                    }
+                                },
+                                "variables": {
+                                    "defaultRGName": "[concat('defaultresourcegroup-', variables('displayName')[variables('pairedLocations')[parameters('location')]])]",
+                                    "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
+                                    "subscriptionId": "[subscription().subscriptionId]",
+                                    "locationCode": "[variables('displayName')[variables('pairedLocations')[parameters('location')]]]",
+                                    "dataCollectionRuleId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', 'defaultDataCollectionRules')]",
+                                    "displayName": {
+                                        "eastus": "EUS"
+                                    },
+                                    "pairedLocations": {
+                                        "eastus": "eastus"
+                                    },
+                                    "deployWorkspace": "[concat('deployWorkspace-', uniqueString(deployment().name))]",
+                                    "deployIdentitySystem": "[concat('deployIdentitySystem-', uniqueString(deployment().name))]",
+                                    "deployDataCollectionRule": "[concat('deployDataCollectionRule-', uniqueString(deployment().name))]",
+                                    "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]",
+                                    "deployAzureMonitorLinuxAgent": "[concat('deployAzureMonitorLinuxAgent-', uniqueString(deployment().name))]",
+                                    "deployAzureSecurityLinuxAgent": "[concat('deployAzureSecurityLinuxAgent-', uniqueString(deployment().name))]",
+                                    "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
+                                    "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+                                    "vmResourceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('resourceGroup'), '/providers/Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+                                    "vmExtensionPublisher": "Microsoft.Azure.Monitor",
+                                    "vmExtensionType": "AzureMonitorLinuxAgent",
+                                    "vmExtensionTypeHandlerVersion": "0.9",
+                                    "vmExtensionPublisherSecurity": "Microsoft.Azure.Security.Monitoring",
+                                    "vmExtensionTypeSecurity": "AzureSecurityLinuxAgent",
+                                    "vmExtensionTypeHandlerVersionSecurity": "0.1"
+                                },
+                                "resources": [{
+                                        "type": "Microsoft.Resources/resourceGroups",
+                                        "apiVersion": "2019-05-01",
+                                        "name": "[variables('defaultRGName')]",
+                                        "location": "[variables('defaultRGLocation')]",
+                                        "properties": {}
+                                    },
+                                    {
+                                        "type": "Microsoft.Resources/deployments",
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployWorkspace')]",
+                                        "resourceGroup": "[variables('defaultRGName')]",
+                                        "dependsOn": [
+                                            "[resourceId('Microsoft.Resources/resourceGroups', variables('defaultRGName'))]"
+                                        ],
+                                        "properties": {
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "workspaceName": {
+                                                    "value": "[variables('workspaceName')]"
+                                                },
+                                                "defaultRGLocation": {
+                                                    "value": "[variables('defaultRGLocation')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/Workspace-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployIdentitySystem')]",
+                                        "type": "Microsoft.Resources/deployments",
+                                        "resourceGroup": "[parameters('resourceGroup')]",
+                                        "dependsOn": [
+                                            "[variables('deployWorkspace')]"
+                                        ],
+                                        "properties": {
+                                            "expressionEvaluationOptions": {
+                                                "scope": "inner"
+                                            },
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "vmName": {
+                                                    "value": "[parameters('vmName')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/IdentitySystemAssigned-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployDataCollectionRule')]",
+                                        "type": "Microsoft.Resources/deployments",
+                                        "resourceGroup": "[variables('defaultRGName')]",
+                                        "dependsOn": [
+                                            "[variables('deployWorkspace')]"
+                                        ],
+                                        "properties": {
+                                            "expressionEvaluationOptions": {
+                                                "scope": "inner"
+                                            },
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "location": {
+                                                    "value": "[parameters('location')]"
+                                                },
+                                                "workspaceId": {
+                                                    "value": "[variables('workspaceId')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/DataCollectionRules-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployDataCollectionRulesAssociation')]",
+                                        "type": "Microsoft.Resources/deployments",
+                                        "resourceGroup": "[parameters('resourceGroup')]",
+                                        "dependsOn": [
+                                            "[variables('deployDataCollectionRule')]"
+                                        ],
+                                        "properties": {
+                                            "expressionEvaluationOptions": {
+                                                "scope": "inner"
+                                            },
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "dataCollectionRuleId": {
+                                                    "value": "[variables('dataCollectionRuleId')]"
+                                                },
+                                                "vmName": {
+                                                    "value": "[parameters('vmName')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/DataCollectionRuleAssociations-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployAzureMonitorLinuxAgent')]",
+                                        "type": "Microsoft.Resources/deployments",
+                                        "resourceGroup": "[parameters('resourceGroup')]",
+                                        "dependsOn": [
+                                            "[variables('deployDataCollectionRule')]"
+                                        ],
+                                        "properties": {
+                                            "expressionEvaluationOptions": {
+                                                "scope": "inner"
+                                            },
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "vmName": {
+                                                    "value": "[parameters('vmName')]"
+                                                },
+                                                "location": {
+                                                    "value": "[parameters('location')]"
+                                                },
+                                                "vmExtensionPublisher": {
+                                                    "value": "[variables('vmExtensionPublisher')]"
+                                                },
+                                                "vmExtensionType": {
+                                                    "value": "[variables('vmExtensionType')]"
+                                                },
+                                                "vmExtensionTypeHandlerVersion": {
+                                                    "value": "[variables('vmExtensionTypeHandlerVersion')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/OneAgent-linuxExt-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    },
+                                    {
+                                        "apiVersion": "2017-05-10",
+                                        "name": "[variables('deployAzureSecurityLinuxAgent')]",
+                                        "type": "Microsoft.Resources/deployments",
+                                        "resourceGroup": "[parameters('resourceGroup')]",
+                                        "dependsOn": [
+                                            "[variables('deployDataCollectionRule')]"
+                                        ],
+                                        "properties": {
+                                            "expressionEvaluationOptions": {
+                                                "scope": "inner"
+                                            },
+                                            "mode": "Incremental",
+                                            "parameters": {
+                                                "vmName": {
+                                                    "value": "[parameters('vmName')]"
+                                                },
+                                                "location": {
+                                                    "value": "[parameters('location')]"
+                                                },
+                                                "vmExtensionPublisherSecurity": {
+                                                    "value": "[variables('vmExtensionPublisherSecurity')]"
+                                                },
+                                                "vmExtensionTypeSecurity": {
+                                                    "value": "[variables('vmExtensionTypeSecurity')]"
+                                                },
+                                                "vmExtensionTypeHandlerVersionSecurity": {
+                                                    "value": "[variables('vmExtensionTypeHandlerVersionSecurity')]"
+                                                }
+                                            },
+                                            "templateLink": {
+                                                "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/OneAgent-securityLinuxExt-deployIfNotExists.json",
+                                                "contentVersion": "1.0.0.0"
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "parameters": {
+                                "location": {
+                                    "value": "[field('location')]"
+                                },
+                                "vmName": {
+                                    "value": "[field('name')]"
+                                },
+                                "resourceGroup": {
+                                    "value": "[resourceGroup().name]"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
