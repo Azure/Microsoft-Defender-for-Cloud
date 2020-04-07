@@ -1,16 +1,16 @@
-# Deploy Workflow Automation for Azure Security Center Recommendations
+# Deploy Workflow Automation for Azure Security Center Alerts
 
-Enable automation of Azure Security Center recommendations on your subscription.
+Enable automation of Azure Security Center alerts on your subscription.
 This Azure Policy definition will ensure that during the creation of new Azure subscription, a Workflow Automation with your conditions and triggers will be created for this subscription.
 
 ## Create custom policy in Azure Portal
 
 "Deploy to Azure" button will open this policy definition in the portal, where you should fill:
 1) Definition location (For example a management group. When you assign this policy the assignment scope must be within this definition location).
-2) Name (For example "Deploy Workflow Automation for Azure Security Center Recommendations")
+2) Name (For example "Deploy Workflow Automation for Azure Security Center Alerts")
 3) Optional parameters are: description and category.
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%252FConfigure%2520Workflow%2520Automation%2520in%2520scale%2520via%2520policy%252FRecommendations%2520Policy%2520Workflow%2520Automation%252FWorkflowAutomationForASCRecommendationsPolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%252FConfigure%2520Workflow%2520Automation%2520in%2520scale%2520via%2520policy%252FWorkflow%2520Automation%2520for%2520Azure%2520Security%2520Center%2520Alerts%2520Policy%252FWorkflowAutomationForASCAlertsPolicy.json)
 
 [Learn more about Workflow Automations](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
 
