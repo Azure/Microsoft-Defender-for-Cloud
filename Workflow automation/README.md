@@ -3,6 +3,24 @@ This folder contains sample security playbooks for security automation, orchestr
 
 You will need to create a workflow automation to call these playbooks.  see https://docs.microsoft.com/en-us/azure/security-center/workflow-automation
 
+## Each folder contains a security playbook ARM template that uses Microsoft Security Center triggers.
+After selecting a playbook, in the Azure portal:
+1. Search for deploy a custom template
+2. Click build your own template in the editor
+3. Paste the conents from the GitHub playbook 
+4. Click Save
+5. Fill in needed data and click purchase
+
+Once deployment is complete, you will need to authorize each connection.
+1. Click the Azure Security Center connection resource
+2. Click edit API connection
+3. Click Authorize
+4. Sign in
+5. Click Save
+6. Repeat steps for other connections
+ * For Azure Log Analytics Data Collector,  you will need to add the workspace ID and Key
+You can now edit the playbook in Logic apps.
+
 # Contribute Logic App Playbooks
 ## Instructions for templatizing a playbook
 Once you have created a playbook that you want to export to share, go to the Logic App resource in Azure.
