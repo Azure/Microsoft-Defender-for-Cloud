@@ -1,0 +1,745 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "## Azure Security Center + Qualys Dashboard\r\n\r\nThis Workbook provides an unified view on the information collected by the Qualys agent running as part of the integrated vulnerability scanner for virtual machines (Standard tier only). In order to take advantage of this integration, deploy the Qualys built-in vulnerability scanner by following the recommendation **\"Enable the built-in vulnerability assessment solution on virtual machines (powered by Qualys)\"** for your unhealthy resources.\r\n\r\n---"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Resource Group View",
+            "subTarget": "RGView",
+            "style": "link"
+          },
+          {
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Resource View",
+            "subTarget": "RView",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 1"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "b4efefeb-15fc-4394-a75b-fa55fc3ecf0d",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "label": "Select Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true
+            },
+            "resourceType": "microsoft.insights/components"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.insights/components"
+      },
+      "name": "parameters - 2"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project assessmentKey, \r\n           subassessmentKey=name,\r\n           resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n           subscriptionId, \r\n           parse_json(properties)\r\n | extend description = properties.description,\r\n          category = properties.category,\r\n          severity = properties.status.severity,\r\n\t\t  patchable = parse_json(properties.additionalData).patchable,\r\n\t\t  cve = parse_json(properties.additionalData).cve\r\n| summarize subassessmentKey=count(), sevH=countif(severity=='High'), sevM=countif(severity=='Medium'), sevL=countif(severity=='Low'), canPatch=countif(patchable=='true'), cve=countif(cve!='[]') by resourceGroup, virtualMachine\r\n| project ResourceGroup=resourceGroup,\r\n\t\t  VM=virtualMachine,\r\n\t\t  High=sevH,\r\n\t\t  Medium=sevM,\r\n\t\t  Low=sevL,\r\n          Total=subassessmentKey,\r\n          IsPatchable=canPatch,\r\n\t\t  TotalCVE=cve",
+        "size": 1,
+        "exportFieldName": "VM",
+        "exportParameterName": "selectedVM",
+        "exportDefaultValue": "All",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "$gen_group",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "ResourceGroup",
+              "formatter": 5,
+              "formatOptions": {}
+            },
+            {
+              "columnMatch": "VM",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": false
+              }
+            },
+            {
+              "columnMatch": "High",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "redBright"
+              }
+            },
+            {
+              "columnMatch": "Medium",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "yellow"
+              }
+            },
+            {
+              "columnMatch": "Low",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "green"
+              }
+            }
+          ],
+          "filter": true,
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "ResourceGroup"
+            ],
+            "expandTopLevel": true
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RView"
+      },
+      "name": "query - 11"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡_Selected filter for **Virtual Machine:** {selectedVM}\r\n\r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RView"
+      },
+      "name": "text - 13"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n\t\t   parse_json(properties)\r\n | extend description = properties.description,\r\n          category = tostring(properties.category),\r\n          severity = tostring(properties.status.severity),\r\n          code = properties.status.code,\r\n          timeGenerated = properties.timeGenerated,\r\n          remediation = properties.remediation,\r\n          impact = properties.impact,\r\n          vulnId = properties.id,\r\n          additionalData = properties.additionalData,\r\n\t\t  vendorReferences     = tostring(properties.additionalData.vendorReferences),\r\n\t\t  patchable\t\t       = tostring(properties.additionalData.patchable),\r\n\t\t  threat      \t\t   = tostring(properties.additionalData.threat),\r\n          cve                  = tostring(properties.additionalData.cve)\r\n// Filter by user selection\r\n| where '{selectedVM}' == 'All' or virtualMachine == '{selectedVM}'\r\n// summarize\r\n| summarize by Severity = severity, tostring(vulnId), virtualMachine, patchable, Description = tostring(description) , Category = category, resourceGroup, threat, tostring(impact), tostring(remediation), cve, vendorReferences\r\n| order by Severity asc",
+        "size": 0,
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "$gen_group",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "redBright"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "yellow"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Low",
+                    "representation": "green"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Severity",
+              "formatter": 5,
+              "formatOptions": {}
+            },
+            {
+              "columnMatch": "vulnId",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Count"
+              }
+            }
+          ],
+          "rowLimit": 500,
+          "filter": true,
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Severity"
+            ],
+            "expandTopLevel": true,
+            "finalBy": "Severity"
+          },
+          "sortBy": [
+            {
+              "itemKey": "Category",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Category",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RView"
+      },
+      "name": "query - 9 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project assessmentKey, \r\n           subassessmentKey=name,\r\n           resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n           subscriptionId, \r\n           parse_json(properties)\r\n | extend description = properties.description,\r\n          category = properties.category,\r\n          severity = properties.status.severity,\r\n\t\t  patchable = parse_json(properties.additionalData).patchable,\r\n\t\t  cve = parse_json(properties.additionalData).cve\r\n| summarize subassessmentKey=count(), sevH=countif(severity=='High'), sevM=countif(severity=='Medium'), sevL=countif(severity=='Low'), canPatch=countif(patchable=='true'), cve=countif(cve!='[]') by subscriptionId, resourceGroup\r\n| project Subscription=subscriptionId,\r\n          ResourceGroup=resourceGroup,\r\n\t\t  High=sevH,\r\n\t\t  Medium=sevM,\r\n\t\t  Low=sevL,\r\n          Total=subassessmentKey,\r\n\t\t  IsPatchable=canPatch,\r\n\t\t  IsCVE=cve",
+        "size": 1,
+        "exportedParameters": [
+          {
+            "fieldName": "",
+            "parameterName": "selectedRG_sub",
+            "parameterType": 1,
+            "defaultValue": "All"
+          },
+          {
+            "fieldName": "ResourceGroup",
+            "parameterName": "selectedRG_rg",
+            "parameterType": 1,
+            "defaultValue": "All"
+          }
+        ],
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "$gen_group",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": null
+              }
+            },
+            {
+              "columnMatch": "Subscription",
+              "formatter": 5,
+              "formatOptions": {}
+            },
+            {
+              "columnMatch": "ResourceGroup",
+              "formatter": 16,
+              "formatOptions": {
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "High",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "redBright"
+              }
+            },
+            {
+              "columnMatch": "Medium",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "yellow"
+              }
+            },
+            {
+              "columnMatch": "Low",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "green"
+              }
+            },
+            {
+              "columnMatch": "Total",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "IsPatchable",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            },
+            {
+              "columnMatch": "IsCVE",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Sum"
+              }
+            }
+          ],
+          "filter": true,
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Subscription"
+            ],
+            "expandTopLevel": true,
+            "finalBy": "Subscription"
+          },
+          "sortBy": [
+            {
+              "itemKey": "$gen_heatmap_High_3",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "$gen_heatmap_High_3",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RGView"
+      },
+      "name": "query - 8"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡_Selected filter for **Resource Group:** {selectedRG_rg}\r\n"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RGView"
+      },
+      "name": "text - 10"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n\t\t   parse_json(properties)\r\n | extend description = properties.description,\r\n          category = tostring(properties.category),\r\n          severity = tostring(properties.status.severity),\r\n          code = properties.status.code,\r\n          timeGenerated = properties.timeGenerated,\r\n          remediation = properties.remediation,\r\n          impact = properties.impact,\r\n          vulnId = properties.id,\r\n          additionalData = properties.additionalData,\r\n\t\t  vendorReferences     = tostring(properties.additionalData.vendorReferences),\r\n\t\t  patchable\t\t       = tostring(properties.additionalData.patchable),\r\n\t\t  threat      \t\t   = tostring(properties.additionalData.threat),\r\n          cve                  = tostring(properties.additionalData.cve)\r\n// Filter by user selection\r\n| where '{selectedRG_rg}' == 'All' or resourceGroup == '{selectedRG_rg}'\r\n// summarize\r\n| summarize by Severity = severity, tostring(vulnId), virtualMachine, patchable, Description = tostring(description) , Category = category, resourceGroup, threat, tostring(impact), tostring(remediation), cve, vendorReferences\r\n| order by Severity asc",
+        "size": 0,
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "$gen_group",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "redBright"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "yellow"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Low",
+                    "representation": "green"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "Severity",
+              "formatter": 5,
+              "formatOptions": {}
+            },
+            {
+              "columnMatch": "vulnId",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Count"
+              }
+            },
+            {
+              "columnMatch": "virtualMachine",
+              "formatter": 0,
+              "formatOptions": {
+                "aggregation": "Unique"
+              }
+            }
+          ],
+          "rowLimit": 500,
+          "filter": true,
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Severity"
+            ],
+            "expandTopLevel": true,
+            "finalBy": "Severity"
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "RGView"
+      },
+      "name": "query - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project assessmentKey, \r\n           subassessmentKey=name,\r\n           resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n           subscriptionId, \r\n           tenantId, \r\n           parse_json(properties)\r\n | extend description = properties.description,\r\n          category = properties.category,\r\n          severity = properties.status.severity\r\n// summarize and order\r\n| summarize count() by  tostring(severity)\r\n| order by count_ desc",
+        "size": 0,
+        "title": "Subscriptions | Recommendations Severity",
+        "exportFieldName": "label",
+        "exportParameterName": "selectedSeverity",
+        "exportDefaultValue": "All",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "categoricalbar",
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "severity",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count_",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "severity",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "count_",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "chartSettings": {
+          "seriesLabelSettings": [
+            {
+              "seriesName": "Low",
+              "color": "green"
+            },
+            {
+              "seriesName": "Medium",
+              "color": "yellow"
+            },
+            {
+              "seriesName": "High",
+              "color": "redBright"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "customWidth": "50",
+      "showPin": true,
+      "name": "query - 0"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project assessmentKey, \r\n           subassessmentKey=name,\r\n           resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n           subscriptionId, \r\n           tenantId, \r\n           parse_json(properties)\r\n | extend description = properties.description,\r\n          category = tostring(properties.category),\r\n          severity = tostring(properties.status.severity)\r\n| summarize count() by tostring(category)",
+        "size": 0,
+        "title": "Subscriptions | Recommendations Category",
+        "exportFieldName": "category",
+        "exportParameterName": "selectedCategory",
+        "exportDefaultValue": "All",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "tiles",
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "category",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count_",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "category",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "count_",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "sizeSettings": "count_",
+          "sizeAggregation": "Sum",
+          "legendMetric": "count_",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "type": "heatmap",
+            "colorAggregation": "Sum",
+            "nodeColorField": "count_",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "customWidth": "50",
+      "name": "query - 1"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡_Selected filter for **severity:** {selectedSeverity}"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "customWidth": "50",
+      "name": "text - 7"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "💡_Selected filter for **category:** {selectedCategory}"
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "customWidth": "50",
+      "name": "text - 7 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n | where * contains \"Remediate vulnerabilities found on your virtual machines (powered by Qualys)\"\r\n | summarize by assessmentKey=name //the ID of the assessment\r\n // Joining Assessment + SubAssessment table to get more details\r\n | join kind=inner (\r\n    securityresources\r\n     | where type == \"microsoft.security/assessments/subassessments\"\r\n     | extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n ) on assessmentKey\r\n // Get data in useful table format\r\n | project resourceGroup, \r\n           virtualMachine=extract(\".*virtualMachines/(.+?)/.*\",1,  id), \r\n\t\t   parse_json(properties)\r\n | extend description = properties.description,\r\n          category = tostring(properties.category),\r\n          severity = tostring(properties.status.severity),\r\n          code = properties.status.code,\r\n          timeGenerated = properties.timeGenerated,\r\n          remediation = properties.remediation,\r\n          impact = properties.impact,\r\n          vulnId = properties.id,\r\n          additionalData = properties.additionalData,\r\n\t\t  vendorReferences     = tostring(properties.additionalData.vendorReferences),\r\n\t\t  patchable\t\t       = tostring(properties.additionalData.patchable),\r\n\t\t  threat      \t\t   = tostring(properties.additionalData.threat),\r\n          cve                  = tostring(properties.additionalData.cve)\r\n// Filter by user selection\r\n| where '{selectedSeverity}' == 'All' or severity == '{selectedSeverity}'\r\n| where '{selectedCategory}' == 'All' or category == '{selectedCategory}'\r\n// summarize\r\n| summarize by Severity = severity, tostring(vulnId), patchable, Description = tostring(description) , Category = category, virtualMachine, resourceGroup, threat, tostring(impact), tostring(remediation), cve, vendorReferences",
+        "size": 0,
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Severity",
+              "formatter": 18,
+              "formatOptions": {
+                "showIcon": true,
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Low",
+                    "representation": "green"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "yellow"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "redBright"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "blue",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Category",
+              "sortOrder": 1
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "Severity"
+            },
+            {
+              "columnId": "vulnId"
+            },
+            {
+              "columnId": "patchable"
+            },
+            {
+              "columnId": "Description"
+            },
+            {
+              "columnId": "Category"
+            },
+            {
+              "columnId": "virtualMachine"
+            },
+            {
+              "columnId": "resourceGroup"
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Category",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "query - 2"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
