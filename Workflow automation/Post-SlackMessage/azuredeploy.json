@@ -7,7 +7,7 @@
     },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Post-SlackMessage",
+            "defaultValue": "Post-SlackMessageRecommendation",
             "type": "String"
         },
         "UserName": {
