@@ -82,11 +82,7 @@
                     },
                     "actions": {
                         "Post_message": {
-                            "runAfter": {
-                                "Create_a_new_issue": [
-                                    "Succeeded"
-                                ]
-                            },
+                            "runAfter": {},
                             "type": "ApiConnection",
                             "inputs": {
                                 "host": {
