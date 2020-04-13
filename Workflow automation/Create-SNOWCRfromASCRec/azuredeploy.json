@@ -124,7 +124,7 @@
                             "service-now": {
                                 "connectionId": "[resourceId('Microsoft.Web/connections', variables('SNOWConnectionName'))]",
                                 "connectionName": "[variables('SNOWConnectionName')]",
-                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis//service-now"
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/service-now')]"
                             }
                         }
                     }
