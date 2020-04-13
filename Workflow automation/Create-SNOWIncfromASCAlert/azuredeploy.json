@@ -2,12 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "metadata": {
-        "comments": "This playbook is for workflow automation.  It will create a ServiceNow Change Request based on the ASC Recommendation of Adaptive Application Control should be enabled on virtual machines",
+        "comments": "This playbook is for workflow automation.  It will create a ServiceNow Incident based on an ASC Alert",
         "author": "Doug Birch"
     },
     "parameters": {
         "PlaybookName": {
-            "defaultValue": "Create-SNOWCRfromASCRec",
+            "defaultValue": "Create-SNOWIncfromASCAlert",
             "type": "string"
         },
         "UserName": {
@@ -70,7 +70,7 @@
                         }
                     },
                     "triggers": {
-                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                        "When_an_Azure_Security_Center_Alert_is_created_or_triggered": {
                             "type": "ApiConnectionWebhook",
                             "inputs": {
                                 "body": {
@@ -78,23 +78,21 @@
                                 },
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                        "name": "@parameters('$connections')['ascalert']['connectionId']"
                                     }
                                 },
-                                "path": "/Microsoft.Security/Assessment/subscribe"
+                                "path": "/Microsoft.Security/Alert/subscribe"
                             }
                         }
                     },
                     "actions": {
-                        "Create_Change_Request": {
+                        "Create_Incident": {
                             "runAfter": {},
                             "type": "ApiConnection",
                             "inputs": {
                                 "body": {
-                                    "assigned_to": "Abel Tuter",
-                                    "short_description": "@triggerBody()?['properties']?['displayName']",
-                                    "sys_created_by": "Abel Tuter",
-                                    "type": "Normal"
+                                    "caller_id": "Abel Tuter",
+                                    "short_description": "@triggerBody()?['properties']?['displayName']"
                                 },
                                 "host": {
                                     "connection": {
@@ -102,18 +100,17 @@
                                     }
                                 },
                                 "method": "post",
-                                "path": "/api/now/v2/table/@{encodeURIComponent('change_request')}",
+                                "path": "/api/now/v2/table/@{encodeURIComponent('incident')}",
                                 "queries": {
                                     "sysparm_display_value": true,
                                     "sysparm_exclude_reference_link": true
                                 }
                             }
                         }
-            },
-             "outputs": {
-            }
-            },
-        "parameters": {
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
                     "$connections": {
                         "value": {
                             "ascassessment": {
