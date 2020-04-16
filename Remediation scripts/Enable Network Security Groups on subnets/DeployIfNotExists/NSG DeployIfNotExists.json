@@ -64,7 +64,7 @@
                       "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                       "contentVersion": "1.0.0.0",
                       "resources": [{
-                          "name": "[concat(parameters('nsgid'), '/current')]",
+                          "name": "[concat(parameters('nsgId'), '/current')]",
                           "type": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
                           "apiVersion": "2014-04-01",
                           "properties": {
