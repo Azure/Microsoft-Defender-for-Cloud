@@ -1,6 +1,6 @@
 # One Agent Deploy If not Exist
 
-One agent deployed agents on your virtual machines. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised. [need to edit]
+One agent deployed agents on your virtual machines. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
 
 ## Try on Portal
 
