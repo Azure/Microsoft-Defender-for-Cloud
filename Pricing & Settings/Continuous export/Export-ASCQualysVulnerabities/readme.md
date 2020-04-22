@@ -8,9 +8,9 @@ It does a single subscription.  You could add a loop to get subscriptions using 
 NOTE:  The playbook uses a managed identity so you will need to grant access for the managed identity to subscriptions.
 
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftarosler%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FExport-ASCQualysVulnerabities%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FExport-ASCQualysVulnerabities%2Fazuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton""/>
 </a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ftarosler%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FExport-ASCQualysVulnerabities%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FExport-ASCQualysVulnerabities%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a>
