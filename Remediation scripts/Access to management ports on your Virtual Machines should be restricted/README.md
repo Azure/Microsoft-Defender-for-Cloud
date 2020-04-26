@@ -1,6 +1,6 @@
 # Access to management ports on your Virtual Machines should be restricted
 
-These resoruces can be used to remediate the Access to management ports on your Virtual Machines should be restricted finding in Azure Security Center
+These resources can be used to remediate the Access to management ports on your Virtual Machines should be restricted finding in Azure Security Center
 
 # Contributing
 
