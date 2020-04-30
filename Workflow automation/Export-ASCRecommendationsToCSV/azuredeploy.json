@@ -1,0 +1,361 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "comments": "This Logic App will run weekly and export ASC recommendations and status to a csv file which is stored in a SharePoint site.",
+        "author": "Nicholas DiCola"
+    },
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Export-ASCRecommendationsToCSV",
+            "type": "String"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "SharePointURL": {
+            "defaultValue": "https://url.sharepoint.com/sites/spsite",
+            "type": "string"
+        },
+        "FolderName": {
+            "defaultValue": "Shared Documents",
+            "type": "string"
+        },
+        "ToEmail": {
+            "defaultValue": "email@email.com",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "sharepointonlineConnectionName": "[concat('sharepointonline-', parameters('LogicAppName'))]",
+        "office365ConnectionName": "[concat('office365-', parameters('LogicAppName'))]",
+        "armConnectionName": "[concat('arm-', parameters('LogicAppName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('armConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/arm')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('sharepointonlineConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/sharepointonline')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2019-05-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('sharepointonlineConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('armConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Create_Array": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "RecommendationsArray",
+                                        "type": "array"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Create_CSV_table": {
+                            "inputs": {
+                                "format": "CSV",
+                                "from": "@variables('RecommendationsArray')"
+                            },
+                            "runAfter": {
+                                "For_each_3": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Table"
+                        },
+                        "Create_file": {
+                            "inputs": {
+                                "body": "@body('Create_CSV_table')",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['sharepointonline_1']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "[concat('/datasets/@{encodeURIComponent(encodeURIComponent(''', parameters('SharePointURL'), '''))}/files')]",
+                                "queries": {
+                                    "folderPath": "[parameters('FolderName')]",
+                                    "name": "ASC_Recommendations_@{formatDateTime(utcNow(), 'yyyy-MM-dd')}.csv",
+                                    "queryParametersSingleEncoded": true
+                                }
+                            },
+                            "runAfter": {
+                                "Create_CSV_table": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        },
+                        "For_each_3": {
+                            "actions": {
+                                "For_each_2": {
+                                    "actions": {
+                                        "Append_to_array_variable": {
+                                            "inputs": {
+                                                "name": "RecommendationsArray",
+                                                "value": "@outputs('Build_Array_Data')"
+                                            },
+                                            "runAfter": {
+                                                "Build_Array_Data": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToArrayVariable"
+                                        },
+                                        "Build_Array_Data": {
+                                            "inputs": {
+                                                "displayName": "@{items('For_each_2')?['properties']?['displayName']}",
+                                                "id": "@{items('For_each_2')?['id']}",
+                                                "name": "@{items('For_each_2')?['name']}",
+                                                "resourceDetails.Id": "@{items('For_each_2')?['properties']?['resourceDetails']?['id']}",
+                                                "resourceDetails.Source": "@{items('For_each_2')?['properties']?['resourceDetails']?['source']}",
+                                                "status.code": "@{items('For_each_2')?['properties']?['status']?['code']}",
+                                                "type": "@{items('For_each_2')?['type']}"
+                                            },
+                                            "runAfter": {
+                                            },
+                                            "type": "Compose"
+                                        }
+                                    },
+                                    "foreach": "@body('Parse_Assesments')?['value']",
+                                    "runAfter": {
+                                        "Parse_Assesments": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "Get_Subscription_Assessments": {
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/@{items('For_each_3')?['id']}/providers/Microsoft.Security/assessments?api-version=2020-01-01"
+                                    },
+                                    "runAfter": {
+                                    },
+                                    "type": "Http"
+                                },
+                                "Parse_Assesments": {
+                                    "inputs": {
+                                        "content": "@body('Get_Subscription_Assessments')",
+                                        "schema": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "displayName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "resourceDetails": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "source": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "status": {
+                                                                        "properties": {
+                                                                            "code": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "type",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Get_Subscription_Assessments": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson"
+                                }
+                            },
+                            "foreach": "@body('List_subscriptions')?['value']",
+                            "runAfter": {
+                                "List_subscriptions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "List_subscriptions": {
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['arm']['connectionId']"
+                                    }
+                                },
+                                "method": "get",
+                                "path": "/subscriptions",
+                                "queries": {
+                                    "x-ms-api-version": "2016-06-01"
+                                }
+                            },
+                            "runAfter": {
+                                "Create_Array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        },
+                        "Send_an_email_(V2)": {
+                            "inputs": {
+                                "body": {
+                                    "Body": "[concat('<p>New ASC recommendations export created at <br>\n', parameters('SharePointURL'), '/@{body(''Create_file'')?[''Path'']}</p>')]",
+                                    "Subject": "New ASC Recommendations exported to CSV",
+                                    "To": "[parameters('ToEmail')]"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            },
+                            "runAfter": {
+                                "Create_file": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {
+                    },
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                            },
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 7
+                            },
+                            "type": "Recurrence"
+                        }
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "arm": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('armConnectionName'))]",
+                                "connectionName": "[variables('armConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/arm')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "[variables('office365ConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            },
+                            "sharepointonline": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('sharepointonlineConnectionName'))]",
+                                "connectionName": "[variables('sharepointonlineConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/sharepointonline')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
