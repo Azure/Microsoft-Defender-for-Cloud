@@ -7,6 +7,9 @@
     },
     "location": {
       "type": "string"
+    },
+    "linuxExtautoUpgradeMinorVersion": {
+      "type": "string"
     }
   },
   "variables": {},
@@ -20,7 +23,7 @@
         "publisher": "Microsoft.Azure.Monitor",
         "type": "AzureMonitorLinuxAgent",
         "typeHandlerVersion": "0.9",
-        "autoUpgradeMinorVersion": true,
+        "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
         "settings": {}
       }
     }
