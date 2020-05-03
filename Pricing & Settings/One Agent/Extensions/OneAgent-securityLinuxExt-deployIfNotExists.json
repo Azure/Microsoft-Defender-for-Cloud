@@ -7,6 +7,9 @@
     },
     "location": {
       "type": "string"
+    },
+    "linuxExtautoUpgradeMinorVersion": {
+      "type": "string"
     }
   },
   "variables": {},
@@ -20,7 +23,7 @@
         "publisher": "Microsoft.Azure.Security.Monitoring",
         "type": "AzureSecurityLinuxAgent",
         "typeHandlerVersion": "0.1",
-        "autoUpgradeMinorVersion": true,
+        "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
         "settings": {},
         "protectedsettings": {
           "vsaIngestionEndpoint": "https://shavsadevsf01.westus2.cloudapp.azure.com:443/api/assets/{ASSETID}/scanOrders?api-version=v1",

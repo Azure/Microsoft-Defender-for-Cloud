@@ -35,11 +35,11 @@
             "allOf": [
               {
                 "field": "Microsoft.Compute/virtualMachines/extensions/type",
-                "equals": "OmsAgentForLinux"
+                "equals": "AzureMonitorLinuxAgent"
               },
               {
-                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
-                "equals": "Microsoft.EnterpriseCloud.Monitoring"
+                "field": "Microsoft.Compute/virtualMachines/extensions/Publisher",
+                "equals": "Microsoft.Azure.Monitor"
               },
               {
                 "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
@@ -100,7 +100,8 @@
                   "deployAzureSecurityLinuxAgent": "[concat('deployAzureSecurityLinuxAgent-', uniqueString(deployment().name))]",
                   "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
                   "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
-                  "vmResourceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('resourceGroup'), '/providers/Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
+                  "vmResourceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('resourceGroup'), '/providers/Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
+                  "linuxExtautoUpgradeMinorVersion": true
                 },
                 "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of Log Analytics agent installation for Linux VMs",
                 "resources": [
@@ -130,7 +131,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/LinkedTemplates/Workspace-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/Workspace-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -154,7 +155,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/LinkedTemplates/IdentitySystemAssigned-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/IdentitySystemAssigned-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -178,7 +179,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/LinkedTemplates/DataCollectionRules-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/DataCollectionRules-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -202,7 +203,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/LinkedTemplates/DataCollectionRuleAssociations-deployIfNotExists",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/DataCollectionRuleAssociations-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -223,10 +224,13 @@
                         },
                         "location": {
                           "value": "[parameters('location')]"
+                        },
+                        "linuxExtautoUpgradeMinorVersion": {
+                          "value": "[parameters('linuxExtautoUpgradeMinorVersion')]"
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/Extensions/OneAgent-linuxExt-deployIfNotExists",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Extensions/OneAgent-linuxExt-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -247,10 +251,13 @@
                         },
                         "location": {
                           "value": "[parameters('location')]"
+                        },
+                        "linuxExtautoUpgradeMinorVersion": {
+                          "value": "[parameters('linuxExtautoUpgradeMinorVersion')]"
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/v-liatba/OneAgent/master/Extensions/OneAgent-securityLinuxExt-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Extensions/OneAgent-securityLinuxExt-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
