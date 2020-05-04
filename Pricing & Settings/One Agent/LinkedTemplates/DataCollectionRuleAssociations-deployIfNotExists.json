@@ -7,6 +7,9 @@
     },
     "vmName": {
       "type": "string"
+    },
+    "dcraName": {
+      "type": "string"
     }
   },
   "variables": {},
@@ -14,7 +17,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
       "apiVersion": "2019-11-01-preview",
-      "name": "[concat(parameters('vmName'),'/Microsoft.Insights/', 'DataCollectionRuleAssociation')]",
+      "name": "[concat(parameters('vmName'),'/Microsoft.Insights/', parameters('dcraName'))]",
       "properties": {
         "description": "Association of data collection rule for Azure Security Center. Deleting this association will break the detection of security vulnerabilities for this virtual machine.",
         "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"

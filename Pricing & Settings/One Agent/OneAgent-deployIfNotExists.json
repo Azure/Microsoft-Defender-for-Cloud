@@ -86,6 +86,8 @@
                   "subscriptionId": "[subscription().subscriptionId]",
                   "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
                   "dataCollectionRuleId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', 'defaultDataCollectionRules')]",
+                  "dcrName": "AzureSecurityDataCollectionRuleForLinux",
+                  "dcraName": "AzureSecurityDataCollectionRuleAssociationForLinux",
                   "locationLongNameToShortMap": {
                     "eastus": "EUS"
                   },
@@ -176,6 +178,9 @@
                         },
                         "workspaceId": {
                           "value": "[variables('workspaceId')]"
+                        },
+                        "dcrName": {
+                          "value": "[variables('dcrName')]"
                         }
                       },
                       "templateLink": {
@@ -200,6 +205,9 @@
                         },
                         "vmName": {
                           "value": "[parameters('vmName')]"
+                        },
+                        "dcraName": {
+                          "value": "[variables('dcraName')]"
                         }
                       },
                       "templateLink": {
@@ -270,6 +278,6 @@
       }
     }
   },
-  "id": "/subscriptions/5e14f521-7358-4217-b319-5098d8f64073/providers/Microsoft.Authorization/policyDefinitions/5f8eb305-9c9f-4abe-9bb0-df220d9faba2",
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/5f8eb305-9c9f-4abe-9bb0-df220d9faba2",
   "name": "5f8eb305-9c9f-4abe-9bb0-df220d9faba2"
 }

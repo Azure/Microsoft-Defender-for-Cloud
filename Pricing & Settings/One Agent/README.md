@@ -1,10 +1,10 @@
 # One Agent Deploy If not Exist
 
-This is a deployIfNotExist policy template responsible to deploy complex solutions of Log Analytics agent installation for Linux VMs. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
+This is a deployIfNotExist policy template responsible to deploy a standard solutions of Log Analytics agent installation for Linux VMs. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne+Agent%2FOne+Agent-deployIfNotExists.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne%2520Agent%2FOneAgent-deployIfNotExists.json)
 
 # Contributing
 
