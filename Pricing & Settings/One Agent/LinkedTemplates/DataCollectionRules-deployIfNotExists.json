@@ -7,13 +7,16 @@
     },
     "workspaceId": {
       "type": "string"
+    },
+    "dcrName": {
+      "type": "string"
     }
   },
   "variables": {},
   "resources": [
     {
       "type": "Microsoft.Insights/dataCollectionRules",
-      "name": "AzureSecurityDataCollectionRuleForLinux",
+      "name": "[parameters('dcrName')]",
       "location": "[parameters('location')]",
       "apiVersion": "2019-11-01-preview",
       "properties": {
