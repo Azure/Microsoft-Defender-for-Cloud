@@ -9,7 +9,7 @@
       "type": "string"
     },
     "linuxExtautoUpgradeMinorVersion": {
-      "type": "string"
+      "type": "bool"
     }
   },
   "variables": {},
