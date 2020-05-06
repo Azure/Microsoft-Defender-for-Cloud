@@ -54,6 +54,7 @@
                 "Microsoft-SecurityBaselineSummary",
                 "Microsoft-ProcessInvestigator",
                 "Microsoft-Auditd",
+                "Microsoft-ProtectionStatus",
                 "Microsoft-Heartbeat"
               ],
               "extensionName": "AzureSecurityLinuxAgent",
@@ -78,6 +79,7 @@
               "Microsoft-SecurityBaselineSummary",
               "Microsoft-ProcessInvestigator",
               "Microsoft-Auditd",
+              "Microsoft-ProtectionStatus",
               "Microsoft-Heartbeat"
             ],
             "destinations": [
