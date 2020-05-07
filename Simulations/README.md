@@ -5,7 +5,7 @@ There are many ways to simulate an alert in Azure Security Center and if you jus
 
 ## Alert Simulation for Windows (Azure and Non-Azure VMs)
 
-- Download [this PDF](https://gallery.technet.microsoft.com/Azure-Security-Center-f621a046) from TechNet Gallery and follow the steps to configure a lab environment to test Windows VM-based threat detection.
+- Download this [PDF](https://gallery.technet.microsoft.com/Azure-Security-Center-f621a046) from TechNet Gallery and follow the steps to configure a lab environment to test Windows VM-based threat detection.
 
 - [Threat Detection for Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
 
