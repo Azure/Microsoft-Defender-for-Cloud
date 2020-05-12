@@ -148,7 +148,7 @@
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Export Azure Security Center Alerts and/or Recommendations to Event Hub via Policy",
+                            "description": "Export Azure Security Center alerts and/or recommendations to Event Hub via policy",
                             "isEnabled": true,
                             "scopes": [
                               {
@@ -226,14 +226,14 @@
       "type": "String",
       "metadata": {
         "displayName": "Resource group name",
-        "description": "Insert the resource group name where the export to Event Hub configuration will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription. Please note that there can only be one export to Event Hub configuration per resource group."
+        "description": "Enter the resource group name where the export to Event Hub configuration will be created. If you enter a name for a resource group that doesn’t exist, it’ll be created in the subscription. Note that each resource group can only have one export to Event Hub configured."
       }
     },
     "resourceGroupLocation": {
       "type": "String",
       "metadata": {
         "displayName": "Resource group location",
-        "description": "If you inserted an existing resource group, please select its location. In case this is a new resource group, please choose a location for it",
+        "description": "Select the location of the resource group",
         "strongType": "location"
       }
     },
@@ -241,7 +241,7 @@
       "type": "Array",
       "metadata": {
         "displayName": "Exported data types",
-        "description": "Choose the data type/s to be exported"
+        "description": "Choose the data types to be exported"
       },
       "allowedValues": [
         "Security recommendations",
@@ -255,16 +255,16 @@
     "recommendationNames": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation IDs (applicable only for export of security recommendations)",
-        "description": "For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
+        "displayName": "Recommendation IDs",
+        "description": "Applicable only for export of security recommendations. To export all recommendations, leave this empty. To export specific recommendations, enter a list of recommendation IDs separated by semicolons (';'). Recommendation IDs are available through the Assessments API (https://docs.microsoft.com/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments."
       },
       "defaultValue": []
     },
     "recommendationSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation severities (applicable only for export of security recommendations)",
-        "description": "To select specific recommendation severities, please untick the appropriate ones"
+        "displayName": "Recommendation severities",
+        "description": "Applicable only for export of security recommendations. To select specific severity levels, clear the check boxes as required."
       },
       "allowedValues": [
         "High",
@@ -280,8 +280,8 @@
     "alertSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Alert severities (applicable only for export of security alerts)",
-        "description": "To select specific alert severities, please untick the appropriate ones"
+        "displayName": "Alert severities",
+        "description": "Applicable only for export of security alerts. To select specific severity levels, clear the check boxes as required."
       },
       "allowedValues": [
         "High",
@@ -298,21 +298,21 @@
       "type": "String",
       "metadata": {
         "displayName": "Event Hub namespace resource ID",
-        "description": "Insert the resource ID of the Event Hub namespace for export"
+        "description": "Enter the namespace’s ID, not the Event Hub’s ID. This ID should follow this pattern: '/subscriptions/{subscription id}/resourceGroups/{resource group name}/providers/Microsoft.EventHub/namespaces/{event hub namespace name}'."
       }
     },
     "eventHubName": {
       "type": "String",
       "metadata": {
         "displayName": "Event Hub name",
-        "description": "Insert the name of the Event Hub for export. This Event Hub should be under the namespace filled in Event Hub namespace resource ID"
+        "description": "Enter the name of the Event Hub for export. This Event Hub should be under the namespace entered in Event Hub namespace resource ID."
       }
     },
     "eventHubSendPolicyName": {
       "type": "String",
       "metadata": {
         "displayName": "Event Hub send policy name",
-        "description": "Insert the Event Hub's shared access send policy name. Please make sure to use shared access policy of the specific Event Hub and not of the namespace, and that this policy has send claim."
+        "description": "Enter the Event Hub's shared access send policy name. Make sure to use the shared access policy of the specific Event Hub and not of the namespace, and that this policy has ‘send’ claim."
       }
     }
   }

@@ -142,7 +142,7 @@
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Export Azure Security Center Alerts and/or Recommendations to Log Analytics Workspace via Policy",
+                            "description": "Export Azure Security Center alerts and/or recommendations to Log Analytics Workspace via policy",
                             "isEnabled": true,
                             "scopes": [
                               {
@@ -213,14 +213,14 @@
       "type": "String",
       "metadata": {
         "displayName": "Resource group name",
-        "description": "Insert the resource group name where the export to Log Analytics Workspace configuration will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription. Please note that there can only be one export to Log Analytics Workspace configuration per resource group."
+        "description": "Enter the resource group name where the export to Log Analytics Workspace configuration will be created. If you enter a name for a resource group that doesn’t exist, it’ll be created in the subscription. Note that each resource group can only have one export to Log Analytics Workspace configured."
       }
     },
     "resourceGroupLocation": {
       "type": "String",
       "metadata": {
         "displayName": "Resource group location",
-        "description": "If you inserted an existing resource group, please select its location. In case this is a new resource group, please choose a location for it",
+        "description": "Select the location of the resource group",
         "strongType": "location"
       }
     },
@@ -242,16 +242,16 @@
     "recommendationNames": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation IDs (applicable only for export of security recommendations)",
-        "description": "For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
+        "displayName": "Recommendation IDs",
+        "description": "Applicable only for export of security recommendations. To export all recommendations, leave this empty. To export specific recommendations, enter a list of recommendation IDs separated by semicolons (';'). Recommendation IDs are available through the Assessments API (https://docs.microsoft.com/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments."
       },
       "defaultValue": []
     },
     "recommendationSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Recommendation severities (applicable only for export of security recommendations)",
-        "description": "To select specific recommendation severities, please untick the appropriate ones"
+        "displayName": "Recommendation severities",
+        "description": "Applicable only for export of security recommendations. To select specific severity levels, clear the check boxes as required."
       },
       "allowedValues": [
         "High",
@@ -267,8 +267,8 @@
     "alertSeverities": {
       "type": "Array",
       "metadata": {
-        "displayName": "Alert severities (applicable only for export of security alerts)",
-        "description": "To select specific alert severities, please untick the appropriate ones"
+        "displayName": "Alert severities",
+        "description": "Applicable only for export of security alerts. To select specific severity levels, clear the check boxes as required"
       },
       "allowedValues": [
         "High",
@@ -285,7 +285,7 @@
       "type": "String",
       "metadata": {
         "displayName": "Log Analytics Workspace resource ID",
-        "description": "Insert the resource ID of the Log Analytics Workspace for export"
+        "description": "Enter the resource ID of the Log Analytics Workspace for export. This ID should follow this pattern: '/subscriptions/{subscription id}/resourceGroups/{resource group name}/providers/microsoft.operationalinsights/workspaces/{workspace name}'."		
       }
     }
   }
