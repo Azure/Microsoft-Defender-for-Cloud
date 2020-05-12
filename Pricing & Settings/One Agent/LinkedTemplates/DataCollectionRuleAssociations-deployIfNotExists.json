@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dataCollectionRuleId": {
+      "type": "string"
+    },
+    "vmName": {
+      "type": "string"
+    },
+    "dcraName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
+      "apiVersion": "2019-11-01-preview",
+      "name": "[concat(parameters('vmName'),'/Microsoft.Insights/', parameters('dcraName'))]",
+      "properties": {
+        "description": "Association of data collection rule for Azure Security Center. Deleting this association will break the detection of security vulnerabilities for this virtual machine.",
+        "dataCollectionRuleId": "[parameters('dataCollectionRuleId')]"
+      }
+    }
+  ]
+}

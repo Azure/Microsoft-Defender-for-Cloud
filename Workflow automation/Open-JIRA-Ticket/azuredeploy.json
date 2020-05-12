@@ -1,0 +1,146 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "comments": "This playbook will open Jira issue when a new security recommendation is unhealthy in Azure Security Center.",
+        "author": "Nicholas DiCola"
+    },
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Open-Jira-Ticket",
+            "type": "String"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "JiraProjectKey":{
+            "type":"string",
+            "defaultValue": "Enter the Jira Project Key for the Project"
+        }
+    },
+    "variables": {
+        "ASCAssesmentConnectionName": "[concat('ascassessment-', parameters('PlaybookName'))]",
+        "jiraConnectionName": "[concat('jira-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ASCAssesmentConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassement')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('jiraConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/jira')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('ASCAssesmentConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('jiraConnectionName'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "Create_a_new_issue": {
+                            "inputs": {
+                                "body": {
+                                    "fields": {
+                                        "description": "@{triggerBody()?['properties']?['metadata']?['description']} - @{triggerBody()?['properties']?['resourceDetails']?['id']}",
+                                        "issuetype": {
+                                            "id": "10002"
+                                        },
+                                        "labels": "AzureSecurityCenter",
+                                        "summary": "@triggerBody()?['properties']?['metadata']?['displayName']"
+                                    }
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['jira']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/issue",
+                                "queries": {
+                                    "projectKey": "[parameters('JiraProjectKey')]"
+                                }
+                            },
+                            "runAfter": {
+                            },
+                            "type": "ApiConnection"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {
+                    },
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                            },
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            },
+                            "type": "ApiConnectionWebhook"
+                        }
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascassement": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ASCAssesmentConnectionName'))]",
+                                "connectionName": "[variables('ASCAssesmentConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassement')]"
+                            },
+                            "jira": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('jiraConnectionName'))]",
+                                "connectionName": "[variables('jiraConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/jira')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
