@@ -222,7 +222,7 @@
                                                     {
                                                         "equals": [
                                                             "@items('For_each')?['properties']?['securityTaskParameters']?['assessmentKey']",
-                                                            ""
+                                                            "b12bc79e-4f12-44db-acda-571820191ddc"
                                                         ]
                                                     }
                                                 ]
