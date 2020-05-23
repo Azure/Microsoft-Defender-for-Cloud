@@ -5,7 +5,7 @@ subscriptions via the API and enumerate all ASC Security Tasks via API.  Then fo
 get the security task details via API.  Lastly configure each Supported Server VA settings.  
 
 <a
-href="https://raw.githubusercontent.com/wilbug1git1/Azure-Security-Center/wilbug1-sql-data/Remediation%20scripts/Advanced%20data%20security%20should%20be%20enabled%20on%20your%20SQL%20servers/Logic%20App/azuredeploy.json" target="_blank">
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/wilbug1git1/Azure-Security-Center/wilbug1-sql-data/Remediation%20scripts/Advanced%20data%20security%20should%20be%20enabled%20on%20your%20SQL%20servers/Logic%20App/azuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
