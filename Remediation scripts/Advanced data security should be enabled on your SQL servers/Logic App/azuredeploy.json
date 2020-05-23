@@ -94,7 +94,7 @@
                                                 "HTTP_2": {
                                                     "inputs": {
                                                         "authentication": {
-                                                            "identity": "/subscriptions/6d1fdbe0-117a-4049-bfbf-9316761584c9/resourceGroups/shared-services/providers/Microsoft.ManagedIdentity/userAssignedIdentities/logic-app-contrib",
+                                                            "identity": "",
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "GET",
@@ -110,7 +110,7 @@
                                                 "HTTP_3": {
                                                     "inputs": {
                                                         "authentication": {
-                                                            "identity": "/subscriptions/6d1fdbe0-117a-4049-bfbf-9316761584c9/resourceGroups/shared-services/providers/Microsoft.ManagedIdentity/userAssignedIdentities/logic-app-contrib",
+                                                            "identity": "",
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "body": {
