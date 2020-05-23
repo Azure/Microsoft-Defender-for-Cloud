@@ -1,10 +1,10 @@
 # Logic App sample for Automation Account Variables Should be Encrypted
 
-This Logic App deployment template is provided to remediate the "for Automation Account Variables Should be Encrypted" recommendation in Azure Security Center.  The workflow will enumerate all 
+This Logic App deployment template is provided to remediate the Automation Account Variables Should be Encrypted recommendation in Azure Security Center.  The workflow will enumerate all 
 subscriptions via the API and enumerate all ASC Security Tasks via API.  Then for each task for this recommendation
 get the security task details via API.  Lastly remediate the variables in the automation accounts.  
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FAdvanced%2520data%2520security%2520should%2520be%2520enabled%2520on%2520your%2520SQL%2520servers%2FLogic%2520App%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FAutomation%2520account%2520variables%2520should%2520be%2520encrypted%2FLogic%2520App%2Fazuredeploy.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
