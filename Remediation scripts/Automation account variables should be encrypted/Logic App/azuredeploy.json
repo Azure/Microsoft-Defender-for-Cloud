@@ -206,6 +206,11 @@
                                                         "authentication": {
                                                             "type": "ManagedServiceIdentity"
                                                         },
+                                                        "body": {
+                                                            "properties": {
+                                                            "isEncrypted": true
+                                                            }
+                                                        },
                                                         "method": "PUT",
                                                         "uri": "https://management.azure.com@{body('Parse_JSON_3')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2015-10-31"
                                                     },
