@@ -207,7 +207,7 @@
                                                             "type": "ManagedServiceIdentity"
                                                         },
                                                         "method": "PUT",
-                                                        "uri": "https://management.azure.com/@{body('Parse_JSON_3')?['properties']?['securityTaskParameters']?['resourceId']}/providers/Microsoft.Automation/automationAccounts/automat/variables/subid?api-version=2015-10-31"
+                                                        "uri": "https://management.azure.com@{body('Parse_JSON_3')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2015-10-31"
                                                     },
                                                     "runAfter": {
                                                         "Parse_JSON_3": [
