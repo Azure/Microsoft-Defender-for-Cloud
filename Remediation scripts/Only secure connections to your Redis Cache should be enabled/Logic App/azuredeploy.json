@@ -118,7 +118,7 @@
                                                                 "enableNonSslPort": false
                                                             }
                                                         },
-                                                        "method": "PUT",
+                                                        "method": "PATCH",
                                                         "uri": "https://management.azure.com/@{body('Parse_JSON_2')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2018-03-01"
                                                     },
                                                     "runAfter": {
