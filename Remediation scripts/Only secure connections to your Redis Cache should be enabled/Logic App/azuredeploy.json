@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "workflows_Enable_Redis_SSL": {
-            "defaultValue": "Enable_Enable_Redis_SSL",
+            "defaultValue": "Enable_Redis_SSL",
             "type": "String"
         }
     },
@@ -119,7 +119,7 @@
                                                             }
                                                         },
                                                         "method": "PUT",
-                                                        "uri": "https://management.azure.com@{body('Parse_JSON_2')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2018-03-01"
+                                                        "uri": "https://management.azure.com/@{body('Parse_JSON_2')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2018-03-01"
                                                     },
                                                     "runAfter": {
                                                         "Parse_JSON_2": [
