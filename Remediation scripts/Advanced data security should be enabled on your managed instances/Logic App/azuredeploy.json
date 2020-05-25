@@ -224,6 +224,30 @@
                                                         ]
                                                     },
                                                     "type": "SetVariable"
+                                                },
+                                                "Set_variable_5": {
+                                                    "runAfter": {
+                                                        "Set_variable_4": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "SQLServerTemp",
+                                                        "value": "@items('For_each_2')?['properties']?['securityTaskParameters']?['resourceId']"
+                                                    }
+                                                },
+                                                "Set_variable_6": {
+                                                    "runAfter": {
+                                                        "Set_variable_5": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "SQLServer",
+                                                        "value": "@{first(skip(split(variables('ResourceGroupTemp'), '/'), 8))}"
+                                                    }
                                                 }
                                             },
                                             "expression": {
