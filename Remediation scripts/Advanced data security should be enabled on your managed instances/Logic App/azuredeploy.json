@@ -213,7 +213,7 @@
                                                     },
                                                     "type": "SetVariable"
                                                 },
-                                                "Set_variable": {
+                                                "Resource_Group": {
                                                     "inputs": {
                                                         "name": "ResourceGroup",
                                                         "value": "@{first(skip(split(variables('ResourceGroupTemp'),'/'),4))}"
@@ -225,29 +225,29 @@
                                                     },
                                                     "type": "SetVariable"
                                                 },
-                                                "Set_variable_5": {
-                                                    "runAfter": {
-                                                        "Set_variable_4": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "SetVariable",
-                                                    "inputs": {
-                                                        "name": "SQLServerTemp",
-                                                        "value": "@items('For_each_2')?['properties']?['securityTaskParameters']?['resourceId']"
-                                                    }
-                                                },
-                                                "Set_variable_6": {
-                                                    "runAfter": {
-                                                        "Set_variable_5": [
-                                                            "Succeeded"
-                                                        ]
-                                                    },
-                                                    "type": "SetVariable",
+                                                "SQL_Server": {
                                                     "inputs": {
                                                         "name": "SQLServer",
                                                         "value": "@{first(skip(split(variables('ResourceGroupTemp'), '/'), 8))}"
-                                                    }
+                                                    },
+                                                    "runAfter": {
+                                                        "SQL_Server_Temp": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
+                                                },
+                                                "SQL_Server_Temp": {
+                                                    "inputs": {
+                                                        "name": "SQLServerTemp",
+                                                        "value": "@items('For_each')?['properties']?['securityTaskParameters']?['resourceId']"
+                                                    },
+                                                    "runAfter": {
+                                                        "Resource_Group": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
                                                 }
                                             },
                                             "expression": {
@@ -388,7 +388,7 @@
                                 "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
                             },
                             "runAfter": {
-                                "ASCLocationTemp": [
+                                "SQLServerTemp": [
                                     "Succeeded"
                                 ]
                             },
@@ -484,6 +484,40 @@
                             },
                             "runAfter": {
                                 "ResourceGroup": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "SQLServer": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SQLServer",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "ASCLocationTemp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "SQLServerTemp": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SQLServerTemp",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "SQLServer": [
                                     "Succeeded"
                                 ]
                             },
