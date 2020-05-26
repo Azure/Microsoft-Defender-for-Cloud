@@ -1,0 +1,281 @@
+{
+  "properties": {
+    "lenses": {
+      "0": {
+        "order": 0,
+        "parts": {
+          "0": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "colSpan": 10,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | Threats with High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n // | where ResourceName == \"ntierapp-vm-web\"\r\n// summarize and order\r\n | summarize count() by tostring(Threats)\r\n | order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "value": 1,
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "3cfed8cc-9a9a-4d8a-908c-6a6abacf4a91",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryChartTile",
+              "settings": {}
+            }
+          },
+          "1": {
+            "position": {
+              "x": 10,
+              "y": 0,
+              "colSpan": 5,
+              "rowSpan": 4
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | Categories with High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n // | where ResourceName == \"ntierapp-vm-web\"\r\n// summarize and order\r\n | summarize count() by tostring(Categories)\r\n | order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "value": 1,
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "0eb03539-d4bf-4e40-8e54-3e430b102963",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryChartTile",
+              "settings": {}
+            }
+          },
+          "2": {
+            "position": {
+              "x": 0,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 6
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n // | where ResourceName == \"ntierapp-vm-web\"\r\n// summarize and order\r\n //| summarize count() by tostring(Categories)\r\n //| order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "28e06d76-d2ce-4dde-bd36-0d0282a8094f",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryGridTile",
+              "settings": {}
+            }
+          },
+          "3": {
+            "position": {
+              "x": 6,
+              "y": 4,
+              "colSpan": 6,
+              "rowSpan": 6
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | Resource Name with High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n// summarize and order\r\n | summarize count() by ResourceName, ResourceType\r\n | order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "0f75cdf8-b22b-48e4-820e-c0686629e8f2",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryGridTile",
+              "settings": {}
+            }
+          },
+          "4": {
+            "position": {
+              "x": 12,
+              "y": 4,
+              "colSpan": 3,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | Subscriptions with High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n// summarize and order\r\n | summarize count() by SubscriptionID\r\n | order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "value": 2,
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "77afa51e-0ade-401c-8ea9-54f223652447",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryChartTile",
+              "settings": {}
+            }
+          },
+          "5": {
+            "position": {
+              "x": 12,
+              "y": 7,
+              "colSpan": 3,
+              "rowSpan": 3
+            },
+            "metadata": {
+              "inputs": [
+                {
+                  "name": "partTitle",
+                  "value": "ASCRecom | Resource Group with High Severity and Low Remediation Effort",
+                  "isOptional": true
+                },
+                {
+                  "name": "query",
+                  "value": "securityresources\r\n | where type == \"microsoft.security/assessments\"\r\n // Get recommendations in useful format\r\n | project\r\n\t['TenantID'] = tenantId,\r\n\t['SubscriptionID'] = subscriptionId,\r\n\t['AssessmentID'] = name,\r\n\t['DisplayName'] = properties.displayName,\r\n\t['ResourceType'] = tolower(split(properties.resourceDetails.Id,\"/\").[7]),\r\n\t['ResourceName'] = tolower(split(properties.resourceDetails.Id,\"/\").[8]),\r\n\t['ResourceGroup'] = resourceGroup,\r\n\t['ContainsNestedRecom'] = tostring(properties.additionalData.subAssessmentsLink),\r\n\t['StatusCode'] = properties.status.code,\r\n\t['StatusDescription'] = properties.status.description,\r\n\t['PolicyDefID'] = properties.metadata.policyDefinitionId,\r\n\t['Description'] = properties.metadata.description,\r\n\t['RecomType'] = properties.metadata.assessmentType,\r\n\t['Remediation'] = properties.metadata.remediationDescription,\r\n\t['RemediationEffort'] = properties.metadata.implementationEffort,\r\n\t['Severity'] = properties.metadata.severity,\r\n\t['Categories'] = properties.metadata.categories,\r\n\t['UserImpact'] = properties.metadata.userImpact,\r\n\t['Threats'] = properties.metadata.threats,\r\n\t['Link'] = properties.links.azurePortal\r\n// Filter\r\n | where Severity == \"High\"\r\n | where RemediationEffort == \"Low\"\r\n// summarize and order\r\n | summarize count() by ResourceGroup\r\n | order by count_",
+                  "isOptional": true
+                },
+                {
+                  "name": "chartType",
+                  "value": 2,
+                  "isOptional": true
+                },
+                {
+                  "name": "isShared",
+                  "isOptional": true
+                },
+                {
+                  "name": "queryId",
+                  "value": "1d5c1749-1749-4bfc-8cbf-8e244b2f751e",
+                  "isOptional": true
+                },
+                {
+                  "name": "formatResults",
+                  "isOptional": true
+                }
+              ],
+              "type": "Extension/HubsExtension/PartType/ArgQueryChartTile",
+              "settings": {}
+            }
+          }
+        }
+      }
+    },
+    "metadata": {
+      "model": {
+        "timeRange": {
+          "value": {
+            "relative": {
+              "duration": 24,
+              "timeUnit": 1
+            }
+          },
+          "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange"
+        }
+      }
+    }
+  },
+  "name": "My ASC | High Sev. Low Effort",
+  "type": "Microsoft.Portal/dashboards",
+  "location": "INSERT LOCATION",
+  "tags": {
+    "hidden-title": "My ASC | High Sev. Low Effort"
+  },
+  "apiVersion": "2015-08-01-preview"
+}
