@@ -101,7 +101,7 @@
                                                         "uri": "https://management.azure.com/subscriptions/@{items('Get-Task_Findings')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Security/locations/@{variables('ASCLocation')}/tasks/@{items('For_each')?['name']}?api-version=2015-06-01-preview"
                                                     },
                                                     "runAfter": {
-                                                        "SQL_Server": [
+                                                        "ASCLocation_Temp": [
                                                             "Succeeded"
                                                         ]
                                                     },
