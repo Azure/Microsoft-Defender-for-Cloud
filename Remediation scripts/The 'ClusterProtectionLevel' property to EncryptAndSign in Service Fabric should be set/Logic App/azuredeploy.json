@@ -101,7 +101,7 @@
                                                         "uri": "https://management.azure.com/subscriptions/@{items('Get-Task_Findings')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Security/locations/@{variables('ASCLocation')}/tasks/@{items('For_each')?['name']}?api-version=2015-06-01-preview"
                                                     },
                                                     "runAfter": {
-                                                        "ASCLocation_Temp": [
+                                                        "Set_variable": [
                                                             "Succeeded"
                                                         ]
                                                     },
@@ -221,7 +221,7 @@
                                                     },
                                                     "type": "SetVariable"
                                                 },
-                                                "Resource_Group": {
+                                                "Set_variable": {
                                                     "inputs": {
                                                         "name": "ResourceGroup",
                                                         "value": "@{first(skip(split(variables('ResourceGroupTemp'),'/'),4))}"
@@ -372,7 +372,7 @@
                                 "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
                             },
                             "runAfter": {
-                                "ResourceGroupTemp": [
+                                "ASCLocationTemp": [
                                     "Succeeded"
                                 ]
                             },
