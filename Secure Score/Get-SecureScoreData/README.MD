@@ -1,13 +1,13 @@
 # Get-SecureScoreData
 author: Nicholas DiCola
 
-This playbook uses the new Secure Score API to pull Secure Score, Controls and Assements into a Log Analytics workspace.
+This playbook uses the new Secure Score API to pull Secure Score, Controls and Assements into a Log Analytics workspace every 24 hours.
 
 The ARM template will create a Log Analytics workspace, API Connection, Logic App Playbook and an Azure Monitor Workbook
 The playbook uses a Managed Identity.  You will need to run azuredeploy2.json to the same subscription which will grant access to the subscription for the identity.
 
 If you have many subscriptions, you have 2 options.
-1. You can assign reader permissions athe management group level for the managed identity. (preferred)
+1. You can assign reader permissions at he management group level for the managed identity. (preferred)
 2. You can use the provided powershell script to add the identity to all subscriptions.
 
 There are 
