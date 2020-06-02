@@ -9,7 +9,7 @@
     },
     "variables": {
         "AzureLogAnalyticsDataCollectorConnectionName": "[concat('azureloganalyticsdatacollector-', parameters('PlaybookName'))]",
-        "AzureLogAnalyticsWorkspaceName": "[concat('SecureScoreData-', guid('SecureScoreData', subscription().subscriptionId))]",
+        "AzureLogAnalyticsWorkspaceName": "[concat('SecureScoreData-', guid('SecureScoreData', subscription().subscriptionId), utcNow())]",
         "WorkbookName": "SecureScoreWorkbook",
         "WorkbookId": "[guid('SecureScoreData', subscription().subscriptionId)]"
     },
@@ -482,11 +482,32 @@
                     }
                 },
                 "runAfter": {
-                    "HTTP": [
+                    "Send_Data_4": [
                         "Succeeded"
                     ]
                 },
                 "type": "ParseJson"
+            },
+            "Send_Data_4": {
+                "inputs": {
+                    "body": "@{body('HTTP')?['value']}",
+                    "headers": {
+                        "Log-Type": "Subscriptions"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/api/logs"
+                },
+                "runAfter": {
+                    "HTTP": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
             }
         },
         "contentVersion": "1.0.0.0",
