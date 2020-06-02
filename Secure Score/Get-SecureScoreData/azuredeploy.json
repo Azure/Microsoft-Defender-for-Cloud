@@ -5,11 +5,15 @@
         "PlaybookName": {
             "defaultValue": "Get-SecureScoreData",
             "type": "String"
+        },
+        "Time": {
+            "type": "string",
+            "defaultValue": "[utcNow()]"
         }
     },
     "variables": {
         "AzureLogAnalyticsDataCollectorConnectionName": "[concat('azureloganalyticsdatacollector-', parameters('PlaybookName'))]",
-        "AzureLogAnalyticsWorkspaceName": "[concat('SecureScoreData-', guid('SecureScoreData', subscription().subscriptionId), utcNow())]",
+        "AzureLogAnalyticsWorkspaceName": "[concat('SecureScoreData-', guid('SecureScoreData', subscription().subscriptionId), parameters('Time'))]",
         "WorkbookName": "SecureScoreWorkbook",
         "WorkbookId": "[guid('SecureScoreData', subscription().subscriptionId)]"
     },
