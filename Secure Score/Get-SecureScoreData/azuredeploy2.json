@@ -20,7 +20,7 @@
             ],
             "properties": {
                 "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('ReaderRole'))]",
-                "principalId": "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name,'/providers/Microsoft.Logic/workflows/', parameters('PlaybookName'), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2016-06-01').principalId]",
+                "principalId": "[reference(concat(resourceId('Microsoft.Logic/workflows', parameters('PlaybookName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2018-11-30').principalId],
                 "scope": "[subscription().id]"
             }
         }
