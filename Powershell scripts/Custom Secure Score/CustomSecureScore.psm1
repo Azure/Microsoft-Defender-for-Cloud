@@ -26,7 +26,7 @@ if ($null -eq $AzModule)
 	Else
 	{
 	    #Admin, install to all users
-	    Write-Warning -Message "Installing Az Module to all users"
+	    Write-Information -Message "Installing Az Module to all users"
 	    Install-Module -Name Az -AllowClobber -Force
 	    Import-Module -Name Az.Accounts -Force
 	    Import-Module -Name Az.Security -Force
@@ -152,13 +152,13 @@ Function Update-AzSecurityCenterSecureScoreControlMappings {
         $PersistToAzurePolicy
     )
 
-    Validate-ControlMappings -PolicySetDefinition $PolicySetDefinition -ControlMappings $ControlMappings -ErrorAction Stop
+    Test-ControlMappings -PolicySetDefinition $PolicySetDefinition -ControlMappings $ControlMappings -ErrorAction Stop
 
     $metadata = $PolicySetDefinition.Properties.Metadata
     $securityCenter = Get-Property -Object $metadata -PropertyName "securityCenter" -CreateIfNotExist -DefaultCreationValue $(New-Object -TypeName psobject)
-    #$securityCenterEnabled = Get-Property -Object $securityCenter -PropertyName "enabled" -CreateIfNotExist -DefaultCreationValue $true
+    Get-Property -Object $securityCenter -PropertyName "enabled" -CreateIfNotExist -DefaultCreationValue $true | Out-Null
     $secureScore = Get-Property -Object $securityCenter -PropertyName "secureScore" -CreateIfNotExist -DefaultCreationValue $(New-Object -TypeName psobject)
-    #$existingControlMappings = Get-Property -Object $secureScore -PropertyName "controlMappings" -CreateIfNotExist -DefaultCreationValue @()
+    Get-Property -Object $secureScore -PropertyName "controlMappings" -CreateIfNotExist -DefaultCreationValue @() | Out-Null
 
     $securityCenter.enabled = $true
     $secureScore.controlMappings = $ControlMappings
