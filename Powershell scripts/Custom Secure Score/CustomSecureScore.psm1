@@ -8,7 +8,7 @@ if ($host.Version.Major -lt 5)
 
 #Check if Az installed, install if not
 $AzModule = Get-InstalledModule -Name Az -ErrorAction SilentlyContinue
-if ($AzModule -eq $null) 
+if ($null -eq $AzModule) 
 {
 	Write-Warning "Azure PowerShell module not found"
 	#check for Admin Privleges
@@ -99,14 +99,14 @@ Function Get-Property {
     )
 
     $noteProperty = Get-Member -InputObject $Object | Where-Object { $_.MemberType -eq "NoteProperty" } | Where-Object { $_.Name -eq $PropertyName }
-    if (($noteProperty -eq $null) -And $CreateIfNotExist) {
+    if (($null -eq $noteProperty) -And $CreateIfNotExist) {
         $Object | Add-Member -NotePropertyName $PropertyName -NotePropertyValue $DefaultCreationValue
     }
 
     return $Object.$PropertyName
 }
 
-Function Validate-ControlMappings {
+Function Test-ControlMappings {
     Param(
         [Parameter(Mandatory=$true)]
         [Microsoft.Azure.Commands.ResourceManager.Cmdlets.Implementation.Policy.PsPolicySetDefinition]
@@ -121,7 +121,7 @@ Function Validate-ControlMappings {
     foreach ($mapping in $ControlMappings) {
         foreach ($policyDefId in $mapping.PolicyDefinitionIds) {
             if (-Not ($policyDefinitionIds -ccontains $policyDefId)) {
-                $error = @"
+                $errorMessage = @"
 Bad mapping for control key $($mapping.ControlKey):
 
 Policy set definition does not contain the following policy definition ID: $policyDefId
@@ -132,7 +132,7 @@ $policyDefinitionIds
 
 "@
 
-                throw $error
+                throw $errorMessage
             }
         }
     }
@@ -156,9 +156,9 @@ Function Update-AzSecurityCenterSecureScoreControlMappings {
 
     $metadata = $PolicySetDefinition.Properties.Metadata
     $securityCenter = Get-Property -Object $metadata -PropertyName "securityCenter" -CreateIfNotExist -DefaultCreationValue $(New-Object -TypeName psobject)
-    $securityCenterEnabled = Get-Property -Object $securityCenter -PropertyName "enabled" -CreateIfNotExist -DefaultCreationValue $true
+    #$securityCenterEnabled = Get-Property -Object $securityCenter -PropertyName "enabled" -CreateIfNotExist -DefaultCreationValue $true
     $secureScore = Get-Property -Object $securityCenter -PropertyName "secureScore" -CreateIfNotExist -DefaultCreationValue $(New-Object -TypeName psobject)
-    $existingControlMappings = Get-Property -Object $secureScore -PropertyName "controlMappings" -CreateIfNotExist -DefaultCreationValue @()
+    #$existingControlMappings = Get-Property -Object $secureScore -PropertyName "controlMappings" -CreateIfNotExist -DefaultCreationValue @()
 
     $securityCenter.enabled = $true
     $secureScore.controlMappings = $ControlMappings
@@ -176,14 +176,14 @@ Function Get-AzSecurityCenterSecureScoreControlMappings {
     )
 
     $metadata = $PolicySetDefinition.Properties.Metadata
-    if ($metadata -ne $null) {
+    if ($null -ne $metadata) {
         $securityCenterMetadata = $metadata.securityCenter
-        if ($securityCenterMetadata -ne $null) {
+        if ($null -ne $securityCenterMetadata) {
             $secureScoreMetadata = $securityCenterMetadata.secureScore
-            if ($secureScoreMetadata -ne $null) {
+            if ($null -ne $secureScoreMetadata) {
                 $controlMappings = $secureScoreMetadata.controlMappings
 
-                if ($controlMappings -ne $null) {
+                if ($null -ne $controlMappings) {
                     return @($controlMappings | ForEach-Object { [SecureScoreControlMapping]$_ })
                 }
             }
