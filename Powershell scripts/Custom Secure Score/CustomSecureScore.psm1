@@ -17,8 +17,8 @@ if ($null -eq $AzModule)
 	if (-not ($currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)))
 	{
 	    #No Admin, install to current user
-	    Write-Warning -Message "Can not install Az Module.  You are not running as Administrator"
-	    Write-Warning -Message "Installing Az Module to Current User Scope"
+	    Write-Warning -Message "Can not install Az Module for all users. You are not running as Administrator"
+	    Write-Information -Message "Installing Az Module to Current User Scope"
 	    Install-Module Az -Scope CurrentUser -Force
 	    Install-Module Az.Security -Scope CurrentUser -Force
 	    Install-Module Az.Accounts -Scope CurrentUser -Force
