@@ -38,16 +38,26 @@ After importing the module, the following CMDlets will become available:
 Import-Module .\CustomSecureScore.psm1
 # Perform actual login to Azure
 Connect-AzAccount
+
 # Get the relevant policy set definition - Modify this to fit your own custom policy initiative
-$policySetDefinitionId = "/subscriptions/bccb4c1d-7346-4a9e-9d1b-eee2be282bba/providers/Microsoft.Authorization/policySetDefinitions/77eb6fde-19e5-44d5-ac2e-d57a95d05001"
+# You can get the policy set definition ID through the Azure Portal:
+# 1. Log into Azure Portal
+# 2. Navigate to "Policy"
+# 3. Select the assignment of your custom policy initiative
+# 4. Click on "View Definition"
+# 5. Copy the value of the "Definition ID" field
+$policySetDefinitionId = "<PUT POLICY SET DEFINITION ID HERE>"
+
 $policySetDef = Get-AzPolicySetDefinition -Id $policySetDefinitionId
 
-# Get policy definition IDs - these should be from the policy set definition
-$policyDef1 = "/providers/Microsoft.Authorization/policyDefinitions/0015ea4d-51ff-4ce3-8d8c-f3f8f0179a56"
-$policyDef2 = "/providers/Microsoft.Authorization/policyDefinitions/6134c3db-786f-471e-87bc-8f479dc890f6"
+# Get policy definition IDs - these should be from the policy set definition (e.g. from $polictSetDef.Properties.PolicyDefinitions)
+$policyDef1 = "<PUT POLICY DEFINITION HERE>"
+$policyDef2 = "<PUT ANOTHER POLICY DEFINITION HERE, IF REQUIRED>"
 
-# Create mappings
+# Create mappings - in the example we use ASC_EncryptDataInTransit as the control key. You can list all the possible keys 
+# using the Get-SecureScoreControlKeys command
 $secureScoreMappings = @( $(New-SecureScoreControlMapping ASC_EncryptDataInTransit -PolicyDefinitionIds @($policyDef1, $policyDef2)))
+
 # Apply the mappings and persist to Azure Policy
 Update-AzSecurityCenterSecureScoreControlMappings -PolicySetDefinition $policySetDef -ControlMappings $secureScoreMappings -PersistToAzurePolicy
 ```
