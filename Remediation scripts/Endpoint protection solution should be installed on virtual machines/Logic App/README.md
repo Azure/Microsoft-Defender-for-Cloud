@@ -3,7 +3,7 @@
 This Logic App deployment template is provided to apply endpoint protection to VMs. It will loop through all Security Center recommendations in all subscriptions to find VMs without endpoint protection, then intall it.
 
 <a
-href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fwilbug1git1%2FAzure-Security-Center%2Fwilbug1-enable-endpoint-protection%2FRemediation%2520scripts%2FEndpoint%2520protection%2520solution%2520should%2520be%2520installed%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-Endpoint-Protection.json" target="_blank">
+href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FEndpoint%2520protection%2520solution%2520should%2520be%2520installed%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-Endpoint-Protection.json" target="_blank">
     <img src="http://azuredeploy.net/deploybutton.png"/>
 </a>
 
