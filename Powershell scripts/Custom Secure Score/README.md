@@ -62,7 +62,7 @@ $secureScoreMappings = @( $(New-SecureScoreControlMapping ASC_EncryptDataInTrans
 Update-AzSecurityCenterSecureScoreControlMappings -PolicySetDefinition $policySetDef -ControlMappings $secureScoreMappings -PersistToAzurePolicy
 
 # Verify your changes (When PersistToAzurePolicy is set)
-$result=Get-AzPolicySetDefinition -Id $policySetDefinitionId
+$result = Get-AzPolicySetDefinition -Id $policySetDefinitionId
 $result.Properties.Metadata.securityCenter.secureScore.controlMappings
 ```
 
