@@ -14,16 +14,16 @@
             "defaultValue": "<sendtoemail>@<domain>",
             "type": "string"
         },
-        "ASCLogAnalyticsSubId": {
-            "defaultValue": "YourLogAnalyticsWorkspaceCollectingASCSecureScore-SubscriptionID",
+        "SecureScoreLogAnalyticsSubId": {
+            "defaultValue": "YourLogAnalyticsWorkspaceCollectingSecureScore-SubscriptionID",
             "type": "string"
         },
-        "ASCLogAnalyticsRGName": {
-            "defaultValue": "YourLogAnalyticsWorkspaceCollectingASCSecureScore-ResourceGroupName",
+        "SecureScoreLogAnalyticsRGName": {
+            "defaultValue": "YourLogAnalyticsWorkspaceCollectingSecureScore-ResourceGroupName",
             "type": "string"
         },
-        "ASCLogAnalyticsName": {
-            "defaultValue": "YourLogAnalyticsWorkspaceCollectingASCSecureScore-WorkspaceName",
+        "SecureScoreLogAnalyticsName": {
+            "defaultValue": "YourLogAnalyticsWorkspaceCollectingSecureScore-WorkspaceName",
             "type": "string"
         }
     },
@@ -80,16 +80,16 @@
                             "defaultValue": {},
                             "type": "Object"
                         },
-                        "ASCLogAnalyticsName": {
-                            "defaultValue": "[parameters('ASCLogAnalyticsName')]",
+                        "SecureScoreLogAnalyticsName": {
+                            "defaultValue": "[parameters('SecureScoreLogAnalyticsName')]",
                             "type": "String"
                         },
-                        "ASCLogAnalyticsRGName": {
-                            "defaultValue": "[parameters('ASCLogAnalyticsRGName')]",
+                        "SecureScoreLogAnalyticsRGName": {
+                            "defaultValue": "[parameters('SecureScoreLogAnalyticsRGName')]",
                             "type": "String"
                         },
-                        "ASCLogAnalyticsSubId": {
-                            "defaultValue": "[parameters('ASCLogAnalyticsSubId')]",
+                        "SecureScoreLogAnalyticsSubId": {
+                            "defaultValue": "[parameters('SecureScoreLogAnalyticsSubId')]",
                             "type": "String"
                         },
                         "ComplianceEmailAddress": {
@@ -199,10 +199,10 @@
                                 "method": "post",
                                 "path": "/visualizeQuery",
                                 "queries": {
-                                    "resourcegroups": "@parameters('ASCLogAnalyticsRGName')",
-                                    "resourcename": "@parameters('ASCLogAnalyticsName')",
+                                    "resourcegroups": "@parameters('SecureScoreLogAnalyticsRGName')",
+                                    "resourcename": "@parameters('SecureScoreLogAnalyticsName')",
                                     "resourcetype": "Log Analytics Workspace",
-                                    "subscriptions": "@parameters('ASCLogAnalyticsSubId')",
+                                    "subscriptions": "@parameters('SecureScoreLogAnalyticsSubId')",
                                     "timerange": "Last 24 hours",
                                     "visType": "Html Table"
                                 }
@@ -225,10 +225,10 @@
                                 "method": "post",
                                 "path": "/visualizeQuery",
                                 "queries": {
-                                    "resourcegroups": "@parameters('ASCLogAnalyticsRGName')",
-                                    "resourcename": "@parameters('ASCLogAnalyticsName')",
+                                    "resourcegroups": "@parameters('SecureScoreLogAnalyticsRGName')",
+                                    "resourcename": "@parameters('SecureScoreLogAnalyticsName')",
                                     "resourcetype": "Log Analytics Workspace",
-                                    "subscriptions": "@parameters('ASCLogAnalyticsSubId')",
+                                    "subscriptions": "@parameters('SecureScoreLogAnalyticsSubId')",
                                     "timerange": "Last 7 days",
                                     "visType": "Time Chart"
                                 }

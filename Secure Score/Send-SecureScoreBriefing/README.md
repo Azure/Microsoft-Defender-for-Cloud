@@ -12,4 +12,4 @@ This playbook will send a weekly Security Score briefing to the Compliance and S
 
 **Additional Post Install Notes:**
 
-Ensure you are using the Get-SecureScoreData playbook to send security score data your log analytics workspace. Be sure to authorize the API connections created.
+Ensure you have deployed the Get-SecureScoreData Logic App first. Best to let the Get-SecureScoreData run a few days to build historical data. Logic App Get-SecureScoreData will deploy a unique Log Analytics Workspace. When deploying this Logic App be sure to use that workspace. Be sure to authorize the API connections created.
