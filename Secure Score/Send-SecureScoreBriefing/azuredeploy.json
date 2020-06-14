@@ -190,7 +190,7 @@
                             },
                             "type": "ApiConnection",
                             "inputs": {
-                                "body": "SecureScoreControls_CL\n| extend Subscription = tostring(split(id_s, \"/\", 2)[0]), SecurityControl = properties_displayName_s\n| where properties_score_max_d != 0\n| summarize by Subscription, ScorePercent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), SecurityControl\n| where ScorePercent != 100\n| sort by ScorePercent, Subscription desc",
+                                "body": "SecureScoreControls_CL\n| extend SubscriptionId = tostring(split(id_s, \"/\", 2)[0]), SecurityControl = properties_displayName_s\n| where properties_score_max_d != 0\n| join kind = leftouter (Subscriptions_CL) \non $left.SubscriptionId == $right.SubscriptionId\n| summarize by Subscription = displayName_s, ScorePercent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), SecurityControl\n| where ScorePercent != 100\n| sort by Subscription asc , ScorePercent desc",
                                 "host": {
                                     "connection": {
                                         "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
@@ -216,7 +216,7 @@
                             },
                             "type": "ApiConnection",
                             "inputs": {
-                                "body": "SecureScore_CL\n| extend ScorePrecent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), Subscription = strcat(split(id_s, '/')[2])\n| summarize by TimeGenerated, ScorePrecent, Subscription",
+                                "body": "SecureScore_CL\n| extend ScorePrecent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), SubscriptionId = strcat(split(id_s, '/')[2])\n| join kind = leftouter (Subscriptions_CL) \non $left.SubscriptionId == $right.SubscriptionId\n| summarize by TimeGenerated, ScorePrecent, Subscription = displayName_s",
                                 "host": {
                                     "connection": {
                                         "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
