@@ -554,7 +554,7 @@
                                                     {
                                                         "equals": [
                                                             "@items('For_each_ASC_Task')?['properties']?['securityTaskParameters']?['policyName']",
-                                                            "Install endpoint protection solution on virtual machines"
+                                                            "Endpoint protection solution should be installed on virtual machine scale sets"
                                                         ]
                                                     }
                                                 ]
