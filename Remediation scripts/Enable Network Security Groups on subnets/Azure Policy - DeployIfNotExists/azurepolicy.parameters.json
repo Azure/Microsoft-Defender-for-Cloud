@@ -1,10 +1,1 @@
-{
-    "nsgName": {
-      "type": "String",
-      "metadata": {
-        "displayName": "NSG Name",
-        "description": "Select a spesific network security group within your subscription",
-        "strongType": "Microsoft.Network/NetworkSecurityGroups"
-      }
-    }
-  }
+{}

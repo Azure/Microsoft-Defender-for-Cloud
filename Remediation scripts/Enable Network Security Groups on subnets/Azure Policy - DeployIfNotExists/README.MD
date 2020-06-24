@@ -8,6 +8,6 @@ The current version of this policy will query out all subnets without NSG includ
 
 ## Try on Portal
 
-<a href="https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https://github.com/Azure/Azure-Security-Center/blob/master/Remediation%20scripts/Enable%20Network%20Security%20Groups%20on%20subnets/Azure%20Policy%20-%20DeployIfNotExists/azurepolicy.json" target="_blank">
+<a href="https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FEnable%2520Network%2520Security%2520Groups%2520on%2520subnets%2FAzure%2520Policy%2520-%2520DeployIfNotExists%2Fazurepolicy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
