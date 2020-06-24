@@ -1,10 +1,13 @@
 # Assign an existing Network Security Group to subnets
 Author: Lior Arviv
 
-This playbook uses the new Secure Score API and Assessments API to pull Secure Score, Controls and Assessments into a Log Analytics workspace every 24 hours.
+This policy enables you to protect virtual network subnets with an existing network security group (NSG) found in the same subscription.
 
-Try on portal
+### Please note
+The current version of this policy will query out all subnets without NSG including subnets for VPN gateway, Azure Bastion, etc.
 
-<a href="https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-policy%2Fmaster%2Fsamples%2FEventHub%2Fallowed-event-hub-firewall-ip%2Fazurepolicy.json" target="_blank">
+## Try on Portal
+
+<a href="https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https://github.com/Azure/Azure-Security-Center/blob/master/Remediation%20scripts/Enable%20Network%20Security%20Groups%20on%20subnets/Azure%20Policy%20-%20DeployIfNotExists/azurepolicy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
