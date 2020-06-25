@@ -1,0 +1,28 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-SecureScoreData",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "ReaderRole": "acdd72a7-3385-48ef-bd42-f606fba81ae7"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2017-09-01",
+            "name": "[guid(subscription().id)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', parameters('PlaybookName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', variables('ReaderRole'))]",
+                "principalId": "[reference(concat(resourceId('Microsoft.Logic/workflows', parameters('PlaybookName')), '/providers/Microsoft.ManagedIdentity/Identities/default'), '2018-11-30').principalId]",
+                "scope": "[subscription().id]"
+            }
+        }
+    ]
+}

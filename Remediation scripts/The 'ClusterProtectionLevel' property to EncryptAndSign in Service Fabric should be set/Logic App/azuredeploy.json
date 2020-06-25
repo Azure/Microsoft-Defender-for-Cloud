@@ -1,0 +1,483 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_Enable_ClusterProtectionLevel": {
+            "defaultValue": "Enable_ClusterProtectionLevel",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_Enable_ClusterProtectionLevel')]",
+            "location": "eastus2",
+            "identity": {
+                "principalId": "",
+                "tenantId": "",
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Disabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Month",
+                                "interval": 3
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "ASCLocationTemp": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ASCLocationTemp",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "ResourceGroupTemp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "ASC_Location": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ASCLocation",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "Get-Task_Findings": {
+                            "actions": {
+                                "For_each": {
+                                    "actions": {
+                                        "Condition": {
+                                            "actions": {
+                                                "ASCLocation_Temp": {
+                                                    "inputs": {
+                                                        "name": "ASCLocationTemp",
+                                                        "value": "@items('For_each')?['id']"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "SetVariable"
+                                                },
+                                                "ASClocation": {
+                                                    "inputs": {
+                                                        "name": "ASCLocation",
+                                                        "value": "@{first(skip(split(variables('ASClocationTemp'),'/'),8))}"
+                                                    },
+                                                    "runAfter": {
+                                                        "ASCLocation_Temp": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
+                                                },
+                                                "HTTP_2": {
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "identity": "",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com/subscriptions/@{items('Get-Task_Findings')?['subscriptionId']}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Security/locations/@{variables('ASCLocation')}/tasks/@{items('For_each')?['name']}?api-version=2015-06-01-preview"
+                                                    },
+                                                    "runAfter": {
+                                                        "Set_variable": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http"
+                                                },
+                                                "HTTP_3": {
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "identity": "",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "body": {
+                                                            "properties": {
+                                                                "fabricSettings": [
+                                                                    {
+                                                                    "name": "Security",
+                                                                        "parameters": [
+                                                                            {
+                                                                                "name": "ClusterProtectionLevel",
+                                                                                "value": "EncryptAndSign"
+                                                                            }
+                                                                            ]
+                                                                        }
+                                                                    ]
+                                                            }
+                                                        },
+                                                        "method": "PATCH",
+                                                        "uri": "https://management.azure.com/@{body('Parse_JSON_2')?['properties']?['securityTaskParameters']?['resourceId']}?api-version=2018-02-01"
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_JSON_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http"
+                                                },
+                                                "Parse_JSON_2": {
+                                                    "inputs": {
+                                                        "content": "@body('HTTP_2')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "creationTimeUtc": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "lastStateChangeTimeUtc": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "securityTaskParameters": {
+                                                                            "properties": {
+                                                                                "assessmentKey": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "category": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "name": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "policyName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "resourceId": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "resourceType": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "severity": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "uniqueKey": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "state": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "subState": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "HTTP_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson"
+                                                },
+                                                "RG_Temp": {
+                                                    "inputs": {
+                                                        "name": "ResourceGroupTemp",
+                                                        "value": "@items('For_each')?['properties']?['securityTaskParameters']?['resourceId']"
+                                                    },
+                                                    "runAfter": {
+                                                        "ASClocation": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
+                                                },
+                                                "Set_variable": {
+                                                    "inputs": {
+                                                        "name": "ResourceGroup",
+                                                        "value": "@{first(skip(split(variables('ResourceGroupTemp'),'/'),4))}"
+                                                    },
+                                                    "runAfter": {
+                                                        "RG_Temp": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@items('For_each')?['properties']?['securityTaskParameters']?['assessmentKey']",
+                                                            "7f04fc0c-4a3d-5c7e-ce19-666cb871b510"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {},
+                                            "type": "If"
+                                        }
+                                    },
+                                    "foreach": "@body('Parse_JSON')?['value']",
+                                    "runAfter": {
+                                        "Parse_JSON": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "HTTP": {
+                                    "inputs": {
+                                        "authentication": {
+                                            "identity": "",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{items('Get-Task_Findings')?['subscriptionId']}/providers/Microsoft.Security/tasks?api-version=2015-06-01-preview"
+                                    },
+                                    "runAfter": {},
+                                    "type": "Http"
+                                },
+                                "Parse_JSON": {
+                                    "inputs": {
+                                        "content": "@body('HTTP')",
+                                        "schema": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "creationTimeUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "lastStateChangeTimeUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "securityTaskParameters": {
+                                                                        "properties": {
+                                                                            "assessmentKey": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "category": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "policyName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "resourceId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "resourceType": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "severity": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "uniqueKey": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "subState": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "type",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "HTTP": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson"
+                                }
+                            },
+                            "foreach": "@body('Parse_JSON_3')?['value']",
+                            "runAfter": {
+                                "Parse_JSON_3": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "HTTP_4": {
+                            "inputs": {
+                                "authentication": {
+                                    "identity": "",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2016-06-01"
+                            },
+                            "runAfter": {
+                                "ASCLocationTemp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http"
+                        },
+                        "Parse_JSON_3": {
+                            "inputs": {
+                                "content": "@body('HTTP_4')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "subscriptionId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies",
+                                                    "authorizationSource"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runAfter": {
+                                "HTTP_4": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson"
+                        },
+                        "ResourceGroup": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResourceGroup",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "ASC_Location": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "ResourceGroupTemp": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResourceGroupTemp",
+                                        "type": "string",
+                                        "value": "null"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "ResourceGroup": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}

@@ -102,7 +102,7 @@
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Workflow Automation for Azure Security Center Recommendations via Policy",
+                            "description": "Workflow Automation for Azure Security Center recommendations via policy",
                             "isEnabled": true,
                             "scopes": [
                               {
@@ -207,14 +207,14 @@
       "type": "String",
       "metadata": {
         "displayName": "Resource group name",
-        "description": "Insert the resource group name where the workflow automation will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription"
+        "description": "Enter the resource group name where the workflow automation will be created. If you enter a name for a resource group that doesn’t exist, it’ll be created in the subscription."
       }
     },
     "resourceGroupLocation": {
       "type": "String",
       "metadata": {
         "displayName": "Resource group location",
-        "description": "If you inserted an existing resource group, please select its location. In case this is a new resource group, please choose a location for it",
+        "description": "Select the location of the resource group",
         "strongType": "location"
       }
     },
@@ -222,7 +222,7 @@
       "type": "Array",
       "metadata": {
         "displayName": "Recommendation IDs",
-        "description": "For all recommendations please leave empty. For specific recommendations please insert a list of recommendation IDs separated by ';'. Recommendation IDs are available through Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments"
+        "description": "For all recommendations, leave empty. For specific recommendations, enter a list of recommendation IDs separated by semicolons (';'). Recommendation IDs are available through the Assessments API (https://docs.microsoft.com/en-us/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer (https://ms.portal.azure.com/#blade/HubsExtension/ArgQueryBlade), choose securityresources and microsoft.security/assessments."
       },
       "defaultValue": []
     },
@@ -230,7 +230,7 @@
       "type": "Array",
       "metadata": {
         "displayName": "Recommendation severities",
-        "description": "To select specific recommendation severities, please untick the appropriate ones"
+        "description": "To select specific recommendation severities, clear the relevant check boxes"
       },
       "allowedValues": [
         "High",
@@ -247,7 +247,7 @@
       "type": "Array",
       "metadata": {
         "displayName": "Recommendation states",
-        "description": "To select specific recommendation states, please untick the appropriate ones. Recommendations with unhealthy state require your attention to resolve. When a recommendation state is healthy, it no longer applies to the resource as Security Center detects it as healthy. A recommendation is not-applicable if, for example, it was disabled in the Security Policy"
+        "description": "To select specific recommendation states, clear the relevant check boxes. Recommendations with unhealthy state require your attention to resolve. When a recommendation state is healthy, it no longer applies to the resource as Security Center detects it as healthy. A recommendation is not-applicable if, for example, it was disabled in the Security Policy."
       },
       "allowedValues": [
         "Healthy",
@@ -264,7 +264,7 @@
       "type": "String",
       "metadata": {
         "displayName": "Logic app resource ID",
-        "description": "Insert the resource ID of the logic app that will be triggered. The provided logic app must be in this policy's assignment scope. If you do not already have a logic app, please visit Logic Apps to create one (https://ms.portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Logic%2Fworkflows)"
+        "description": "Enter the resource ID of the logic app that will be triggered. The provided logic app must be in this policy's assignment scope. If you do not already have a logic app, visit Logic Apps to create one (https://ms.portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Logic%2Fworkflows). This ID should follow this pattern: '/subscriptions/{subscription id}/resourceGroups/{resource group name}/providers/Microsoft.Logic/workflows/{logic app name}'."
       }
     },
     "logicAppTrigger": {

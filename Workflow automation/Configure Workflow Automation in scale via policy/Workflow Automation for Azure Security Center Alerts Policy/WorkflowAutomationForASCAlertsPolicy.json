@@ -92,7 +92,7 @@
                           "type": "Microsoft.Security/automations",
                           "dependsOn": [],
                           "properties": {
-                            "description": "Workflow Automation for Azure Security Center Alerts via Policy",
+                            "description": "Workflow Automation for Azure Security Center alerts via policy",
                             "isEnabled": true,
                             "scopes": [
                               {
@@ -188,14 +188,14 @@
       "type": "String",
       "metadata": {
         "displayName": "Resource group name",
-        "description": "Insert the resource group name where the workflow automation will be created. In case you would like to create a new resource group, or if the resource group inserted does not exist, a new resource group under this name will be created in the subscription"
+        "description": "Enter the resource group name where the workflow automation will be created. If you enter a name for a resource group that doesn’t exist, it’ll be created in the subscription."
       }
     },
     "resourceGroupLocation": {
       "type": "String",
       "metadata": {
         "displayName": "Resource group location",
-        "description": "If you inserted an existing resource group, please select its location. In case this is a new resource group, please choose a location for it",
+        "description": "Select the location of the resource group",
         "strongType": "location"
       }
     },
@@ -203,7 +203,7 @@
       "type": "String",
       "metadata": {
         "displayName": "Alert name contains",
-        "description": "Insert a string included in the required alert name. For Security Center's alerts reference list please see https://docs.microsoft.com/en-us/azure/security-center/alerts-reference"
+        "description": "Insert a string included in the required alert name. For a full reference list of Security Center's alerts, see https://docs.microsoft.com/azure/security-center/alerts-reference"
       },
       "defaultValue": ""
     },
@@ -211,7 +211,7 @@
       "type": "Array",
       "metadata": {
         "displayName": "Alert severities",
-        "description": "To select specific alert severities, please untick the appropriate ones"
+        "description": "To select specific alert severities, clear the check boxes as required."
       },
       "allowedValues": [
         "High",
@@ -228,14 +228,14 @@
       "type": "String",
       "metadata": {
         "displayName": "Logic app resource ID",
-        "description": "Insert the resource ID of the logic app that will be triggered. The provided logic app must be in this policy's assignment scope. If you do not already have a logic app, please visit Logic Apps to create one (https://ms.portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Logic%2Fworkflows)"
+        "description": "Enter the resource ID for the logic app to be triggered. The logic app must be in this policy's assignment scope. If you do not already have a logic app, visit Logic Apps to create one (https://ms.portal.azure.com/#blade/HubsExtension/BrowseResourceBlade/resourceType/Microsoft.Logic%2Fworkflows). This ID should follow this pattern: '/subscriptions/{subscription id}/resourceGroups/{resource group name}/providers/Microsoft.Logic/workflows/{logic app name}'."
       }
     },
     "logicAppTrigger": {
       "type": "String",
       "metadata": {
         "displayName": "Logic app trigger",
-        "description": "Please choose the trigger connector of the logic app that will be triggered"
+        "description": "Choose the trigger connector of the logic app that will be triggered."
       },
       "allowedValues": [
         "Manual (Incoming HTTP request)",
