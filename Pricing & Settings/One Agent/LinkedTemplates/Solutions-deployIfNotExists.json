@@ -1,0 +1,54 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "workspaceName": {
+        "type": "string"
+      },
+      "location": {
+        "type": "string"
+      }
+    },
+    "variables": {
+      "securitySolution": {
+        "Name": "[Concat('Security', '(', parameters('workspaceName'), ')')]",
+        "GalleryName": "Security"
+      },
+      "securityCenterFreeSolution": {
+        "Name": "[Concat('SecurityCenterFree', '(', parameters('workspaceName'), ')')]",
+        "GalleryName": "SecurityCenterFree"
+      }
+    },
+    "resources": [
+      {
+        "type": "Microsoft.OperationsManagement/solutions",
+        "name": "[variables('securitySolution').Name]",
+        "location": "[parameters('location')]",
+        "apiVersion": "2015-11-01-preview",
+        "properties": {
+          "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+        },
+        "plan": {
+          "name": "[variables('securitySolution').Name]",
+          "publisher": "Microsoft",
+          "product": "[Concat('OMSGallery/', variables('securitySolution').GalleryName)]",
+          "promotionCode": ""
+        }
+      },
+      {
+        "type": "Microsoft.OperationsManagement/solutions",
+        "name": "[variables('securityCenterFreeSolution').Name]",
+        "location": "[parameters('location')]",
+        "apiVersion": "2015-11-01-preview",
+        "properties": {
+          "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', parameters('workspaceName'))]"
+        },
+        "plan": {
+          "name": "[variables('securityCenterFreeSolution').Name]",
+          "publisher": "Microsoft",
+          "product": "[Concat('OMSGallery/', variables('securityCenterFreeSolution').GalleryName)]",
+          "promotionCode": ""
+        }
+      }
+    ]
+  }
