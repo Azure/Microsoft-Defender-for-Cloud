@@ -1,0 +1,171 @@
+{
+  "properties": {
+    "displayName": "Install Guest Attestation extension on your Windows virtual machines (preview)",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Your Virtual Machine supports Measured Boot. Install the Attestation extension to allow Azure Security Center to proactively attest and monitor your virtual machine’s boot integrity.",
+    "metadata": {
+      "version": "1.0.0-preview",
+      "category": "Compute",
+      "preview": true
+    },
+    "parameters": {
+      "effect": {
+        "type": "string",
+        "defaultValue": "DeployIfNotExists",
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        }
+      },
+      "maaEndpoint": {
+        "type": "string",
+        "defaultValue": "https://sharedeus2.eus2.attest.azure.net/",
+        "allowedValues": [
+          "https://sharedcus.cus.attest.azure.net/",
+          "https://sharedeus2.eus2.attest.azure.net/",
+          "https://sharedwus.us.test.attest.azure.net/"
+        ],
+        "metadata": {
+          "displayName": "MAA Endpoint",
+          "description": "Microsoft Azure Attestation endpoint to attest to"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.offer",
+            "in": [
+              "windowsserver-gen2preview-preview"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.sku",
+            "in": [
+              "windows10-tvm",
+              "windowsserver2019-tvm",
+              "windowsserver2016-tvm"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile",
+            "exists": "true"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile.enableVTPM",
+            "equals": "true"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile.enableSecureBoot",
+            "equals": "true"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                "in": [
+                  "Microsoft.Azure.Security",
+                  "Microsoft.Azure.Security.WindowsAttestation"
+                ]
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "in": [
+                  "GuestAttestation"
+                ]
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                "in": [
+                  "Succeeded",
+                  "Provisioning succeeded"
+                ]
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "maaEndpoint": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "extensionName": "GuestAttestation",
+                  "extensionPublisher": "Microsoft.Azure.Security.WindowsAttestation",
+                  "extensionVersion": "1.0",
+                  "maaTenantName": "GuestAttestation",
+                  "ascReportingEndpoint": "https://eus2.service.attest.azure.net/"
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Compute/virtualMachines/extensions",
+                    "name": "[concat(parameters('vmName'), '/', variables('extensionName'))]",
+                    "location": "[parameters('location')]",
+                    "apiVersion": "2018-10-01",
+                    "properties": {
+                      "publisher": "[variables('extensionPublisher')]",
+                      "type": "[variables('extensionName')]",
+                      "typeHandlerVersion": "[variables('extensionVersion')]",
+                      "autoUpgradeMinorVersion": true,
+                      "settings": {
+                        "AttestationEndpointCfg": {
+                          "maaEndpoint": "[parameters('maaEndpoint')]",
+                          "maaTenantName": "[variables('maaTenantName')]",
+                          "ascReportingEndpoint": "[variables('ascReportingEndpoint')]"
+                        }
+                      }
+                    }
+                  }
+                ]
+              },
+              "parameters": {
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "maaEndpoint": {
+                  "value": "[parameters('maaEndpoint')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/98EA2FC7-6FC6-4FD1-9D8D-6331154DA071",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "98EA2FC7-6FC6-4FD1-9D8D-6331154DA071"
+}

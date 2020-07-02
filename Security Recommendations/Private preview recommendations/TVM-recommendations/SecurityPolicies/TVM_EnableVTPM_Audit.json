@@ -1,0 +1,71 @@
+{
+  "properties": {
+    "displayName": "Enable vTPM on your virtual machines (preview)",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Your Virtual Machine supports a virtual TPM device. Activate this to enable Azure’s Measured Boot and any OS security features that require a TPM.",
+    "metadata": {
+      "securityCenter": {
+        "remediationDescription": "Enabling vTPM requires restarting your VM: 1. Stop your VM when it is safe to do so. 2. Enable vTPM for the VM. 3. Restart the VM.",
+        "severity": "Low"
+      },
+      "version": "1.0.0-preview",
+      "category": "Compute",
+      "preview": true
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.offer",
+            "in": [
+              "windowsserver-gen2preview-preview",
+              "0003-com-ubuntu-server-trusted-vm"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.sku",
+            "in": [
+              "18_04-gen2",
+              "windows10-tvm",
+              "windowsserver2019-tvm",
+              "windowsserver2016-tvm"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile",
+            "exists": "true"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile.enableVTPM",
+            "equals": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  },
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/1C30F9CD-B84C-49CC-AA2C-9288447CC3B3",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "1C30F9CD-B84C-49CC-AA2C-9288447CC3B3"
+}

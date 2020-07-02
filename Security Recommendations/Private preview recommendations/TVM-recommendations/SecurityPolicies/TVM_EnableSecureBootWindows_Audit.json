@@ -1,0 +1,73 @@
+{
+  "properties": {
+    "displayName": "Enable Secure Boot on your Windows virtual machines (preview)",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "Your Windows Virtual Machine supports Secure Boot. Enable it to mitigate against malicious and unauthorized changes to the boot chain. It will only allow signed code to run on your VMs/servers.",
+    "metadata": {
+      "securityCenter": {
+        "remediationDescription": "Enabling Secure Boot requires restarting your VM: 1. Stop your VM when it is safe to do so. 2. Enable Secure Boot for the VM. 3. Restart the VM.",
+        "severity": "Low"
+      },
+      "version": "1.0.0-preview",
+      "category": "Compute",
+      "preview": true
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "Audit",
+          "Disabled"
+        ],
+        "defaultValue": "Audit"
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.osType",
+            "equals": "Windows"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.offer",
+            "in": [
+              "windowsserver-gen2preview-preview"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.sku",
+            "in": [
+              "windows10-tvm",
+              "windowsserver2019-tvm",
+              "windowsserver2016-tvm"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile",
+            "exists": "true"
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/securityProfile.enableSecureBoot",
+            "equals": "false"
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]"
+      }
+    }
+  },
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/97566DD7-78AE-4997-8B36-1C7BFE0D8121",
+  "type": "Microsoft.Authorization/policyDefinitions",
+  "name": "97566DD7-78AE-4997-8B36-1C7BFE0D8121"
+}
