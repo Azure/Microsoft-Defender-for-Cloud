@@ -10,7 +10,7 @@ This Azure Policy definition will check if at least one Workflow Automation for 
 2) Name (For example "Audit Workflow Automation for Azure Security Center Recommendations")
 3) Optional parameters are: description and category.
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https%253A%252F%252Fportal.azure.com%252F%2523blade%252FMicrosoft_Azure_Policy%252FCreatePolicyDefinitionBlade%252Furi%252Fhttps%253A%252F%252Fraw.githubusercontent.com%252FAzure%252FAzure-Security-Center%252Fmaster%252FWorkflow%2520automation%252FAudit%2520Workflow%2520Automation%2520via%2520policy%252FWorkflow%2520Automation%2520for%2520Azure%2520Security%2520Center%2520Recommendations%2520Audit%2520Policy%252FWorkflowAutomationRecommendationsAuditPolicy.json%250D%250A%250D%250A%250D%250A)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%252FAudit%2520Workflow%2520Automation%2520via%2520policy%252FWorkflow%2520Automation%2520for%2520Azure%2520Security%2520Center%2520Recommendations%2520Audit%2520Policy%252FWorkflowAutomationRecommendationsAuditPolicy.json)
 
 [Learn more about Workflow Automations](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
 

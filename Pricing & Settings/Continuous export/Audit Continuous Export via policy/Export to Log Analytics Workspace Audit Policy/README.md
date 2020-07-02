@@ -10,7 +10,7 @@ This Azure Policy definition will check if at least one Export configuration to 
 2) Name (For example "Audit Export to Log Analytics Workspace")
 3) Optional parameters are: description and category.
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https%253A%252F%252Fportal.azure.com%252F%2523blade%252FMicrosoft_Azure_Policy%252FCreatePolicyDefinitionBlade%252Furi%252Fhttps%253A%252F%252Fraw.githubusercontent.com%252FAzure%252FAzure-Security-Center%252Fmaster%252FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FAudit%2520Continuous%2520Export%2520via%2520policy%252FExport%2520to%2520Log%2520Analytics%2520Workspace%2520Audit%2520Policy%252FExportToLogAnalyticsWorkspaceAuditPolicy.json)
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%252FContinuous%2520export%252FAudit%2520Continuous%2520Export%2520via%2520policy%252FExport%2520to%2520Log%2520Analytics%2520Workspace%2520Audit%2520Policy%252FExportToLogAnalyticsWorkspaceAuditPolicy.json)
 
 [Learn more about Continuous Export](https://docs.microsoft.com/en-us/azure/security-center/continuous-export)
 
