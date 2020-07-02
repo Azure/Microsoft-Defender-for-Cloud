@@ -63,63 +63,6 @@
               ],
               "includeAll": true
             }
-          },
-          {
-            "id": "6718e06f-bc61-4c0f-b411-214b23a96e16",
-            "version": "KqlParameterItem/1.0",
-            "name": "TimeSerise",
-            "label": "Time Serise ",
-            "type": 4,
-            "typeSettings": {
-              "selectableValues": [
-                {
-                  "durationMs": 300000
-                },
-                {
-                  "durationMs": 900000
-                },
-                {
-                  "durationMs": 1800000
-                },
-                {
-                  "durationMs": 3600000
-                },
-                {
-                  "durationMs": 14400000
-                },
-                {
-                  "durationMs": 43200000
-                },
-                {
-                  "durationMs": 86400000
-                },
-                {
-                  "durationMs": 172800000
-                },
-                {
-                  "durationMs": 259200000
-                },
-                {
-                  "durationMs": 604800000
-                },
-                {
-                  "durationMs": 1209600000
-                },
-                {
-                  "durationMs": 2419200000
-                },
-                {
-                  "durationMs": 2592000000
-                },
-                {
-                  "durationMs": 5184000000
-                },
-                {
-                  "durationMs": 7776000000
-                }
-              ],
-              "allowCustom": true
-            }
           }
         ],
         "style": "above",
