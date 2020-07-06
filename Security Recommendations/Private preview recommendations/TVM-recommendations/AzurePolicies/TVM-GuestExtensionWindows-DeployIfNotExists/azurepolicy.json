@@ -1,6 +1,6 @@
 {
   "properties": {
-    "displayName": "Install Guest Attestation extension on your Windows virtual machines (preview)",
+    "displayName": "Let Azure Security Center attest and monitor the health of your Windows Virtual Machine by installing the Attestation extension (preview)",
     "policyType": "Custom",
     "mode": "All",
     "description": "Your Virtual Machine supports Measured Boot. Install the Attestation extension to allow Azure Security Center to proactively attest and monitor your virtual machine’s boot integrity.",
