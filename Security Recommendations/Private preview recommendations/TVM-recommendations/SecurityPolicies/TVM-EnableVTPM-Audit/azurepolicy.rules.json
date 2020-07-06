@@ -1,0 +1,37 @@
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.offer",
+        "in": [
+          "windowsserver-gen2preview-preview",
+          "0003-com-ubuntu-server-trusted-vm"
+        ]
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.sku",
+        "in": [
+          "18_04-gen2",
+          "windows10-tvm",
+          "windowsserver2019-tvm",
+          "windowsserver2016-tvm"
+        ]
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/securityProfile",
+        "exists": "true"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/securityProfile.enableVTPM",
+        "equals": "false"
+      }
+    ]
+  },
+  "then": {
+    "effect": "[parameters('effect')]"
+  }
+}

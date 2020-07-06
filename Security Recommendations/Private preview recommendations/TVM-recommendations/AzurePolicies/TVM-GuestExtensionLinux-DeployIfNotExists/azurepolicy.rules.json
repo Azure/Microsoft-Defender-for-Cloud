@@ -1,0 +1,126 @@
+{
+  "if": {
+    "allOf": [
+      {
+        "field": "type",
+        "equals": "Microsoft.Compute/virtualMachines"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.offer",
+        "in": [
+          "0003-com-ubuntu-server-trusted-vm"
+        ]
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/storageProfile.imageReference.sku",
+        "in": [
+          "18_04-gen2"
+        ]
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/securityProfile",
+        "exists": "true"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/securityProfile.enableVTPM",
+        "equals": "true"
+      },
+      {
+        "field": "Microsoft.Compute/virtualMachines/securityProfile.enableSecureBoot",
+        "equals": "true"
+      }
+    ]
+  },
+  "then": {
+    "effect": "[parameters('effect')]",
+    "details": {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "roleDefinitionIds": [
+        "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+      ],
+      "existenceCondition": {
+        "allOf": [
+          {
+            "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+            "in": [
+              "Microsoft.Azure.Security",
+              "Microsoft.Azure.Security.LinuxAttestation"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/extensions/type",
+            "in": [
+              "GuestAttestation"
+            ]
+          },
+          {
+            "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+            "in": [
+              "Succeeded",
+              "Provisioning succeeded"
+            ]
+          }
+        ]
+      },
+      "deployment": {
+        "properties": {
+          "mode": "incremental",
+          "template": {
+            "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+            "contentVersion": "1.0.0.0",
+            "parameters": {
+              "vmName": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "maaEndpoint": {
+                "type": "string"
+              }
+            },
+            "variables": {
+              "extensionName": "GuestAttestation",
+              "extensionPublisher": "Microsoft.Azure.Security.LinuxAttestation",
+              "extensionVersion": "1.0",
+              "maaTenantName": "GuestAttestation",
+              "ascReportingEndpoint": "https://eus2.service.attest.azure.net/"
+            },
+            "resources": [
+              {
+                "type": "Microsoft.Compute/virtualMachines/extensions",
+                "name": "[concat(parameters('vmName'), '/', variables('extensionName'))]",
+                "location": "[parameters('location')]",
+                "apiVersion": "2018-10-01",
+                "properties": {
+                  "publisher": "[variables('extensionPublisher')]",
+                  "type": "[variables('extensionName')]",
+                  "typeHandlerVersion": "[variables('extensionVersion')]",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "AttestationEndpointCfg": {
+                      "maaEndpoint": "[parameters('maaEndpoint')]",
+                      "maaTenantName": "[variables('maaTenantName')]",
+                      "ascReportingEndpoint": "[variables('ascReportingEndpoint')]"
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "parameters": {
+            "vmName": {
+              "value": "[field('name')]"
+            },
+            "location": {
+              "value": "[field('location')]"
+            },
+            "maaEndpoint": {
+              "value": "[parameters('maaEndpoint')]"
+            }
+          }
+        }
+      }
+    }
+  }
+}

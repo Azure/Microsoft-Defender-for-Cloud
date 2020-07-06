@@ -1,0 +1,27 @@
+{
+  "effect": {
+    "type": "string",
+    "defaultValue": "DeployIfNotExists",
+    "allowedValues": [
+      "DeployIfNotExists",
+      "Disabled"
+    ],
+    "metadata": {
+      "displayName": "Effect",
+      "description": "Enable or disable the execution of the policy"
+    }
+  },
+  "maaEndpoint": {
+    "type": "string",
+    "defaultValue": "https://sharedeus2.eus2.attest.azure.net/",
+    "allowedValues": [
+      "https://sharedcus.cus.attest.azure.net/",
+      "https://sharedeus2.eus2.attest.azure.net/",
+      "https://sharedwus.us.test.attest.azure.net/"
+    ],
+    "metadata": {
+      "displayName": "MAA Endpoint",
+      "description": "Microsoft Azure Attestation endpoint to attest to"
+    }
+  }
+}
