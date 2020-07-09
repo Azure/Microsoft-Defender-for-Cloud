@@ -6,14 +6,14 @@ The template app contains out-of-the-box reports that will help you analyze your
 
 ## Prerequisite:
 
-1. Power BI account (to open the report as template app you need Pro account)
+1. Power BI account (to open the report as template app you need Pro account).
 
 2. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
 
 ## **Getting the reports**
 You can open the reports with two different options:
-1. With Power BI Desktop (described under section *Open with Power BI Desktop*)
-2. With Power BI Service (described under section *Open with Power BI Service*)
+1. With Power BI Desktop (described under section *Open with Power BI Desktop*).
+2. With Power BI Service (described under section *Open with Power BI Service*).
 
 ## Open with Power BI Desktop
 1. Download the file *Secure Score Report* from the repository.
@@ -37,28 +37,33 @@ Using this option you will create a Power BI application based on our template a
     ![Install app](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/InstallTemplateApp.png?raw=true)
 
     *In case you are getting ‘This app hasn’t been listed on AppSource. You don’t have permissions to install this app’ message, make sure the option to install template apps not listed in AppSource is enabled in the admin portal (default value is disable).*
-    ![Install app problem](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/InstallingProblem.png?raw=true)
+    ![Install app problem](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/InstallingProblem.PNG?raw=true)
 3.	Choose workspace name and click **Continue** button as shown in the example below:
 ![Choose workspace](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/ChooseWorkspace.png?raw=true)
 4. After the installation is completed, a new app should be added to your apps. Click on your new app.
+![New app](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/AppAfterInstalling.png?raw=true)
+
 5. You have now three options, as shown in the example below: 
     1. **Connect to your own data:** Connect directly to your Log Analytics workspace. 
     2. **Explore with sample data:** You can use this option before exporting the data to Log Analytics workspace to explore the app capabilities. When you’re ready to connect to real data click ‘Connect your data’ on the top message. 
-    3. **Customize and share:** customize the reports or create new reports in the app. You can return to this option later by changing the reports in your workspace and click “Update app” button. 
+    3. **Customize and share:** Customize the reports or create new reports in the app. You can return to this option later by changing the reports in your workspace and click “Update app” button. 
     
     ![Template app options](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/TemplateAppOptions.png?raw=true)
-6. Enter your Log Analytics workspace id and click **Next** button. 
+
+### **Connect to your own data**
+1. Enter your Log Analytics workspace id and click **Next** button. 
 
     ![Enter log analytics id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LoAnalyticsIdService1.png?raw=true)
 
     You can find the id in the Log Analytics workspace overview in the portal, as shown the example below: 
-![How to get workspace id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LoAnalyticsIdService2.png?raw=true)
+![How to get workspace id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LogAnalyticsIdService2.png?raw=true)
 
-    **Note:**  
+    ***Note:**  
     You can connect your data only if the data already available at the Log Analytics workspace. You can check it by running “SecureScore_CL” in the Log Analytics. Only after you get results to this query you can connect your data.*
-7. Perform authentication using **OAuth2** as the authentication method and **Organizational** as the privacy level, then click **Sign in** button to continue. 
-![Authentication to service](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/AuthenticationService.png?raw=true)
-8.	It may take few minutes for the data to refresh. If the data hasn’t refreshed after 10 minutes, try manually refreshing the page.
+2. Perform authentication using **OAuth2** as the authentication method and **Organizational** as the privacy level, then click **Sign in** button to continue. 
+
+    ![Authentication to service](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/AuthenticationService.png?raw=true)
+3.	It may take few minutes for the data to refresh. If the data hasn’t refreshed after 10 minutes, try manually refreshing the page.
 
 You are now ready to analyze your secure score data over time.
 
@@ -66,8 +71,8 @@ You are now ready to analyze your secure score data over time.
 
 The template app consists of two reports: 
 
-1. Secure Score Summary provides summarized data regarding your score progress. 
-2. Resources Summary provides summarized data regarding your resources’ health.  
+1. **Secure Score Summary** provides summarized data regarding your score progress. 
+2. **Resources Summary** provides summarized data regarding your resources’ health.  
 
 The reports are based on the data you exported to the Log Analytics workspace only. 
 
