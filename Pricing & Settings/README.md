@@ -5,6 +5,10 @@ In this section you can find code snippets for deploying Azure Security Center p
 
 For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
 
+# Azure Resource Graph queries 
+
+If you're interested in getting ASC pricing information via the Azure Resource Graph, please have a look at [these examples](https://github.com/Azure/Azure-Security-Center/tree/master/ARG%20queries/Starter%20Kit%20-%20ASC%20Pricing)
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
