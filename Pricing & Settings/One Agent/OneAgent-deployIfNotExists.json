@@ -1,6 +1,6 @@
 {
   "properties": {
-    "displayName": "Deploy One Agent monitor onaboarding to Azure Security Center",
+    "displayName": "Deploy One Agent monitor onboarding to Azure Security Center",
     "policyType": "Custom",
     "mode": "All",
     "description": "This policy ensures that onboarding is enabled on virtual machines. It will automatically create a resource group and log analytics workspace in the same region as the virtual machine to store audit records.",
@@ -52,6 +52,7 @@
             "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
           ],
           "deployment": {
+            "location": "[field('location')]",
             "properties": {
               "mode": "incremental",
               "parameters": {
