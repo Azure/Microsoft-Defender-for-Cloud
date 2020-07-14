@@ -8,7 +8,7 @@ if ($host.Version.Major -lt 5)
 
 #Check if Az installed, install if not
 $AzModule = Get-InstalledModule -Name Az -ErrorAction SilentlyContinue
-if ($AzModule -eq $null) 
+if ($null -eq $AzModule) 
 {
 	Write-Warning "Azure PowerShell module not found"
 	#check for Admin Privleges
@@ -21,7 +21,7 @@ if ($AzModule -eq $null)
 	    Write-Warning -Message "Installing Az Module to Current User Scope"
 	    Install-Module Az -Scope CurrentUser -Force
 	    Install-Module Az.Security -Scope CurrentUser -Force
-	    Install-Module Az.Accounts -Scope CurrentUser -Force
+        Install-Module Az.Accounts -Scope CurrentUser -Force
 	}
 	Else
 	{
@@ -29,8 +29,20 @@ if ($AzModule -eq $null)
 	    Write-Warning -Message "Installing Az Module to all users"
 	    Install-Module -Name Az -AllowClobber -Force
 	    Import-Module -Name Az.Accounts -Force
-	    Import-Module -Name Az.Security -Force
+        Import-Module -Name Az.Security -Force
 	}
+}
+
+$AzResourcesModule = Get-InstalledModule -Name "Az.Resources" -ErrorAction SilentlyContinue
+if ($null -eq $AzResourcesModule) 
+{
+    Write-Host "Az.Resources module was not found, please install it first."
+    break
+}
+elseif ($AzResourcesModule.Version.Major -lt 2) 
+{
+    Write-Host "Az.Resources module must be at least version 2.0.0, please update it and try again."
+    break
 }
 
 class SecureScoreControlMapping {
