@@ -216,7 +216,7 @@
                             },
                             "type": "ApiConnection",
                             "inputs": {
-                                "body": "SecureScore_CL\n| extend ScorePrecent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), SubscriptionId = strcat(split(id_s, '/')[2])\n| join kind = leftouter (Subscriptions_CL) \non $left.SubscriptionId == $right.SubscriptionId\n| summarize by TimeGenerated, ScorePrecent, Subscription = displayName_s",
+                                "body": "SecureScore_CL\n| where properties_score_max_d != 0\n| extend ScorePercent = round((round(properties_score_current_d, 0)*100)/properties_score_max_d, 0), SubscriptionId = strcat(split(id_s, '/')[2])\n| join kind = leftouter (Subscriptions_CL) \non $left.SubscriptionId == $right.SubscriptionId\n| summarize by TimeGenerated, ScorePercent, Subscription = displayName_s",
                                 "host": {
                                     "connection": {
                                         "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
