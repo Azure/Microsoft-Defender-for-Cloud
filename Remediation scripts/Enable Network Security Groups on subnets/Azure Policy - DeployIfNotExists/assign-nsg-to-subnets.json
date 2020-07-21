@@ -2,8 +2,12 @@
     "properties": {
       "displayName": "Assign an existing Network Security Group to subnets",
       "policyType": "Custom",
+      "mode": "All",
       "description": "This policy enables you to protect virtual network subnets with an existing network security group (NSG) found in the same subscription.",
-    "mode": "All",
+      "metadata": {
+        "version": "1.0.0",
+        "category": "Security Center"
+      },
     "policyRule": {
       "if": {
             "allOf": [
