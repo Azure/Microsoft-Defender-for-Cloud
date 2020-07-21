@@ -5,7 +5,7 @@ This policy enables you to protect virtual network subnets with an existing netw
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com/liorarviv/Azure-Security-Center/liorarv-edits/Remediation%20scripts/Enable%20Network%20Security%20Groups%20on%20subnets/Azure%20Policy%20-%20DeployIfNotExists/assign-nsg-to-subnets.json)
+[![Deploy to Azure](https://docs.microsoft.com/en-us/azure/governance/policy/media/deploy/deploybutton.png)](https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FRemediation%2520scripts%2FEnable%2520Network%2520Security%2520Groups%2520on%2520subnets%2FAzure%2520Policy%2520-%2520DeployIfNotExists%2Fassign-nsg-to-subnets.json)
 
 ### Please note
 The current version of this policy will query out all subnets without NSG including subnets for VPN gateway, Azure Bastion, etc.
