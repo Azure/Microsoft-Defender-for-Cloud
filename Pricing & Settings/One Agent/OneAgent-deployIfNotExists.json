@@ -28,9 +28,8 @@
       "then": {
         "effect": "deployIfNotExists",
         "details": {
-          "type": "Microsoft.Compute/virtualMachines",
-          "deploymentScope": "Subscription",
-          "name": "OneAgent",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "deploymentScope": "subscription",
           "existenceCondition": {
             "allOf": [
               {
@@ -43,7 +42,10 @@
               },
               {
                 "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
-                "equals": "Succeeded"
+                "in": [
+                  "Succeeded",
+                  "Provisioning succeeded"
+                ]
               }
             ]
           },
@@ -52,63 +54,62 @@
             "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
           ],
           "deployment": {
-            "location": "[field('location')]",
+            "location": "eastus",
             "properties": {
               "mode": "incremental",
               "parameters": {
+                "resourceGroup": {
+                  "value": "[resourceGroup().name]"
+                },
                 "location": {
                   "value": "[field('location')]"
                 },
                 "vmName": {
                   "value": "[field('name')]"
-                },
-                "resourceGroup": {
-                  "value": "[resourceGroup().name]"
                 }
               },
               "template": {
                 "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
                 "contentVersion": "1.0.0.1",
                 "parameters": {
+                  "resourceGroup": {
+                    "type": "string"
+                  },
                   "location": {
                     "type": "string"
                   },
                   "vmName": {
                     "type": "string"
-                  },
-                  "resourceGroup": {
-                    "type": "string"
                   }
                 },
                 "variables": {
-                  "defaultRGName": "[concat('defaultResourceGroup-', variables('locationCode'))]",
-                  "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
-                  "subscriptionId": "[subscription().subscriptionId]",
-                  "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
-                  "dataCollectionRuleId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', 'defaultDataCollectionRules')]",
-                  "dcrName": "AzureSecurityDataCollectionRuleForLinux",
-                  "dcraName": "AzureSecurityDataCollectionRuleAssociationForLinux",
-                  "locationLongNameToShortMap": {
-                    "eastus2euap" : "EUS2EUAP",
-                    "eastus": "EUS"
-                  },
                   "pairedLocations": {
                     "eastus2euap" : "eastus2euap",
                     "eastus": "eastus"
                   },
+                  "locationLongNameToShortMap": {
+                    "eastus2euap" : "EUS2EUAP",
+                    "eastus": "EUS"
+                  },
+                  "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
+                  "subscriptionId": "[subscription().subscriptionId]",
+                  "defaultRGName": "[concat('DefaultResourceGroup-', variables('locationCode'))]",
+                  "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
+                  "dcrName": "AzureSecurityDataCollectionRuleForLinux",
+                  "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
+                  "dcraName": "AzureSecurityDataCollectionRuleAssociationForLinux",
+                  "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
+                  "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+                  "linuxExtautoUpgradeMinorVersion": true,
                   "deployIdentitySystem": "[concat('deployIdentitySystem-', uniqueString(deployment().name))]",
                   "deployAzureMonitorLinuxAgent": "[concat('deployAzureMonitorLinuxAgent-', uniqueString(deployment().name))]",
                   "deployAzureSecurityLinuxAgent": "[concat('deployAzureSecurityLinuxAgent-', uniqueString(deployment().name))]",
-                  "deployWorkspace": "[concat('deployWorkspace-', variables('locationCode'))]",
+                  "deployWorkspace": "[concat('deployWorkspace-', uniqueString(deployment().name))]",
                   "deploySolutions": "[concat('deploySolutions-', uniqueString(deployment().name))]",
                   "deployDataCollectionRule": "[concat('deployDataCollectionRule-', uniqueString(deployment().name))]",
-                  "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]",
-                  "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
-                  "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
-                  "vmResourceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('resourceGroup'), '/providers/Microsoft.Compute/virtualMachines/', parameters('vmName'))]",
-                  "linuxExtautoUpgradeMinorVersion": true
+                  "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]"
                 },
-                "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of Log Analytics agent installation for Linux VMs",
+                "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of Log Analytics agent installation for Linux VMs.",
                 "resources": [
                   {
                     "type": "Microsoft.Resources/deployments",
@@ -183,8 +184,7 @@
                     "type": "Microsoft.Resources/resourceGroups",
                     "apiVersion": "2019-05-01",
                     "name": "[variables('defaultRGName')]",
-                    "location": "[variables('defaultRGLocation')]",
-                    "properties": {}
+                    "location": "[variables('defaultRGLocation')]"
                   },
                   {
                     "type": "Microsoft.Resources/deployments",
@@ -273,7 +273,7 @@
                       "mode": "Incremental",
                       "parameters": {
                         "dataCollectionRuleId": {
-                          "value": "[variables('dataCollectionRuleId')]"
+                          "value": "[variables('dcrId')]"
                         },
                         "vmName": {
                           "value": "[parameters('vmName')]"
