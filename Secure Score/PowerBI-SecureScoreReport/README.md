@@ -31,7 +31,7 @@ You can connect your data only if the data already available at the Log Analytic
 
 Using this option you will create a Power BI application based on our template app. Please make sure you have Power BI Pro account before starting the process.
 
-1. Go to [this](https://msit.powerbi.com/groups/me/apps/0c3bbb94-36cc-4153-a5c2-b63181a17166/package/14ec9028-3513-4a1c-aed1-83a01ecfc975qTsHacSHROKH9oDSq9Co9Ln72xYehlJKmEvIYPIxbz8/install?ownerId=72f988bf-86f1-41af-91ab-2d7cd011db47&referrer=frc-word-edit.officeapps.live.com) link.
+1. Go to [this](https://app.powerbi.com/Redirect?action=InstallApp&appId=0c3bbb94-36cc-4153-a5c2-b63181a17166&packageKey=14ec9028-3513-4a1c-aed1-83a01ecfc975qTsHacSHROKH9oDSq9Co9Ln72xYehlJKmEvIYPIxbz8&ownerId=72f988bf-86f1-41af-91ab-2d7cd011db47&buildVersion=12) link.
 2. Click **Install** button as shown in the example below: 
 
     ![Install app](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/InstallTemplateApp.png?raw=true)
