@@ -2,7 +2,7 @@
 
 This script creates a custom role for Azure Security Center's just-in-time virtual machine access for least-privileged users.
 
-The goal is to enable users to request access to VMs but give them no other JIT permissions.
+The goal is to enable users to request JIT access to VMs but give them no other Security Center permissions.
 
 Usage:                                                                                      
 
