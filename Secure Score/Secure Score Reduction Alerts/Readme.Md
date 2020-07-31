@@ -1,4 +1,6 @@
-#Send Email notification on Secure Score downgrade
+# Send Email notification on Secure Score downgrade
+
+**Author: Safeena Begum**
 
 The ARM template will create the LogicApp Playbook and an API connection to Office 365, azuremonitorlogs and an azureloganalyticsdatacollector. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
