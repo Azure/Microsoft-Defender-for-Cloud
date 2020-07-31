@@ -14,6 +14,6 @@ You have three different options to assign access rights to the Managed Identity
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there and AzureMonitorLogs (azuremonitorlogs API Connection).
 
 **Authorizing Log Analytics Workspace**: After the deployment of LogicApp, the connection needs to be created in the subscription because connections cannot be used across the subscriptions. 
-Make sure to navigate to Logic Apps Designer and re-establish the connection under “Run query and list results” ![Re-establish connection] (https://raw.github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Secure%20Score%20Reduction%20Alerts/screenshot.png)
+Make sure to navigate to Logic Apps Designer and re-establish the connection under “Run query and list results” ![Re-establish connection] (https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Secure%20Score/Secure%20Score%20Reduction%20Alerts/Screenshot.png)
 
 **NOTE**: You might receive an error for the first few minutes while running the automation especially if there’s no data in the Workspace for it to pull. Once the custom table gets populated in your workspace (which is automatic) you’ll start viewing the results. 
