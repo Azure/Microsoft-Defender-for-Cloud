@@ -8,6 +8,15 @@ This playbook uses the new Secure Score API to pull Secure Score, Controls and A
 
 The LogicApp uses a system-assigned Managed Identity. You need to assign reader permissions to subscriptions you want to export for the Managed Identity (explained in detail below). Notice you can assign permissions only as an owner and make sure all selected subscriptions registered to Azure Security Center. 
 
+You can directly deploy the template by clicking the buttons below:
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FSecure%20Score%20Reduction%20Alerts/azuredeploy.json" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton"/>
+</a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FSecure%20Score%20Reduction%20Alerts/azuredeploy.json" target="_blank">
+<img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
+</a> 
+
 You have three different options to assign access rights to the Managed Identity:
 1.	You can assign reader permissions at the management group level for the managed identity. (preferred)
 2.	You can assign reader permissions for the Managed Identity for each one of the subscriptions you want to get data on.
