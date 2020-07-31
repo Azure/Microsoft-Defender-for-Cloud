@@ -9,11 +9,11 @@ The LogicApp uses a system-assigned Managed Identity. You need to assign reader 
 You have three different options to assign access rights to the Managed Identity:
 1.	You can assign reader permissions at the management group level for the managed identity. (preferred)
 2.	You can assign reader permissions for the Managed Identity for each one of the subscriptions you want to get data on.
-3.	You can use the provided PowerShell script [Grant-SubscriptionPermissions.ps1] (https://github.com/Azure/Azure-Security-Center/blob/master/Secure%20Score/Get-SecureScoreData/Grant-SubscriptionPermissions.ps1) to add the identity to all subscriptions.
+3.	You can use the provided PowerShell script [Grant-SubscriptionPermissions.ps1](https://github.com/Azure/Azure-Security-Center/blob/master/Secure%20Score/Get-SecureScoreData/Grant-SubscriptionPermissions.ps1) to add the identity to all subscriptions.
 
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there and AzureMonitorLogs (azuremonitorlogs API Connection).
 
 **Authorizing Log Analytics Workspace**: After the deployment of LogicApp, the connection needs to be created in the subscription because connections cannot be used across the subscriptions. 
-Make sure to navigate to Logic Apps Designer and re-establish the connection under “Run query and list results” ![Re-establish connection] (https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Secure%20Score/Secure%20Score%20Reduction%20Alerts/Screenshot.png)
+Make sure to navigate to Logic Apps Designer and re-establish the connection under “Run query and list results” ![Re-establish connection](https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Secure%20Score/Secure%20Score%20Reduction%20Alerts/Screenshot.png)
 
 **NOTE**: You might receive an error for the first few minutes while running the automation especially if there’s no data in the Workspace for it to pull. Once the custom table gets populated in your workspace (which is automatic) you’ll start viewing the results. 
