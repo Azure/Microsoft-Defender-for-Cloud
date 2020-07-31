@@ -1,0 +1,556 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "metadata": {
+        "comments": "This playbook will send a notification alert if the Azure Security Center SecureScore reduces by X%.",
+        "author": "Safeena Begum"
+    },
+    "parameters": {
+        "o365ConnectionName": {
+            "defaultValue": "office365",
+            "type": "String"
+        },
+        "SendDataConnectionName": {
+            "defaultValue": "azuremonitorlogs",
+            "type": "String"
+        },
+        "PlaybookName": {
+            "defaultValue": "Send-SecureScoreReductionAlert",
+            "type": "String"
+        },
+        "QueryDataConnectionName": {
+            "defaultValue": "azureloganalyticsdatacollector",
+            "type": "String"
+        },
+        "LogAnalyticsWorkspaceName": {
+            "type": "String"
+        },
+        "ScanfrequencyHour": {
+            "defaultValue": 1,
+            "type": "Int",
+            "metadata": {
+                "displayName": "Scan frequency (in hours)",
+                "description": "Scan frequency (in hours)"
+                }
+        },
+        "ScoreReductionThreshold": {
+            "defaultValue": 5,
+            "type": "Int",
+            "metadata": {
+                "displayName": "Secure Score Reduction Threshold (in percent)",
+                "description": "Secure Score Reduction Threshold (in percent)"
+            }
+        },
+        "NotificationEmailAddress":{
+            "type": "string"
+        }
+    },
+    "variables": {
+        "loganalyticsname": "[concat(parameters('LogAnalyticsWorkspaceName'),uniqueString(resourceGroup().id))]"
+    },
+    "resources": [
+        {
+            "type": "microsoft.operationalinsights/workspaces",
+            "apiVersion": "2020-03-01-preview",
+            "name": "[variables('loganalyticsname')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "pergb2018"
+                },
+                "retentionInDays": 30,
+                "workspaceCapping": {
+                    "dailyQuotaGb": -1
+                },
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('QueryDataConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.operationalinsights/workspaces', variables('loganalyticsname'))]"
+            ],
+            "properties": {
+                "displayName": "SecureScoreData",
+                "customParameterValues": {                   
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                },
+                "parameterValues": {
+                    "username": "[reference(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', variables('loganalyticsname')), '2015-11-01-preview').customerId]",
+                    "password": "[listKeys(concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.OperationalInsights/workspaces/', variables('loganalyticsname')), '2015-11-01-preview').primarySharedKey]" 
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('SendDataConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('SendDataConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('o365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('o365ConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', parameters('QueryDataConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('SendDataConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', parameters('o365ConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "emailtosend": {
+                            "defaultValue": "[parameters('NotificationEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Hour",
+                                "interval": "[parameters('ScanfrequencyHour')]"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Append_to_string_variable_2": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "AppendToStringVariable",
+                            "inputs": {
+                                "name": "Email-body",
+                                "value": "                                    <tr class=\"notification-card-footer\">    <td colspan=\"2\">     <p style='text-indent:36.0pt;'><span style='font-size:0.0pt;'>&nbsp;</span>     </p>     <p style='text-align:center;'><span style='font-size:12.0pt;'>To learn more about Azure Secure Score please click <a href=\"https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls\">here</a>.</span><br>     </p>    </td>   </tr>\n                                </table>\n                            </td>\n                        </tr>\n                    </table>\n                </div>\n            </td>\n        </tr>\n    </table>\n</body>\n</html>\n"
+                            }
+                        },
+                        "Condition": {
+                            "actions": {
+                                "Send_an_email_(V2)": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Body": "<p>@{variables('Email-body')}</p>",
+                                            "Subject": "ASC Secure Score Reduction Alert!!",
+                                            "To": "@parameters('emailtosend')"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Append_to_string_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greaterOrEquals": [
+                                            "@sub(variables('LastScanScore'),variables('CurrentScorepercent'))",
+                                            "[parameters('ScoreReductionThreshold')]"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "CurrentScorepercent": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "CurrentScorepercent",
+                                        "type": "float",
+                                        "value": 100
+                                    }
+                                ]
+                            }
+                        },
+                        "Email-Body": {
+                            "runAfter": {
+                                "LastScanScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Email-body",
+                                        "type": "string",
+                                        "value": "<!DOCTYPE html>\n<html>\n<style>\n    .notification-table-header {\n        width: auto;\n        border-top: none;\n        background: #0078D4;\n        font-size: 11.0pt;\n        color: white;\n        font-weight: bold;\n        margin-left: 10px;\n        text-align: left;\n        border: none;\n        border-bottom: solid white 1.5pt;\n    }\n\n    .notification-table-text {\n        margin-left: 5px;\n        width: 70%;\n        text-align: left;\n        border: none;\n        border-bottom: solid white 1.5pt;\n        background: #FAFAFA;\n        font-size: 12.0pt;\n        height: 20.05pt;\n    }\n\n    .notification-card-footer span {\n        font-size: 12.0pt;\n        color: #000000;\n    }\n\n    .notification-card-footer p {\n        vertical-align: baseline;\n    }\n\n    .notification-body {\n        margin: 0 auto;\n        text-align: center;\n        width: 650px;\n        border: 1px black;\n        border-collapse: collapse;\n        background-color: #CCE4F6;\n    }\n</style>\n<body style=\"background-color: #dfdfdf;\">\n    <table style=\"width:100%;\">\n        <tr>\n            <td style=\"padding:0;\">\n                <div align=\"center\">\n                    <table class=\"notification-body\">\n                        <tr style=\"border: 1px grey; border-top:none;\">\n                            <td>\n                                <p style='font-size:5.0pt;'>   <span></span>  </p>\n                                <table style='width:590px;margin:0 auto;border-collapse:collapse;'>\n                                    <tr class=\"notification-card-footer\">    <td colspan=\"2\">     </br>    <p style='text-align:left; font-size:12.0pt;'><b>Azure Security Center - Secure Score report for your subscription.</b></p>     <p style='text-align:left; font-size:12.0pt;'>Details: </p>    </td>   </tr>\n"
+                                    }
+                                ]
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Parse_JSON')?['value']",
+                            "actions": {
+                                "Compose": {
+                                    "runAfter": {
+                                        "Run_query_and_list_results": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
+                                },
+                                "For_each_2": {
+                                    "foreach": "@body('Run_query_and_list_results')?['value']",
+                                    "actions": {
+                                        "Append_to_string_variable": {
+                                            "runAfter": {
+                                                "Compose_2": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "AppendToStringVariable",
+                                            "inputs": {
+                                                "name": "Email-body",
+                                                "value": "<tr>    <td class=\"notification-table-header\">     <span>&nbsp; Subscription Name</span>    </td>    <td class=\"notification-table-text\">@{items('For_each')?['displayName']}</td>   </tr>\n                                    <tr>    <td class=\"notification-table-header\">    \n <span>&nbsp; Subscription ID</span>    </td>   \n <td class=\"notification-table-text\">@{items('For_each')?['subscriptionId']} </td>   </tr>\n                                    \n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Current Score </span>    </td>\n                                        <td class=\"notification-table-text\">@{substring(string(outputs('Compose')), 0, 2)}% (@{body('Parse_JSON_Scores')?['properties']?['score']?['current']} of  @{body('Parse_JSON_Scores')?['properties']?['score']?['max']} points)</td>\n                                    </tr>\n\n <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score from Last Scan </span>    </td>\n                                        <td class=\"notification-table-text\">@{variables('LastScanScore')}% </td>\n                                    </tr>\n\n\n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score Reduced </span>    </td>\n                                        <td class=\"notification-table-text\">\n@{substring(string(sub(outputs('Compose_2'),outputs('Compose'))), 0, 2)}%\n</td>\n                                    </tr>\n<tr class=\"notification-card-footer\">    <td colspan=\"2\"><p style='text-indent:36.0pt;'><span style='font-size:10.0pt;'>&nbsp;</span>    </p>    </td>   </tr>"
+                                            }
+                                        },
+                                        "Compose_2": {
+                                            "runAfter": {
+                                                "Set_variable_2": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Compose",
+                                            "inputs": "@items('For_each_2')?['AvgScore']"
+                                        },
+                                        "Set_variable_2": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "LastScanScore",
+                                                "value": "@items('For_each_2')?['AvgScore']"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Set_variable": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "runtimeConfiguration": {
+                                        "concurrency": {
+                                            "repetitions": 1
+                                        }
+                                    }
+                                },
+                                "HTTP": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/secureScores/ascScore?api-version=2020-01-01-preview"
+                                    }
+                                },
+                                "Parse_JSON_Scores": {
+                                    "runAfter": {
+                                        "HTTP": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('HTTP')",
+                                        "schema": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "properties": {
+                                                    "properties": {
+                                                        "displayName": {
+                                                            "type": "string"
+                                                        },
+                                                        "score": {
+                                                            "properties": {
+                                                                "current": {
+                                                                    "type": "number"
+                                                                },
+                                                                "max": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "Run_query_and_list_results": {
+                                    "runAfter": {
+                                        "Send_Data": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": "dailyAscScore_CL \n| where SubscriptionId ==\"@{items('For_each')?['subscriptionId']}\"\n|top 5 by date_t\n|summarize AvgScore=tolong(max(todouble(ascScore_s)/todouble(ascMax_s)*100))",
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/queryData",
+                                        "queries": {
+                                            "resourcegroups": "[resourceGroup().name]",
+                                            "resourcename": "[variables('loganalyticsname')]",
+                                            "resourcetype": "Log Analytics Workspace",
+                                            "subscriptions": "[subscription().subscriptionId]",
+                                            "timerange": "Last 12 hours"
+                                        }
+                                    }
+                                },
+                                "Send_Data": {
+                                    "runAfter": {
+                                        "Parse_JSON_Scores": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": "{\n\"subscriptionid\": \"@{items('For_each')?['subscriptionId']}\",\n\"ascScore\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['current']}\",\n\"ascMax\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['max']}\",\n\"date\":\"@{utcNow()}\",\n}",
+                                        "headers": {
+                                            "Log-Type": "dailyAscScore"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/api/logs"
+                                    }
+                                },
+                                "Set_variable": {
+                                    "runAfter": {
+                                        "Compose": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "CurrentScorepercent",
+                                        "value": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "GetSubscriptions": {
+                            "runAfter": {
+                                "Email-Body": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                            }
+                        },
+                        "LastScanScore": {
+                            "runAfter": {
+                                "CurrentScorepercent": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "LastScanScore",
+                                        "type": "float",
+                                        "value": 100
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "GetSubscriptions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('GetSubscriptions')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "managedByTenants": {
+                                                        "type": "array"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "tenantId": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "authorizationSource",
+                                                    "managedByTenants",
+                                                    "subscriptionId",
+                                                    "tenantId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureloganalyticsdatacollector": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('QueryDataConnectionName'))]",
+                                "connectionName": "[parameters('QueryDataConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                            },
+                            "azuremonitorlogs": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('SendDataConnectionName'))]",
+                                "connectionName": "[parameters('SendDataConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('o365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
