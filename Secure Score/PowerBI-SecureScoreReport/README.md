@@ -109,4 +109,4 @@ Have you tried the template app? Help us getting better by filling this [form](h
 
 ## **Need Help?** 
 
-Please contact: t-ammage@microsoft.com 
+Please contact: ammagen@microsoft.com 
