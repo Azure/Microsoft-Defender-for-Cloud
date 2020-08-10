@@ -1,5 +1,5 @@
 # Secure Score
-In this section you can find Secure Score API assets you can use with Azure Security Center.
+In this section you can find programmatic tools to work with Azure Secure Score ([Learn more about Azure Secure Score](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls))
 
 # Questions
 
