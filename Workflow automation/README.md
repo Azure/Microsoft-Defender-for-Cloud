@@ -1,7 +1,7 @@
-# Workflow automation
+# Workflow automation in Azure Security Center
 This folder contains sample security playbooks for security automation, orchestration and response (SOAR)
 
-You will need to create a workflow automation to call these playbooks.  see https://docs.microsoft.com/en-us/azure/security-center/workflow-automation
+These playbooks can be easily integrated with Azure Security Center using Workflow Automation feature. [Learn more>](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
 
 ## Each folder contains a security playbook ARM template that uses Microsoft Security Center triggers.
 After selecting a playbook, in the Azure portal:
