@@ -1,0 +1,93 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string"
+    },
+    "workspaceId": {
+      "type": "string"
+    },
+    "dcrName": {
+      "type": "string"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Insights/dataCollectionRules",
+      "name": "[parameters('dcrName')]",
+      "location": "[parameters('location')]",
+      "apiVersion": "2019-11-01-preview",
+      "properties": {
+        "description": "Data collection rule for Azure Security Center. Deleting this rule will break the detection of security vulnerabilities.",
+        "dataSources": {
+          "syslog": [
+            {
+              "name": "SyslogDataSource",
+              "streams": [
+                "Microsoft-Syslog"
+              ],
+              "facilityNames": [
+                "kern",
+                "auth",
+                "authpriv",
+                "cron",
+                "user",
+                "daemon",
+                "syslog",
+                "local0"
+              ],
+              "logLevels": [
+                "Debug",
+                "Critical",
+                "Emergency"
+              ]
+            }
+          ],
+          "extensions": [
+            {
+              "name": "AscLinuxDataSource",
+              "streams": [
+                "Microsoft-OperationLog",
+                "Microsoft-SecurityBaseline",
+                "Microsoft-SecurityBaselineSummary",
+                "Microsoft-ProcessInvestigator",
+                "Microsoft-Auditd",
+                "Microsoft-ProtectionStatus",
+                "Microsoft-Heartbeat"
+              ],
+              "extensionName": "AzureSecurityLinuxAgent",
+              "extensionSettings": {}
+            }
+          ]
+        },
+        "destinations": {
+          "logAnalytics": [
+            {
+              "workspaceResourceId": "[parameters('workspaceId')]",
+              "name": "LogAnalyticsDest"
+            }
+          ]
+        },
+        "dataFlows": [
+          {
+            "streams": [
+              "Microsoft-Syslog",
+              "Microsoft-OperationLog",
+              "Microsoft-SecurityBaseline",
+              "Microsoft-SecurityBaselineSummary",
+              "Microsoft-ProcessInvestigator",
+              "Microsoft-Auditd",
+              "Microsoft-ProtectionStatus",
+              "Microsoft-Heartbeat"
+            ],
+            "destinations": [
+              "LogAnalyticsDest"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

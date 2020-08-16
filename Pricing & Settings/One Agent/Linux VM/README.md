@@ -1,9 +1,10 @@
-# One Agent
-In this section you can find code snippets for deploying Azure Security Center One Agent configurations programmatically and at scale.
+# One Agent Deploy If not Exist
 
-# Questions
+This is a deployIfNotExist policy template responsible to deploy a standard solutions of One Agent installation for Linux VMs. This enables you to recreate activity trails for investigation purposes when a security incident occurs or your network is compromised.
 
-For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
+## Try on Portal
+
+[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne%2520Agent%2FLinux%2520VM%2FOneAgent-deployIfNotExists.json)
 
 # Contributing
 
@@ -17,4 +18,4 @@ provided by the bot. You will only need to do this once across all repos using o
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments. 
