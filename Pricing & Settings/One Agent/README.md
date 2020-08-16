@@ -4,7 +4,9 @@ This is a deployIfNotExist policy template responsible to deploy a standard solu
 
 ## Try on Portal
 
-[![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne%2520Agent%2FOneAgent-deployIfNotExists.json)
+[![Deploy to Azure - Linux VM](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne%2520Agent%2FOneAgent-deployIfNotExists.json)
+
+[![Deploy to Azure - Linux VMSS](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%2520%2526%2520Settings%2FOne%2520Agent%2FOneAgent-deployIfNotExists_vmss.json)
 
 # Contributing
 
