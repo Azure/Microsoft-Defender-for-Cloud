@@ -100,7 +100,8 @@ Once you have created a playbook that you want to export to share, go to the Log
 * The connectionId will use a string and variable.  The Connection name is the variable.  The id is the string we used early for the id when creating the resource.
 9.  Save the JSON and contribute to the repository.
 
-
+# Questions
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 

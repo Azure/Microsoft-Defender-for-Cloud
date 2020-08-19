@@ -3,7 +3,7 @@ In this section you can find programmatic tools to work with Azure Secure Score 
 
 # Questions
 
-For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 
