@@ -1,6 +1,6 @@
 {
   "properties": {
-    "displayName": "Deploy One Agent monitor onboarding to Azure Security Center",
+    "displayName": "Deploy One Agent monitor onboarding to Azure Security Center for Linux virtual machine",
     "policyType": "Custom",
     "mode": "All",
     "description": "This policy ensures that onboarding is enabled on virtual machines. It will automatically create a resource group and log analytics workspace in the same region as the virtual machine to store audit records.",
@@ -8,24 +8,194 @@
       "version": "1.0.0",
       "category": "Security Center"
     },
-    "policyRule": {
-      "if": {
-        "allOf": [
+    "parameters": {
+      "listOfImageIdToInclude": {
+          "type": "Array",
+          "defaultValue": [],
+          "metadata": {
+              "displayName": "Optional: List of VM images that have supported Linux OS to add to scope",
+              "description": "Example value: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+          }
+      }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
           {
-            "field": "type",
-            "equals": "Microsoft.Compute/virtualMachines"
+              "field": "type",
+              "equals": "Microsoft.Compute/virtualMachines"
           },
           {
             "field": "location",
-            "in": [ "eastus2euap", "eastus" ]
+            "in": [
+              "eastus2euap",
+              "eastus"
+            ]
           },
           {
-            "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.osType",
-            "equals": "Linux"
+              "anyOf": [
+                  {
+                      "field": "Microsoft.Compute/imageId",
+                      "in": "[parameters('listOfImageIdToInclude')]"
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "RedHat"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "in": [
+                                  "RHEL",
+                                  "RHEL-SAP-HANA"
+                              ]
+                          },
+                          {
+                              "anyOf": [
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "6.*"
+                                  },
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "7*"
+                                  }
+                              ]
+                          }
+                      ]
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "SUSE"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "in": [
+                                  "SLES",
+                                  "SLES-HPC",
+                                  "SLES-HPC-Priority",
+                                  "SLES-SAP",
+                                  "SLES-SAP-BYOS",
+                                  "SLES-Priority",
+                                  "SLES-BYOS",
+                                  "SLES-SAPCAL",
+                                  "SLES-Standard"
+                              ]
+                          },
+                          {
+                              "anyOf": [
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "12*"
+                                  }
+                              ]
+                          }
+                      ]
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "Canonical"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "equals": "UbuntuServer"
+                          },
+                          {
+                              "anyOf": [
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "14.04*LTS"
+                                  },
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "16.04*LTS"
+                                  },
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "18.04*LTS"
+                                  }
+                              ]
+                          }
+                      ]
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "Oracle"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "equals": "Oracle-Linux"
+                          },
+                          {
+                              "anyOf": [
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "6.*"
+                                  },
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "7.*"
+                                  }
+                              ]
+                          }
+                      ]
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "OpenLogic"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "in": [
+                                  "CentOS",
+                                  "Centos-LVM",
+                                  "CentOS-SRIOV"
+                              ]
+                          },
+                          {
+                              "anyOf": [
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "6.*"
+                                  },
+                                  {
+                                      "field": "Microsoft.Compute/imageSKU",
+                                      "like": "7*"
+                                  }
+                              ]
+                          }
+                      ]
+                  },
+                  {
+                      "allOf": [
+                          {
+                              "field": "Microsoft.Compute/imagePublisher",
+                              "equals": "cloudera"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageOffer",
+                              "equals": "cloudera-centos-os"
+                          },
+                          {
+                              "field": "Microsoft.Compute/imageSKU",
+                              "like": "7*"
+                          }
+                      ]
+                  }
+              ]
           }
-        ]
-      },
-      "then": {
+      ]
+  },
+  "then": {
         "effect": "deployIfNotExists",
         "details": {
           "type": "Microsoft.Compute/virtualMachines/extensions",
@@ -109,7 +279,7 @@
                   "deployDataCollectionRule": "[concat('deployDataCollectionRule-', uniqueString(deployment().name))]",
                   "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]"
                 },
-                "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of Log Analytics agent installation for Linux VMs.",
+                "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of One Agent installation for Linux VMs.",
                 "resources": [
                   {
                     "type": "Microsoft.Resources/deployments",
@@ -127,7 +297,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/IdentitySystemAssigned-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/LinkedTemplates/IdentitySystemAssigned-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -151,7 +321,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Extensions/OneAgent-linuxExt-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/Extensions/OneAgent-linuxExt-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -175,7 +345,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Extensions/OneAgent-securityLinuxExt-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/Extensions/OneAgent-securityLinuxExt-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -205,7 +375,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/Workspace-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/LinkedTemplates/Workspace-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -229,7 +399,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/Solutions-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/LinkedTemplates/Solutions-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -256,7 +426,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/DataCollectionRules-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/LinkedTemplates/DataCollectionRules-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }
@@ -286,7 +456,7 @@
                         }
                       },
                       "templateLink": {
-                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/LinkedTemplates/DataCollectionRuleAssociations-deployIfNotExists.json",
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VM/LinkedTemplates/DataCollectionRuleAssociations-deployIfNotExists.json",
                         "contentVersion": "1.0.0.0"
                       }
                     }

@@ -1,5 +1,7 @@
-# PowerShell samples
-In this section you can find PowerShall samples for working with Azure Security Center data and APIs.
+# ARG Queries for Azure Security Center
+Azure Resource Graph (ARG) provides an efficient way to query all Azure data with KQL language at scale across multiple subscriptions using API, code in any language or a user interface. [Learn more>](https://docs.microsoft.com/en-us/azure/governance/resource-graph/)
+
+In this folder you can find sample queries to query Azure Security Center data via ARG. We encouraging you to change the sample queries by your specific needs.
 
 # Questions
 You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.

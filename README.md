@@ -6,9 +6,10 @@ Welcome to the Azure Security Center community repository. This repository conta
 - Azure Policy custom definitions for at-scale management via Azure Policy
 - Logic App templates that work with Security Center's Logic App connectors (to automate response to Security alerts and recommendations)
 
-All of the above will help you work programmatically at scale with Azure Security Center and provide you additional security value to secure your environment, some of which has not yet been embedded into the product. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). 
+All of the above will help you work programmatically at scale with Azure Security Center and provide you additional security value to secure your environment, some of which has not yet been embedded into the product. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues).
 
-For questions and feedback, please contact [asc_community@microsoft.com](asc_community@microsoft.com).
+# Wiki
+This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/wiki) which will provide you with further information about the Azure Security Center community, how to contribute, templates to use, and further resources. 
 
 # Additional resources
 
