@@ -1,7 +1,7 @@
 # Block the IPs in NSG as response to a brute-force attack when an ASC alert is triggered/created
 **Author: Safeena Begum**
 
-When Azure Security Center detects a Bruteforce attack, it creates a security rule in the NSG attached to the VM to deny inbound traffic from the IP addresses attached to the alert. 
+When Azure Security Center detects a Bruteforce attack, this playbook will create a security rule in the NSG attached to the VM to deny inbound traffic from the IP addresses attached to the alert. 
 
 The ARM template will create the LogicApp Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
