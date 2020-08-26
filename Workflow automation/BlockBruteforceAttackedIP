@@ -1,0 +1,341 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "BlockBruteForceAttackedIP",
+            "type": "String"
+        },
+            "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "EmailContact": {
+            "defaultValue": "emailaddressofsecurityteam@domain.com",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "ascalertConnectionName": "[concat('ascalert-', parameters('PlaybookName'))]",
+        "office365ConnectionName": "[concat('office365-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ascalertConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('EmailContact')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Alert_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascalert']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Alert/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Filter_array": {
+                            "runAfter": {
+                                "Var_ResourceGroup": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@triggerBody()?['Entities']",
+                                "where": "@equals(item()?['type'], 'ip')"
+                            }
+                        },
+                        "HTTPCreateSecurityRule": {
+                            "runAfter": {
+                                "Var_NSGName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "properties": {
+                                        "access": "Deny",
+                                        "destinationAddressPrefix": "11.0.0.0/8",
+                                        "destinationPortRange": "*",
+                                        "direction": "Inbound",
+                                        "priority": 100,
+                                        "protocol": "*",
+                                        "sourceAddressPrefix": "@variables('varattackeraddress')",
+                                        "sourcePortRange": "*"
+                                    }
+                                },
+                                "method": "PUT",
+                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('resourcegroup')}/providers/Microsoft.Network/networkSecurityGroups/@{variables('nsgname')}/securityRules/BruteforceAttackedIP?api-version=2020-05-01\n"
+                            }
+                        },
+                        "HTTPGetNSGs": {
+                            "runAfter": {
+                                "Var_NetworkName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "headers": {
+                                    "api-version": "2020-05-01"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('resourcegroup')}/providers/Microsoft.Network/networkInterfaces/@{variables('networkname')}?api-version=2020-05-01"
+                            }
+                        },
+                        "HTTPGetVM": {
+                            "runAfter": {
+                                "Var_AttackerAddress": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "headers": {
+                                    "api-version": "2019-12-01"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/@{variables('subid')}/resourceGroups/@{variables('resourcegroup')}/providers/Microsoft.Compute/virtualMachines/@{variables('hostname')}?api-version=2019-12-01"
+                            }
+                        },
+                        "Send_an_email_(V2)": {
+                            "runAfter": {
+                                "HTTPCreateSecurityRule": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Body": "<p><span style=\"font-size: 16px\"><strong>Azure Security Center has discovered a potential security threat in your environment. Details below:</strong></span><br>\n<br>\n<strong>Alert name: </strong>@{triggerBody()?['AlertDisplayName']}<br>\n<br>\n<strong>Attacked resource:</strong> @{triggerBody()?['CompromisedEntity']}<br>\n<br>\n<strong>Alert severity</strong>: @{triggerBody()?['Severity']}<br>\n<br>\n<strong>Detection time</strong>: @{triggerBody()?['TimeGenerated']}<br>\n<br>\n<strong>Description</strong>: @{triggerBody()?['Description']}<br>\n<br>\n<strong>Detected by</strong>: @{triggerBody()?['VendorName']}<br>\n<br>\n<strong>Alert ID:</strong> @{triggerBody()?['SystemAlertId']}<br>\n<br>\n<strong>Resource identifiers</strong>: @{variables('resourceid')}<br>\n<br>\n<strong>Link to view alert in Azure Security Center</strong>: @{triggerBody()?['AlertUri']}<br>\n<br>\n<strong>Attacker IPaddress</strong>: @{variables('varattackeraddress')}<br>\n<br>\n<strong>Network Security Group</strong>: &nbsp;@{variables('nsgname')}<br>\n&nbsp;<br>\n<span style=\"font-size: 16px\"><strong>Powered by Azure Security Center Logic Apps alert connector</strong></span></p>",
+                                    "Importance": "High",
+                                    "Subject": "Azure Security Center has blocked IPs in the NSG as a response to the BruteForce Attack",
+                                    "To": "[parameters('EmailContact')]"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            }
+                        },
+                        "Var_AttackerAddress": {
+                            "runAfter": {
+                                "Filter_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "varattackeraddress",
+                                        "type": "string",
+                                        "value": "@{body('Filter_array')[0]?['address']}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_Hostname": {
+                            "runAfter": {
+                                "Var_SubID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "hostname",
+                                        "type": "string",
+                                        "value": "@{variables('resourceidarray')?[8]}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_NSGName": {
+                            "runAfter": {
+                                "HTTPGetNSGs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "nsgname",
+                                        "type": "string",
+                                        "value": "@{split(body('httpgetnsgs')?['properties']?['networkSecurityGroup']?['id'],'/')?[8]}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_NetworkName": {
+                            "runAfter": {
+                                "HTTPGetVM": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "networkname",
+                                        "type": "string",
+                                        "value": "@{split(body('httpGetVM')?['properties']?['networkProfile']?['networkInterfaces']?[0]?['id'],'/')?[8]}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_ResourceGroup": {
+                            "runAfter": {
+                                "Var_Hostname": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "resourcegroup",
+                                        "type": "string",
+                                        "value": "@{variables('resourceidarray')?[4]}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_ResourceID": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "resourceid",
+                                        "type": "string",
+                                        "value": "@{triggerBody()?['Entities']?[0]?['AzureID']}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_ResourceIDArray": {
+                            "runAfter": {
+                                "Var_ResourceID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "resourceidarray",
+                                        "type": "array",
+                                        "value": "@split(variables('resourceid'),'/')"
+                                    }
+                                ]
+                            }
+                        },
+                        "Var_SubID": {
+                            "runAfter": {
+                                "Var_ResourceIDArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "subid",
+                                        "type": "string",
+                                        "value": "@{variables('resourceidarray')?[2]}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascalert": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]",
+                                "connectionName": "[variables('ascalertConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "[variables('office365ConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
