@@ -112,7 +112,7 @@
                                 "body": {
                                     "properties": {
                                         "access": "Deny",
-                                        "destinationAddressPrefix": "11.0.0.0/8",
+                                        "destinationAddressPrefix": "Any",
                                         "destinationPortRange": "*",
                                         "direction": "Inbound",
                                         "priority": 100,
