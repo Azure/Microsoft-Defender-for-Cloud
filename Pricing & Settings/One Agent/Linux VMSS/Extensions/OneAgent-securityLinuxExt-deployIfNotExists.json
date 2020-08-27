@@ -22,14 +22,10 @@
       "properties": {
         "publisher": "Microsoft.Azure.Security.Monitoring",
         "type": "AzureSecurityLinuxAgent",
-        "typeHandlerVersion": "0.1",
+        "typeHandlerVersion": "2.12",
         "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
         "settings": {},
         "protectedsettings": {
-          "vsaIngestionEndpoint": "https://shavsadevsf01.westus2.cloudapp.azure.com:443/api/assets/{ASSETID}/scanOrders?api-version=v1",
-          "vsaClientConfigURI": "https://shavsadevstrgtc1.blob.core.windows.net/tenants/validtenantconfig",
-          "vsaIngestionAPIKey": "1219c206-b4d5-4ae6-83d0-9cc993aee5a5",
-          "vsaManifestStoreEndpoint": "https://shavamanifestcusprod1.blob.core.windows.net/50a1a297-d97e-4c80-a44d-8fdeb2f7946e/"
         }
       }
     }

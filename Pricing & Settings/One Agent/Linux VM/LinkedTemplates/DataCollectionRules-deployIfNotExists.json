@@ -58,7 +58,62 @@
                 "Microsoft-Heartbeat"
               ],
               "extensionName": "AzureSecurityLinuxAgent",
-              "extensionSettings": {}
+              "extensionSettings": {
+                "scanners": [
+                  {
+                    "name": "heartbeat",
+                    "frequency": "PT1H"
+                  },
+                  {
+                    "name": "time",
+                    "frequency": "PT8H"
+                  },
+                  {
+                    "name": "antimalware",
+                    "frequency": "PT8H"
+                  },
+                  {
+                    "name": "codeintegrity",
+                    "frequency": "P1D"
+                  },
+                  {
+                    "name": "processinvestigator",
+                    "frequency": "P1D"
+                  },
+                  {
+                    "name": "vsanodescan",
+                    "frequency": "PT8H"
+                  },
+                  {
+                    "name": "baseline",
+                    "frequency": "P1D",
+                    "options": [
+                      {
+                        "name": "Baseline",
+                        "value": "Azure.Ubuntu"
+                      },
+                      {
+                        "name": "AscBaseline",
+                        "value": "OMS.Linux"
+                      }
+                    ]
+                  },
+                  {
+                    "name": "docker",
+                    "frequency": "P1D",
+                    "options": [
+                      {
+                        "name": "Baseline",
+                        "value": "Azure.Docker.Linux"
+                      },
+                      {
+                        "name": "AscBaseline",
+                        "value": "OMS.Docker.Linux"
+                      }
+                    ]
+                  }
+                ]
+              }
             }
           ]
         },

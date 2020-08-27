@@ -22,7 +22,7 @@
       "properties": {
         "publisher": "Microsoft.Azure.Monitor",
         "type": "AzureMonitorLinuxAgent",
-        "typeHandlerVersion": "0.9",
+        "typeHandlerVersion": "1.5",
         "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
         "settings": {}
       }
