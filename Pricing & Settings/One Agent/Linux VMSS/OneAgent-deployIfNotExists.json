@@ -10,20 +10,19 @@
     },
     "parameters": {
       "listOfImageIdToInclude": {
-          "type": "Array",
-          "defaultValue": [],
-          "metadata": {
-              "displayName": "Optional: List of VM images that have supported Linux OS to add to scope",
-              "description": "Example value: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
-          }
+        "type": "Array",
+        "defaultValue": [],
+        "metadata": {
+          "displayName": "Optional: List of VM images that have supported Linux OS to add to scope",
+          "description": "Example value: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+        }
       }
-  },
-  "policyRule": {
-    "if": {
-      "allOf": [
-          {
-              "field": "type",
-              "equals": "Microsoft.Compute/virtualMachineScaleSets"
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachineScaleSets"
           },
           {
             "field": "location",
@@ -33,176 +32,203 @@
             ]
           },
           {
-            "anyOf": [
-                {
-                    "field": "Microsoft.Compute/imageId",
-                    "in": "[parameters('listOfImageIdToInclude')]"
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "RedHat"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "in": [
-                                "RHEL",
-                                "RHEL-SAP-HANA"
-                            ]
-                        },
-                        {
-                            "anyOf": [
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "6.*"
-                                },
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "7*"
-                                }
-                            ]
-                        }
+            "anyOf": [{
+                "field": "Microsoft.Compute/imageId",
+                "in": "[parameters('listOfImageIdToInclude')]"
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "RedHat"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "RHEL",
+                      "RHEL-SAP-HANA"
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "SUSE"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "in": [
-                                "SLES",
-                                "SLES-HPC",
-                                "SLES-HPC-Priority",
-                                "SLES-SAP",
-                                "SLES-SAP-BYOS",
-                                "SLES-Priority",
-                                "SLES-BYOS",
-                                "SLES-SAPCAL",
-                                "SLES-Standard"
-                            ]
-                        },
-                        {
-                            "anyOf": [
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "12*"
-                                }
-                            ]
-                        }
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7*"
+                      }
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "Canonical"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "equals": "UbuntuServer"
-                        },
-                        {
-                            "anyOf": [
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "14.04*LTS"
-                                },
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "16.04*LTS"
-                                },
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "18.04*LTS"
-                                }
-                            ]
-                        }
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "SUSE"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "SLES",
+                      "SLES-HPC",
+                      "SLES-HPC-Priority",
+                      "SLES-SAP",
+                      "SLES-SAP-BYOS",
+                      "SLES-Priority",
+                      "SLES-BYOS",
+                      "SLES-SAPCAL",
+                      "SLES-Standard"
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "Oracle"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "equals": "Oracle-Linux"
-                        },
-                        {
-                            "anyOf": [
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "6.*"
-                                },
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "7.*"
-                                }
-                            ]
-                        }
+                  },
+                  {
+                    "anyOf": [{
+                      "field": "Microsoft.Compute/imageSKU",
+                      "like": "12*"
+                    }]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Canonical"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "UbuntuServer"
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "14.04*LTS"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "16.04*LTS"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "18.04*LTS"
+                      }
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "OpenLogic"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "in": [
-                                "CentOS",
-                                "Centos-LVM",
-                                "CentOS-SRIOV"
-                            ]
-                        },
-                        {
-                            "anyOf": [
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "6.*"
-                                },
-                                {
-                                    "field": "Microsoft.Compute/imageSKU",
-                                    "like": "7*"
-                                }
-                            ]
-                        }
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Oracle"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "Oracle-Linux"
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7.*"
+                      }
                     ]
-                },
-                {
-                    "allOf": [
-                        {
-                            "field": "Microsoft.Compute/imagePublisher",
-                            "equals": "cloudera"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageOffer",
-                            "equals": "cloudera-centos-os"
-                        },
-                        {
-                            "field": "Microsoft.Compute/imageSKU",
-                            "like": "7*"
-                        }
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "OpenLogic"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "CentOS",
+                      "Centos-LVM",
+                      "CentOS-SRIOV"
                     ]
-                }
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7*"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "cloudera"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "cloudera-centos-os"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "like": "7*"
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "credativ"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "debian"
+                    ]
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "8"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "9"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Debian"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "debian-10"
+                    ]
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "like": "10"
+                  }
+                ]
+              }
             ]
-        }
-]
-  },
-  "then": {
+          }
+        ]
+      },
+      "then": {
         "effect": "deployIfNotExists",
         "details": {
           "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
           "deploymentScope": "subscription",
           "existenceCondition": {
-            "allOf": [
-              {
+            "allOf": [{
                 "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/type",
                 "equals": "AzureSecurityLinuxAgent"
               },
@@ -254,11 +280,11 @@
                 },
                 "variables": {
                   "pairedLocations": {
-                    "eastus2euap" : "eastus2euap",
+                    "eastus2euap": "eastus2euap",
                     "eastus": "eastus"
                   },
                   "locationLongNameToShortMap": {
-                    "eastus2euap" : "EUS2EUAP",
+                    "eastus2euap": "EUS2EUAP",
                     "eastus": "EUS"
                   },
                   "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
@@ -280,8 +306,7 @@
                   "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]"
                 },
                 "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of One Agent installation for Linux Scale Sets.",
-                "resources": [
-                  {
+                "resources": [{
                     "type": "Microsoft.Resources/deployments",
                     "apiVersion": "2017-05-10",
                     "name": "[variables('deployIdentitySystem')]",
