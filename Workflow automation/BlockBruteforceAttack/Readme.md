@@ -22,25 +22,25 @@ In addition to that, you need to authorize the Office 365 API connection so it c
 To assign Managed Identity to specific scope:
 1. Make sure you have User Access Administrator or Owner permissions for this scope.
 2. Go to the subscription/management group page.
-3. Press 'Access Control (IAM)' on the navigation bar.
-4. Press '+Add' and 'Add role assignment'.
-5. Choose the respective role.
+3. Press _Access Control (IAM)_ on the navigation bar.
+4. Press _+Add_ and _Add role assignment_.
+5. Select the respective role.
 6. Assign access to Logic App.
-7. Choose the subscription where the logic app was deployed.
-8. Choose 'BlockBruteForceAttackedIP' Logic App.
-9. Press 'save'.
+7. Select the subscription where the logic app was deployed.
+8. Select _BlockBruteForceAttackedIP_ Logic App.
+9. Press _save_.
 
 To authorize the API connection:
 1. Go to the Resource Group you have used to deployed the template resources.
-2. Select the Office365 API connection and press 'Edit API connection'.
-3. Press the 'Authorize' button.
+2. Select the Office365 API connection and press _Edit API connection_.
+3. Press the _Authorize_ button.
 4. Make sure to authenticate against Azure AD.
-5. Press 'save'.
+5. Press _save_.
 
-Once you have deployed and authorized the Logic App, you can create a new Workflow automation in Azure Security Center:
+Once you have deployed and authorized the Logic App, you can create a [new Workflow automation](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation) in Azure Security Center:
 1. Go to Azure Security Center and select the _Workflow automation_ button in the navigation pane.
 2. Select _+ Add workflow automation_.
 3. Enter the values needed. Especially make sure you select _Threat detection alerts_ as the trigger condition.
 4. In the _Alert name contains_ field, enter _brute_.
 5. In the _actions_ area, make sure to select the _BlockBruteForceAttackedIP_ Logic App you have deployed and authorized before.
-6. Press 'create'.
+6. Press _create_.
