@@ -19,6 +19,9 @@ In addition, the notable events dashboard queries are available under "Saved sea
 
 You can either copy the relevant queries from the "Saved searches" page in your workspace, or visit the [following](./NotableEventsQueries.md) page to view them.
 
+# Questions
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a

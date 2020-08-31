@@ -1,0 +1,82 @@
+{
+  "properties": {
+    "displayName": "Deploy Qualys vulnerability assessment solution on virtual machines",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy deploys the Qualys vulnerability assessment extension to Windows and Linux virtual machines.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "in": [
+          "Microsoft.Compute/virtualMachines",
+          "Microsoft.ClassicCompute/virtualMachines"
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+          ],
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/type",
+                "in": [
+                    "WindowsAgent.AzureSecurityCenter",
+                    "LinuxAgent.AzureSecurityCenter"
+                ]
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+                "equals": "Qualys"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+                "equals": "Succeeded"
+              }
+            ]
+          },
+          "deployment": {
+            "properties": {
+              "mode": "Incremental",
+              "template": {
+                "contentVersion": "1.0.0.0",
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "parameters": {
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "apiVersionByEnv": {
+                    "type": "string"
+                  }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Compute/virtualMachines/providers/serverVulnerabilityAssessments",
+                    "name": "[concat(parameters('vmName'), '/Microsoft.Security/default')]",
+                    "apiVersion": "[parameters('apiVersionByEnv')]"
+                  }
+                ]
+              },
+              "parameters": {
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "apiVersionByEnv": {
+                  "value": "2015-06-01-preview"
+                }
+            }
+          }
+        }
+        }
+      }
+    }
+  }
+}

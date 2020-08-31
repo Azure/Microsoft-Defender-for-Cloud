@@ -1,0 +1,60 @@
+{
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "field": "type",
+      "equals": "Microsoft.Resources/subscriptions"
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Security/automations",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "name",
+              "notIn": [
+                "exportToEventHub",
+                "ExportToWorkspace"
+              ]
+            },
+            {
+              "count": {
+                "field": "Microsoft.Security/automations/sources[*]",
+                "where": {
+                  "field": "Microsoft.Security/automations/sources[*].eventSource",
+                  "equals": "Alerts"
+                }
+              },
+              "greaterOrEquals": 1
+            },
+            {
+              "count": {
+                "field": "Microsoft.Security/automations/actions[*]",
+                "where": {
+                  "field": "Microsoft.Security/automations/actions[*].actionType",
+                  "equals": "LogicApp"
+                }
+              },
+              "greaterOrEquals": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy."
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "AuditIfNotExists"
+    }
+  }
+}

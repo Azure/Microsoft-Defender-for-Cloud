@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "linuxExtautoUpgradeMinorVersion": {
+      "type": "bool"
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2019-03-01",
+      "name": "[concat(parameters('vmName'), '/', 'AzureSecurityLinuxAgent')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publisher": "Microsoft.Azure.Security.Monitoring",
+        "type": "AzureSecurityLinuxAgent",
+        "typeHandlerVersion": "2.12",
+        "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
+        "settings": {},
+        "protectedsettings": {
+        }
+      }
+    }
+  ]
+}

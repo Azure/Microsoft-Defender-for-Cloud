@@ -1,0 +1,607 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Get-SecureScoreData",
+            "type": "String"
+        },
+        "GUID": {
+            "type": "string",
+            "defaultValue": "[newGuid()]"
+        },
+        "workspaceName": {
+            "type": "string",
+            "defaultValue": "Enter the workspace name"
+        },
+        "workspaceId": {
+            "type": "string",
+            "defaultValue": "Enter the workspace id"
+        },
+        "workspaceKey": {
+            "type": "string",
+            "defaultValue": "Enter the workspace primary key"
+        }
+    },
+    "variables": {
+        "AzureLogAnalyticsDataCollectorConnectionName": "[concat('azureloganalyticsdatacollector-', parameters('PlaybookName'))]",
+        "WorkbookName": "SecureScoreWorkbook",
+        "WorkbookId": "[guid('SecureScoreData', subscription().subscriptionId)]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AzureLogAnalyticsDataCollectorConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "SecureScoreData",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                },
+                "parameterValues": {
+                    "username": "[parameters('workspaceId')]",
+                    "password": "[parameters('workspaceKey')]"
+                }
+            }
+        },
+        {
+            "name": "[variables('WorkbookId')]",
+            "type": "Microsoft.Insights/workbooks",
+            "location": "[resourceGroup().location]",
+            "apiVersion": "2018-06-17-preview",
+            "kind": "shared",
+            "properties": {
+                "displayName": "[variables('WorkbookName')]",
+                "serializedData": "[concat('\"{\"version\":\"Notebook\/1.0\",\"items\":[{\"type\":1,\"content\":{\"json\":\"# Secure Score History\"},\"name\":\"text - 7\"},{\"type\":9,\"content\":{\"version\":\"KqlParameterItem\/1.0\",\"parameters\":[{\"id\":\"0ad3d0b6-a044-4cac-86f3-9b9ea9744ed2\",\"version\":\"KqlParameterItem\/1.0\",\"name\":\"TimeRange\",\"type\":4,\"isRequired\":true,\"value\":{\"durationMs\":2419200000},\"typeSettings\":{\"selectableValues\":[{\"durationMs\":300000},{\"durationMs\":900000},{\"durationMs\":1800000},{\"durationMs\":3600000},{\"durationMs\":14400000},{\"durationMs\":43200000},{\"durationMs\":86400000},{\"durationMs\":172800000},{\"durationMs\":259200000},{\"durationMs\":604800000},{\"durationMs\":1209600000},{\"durationMs\":2419200000},{\"durationMs\":2592000000},{\"durationMs\":5184000000},{\"durationMs\":7776000000}]},\"resourceType\":\"microsoft.insights\/components\"},{\"id\":\"86d256dd-a537-4a55-908e-6e80d87c1157\",\"version\":\"KqlParameterItem\/1.0\",\"name\":\"Subscription\",\"type\":6,\"multiSelect\":true,\"quote\":\"''\",\"delimiter\":\",\",\"value\":[],\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"includeAll\":true},\"resourceType\":\"microsoft.insights\/components\"}],\"style\":\"pills\",\"queryType\":0,\"resourceType\":\"microsoft.insights\/components\"},\"name\":\"parameters - 0\"},{\"type\":1,\"content\":{\"json\":\"## Secure Score - All Subs\"},\"name\":\"text - 4\"},{\"type\":3,\"content\":{\"version\":\"KqlItem\/1.0\",\"query\":\"SecureScore_CLrn| extend SubscriptionId = strcat(split(id_s, ''\/'')[2])rn| summarize arg_max(TimeGenerated, SubscriptionId, *) by bin(TimeGenerated, 1d), SubscriptionIdrn| project TimeGenerated, properties_score_current_d\",\"size\":0,\"aggregation\":3,\"timeContext\":{\"durationMs\":0},\"timeContextFromParameter\":\"TimeRange\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights\/workspaces\",\"crossComponentResources\":[\"\/subscriptions\/', subscription().subscriptionId, '\/resourceGroups\/', resourcegroup().name, '\/providers\/Microsoft.OperationalInsights\/workspaces\/', parameters('workspaceName'), '\"],\"visualization\":\"areachart\",\"chartSettings\":{\"seriesLabelSettings\":[{\"seriesName\":\"properties_score_current_d\",\"label\":\"Current Score\"}]}},\"name\":\"Current Score - All Subscriptions\"},{\"type\":1,\"content\":{\"json\":\"## Secure Score by Sub\"},\"name\":\"text - 5\"},{\"type\":3,\"content\":{\"version\":\"KqlItem\/1.0\",\"query\":\"SecureScore_CLrn| extend SubscriptionId = strcat(split(id_s, ''\/'')[2])rn| where \"{Subscription:lable}\" == \"All\" or SubscriptionId in ({Subscription:subid})rn| summarize arg_max(TimeGenerated, SubscriptionId, *) by bin(TimeGenerated, 1d), SubscriptionIdrn| project TimeGenerated, SubscriptionId, properties_score_current_d\",\"size\":0,\"aggregation\":5,\"timeContext\":{\"durationMs\":0},\"timeContextFromParameter\":\"TimeRange\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights\/workspaces\",\"crossComponentResources\":[\"\/subscriptions\/', subscription().subscriptionId, '\/resourceGroups\/', resourcegroup().name, '\/providers\/Microsoft.OperationalInsights\/workspaces\/', parameters('workspaceName'), '\"],\"visualization\":\"linechart\"},\"name\":\"Secure Score by Subscription\"},{\"type\":1,\"content\":{\"json\":\"## Secure Score Controls\"},\"name\":\"text - 6\"},{\"type\":3,\"content\":{\"version\":\"KqlItem\/1.0\",\"query\":\"SecureScoreControls_CLrn| extend SubscriptionId = strcat(split(id_s, ''\/'')[2])rn| where \"{Subscription:lable}\" == \"All\" or SubscriptionId in ({Subscription:subid})rn| summarize arg_max(TimeGenerated, properties_displayName_s, *) by bin(TimeGenerated, 1d), SubscriptionId, properties_displayName_srn| project TimeGenerated, properties_displayName_s, SubscriptionId, properties_score_current_d\",\"size\":0,\"aggregation\":5,\"timeContext\":{\"durationMs\":0},\"timeContextFromParameter\":\"TimeRange\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights\/workspaces\",\"crossComponentResources\":[\"\/subscriptions\/', subscription().subscriptionId, '\/resourceGroups\/', resourcegroup().name, '\/providers\/Microsoft.OperationalInsights\/workspaces\/', parameters('workspaceName'), '\"],\"visualization\":\"linechart\",\"gridSettings\":{\"sortBy\":[{\"itemKey\":\"properties_displayName_s\",\"sortOrder\":1}]},\"sortBy\":[{\"itemKey\":\"properties_displayName_s\",\"sortOrder\":1}]},\"name\":\"query - 7\"}],\"isLocked\":false}\"')]",
+                "version": "1.0",
+                "sourceId": "azure monitor",
+                "category": "workbook"
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2019-05-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AzureLogAnalyticsDataCollectorConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "actions": {
+                        "For_each": {
+                            "actions": {
+                                "Condition_2": {
+                                    "actions": {
+                                        "HTTP_2": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/secureScores/ascScore?api-version=2020-01-01-preview"
+                                            },
+                                            "runAfter": {
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "HTTP_3": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/secureScores/ascScore/SecureScoreControls?api-version=2020-01-01-preview&$expand=definition"
+                                            },
+                                            "runAfter": {
+                                                "Send_Data": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "Send_Data": {
+                                            "inputs": {
+                                                "body": "@{body('HTTP_2')}",
+                                                "headers": {
+                                                    "Log-Type": "SecureScore"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/logs"
+                                            },
+                                            "runAfter": {
+                                                "HTTP_2": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        },
+                                        "Send_Data_2": {
+                                            "inputs": {
+                                                "body": "@{body('HTTP_3')?['value']}",
+                                                "headers": {
+                                                    "Log-Type": "SecureScoreControls"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/logs"
+                                            },
+                                            "runAfter": {
+                                                "HTTP_3": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection"
+                                        },
+                                        "Set_variable": {
+                                            "inputs": {
+                                                "name": "SecureScoreAssesmentsUri",
+                                                "value": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/assessments?api-version=2020-01-01&$expand=metadata"
+                                            },
+                                            "runAfter": {
+                                                "Send_Data_2": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable"
+                                        },
+                                        "Until": {
+                                            "actions": {
+                                                "Condition": {
+                                                    "actions": {
+                                                        "Set_variable_2": {
+                                                            "inputs": {
+                                                                "name": "SecureScoreAssesmentsUri",
+                                                                "value": "@body('Parse_JSON_2')?['nextLink']"
+                                                            },
+                                                            "runAfter": {
+                                                            },
+                                                            "type": "SetVariable"
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Set_variable_3": {
+                                                                "inputs": {
+                                                                    "name": "NextPage",
+                                                                    "value": "@false"
+                                                                },
+                                                                "runAfter": {
+                                                                },
+                                                                "type": "SetVariable"
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('Parse_JSON_2')?['nextLink']",
+                                                                        "@null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_JSON_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "HTTP_4": {
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "@variables('SecureScoreAssesmentsUri')"
+                                                    },
+                                                    "runAfter": {
+                                                    },
+                                                    "type": "Http"
+                                                },
+                                                "Parse_JSON_2": {
+                                                    "inputs": {
+                                                        "content": "@body('HTTP_4')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "nextLink": {
+                                                                    "type": "string"
+                                                                },
+                                                                "value": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "displayName": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "resourceDetails": {
+                                                                                        "properties": {
+                                                                                            "Id": {
+                                                                                                "type": "string"
+                                                                                            },
+                                                                                            "Source": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "status": {
+                                                                                        "properties": {
+                                                                                            "code": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "type",
+                                                                            "id",
+                                                                            "name",
+                                                                            "properties"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Send_Data_3": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson"
+                                                },
+                                                "Send_Data_3": {
+                                                    "inputs": {
+                                                        "body": "@{body('HTTP_4')?['value']}",
+                                                        "headers": {
+                                                            "Log-Type": "SecureScoreAssesments"
+                                                        },
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "path": "/api/logs"
+                                                    },
+                                                    "runAfter": {
+                                                        "HTTP_4": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ApiConnection"
+                                                }
+                                            },
+                                            "expression": "@equals(variables('NextPage'), false)",
+                                            "limit": {
+                                                "count": 10,
+                                                "timeout": "PT1H"
+                                            },
+                                            "runAfter": {
+                                                "Set_variable": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Until"
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@body('Parse_JSON_3')?['registrationState']",
+                                                    "Registered"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "runAfter": {
+                                        "Parse_JSON_3": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "HTTP_5": {
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security?api-version=2019-10-01"
+                                    },
+                                    "runAfter": {
+                                    },
+                                    "type": "Http"
+                                },
+                                "Parse_JSON_3": {
+                                    "inputs": {
+                                        "content": "@body('HTTP_5')",
+                                        "schema": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "namespace": {
+                                                    "type": "string"
+                                                },
+                                                "registrationPolicy": {
+                                                    "type": "string"
+                                                },
+                                                "registrationState": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "HTTP_5": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson"
+                                }
+                            },
+                            "foreach": "@body('Parse_JSON')?['value']",
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            },
+                            "type": "Foreach"
+                        },
+                        "HTTP": {
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                            },
+                            "runAfter": {
+                                "Initialize_variable_3": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http"
+                        },
+                        "Initialize_variable": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "NextPage",
+                                        "type": "boolean",
+                                        "value": "@true"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_2": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SecureScoreAssesmentsUri",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_3": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "test",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
+                        },
+                        "Parse_JSON": {
+                            "inputs": {
+                                "content": "@body('HTTP')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "managedByTenants": {
+                                                        "items": {
+                                                            "properties": {
+                                                                "tenantId": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "tenantId"
+                                                            ],
+                                                            "type": "object"
+                                                        },
+                                                        "type": "array"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "tenantId": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "authorizationSource",
+                                                    "managedByTenants",
+                                                    "subscriptionId",
+                                                    "tenantId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "runAfter": {
+                                "Send_Data_4": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson"
+                        },
+                        "Send_Data_4": {
+                            "inputs": {
+                                "body": "@{body('HTTP')?['value']}",
+                                "headers": {
+                                    "Log-Type": "Subscriptions"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/api/logs"
+                            },
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        }
+                    },
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {
+                    },
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {
+                            },
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureloganalyticsdatacollector": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AzureLogAnalyticsDataCollectorConnectionName'))]",
+                                "connectionName": "[variables('AzureLogAnalyticsDataCollectorConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {}
+}

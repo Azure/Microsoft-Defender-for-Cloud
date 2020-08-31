@@ -8,6 +8,8 @@ The samples that are provided are from the following type:
 * **Logic Apps playbooks** - allow you to remediate non-compliant resources using orchestration automation
 * **PowerShell scripts** - allow you to remediate non-compliant resources using PowerShell
 
+# Questions
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 

@@ -1,0 +1,284 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata":{
+        "comments": "This Logic App for Workflow Automations will notify ASC generated recommendations to recent users within last 7 days that created or updated the Azure Resource.",
+        "author": "Nathan Swift"
+    },  
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Notify-ASCRecommendationsbyAzureActivity",
+            "type": "String"
+        },
+        "Sender": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "ComplianceEmailAddress": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "ASCAssessmentConnectionName": "[concat('ascassessment-', parameters('LogicAppName'))]",
+        "office365ConnectionName": "[concat('office365-', parameters('LogicAppName'))]" 
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ASCAssessmentConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('Sender')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('Sender')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('ASCAssessmentConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "ComplianceEmailAddress": {
+                            "defaultValue": "[parameters('ComplianceEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Current_time": {
+                            "runAfter": {
+                                "Initialize_variable_ProviderWriteAudit": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Expression",
+                            "kind": "CurrentTime",
+                            "inputs": {},
+                            "description": "needed for Azure Activity API call date range to end"
+                        },
+                        "FilterWrites": {
+                            "runAfter": {
+                                "GetAudits": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@body('GetAudits')?['value']",
+                                "where": "@equals(toLower(item()?['operationName']?['value']), variables('ProviderWriteAudit'))"
+                            },
+                            "description": "Filter the Azure Activities for only direct resource /write"
+                        },
+                        "For_each": {
+                            "foreach": "@body('FilterWrites')",
+                            "actions": {
+                                "Check_for_Unique_Email_Address": {
+                                    "actions": {
+                                        "Append_to_variable_activecallersemailaddress": {
+                                            "runAfter": {},
+                                            "type": "AppendToStringVariable",
+                                            "inputs": {
+                                                "name": "activecallersemailaddress",
+                                                "value": "@{items('For_each')?['caller']}; "
+                                            },
+                                            "description": "append the unique email address to string variable to be used in TO: of sending email"
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "contains": [
+                                                    "@items('For_each')?['caller']",
+                                                    "@"
+                                                ]
+                                            },
+                                            {
+                                                "not": {
+                                                    "contains": [
+                                                        "@variables('activecallersemailaddress')",
+                                                        "@items('For_each')?['caller']"
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "type": "If",
+                                    "description": "Conditional check prevents same email address from being appended to TO: email address string variable"
+                                }
+                            },
+                            "runAfter": {
+                                "FilterWrites": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "Running through Array of /write Azure Activities. Check if email address is unique and append to a sting var to be used in To: to send email",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "GetAudits": {
+                            "runAfter": {
+                                "Get_past_time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com/",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'],'/'),2))}/providers/microsoft.insights/eventtypes/management/values?%24filter=eventTimestamp%20ge%20'@{body('Get_past_time')}'%20and%20eventTimestamp%20le%20'@{body('Current_time')}'%20and%20resourceUri%20eq%20'@{triggerBody()?['properties']?['resourceDetails']?['id']}'&api-version=2015-04-01"
+                            },
+                            "description": "Azure Activity API call to get audit logs for last 7 days on particular resource in ASC recommendation"
+                        },
+                        "Get_past_time": {
+                            "runAfter": {
+                                "Current_time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Expression",
+                            "kind": "GetPastTime",
+                            "inputs": {
+                                "interval": 7,
+                                "timeUnit": "Day"
+                            },
+                            "description": "needed for Azure Activity API call date range to start"
+                        },
+                        "Initialize_variable_ProviderWriteAudit": {
+                            "runAfter": {
+                                "Initialize_variable_activecallersemailaddress": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "providerwriteaudit",
+                                        "type": "string",
+                                        "value": "@{concat(first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'],'/'),6)), '/', first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'],'/'),7)), '/write')}"
+                                    }
+                                ]
+                            },
+                            "description": "Provider variable used later in filter array checking, to ensure we only get direct resource /write"
+                        },
+                        "Initialize_variable_activecallersemailaddress": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "activecallersemailaddress",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            },
+                            "description": "TO email address variable that will combine unique email addresses later to send from the Callers that made /write"
+                        },
+                        "Send_an_email_(V2)": {
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Body": "<p>Azure Security Center has discovered a potential security vulnerability in your environment - Recommendation details below:<br>\n<br>\n<br>\n<br>\nRecommendation name: @{triggerBody()?['properties']?['displayName']}<br>\n<br>\nStatus: @{triggerBody()?['properties']?['status']?['code']}<br>\n<br>\nDescription: @{triggerBody()?['properties']?['metadata']?['description']}<br>\n<br>\nRecommendation ID: @{triggerBody()?['name']}<br>\n<br>\nResource ID: @{triggerBody()?['properties']?['resourceDetails']?['id']}<br>\n<br>\nResource type (Azure/Non-Azure): @{triggerBody()?['properties']?['resourceDetails']?['source']}<br>\n<br>\nRemediation steps: @{triggerBody()?['properties']?['metadata']?['remediationDescription']}<br>\n<br>\nLink to view the recommendation in Azure Security Center: @{concat('https://' , triggerBody()?['properties']?['links']?['azurePortal'])}</p>",
+                                    "Importance": "High",
+                                    "Subject": "New Azure Security Center recommendation has been created for your environment",
+                                    "To": "@{parameters('ComplianceEmailAddress')}; @{variables('activecallersemailaddress')}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            },
+                            "description": "Send the ASC Recommendation to Compliance Team and people who configured the resource in the last 7 days. "
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "[variables('Office365ConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            },
+                            "ascassessment": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ASCAssessmentConnectionName'))]",
+                                "connectionName": "[variables('ASCAssessmentConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
