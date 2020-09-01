@@ -209,184 +209,200 @@
                         "For_each": {
                             "foreach": "@body('Parse_JSON')?['value']",
                             "actions": {
-                                "Compose": {
-                                    "runAfter": {
-                                        "Run_query_and_list_results": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Compose",
-                                    "inputs": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
-                                },
-                                "For_each_2": {
-                                    "foreach": "@body('Run_query_and_list_results')?['value']",
+                                "Check_Subscription_State": {
                                     "actions": {
-                                        "Append_to_string_variable": {
+                                        "Compose": {
                                             "runAfter": {
-                                                "set_calculatedresult": [
-                                                    "Succeeded"
-                                                ]
-                                            },
-                                            "type": "AppendToStringVariable",
-                                            "inputs": {
-                                                "name": "Email-body",
-                                                "value": "<tr>    <td class=\"notification-table-header\">     <span>&nbsp; Subscription Name</span>    </td>    <td class=\"notification-table-text\">@{items('For_each')?['displayName']}</td>   </tr>\n                                    <tr>    <td class=\"notification-table-header\">    \n <span>&nbsp; Subscription ID</span>    </td>   \n <td class=\"notification-table-text\">@{items('For_each')?['subscriptionId']} </td>   </tr>\n                                    \n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Current Score </span>    </td>\n                                        <td class=\"notification-table-text\">@{outputs('Compose')}% (@{body('Parse_JSON_Scores')?['properties']?['score']?['current']}of  @{body('Parse_JSON_Scores')?['properties']?['score']?['max']} points)</td>\n                                    </tr>\n\n <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score from Last Scan </span>    </td>\n                                        <td class=\"notification-table-text\">@{variables('LastScanScore')}% </td>\n                                    </tr>\n\n\n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score Reduced </span>    </td>\n                                        <td class=\"notification-table-text\">\n@{if(greater(length(variables('calcualtedresult')),5),substring(variables('calcualtedresult'), 0, 2),variables('calcualtedresult'))}%\n</td>\n                                    </tr>\n<tr class=\"notification-card-footer\">    <td colspan=\"2\"><p style='text-indent:36.0pt;'><span style='font-size:10.0pt;'>&nbsp;</span>    </p>    </td>   </tr>"
-                                            }
-                                        },
-                                        "Compose_2": {
-                                            "runAfter": {
-                                                "Set_variable_2": [
+                                                "Run_query_and_list_results": [
                                                     "Succeeded"
                                                 ]
                                             },
                                             "type": "Compose",
-                                            "inputs": "@items('For_each_2')?['AvgScore']"
+                                            "inputs": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
                                         },
-                                        "Set_variable_2": {
-                                            "runAfter": {},
-                                            "type": "SetVariable",
-                                            "inputs": {
-                                                "name": "LastScanScore",
-                                                "value": "@items('For_each_2')?['AvgScore']"
+                                        "For_each_2": {
+                                            "foreach": "@body('Run_query_and_list_results')?['value']",
+                                            "actions": {
+                                                "Append_to_string_variable": {
+                                                    "runAfter": {
+                                                        "set_calculatedresult": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToStringVariable",
+                                                    "inputs": {
+                                                        "name": "Email-body",
+                                                        "value": "<tr>    <td class=\"notification-table-header\">     <span>&nbsp; Subscription Name</span>    </td>    <td class=\"notification-table-text\">@{items('For_each')?['displayName']}</td>   </tr>\n                                    <tr>    <td class=\"notification-table-header\">    \n <span>&nbsp; Subscription ID</span>    </td>   \n <td class=\"notification-table-text\">@{items('For_each')?['subscriptionId']} </td>   </tr>\n                                    \n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Current Score </span>    </td>\n                                        <td class=\"notification-table-text\">@{outputs('Compose')}% (@{body('Parse_JSON_Scores')?['properties']?['score']?['current']}of  @{body('Parse_JSON_Scores')?['properties']?['score']?['max']} points)</td>\n                                    </tr>\n\n <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score from Last Scan </span>    </td>\n                                        <td class=\"notification-table-text\">@{variables('LastScanScore')}% </td>\n                                    </tr>\n\n\n                                    <tr>\n                                        <td class=\"notification-table-header\">     <span>&nbsp; Score Reduced </span>    </td>\n                                        <td class=\"notification-table-text\">\n@{if(greater(length(variables('calcualtedresult')),5),substring(variables('calcualtedresult'), 0, 2),variables('calcualtedresult'))}%\n</td>\n                                    </tr>\n<tr class=\"notification-card-footer\">    <td colspan=\"2\"><p style='text-indent:36.0pt;'><span style='font-size:10.0pt;'>&nbsp;</span>    </p>    </td>   </tr>"
+                                                    }
+                                                },
+                                                "Compose_2": {
+                                                    "runAfter": {
+                                                        "Set_variable_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@items('For_each_2')?['AvgScore']"
+                                                },
+                                                "Set_variable_2": {
+                                                    "runAfter": {},
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "LastScanScore",
+                                                        "value": "@items('For_each_2')?['AvgScore']"
+                                                    }
+                                                },
+                                                "set_calculatedresult": {
+                                                    "runAfter": {
+                                                        "Compose_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "calcualtedresult",
+                                                        "value": "@{sub(outputs('Compose_2'),outputs('Compose'))}"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Set_variable": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach",
+                                            "runtimeConfiguration": {
+                                                "concurrency": {
+                                                    "repetitions": 1
+                                                }
                                             }
                                         },
-                                        "set_calculatedresult": {
+                                        "HTTP": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/secureScores/ascScore?api-version=2020-01-01-preview"
+                                            }
+                                        },
+                                        "Parse_JSON_Scores": {
                                             "runAfter": {
-                                                "Compose_2": [
+                                                "HTTP": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@body('HTTP')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "properties": {
+                                                            "properties": {
+                                                                "displayName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "score": {
+                                                                    "properties": {
+                                                                        "current": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "max": {
+                                                                            "type": "integer"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "type": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "Run_query_and_list_results": {
+                                            "runAfter": {
+                                                "Send_Data": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": "dailyAscScore_CL \n| where SubscriptionId ==\"@{items('For_each')?['subscriptionId']}\"\n|top 5 by date_t\n|summarize AvgScore=tolong(max(todouble(ascScore_s)/todouble(ascMax_s)*100))",
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/queryData",
+                                                "queries": {
+                                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                                    "resourcetype": "Log Analytics Workspace",
+                                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                                    "timerange": "Last 12 hours"
+                                                }
+                                            }
+                                        },
+                                        "Send_Data": {
+                                            "runAfter": {
+                                                "Parse_JSON_Scores": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": "{\n\"subscriptionid\": \"@{items('For_each')?['subscriptionId']}\",\n\"ascScore\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['current']}\",\n\"ascMax\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['max']}\",\n\"date\":\"@{utcNow()}\",\n}",
+                                                "headers": {
+                                                    "Log-Type": "dailyAscScore"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/logs"
+                                            }
+                                        },
+                                        "Set_variable": {
+                                            "runAfter": {
+                                                "Compose": [
                                                     "Succeeded"
                                                 ]
                                             },
                                             "type": "SetVariable",
                                             "inputs": {
-                                                "name": "calcualtedresult",
-                                                "value": "@{sub(outputs('Compose_2'),outputs('Compose'))}"
+                                                "name": "CurrentScorepercent",
+                                                "value": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
                                             }
                                         }
                                     },
-                                    "runAfter": {
-                                        "Set_variable": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "Foreach",
-                                    "runtimeConfiguration": {
-                                        "concurrency": {
-                                            "repetitions": 1
-                                        }
-                                    }
-                                },
-                                "HTTP": {
                                     "runAfter": {},
-                                    "type": "Http",
-                                    "inputs": {
-                                        "authentication": {
-                                            "type": "ManagedServiceIdentity"
-                                        },
-                                        "method": "GET",
-                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each')?['subscriptionId']}/providers/Microsoft.Security/secureScores/ascScore?api-version=2020-01-01-preview"
-                                    }
-                                },
-                                "Parse_JSON_Scores": {
-                                    "runAfter": {
-                                        "HTTP": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@body('HTTP')",
-                                        "schema": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "properties": {
-                                                    "properties": {
-                                                        "displayName": {
-                                                            "type": "string"
-                                                        },
-                                                        "score": {
-                                                            "properties": {
-                                                                "current": {
-                                                                    "type": "number"
-                                                                },
-                                                                "max": {
-                                                                    "type": "integer"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                },
-                                                "type": {
-                                                    "type": "string"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    }
-                                },
-                                "Run_query_and_list_results": {
-                                    "runAfter": {
-                                        "Send_Data": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": "dailyAscScore_CL \n| where SubscriptionId ==\"@{items('For_each')?['subscriptionId']}\"\n|top 5 by date_t\n|summarize AvgScore=tolong(max(todouble(ascScore_s)/todouble(ascMax_s)*100))",
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@items('For_each')?['state']",
+                                                    "Enabled"
+                                                ]
                                             }
-                                        },
-                                        "method": "post",
-                                        "path": "/queryData",
-                                        "queries": {
-                                            "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
-                                            "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
-                                            "resourcetype": "Log Analytics Workspace",
-                                            "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
-                                            "timerange": "Last 12 hours"
-                                        }
-                                    }
-                                },
-                                "Send_Data": {
-                                    "runAfter": {
-                                        "Parse_JSON_Scores": [
-                                            "Succeeded"
                                         ]
                                     },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": "{\n\"subscriptionid\": \"@{items('For_each')?['subscriptionId']}\",\n\"ascScore\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['current']}\",\n\"ascMax\":\"@{body('Parse_JSON_Scores')?['properties']?['score']?['max']}\",\n\"date\":\"@{utcNow()}\",\n}",
-                                        "headers": {
-                                            "Log-Type": "dailyAscScore"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
-                                            }
-                                        },
-                                        "method": "post",
-                                        "path": "/api/logs"
-                                    }
-                                },
-                                "Set_variable": {
-                                    "runAfter": {
-                                        "Compose": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "SetVariable",
-                                    "inputs": {
-                                        "name": "CurrentScorepercent",
-                                        "value": "@mul(div(body('Parse_JSON_Scores')?['properties']?['score']?['current'],body('Parse_JSON_Scores')?['properties']?['score']?['max']),100)"
-                                    }
+                                    "type": "If"
                                 }
                             },
                             "runAfter": {
