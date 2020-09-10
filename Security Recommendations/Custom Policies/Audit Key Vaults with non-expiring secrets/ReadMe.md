@@ -7,7 +7,7 @@ To deploy this custom policy into your environment, click on the “Deploy to Az
 
 ## Try on Portal
 
-<a href="https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecurity%2520Recommendations%2FCustom%2520Policies%2FAudit%2520Key%2520Vaults%2520with%2520non-expiring%2520secrets%2FAudit-NonExpiring-KeyVaults-Secrets.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecurity%2520Recommendations%2FCustom%2520Policies%2FAudit%2520Key%2520Vaults%2520with%2520non-expiring%2520secrets%2FAudit-NonExpiring-KeyVaults-Secrets.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 # Contributing
 
