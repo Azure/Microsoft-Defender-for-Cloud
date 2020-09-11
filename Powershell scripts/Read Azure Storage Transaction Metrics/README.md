@@ -1,6 +1,6 @@
 # Read-AzStorageTransactions
 
-This script is used pull the Blob and File transactions metric from each storage account in a subcription or tenant.  The results are exported to a csv.  User can then use Excel to sort by account and calculate the total transactions for both services.  This can then be used to calculate Azure Security Center Storage pricing.
+This script is used pull the Blob and File transactions metric from each storage account in a subscription or tenant.  The results are exported to a csv.  User can then use Excel to sort by account and calculate the total transactions for both services.  This can then be used to calculate Azure Security Center Storage pricing.
 
 Here is a sample of the output:
 ```csv
