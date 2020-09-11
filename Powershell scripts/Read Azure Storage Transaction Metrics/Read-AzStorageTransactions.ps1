@@ -44,9 +44,6 @@ January 6, 2020 1.0
 .PARAMETER SubscriptionId
     The subscriptionID of the Azure Subscription that contains the resources you want to analyze
 
-.PARAMETER ResourceGroupName
-    If desired, use a resourcegroup instead of analyzing all resources within an Azure subscription 
-
 .PARAMETER ExportFile
     PATH\File name to export the output to.  If not used, the working directory of the script will be leveraged as the export directory base folder
 
@@ -69,13 +66,14 @@ January 6, 2020 1.0
 
 .NOTES
    AUTHOR: Nicholas DiCola Principal Group PM  Manager - Security CxE 
-   LASTEDIT: January 6, 2020 1.0
+   LASTEDIT: September 19, 2020 1.1
     - Initial Release
     - Special tanks to Jim Britt (Microsoft) https://twitter.com/JimBrittPhotos for the policy script which has many of the discovery functions!
+    - Added support for Blob and File transactions only
 
 .LINK
     This script posted to and discussed at the following locations:
-    https://github.com/JimGBritt/Azure-Security-Center
+    https://github.com/Azure/Azure-Security-Center
 #>
 
 [cmdletbinding(
@@ -90,12 +88,6 @@ param
     [Parameter(ParameterSetName='Subscription')]
     [Parameter(ParameterSetName='Tenant')]
     [string]$ExportFile,
-    
-    # Add a ResourceGroup name to reduce scope from entire Azure Subscription to RG
-    [Parameter(ParameterSetName='Export')]
-    [Parameter(ParameterSetName='Subscription')]
-    [Parameter(ParameterSetName='Tenant')]
-    [string]$ResourceGroupName,
 
     # Provide SubscriptionID to bypass subscription listing
     [Parameter(ParameterSetName='Subscription')]
@@ -268,22 +260,41 @@ try
     $End = (Get-Date).AddDays(-1) | Get-Date -Hour 23 -Minute 59 -Second 59 | Get-Date -Format "yyyy-MM-ddThh:mm:ssZ"
     $body = BuildBody GET
     $records = @()
+    $total = 0
     Write-Host "Getting metrics for $($ResourcesToCheck.Count) storage accounts"
     foreach($storageAccount in $ResourcesToCheck){
-        $uri = "https://management.azure.com$($storageAccount.Id)/providers/microsoft.insights/metrics?api-version=2018-01-01&metricnames=transactions&timespan=$start/$end&interval=P1D"
-        $transactions = Invoke-RestMethod -Method GET -Uri $uri -Headers ($body.Headers)
-        foreach($result in $transactions.value.timeSeries.data){
-            $result | Add-Member -MemberType NoteProperty -Name "Id" -Value $storageAccount.id
+        $Bloburi = "https://management.azure.com$($storageAccount.Id)/blobServices/default/providers/microsoft.insights/metrics?api-version=2018-01-01&metricnames=transactions&timespan=$start/$end&interval=P1D"
+        $Blobtransactions = Invoke-RestMethod -Method GET -Uri $Bloburi -Headers ($body.Headers)
+        $Fileuri = "https://management.azure.com$($storageAccount.Id)/fileServices/default/providers/microsoft.insights/metrics?api-version=2018-01-01&metricnames=transactions&timespan=$start/$end&interval=P1D"
+        $FileTransactions = Invoke-RestMethod -Method GET -Uri $Fileuri -Headers ($body.Headers)
+        foreach($result in $Blobtransactions.value.timeSeries.data){
+            $result | Add-Member -MemberType NoteProperty -Name "MetricType" -Value "Blob"
             $result | Add-Member -MemberType NoteProperty -Name "StorageAccount" -Value $storageAccount.StorageAccountName
             $result | Add-Member -MemberType NoteProperty -Name "ResourceGroup" -Value $storageAccount.ResourceGroupName
             $result | Add-Member -MemberType NoteProperty -Name "Location" -Value $storageAccount.Location
-            $result | Add-Member -MemberType NoteProperty -Name "Subscription" -Value ($storageAccount.id).split("/")[2]            
+            $result | Add-Member -MemberType NoteProperty -Name "Subscription" -Value ($storageAccount.id).split("/")[2]
+            $result | Add-Member -MemberType NoteProperty -Name "Id" -Value $storageAccount.id            
             $records += $result
+            $total += $result.total
         }
+        foreach($result in $Filetransactions.value.timeSeries.data){
+            $result | Add-Member -MemberType NoteProperty -Name "MetricType" -Value "File"
+            $result | Add-Member -MemberType NoteProperty -Name "StorageAccount" -Value $storageAccount.StorageAccountName
+            $result | Add-Member -MemberType NoteProperty -Name "ResourceGroup" -Value $storageAccount.ResourceGroupName
+            $result | Add-Member -MemberType NoteProperty -Name "Location" -Value $storageAccount.Location
+            $result | Add-Member -MemberType NoteProperty -Name "Subscription" -Value ($storageAccount.id).split("/")[2]
+            $result | Add-Member -MemberType NoteProperty -Name "Id" -Value $storageAccount.id           
+            $records += $result
+            $total += $result.total
+        }
+
 
     }
     Write-Host "Exporting $($records.Count) records to $($ExportFile)"
     $records | Export-csv $ExportFile
+    Write-Host "Total Blob and File Transactions is: $($Total)"
+    Write-Host "Total Transactions / 10k is: $($Total/10000)"
+    Write-Host "Estimate Cost is (`$0.02/10k transactions): `$$($Total/10000*0.02) for the last seven days"
 }
 catch
 {
