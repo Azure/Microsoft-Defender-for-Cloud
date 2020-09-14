@@ -28,7 +28,11 @@
             "field": "location",
             "in": [
               "eastus2euap",
-              "eastus"
+              "eastus",
+              "westeurope",
+              "westus2",
+              "southeastasia",
+              "centralus "
             ]
           },
           {
@@ -279,13 +283,20 @@
                   }
                 },
                 "variables": {
-                  "pairedLocations": {
-                    "eastus2euap": "eastus2euap",
-                    "eastus": "eastus"
-                  },
+                  "eastus2euap": "eastus2euap",
+                  "eastus": "eastus",
+                  "westeurope": "westeurope",
+                  "westus2": "westus2",
+                  "southeastasia": "southeastasia",
+                  "centralus ": "centralus"
+                },
                   "locationLongNameToShortMap": {
                     "eastus2euap": "EUS2EUAP",
-                    "eastus": "EUS"
+                    "eastus": "EUS",
+                    "westeurope": "WEU",
+                    "westus2": "WUS2",
+                    "southeastasia": "SEA",
+                    "centralus ": "CUS"
                   },
                   "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
                   "subscriptionId": "[subscription().subscriptionId]",
