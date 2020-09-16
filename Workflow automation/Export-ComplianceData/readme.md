@@ -1,5 +1,6 @@
-# Send a weekly regulatory compliance overview per email
-Author: Tom Janetscheck
+# Export compliance data to Log Analytics 
+
+**Author: Tom Janetscheck**
 
 This LogicApp leverages Azure Resource Graph to get a regulatory compliance snapshot and export it to an existing Log Analytics Workspace once a week.
 
