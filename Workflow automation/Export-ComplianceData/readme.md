@@ -1,4 +1,4 @@
-# Export compliance information to Log Analytics 
+# Export compliance data to Log Analytics 
 
 **Author: Tom Janetscheck**
 
