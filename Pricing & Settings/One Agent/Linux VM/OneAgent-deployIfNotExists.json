@@ -503,8 +503,7 @@
           }
         }
       }
-    }
-  },
+    },
   "id": "/providers/Microsoft.Authorization/policyDefinitions/5f8eb305-9c9f-4abe-9bb0-df220d9faba2",
   "name": "5f8eb305-9c9f-4abe-9bb0-df220d9faba2"
 }
