@@ -32,7 +32,7 @@
               "westeurope",
               "westus2",
               "southeastasia",
-              "centralus "
+              "centralus"
             ]
           },
           {
@@ -283,6 +283,7 @@
                   }
                 },
                 "variables": {
+                  "pairedLocations": {
                   "eastus2euap": "eastus2euap",
                   "eastus": "eastus",
                   "westeurope": "westeurope",
@@ -302,9 +303,9 @@
                   "subscriptionId": "[subscription().subscriptionId]",
                   "defaultRGName": "[concat('DefaultResourceGroup-', variables('locationCode'))]",
                   "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
-                  "dcrName": "AzureSecurityDataCollectionRuleForLinux",
+                  "dcrName": "[concat('Microsoft-Security-', variables('locationCode'))]",
                   "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
-                  "dcraName": "AzureSecurityDataCollectionRuleAssociationForLinux",
+                  "dcraName": "Security-RulesAssociation",
                   "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
                   "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
                   "linuxExtautoUpgradeMinorVersion": true,
@@ -503,7 +504,8 @@
           }
         }
       }
-    },
+    }
+  },
   "id": "/providers/Microsoft.Authorization/policyDefinitions/5f8eb305-9c9f-4abe-9bb0-df220d9faba2",
   "name": "5f8eb305-9c9f-4abe-9bb0-df220d9faba2"
 }
