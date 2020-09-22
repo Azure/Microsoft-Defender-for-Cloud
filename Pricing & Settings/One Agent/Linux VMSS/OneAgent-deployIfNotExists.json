@@ -28,7 +28,11 @@
             "field": "location",
             "in": [
               "eastus2euap",
-              "eastus"
+              "eastus",
+              "westeurope",
+              "westus2",
+              "southeastasia",
+              "centralus"
             ]
           },
           {
@@ -281,19 +285,27 @@
                 "variables": {
                   "pairedLocations": {
                     "eastus2euap": "eastus2euap",
-                    "eastus": "eastus"
+                    "eastus": "eastus",
+                    "westeurope": "westeurope",
+                    "westus2": "westus2",
+                    "southeastasia": "southeastasia",
+                    "centralus ": "centralus"
                   },
                   "locationLongNameToShortMap": {
                     "eastus2euap": "EUS2EUAP",
-                    "eastus": "EUS"
+                    "eastus": "EUS",
+                    "westeurope": "WEU",
+                    "westus2": "WUS2",
+                    "southeastasia": "SEA",
+                    "centralus ": "CUS"
                   },
                   "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
                   "subscriptionId": "[subscription().subscriptionId]",
                   "defaultRGName": "[concat('DefaultResourceGroup-', variables('locationCode'))]",
                   "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
-                  "dcrName": "AzureSecurityDataCollectionRuleForLinux",
+                  "dcrName": "[concat('Microsoft-Security-', variables('locationCode'))]",
                   "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
-                  "dcraName": "AzureSecurityDataCollectionRuleAssociationForLinux",
+                  "dcraName": "Security-RulesAssociation",
                   "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
                   "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
                   "linuxExtautoUpgradeMinorVersion": true,
