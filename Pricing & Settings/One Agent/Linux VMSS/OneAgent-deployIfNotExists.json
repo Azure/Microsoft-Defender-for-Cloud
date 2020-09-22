@@ -368,6 +368,9 @@
                     "apiVersion": "2017-05-10",
                     "name": "[variables('deployAzureSecurityLinuxAgent')]",
                     "resourceGroup": "[parameters('resourceGroup')]",
+                    "dependsOn": [
+                      "[variables('deployAzureMonitorLinuxAgent')]"
+                    ],
                     "properties": {
                       "mode": "Incremental",
                       "parameters": {
