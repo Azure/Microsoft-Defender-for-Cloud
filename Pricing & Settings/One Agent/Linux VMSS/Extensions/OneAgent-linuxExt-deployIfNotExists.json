@@ -15,14 +15,14 @@
   "variables": {},
   "resources": [
     {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
       "apiVersion": "2019-03-01",
       "name": "[concat(parameters('vmName'), '/', 'AzureMonitorLinuxAgent')]",
       "location": "[parameters('location')]",
       "properties": {
         "publisher": "Microsoft.Azure.Monitor",
         "type": "AzureMonitorLinuxAgent",
-        "typeHandlerVersion": "0.9",
+        "typeHandlerVersion": "1.5",
         "autoUpgradeMinorVersion": "[parameters('linuxExtautoUpgradeMinorVersion')]",
         "settings": {}
       }

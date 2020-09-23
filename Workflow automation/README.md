@@ -1,7 +1,7 @@
-# Workflow automation
+# Workflow automation in Azure Security Center
 This folder contains sample security playbooks for security automation, orchestration and response (SOAR)
 
-You will need to create a workflow automation to call these playbooks.  see https://docs.microsoft.com/en-us/azure/security-center/workflow-automation
+These playbooks can be easily integrated with Azure Security Center using Workflow Automation feature. [Learn more>](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
 
 ## Each folder contains a security playbook ARM template that uses Microsoft Security Center triggers.
 After selecting a playbook, in the Azure portal:
@@ -100,7 +100,8 @@ Once you have created a playbook that you want to export to share, go to the Log
 * The connectionId will use a string and variable.  The Connection name is the variable.  The id is the string we used early for the id when creating the resource.
 9.  Save the JSON and contribute to the repository.
 
-
+# Questions
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 

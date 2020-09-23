@@ -18,7 +18,7 @@ Brand new or update to a contribution via these methods:
 
 ## Pull Request
 * After you push your changes, you will need to submit the [Pull Request (PR)](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests)
-* After submission, check the [Pull Request](https://github.com/Azure/Azure-Sentinel/pulls) for comments
+* After submission, check the [Pull Request](https://github.com/Azure/Azure-Security-Center/pulls) for comments
 * Make changes as suggested and update your branch or explain why no change is needed. Resolve the comment when done.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide

@@ -331,6 +331,12 @@
                                                     "@body('Parse_JSON_3')?['registrationState']",
                                                     "Registered"
                                                 ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@items('For_each')?['state']",
+                                                    "Enabled"
+                                                ]
                                             }
                                         ]
                                     },

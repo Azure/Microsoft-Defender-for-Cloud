@@ -1,9 +1,8 @@
 # Security recommendations
-In this section you can find custom security recommendations you can onboard to Azure Security Center.
+In this section you can find custom security recommendations you can onboard to Azure Security Center. ([Learn more about custom recommendations in Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/custom-security-policies))
 
 # Questions
-
-For questions and feedback, please contact [acs_community@microsoft.com](asc_community@microsoft.com)
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 
