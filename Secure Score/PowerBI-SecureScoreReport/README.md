@@ -1,8 +1,8 @@
 # Secure Score Over Time Reports
 
-**Secure Score Over Time** is a PowerBI template app that will help you track your security health by monitoring the secure score of your Azure Security Center monitored resources over time, and your resources’ health. 
+**Secure Score Over Time** is a PowerBI dashboard that will help you track your security health by monitoring the secure score of your Azure Security Center monitored resources over time, and your resources’ health. 
 
-The template app contains out-of-the-box reports that will help you analyze your security status by providing the necessary information to investigate changes in your score over time.  
+The dashboard contains out-of-the-box reports that will help you analyze your security status by providing the necessary information to investigate changes in your score over time.  
 
 ## Prerequisite:
 
@@ -76,7 +76,7 @@ The template app consists of two reports:
 
 The reports are based on the data you exported to the Log Analytics workspace only. 
 
-Notice the reports can be filtered by time using the date scroll bar or by subscription name when you want to focus on a specific subscription. The subscriptions filter can filter all visualizations apart from the aggregated score visualizations that always present the aggregated score for all subscriptions. 
+Notice the reports can be filtered by time using the date scroll bar or by subscription name when you want to focus on a specific subscription. 
 
 ### **Secure score summary report**: 
 
