@@ -32,7 +32,7 @@
               "westeurope",
               "westus2",
               "southeastasia",
-              "centralus "
+              "centralus"
             ]
           },
           {
@@ -288,7 +288,7 @@
                   "westeurope": "westeurope",
                   "westus2": "westus2",
                   "southeastasia": "southeastasia",
-                  "centralus ": "centralus"
+                  "centralus": "centralus"
                 },
                   "locationLongNameToShortMap": {
                     "eastus2euap": "EUS2EUAP",
@@ -296,7 +296,7 @@
                     "westeurope": "WEU",
                     "westus2": "WUS2",
                     "southeastasia": "SEA",
-                    "centralus ": "CUS"
+                    "centralus": "CUS"
                   },
                   "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
                   "subscriptionId": "[subscription().subscriptionId]",
