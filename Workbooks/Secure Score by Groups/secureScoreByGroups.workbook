@@ -44,12 +44,7 @@
                   "multiSelect": true,
                   "quote": "'",
                   "delimiter": ",",
-                  "value": [
-                    "/subscriptions/5733bcb3-7fde-4caf-8629-41dc15e3b352",
-                    "/subscriptions/0ba674a6-9fde-43b4-8370-a7e16fdf0641",
-                    "/subscriptions/2f0675ce-dbad-46c5-8663-3c0e4740222b",
-                    "/subscriptions/66ee64da-2532-4d9a-a36b-d745327d20d9"
-                  ],
+                  "value": [],
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
@@ -224,10 +219,7 @@
                   "multiSelect": true,
                   "quote": "'",
                   "delimiter": ",",
-                  "value": [
-                    "/subscriptions/00edfbf3-f815-41d1-9e7c-d61e5522b8bf",
-                    "/subscriptions/9472dc54-45db-406b-9c01-bba9fa0cbb3c"
-                  ],
+                  "value": [],
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
@@ -402,10 +394,7 @@
                   "multiSelect": true,
                   "quote": "'",
                   "delimiter": ",",
-                  "value": [
-                    "/subscriptions/212f9889-769e-45ae-ab43-6da33674bd26",
-                    "/subscriptions/8f6c5814-2b02-4841-a6e9-39834a40104f"
-                  ],
+                  "value": [],
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
@@ -580,13 +569,7 @@
                   "multiSelect": true,
                   "quote": "'",
                   "delimiter": ",",
-                  "value": [
-                    "/subscriptions/45f9252d-e27e-4ed8-ab4e-dc5054de13fa",
-                    "/subscriptions/35ad74f4-0b37-44a7-ba94-91b6ec6026cd",
-                    "/subscriptions/0745e7d2-1e06-4d9e-9b9b-f42442b8b92f",
-                    "/subscriptions/71578c6b-75ba-4865-8f52-3e66d70389fd",
-                    "/subscriptions/e93d3ee6-fac1-412f-92d6-bfb379e81af2"
-                  ],
+                  "value": [],
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
