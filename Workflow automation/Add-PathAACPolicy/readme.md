@@ -1,5 +1,5 @@
-> Add a new file path as allow list rule when an ASC alert is triggered/created for AAC policy
-**Author: Lior Arviv**
+ # Add a new file path as allow list rule when an ASC alert is triggered/created for AAC policy
+## Author: Lior Arviv
 
 Adaptive application controls are an intelligent and automated solution for defining allow lists of known-safe applications for your machines.
 When you've enabled and configured adaptive application controls, you'll get security alerts if any application runs other than the ones you've defined as safe.
