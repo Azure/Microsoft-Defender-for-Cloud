@@ -26,10 +26,10 @@ To make this Logic App work, you can have to choose between two options:
 
 <br>
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fliorarviv%2FAzure-Security-Center%2Fliorarviv-patch-1%2FWorkflow%2520automation%2FAdd-PathAACPolicy%2Fazuredeploy.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton"/></a>
 
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/" target="_blank">
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fliorarviv%2FAzure-Security-Center%2Fliorarviv-patch-1%2FWorkflow%2520automation%2FAdd-PathAACPolicy%2Fazuredeploy.json" target="_blank">
 <img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 2. Go to the subscription/management group page.
