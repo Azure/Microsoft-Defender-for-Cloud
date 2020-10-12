@@ -135,6 +135,10 @@
                       {
                         "field": "Microsoft.Compute/imageSKU",
                         "like": "7.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7*"
                       }
                     ]
                   }
