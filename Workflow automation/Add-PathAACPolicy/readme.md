@@ -11,7 +11,7 @@ The ARM template will create the Logic App automation and the related API connec
 To be able to deploy the resources, your account needs to have at least *Contributor* rights on the target Resource Group.
 The Logic App also uses a System-Assigned Managed Identity to access API endpoints.
 
-![Trigger Logic App](./Images/trigger-logic-app.png?raw=true)
+![Trigger Logic App](./Images/trigger-logic-app.png)
 
 ### Instructions
 
@@ -56,4 +56,4 @@ New-AzRoleDefinition -InputFile "C:\CustomRoles\aac-custom-rbac-role.json"
 ```
 4. Validate that your new custom role definition is deployed on the selected scope/s. The recommended approach is to select a management group.
 
-![Custom Role Definition](./Images/custom-rbac-role.png?raw=true)
+![Custom Role Definition](./Images/custom-rbac-role.png)
