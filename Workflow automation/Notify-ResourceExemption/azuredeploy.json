@@ -15,13 +15,17 @@
                 }
         },
         "recipientAddress": {
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the recipient's email address",
+                "description": "Enter the recipient's email address"
+                }
         },
         "workspaceId": {
             "type": "string",
            "metadata": {
-                "displayName": "Enter the recipient's email address",
-                "description": "Enter the recipient's email address"
+                "displayName": "Enter the Log Analytics workspace ID",
+                "description": "Enter the Log Analytics workspace ID"
                 }
         },
         "workspaceKey": {
