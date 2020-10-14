@@ -1,0 +1,514 @@
+{
+  "properties": {
+    "displayName": "Deploy One Agent monitor onboarding to Azure Security Center for Linux virtual machine scale sets",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy ensures that onboarding is enabled on virtual machines scale sets. It will automatically create a resource group and log analytics workspace in the same region as the virtual machine scale set to store audit records.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {
+      "listOfImageIdToInclude": {
+        "type": "Array",
+        "defaultValue": [],
+        "metadata": {
+          "displayName": "Optional: List of VM images that have supported Linux OS to add to scope",
+          "description": "Example value: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "allOf": [{
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachineScaleSets"
+          },
+          {
+            "field": "location",
+            "in": [
+              "eastus2euap",
+              "eastus",
+              "westeurope",
+              "westus2",
+              "southeastasia",
+              "centralus"
+            ]
+          },
+          {
+            "anyOf": [{
+                "field": "Microsoft.Compute/imageId",
+                "in": "[parameters('listOfImageIdToInclude')]"
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "RedHat"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "RHEL",
+                      "RHEL-SAP-HANA"
+                    ]
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7*"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "SUSE"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "SLES",
+                      "SLES-HPC",
+                      "SLES-HPC-Priority",
+                      "SLES-SAP",
+                      "SLES-SAP-BYOS",
+                      "SLES-Priority",
+                      "SLES-BYOS",
+                      "SLES-SAPCAL",
+                      "SLES-Standard"
+                    ]
+                  },
+                  {
+                    "anyOf": [{
+                      "field": "Microsoft.Compute/imageSKU",
+                      "like": "12*"
+                    }]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Canonical"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "UbuntuServer"
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "14.04*LTS"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "16.04*LTS"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "18.04*LTS"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Oracle"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "Oracle-Linux"
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7.*"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "OpenLogic"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "CentOS",
+                      "Centos-LVM",
+                      "CentOS-SRIOV"
+                    ]
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "6.*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "7*"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "cloudera"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "cloudera-centos-os"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "like": "7*"
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "credativ"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "debian"
+                    ]
+                  },
+                  {
+                    "anyOf": [{
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "8"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSKU",
+                        "like": "9"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [{
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "Debian"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "debian-10"
+                    ]
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "like": "10"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Compute/virtualMachineScaleSets/extensions",
+          "deploymentScope": "subscription",
+          "existenceCondition": {
+            "allOf": [{
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/type",
+                "equals": "AzureSecurityLinuxAgent"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/Publisher",
+                "equals": "Microsoft.Azure.Security.Monitoring"
+              },
+              {
+                "field": "Microsoft.Compute/virtualMachineScaleSets/extensions/provisioningState",
+                "in": [
+                  "Succeeded",
+                  "Provisioning succeeded"
+                ]
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+            "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "deployment": {
+            "location": "eastus",
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "resourceGroup": {
+                  "value": "[resourceGroup().name]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "vmName": {
+                  "value": "[field('name')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                "contentVersion": "1.0.0.1",
+                "parameters": {
+                  "resourceGroup": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "vmName": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "pairedLocations": {
+                    "eastus2euap": "eastus2euap",
+                    "eastus": "eastus",
+                    "westeurope": "westeurope",
+                    "westus2": "westus2",
+                    "southeastasia": "southeastasia",
+                    "centralus ": "centralus"
+                  },
+                  "locationLongNameToShortMap": {
+                    "eastus2euap": "EUS2EUAP",
+                    "eastus": "EUS",
+                    "westeurope": "WEU",
+                    "westus2": "WUS2",
+                    "southeastasia": "SEA",
+                    "centralus ": "CUS"
+                  },
+                  "locationCode": "[variables('locationLongNameToShortMap')[variables('pairedLocations')[parameters('location')]]]",
+                  "subscriptionId": "[subscription().subscriptionId]",
+                  "defaultRGName": "[concat('DefaultResourceGroup-', variables('locationCode'))]",
+                  "defaultRGLocation": "[variables('pairedLocations')[parameters('location')]]",
+                  "dcrName": "[concat('Microsoft-Security-', variables('locationCode'))]",
+                  "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
+                  "dcraName": "Security-RulesAssociation",
+                  "workspaceName": "[concat('defaultWorkspace-', variables('subscriptionId'),'-', variables('locationCode'))]",
+                  "workspaceId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', variables('defaultRGName'), '/providers/Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]",
+                  "linuxExtautoUpgradeMinorVersion": true,
+                  "deployIdentitySystem": "[concat('deployIdentitySystem-', uniqueString(deployment().name))]",
+                  "deployAzureMonitorLinuxAgent": "[concat('deployAzureMonitorLinuxAgent-', uniqueString(deployment().name))]",
+                  "deployAzureSecurityLinuxAgent": "[concat('deployAzureSecurityLinuxAgent-', uniqueString(deployment().name))]",
+                  "deployWorkspace": "[concat('deployWorkspace-', uniqueString(deployment().name))]",
+                  "deploySolutions": "[concat('deploySolutions-', uniqueString(deployment().name))]",
+                  "deployDataCollectionRule": "[concat('deployDataCollectionRule-', uniqueString(deployment().name))]",
+                  "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]"
+                },
+                "comment": "This is a deployIfNotExist policy template responsible to deploy complex solutions of One Agent installation for Linux Scale Sets.",
+                "resources": [{
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployIdentitySystem')]",
+                    "resourceGroup": "[parameters('resourceGroup')]",
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "vmName": {
+                          "value": "[parameters('vmName')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/LinkedTemplates/IdentitySystemAssigned-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployAzureMonitorLinuxAgent')]",
+                    "resourceGroup": "[parameters('resourceGroup')]",
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "vmName": {
+                          "value": "[parameters('vmName')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        },
+                        "linuxExtautoUpgradeMinorVersion": {
+                          "value": "[variables('linuxExtautoUpgradeMinorVersion')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/Extensions/OneAgent-linuxExt-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployAzureSecurityLinuxAgent')]",
+                    "resourceGroup": "[parameters('resourceGroup')]",
+                    "dependsOn": [
+                      "[variables('deployAzureMonitorLinuxAgent')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "vmName": {
+                          "value": "[parameters('vmName')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        },
+                        "linuxExtautoUpgradeMinorVersion": {
+                          "value": "[variables('linuxExtautoUpgradeMinorVersion')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/Extensions/OneAgent-securityLinuxExt-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/resourceGroups",
+                    "apiVersion": "2019-05-01",
+                    "name": "[variables('defaultRGName')]",
+                    "location": "[variables('defaultRGLocation')]"
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployWorkspace')]",
+                    "resourceGroup": "[variables('defaultRGName')]",
+                    "dependsOn": [
+                      "[resourceId('Microsoft.Resources/resourceGroups', variables('defaultRGName'))]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "workspaceName": {
+                          "value": "[variables('workspaceName')]"
+                        },
+                        "location": {
+                          "value": "[variables('defaultRGLocation')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/LinkedTemplates/Workspace-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deploySolutions')]",
+                    "resourceGroup": "[variables('defaultRGName')]",
+                    "dependsOn": [
+                      "[variables('deployWorkspace')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "workspaceName": {
+                          "value": "[variables('workspaceName')]"
+                        },
+                        "location": {
+                          "value": "[variables('defaultRGLocation')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/LinkedTemplates/Solutions-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployDataCollectionRule')]",
+                    "resourceGroup": "[variables('defaultRGName')]",
+                    "dependsOn": [
+                      "[variables('deployWorkspace')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "location": {
+                          "value": "[variables('defaultRGLocation')]"
+                        },
+                        "workspaceId": {
+                          "value": "[variables('workspaceId')]"
+                        },
+                        "dcrName": {
+                          "value": "[variables('dcrName')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/LinkedTemplates/DataCollectionRules-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2017-05-10",
+                    "name": "[variables('deployDataCollectionRulesAssociation')]",
+                    "resourceGroup": "[parameters('resourceGroup')]",
+                    "dependsOn": [
+                      "[variables('deployDataCollectionRule')]"
+                    ],
+                    "properties": {
+                      "mode": "Incremental",
+                      "parameters": {
+                        "dataCollectionRuleId": {
+                          "value": "[variables('dcrId')]"
+                        },
+                        "vmName": {
+                          "value": "[parameters('vmName')]"
+                        },
+                        "dcraName": {
+                          "value": "[variables('dcraName')]"
+                        },
+                        "location": {
+                          "value": "[parameters('location')]"
+                        }
+                      },
+                      "templateLink": {
+                        "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Pricing%20%26%20Settings/One%20Agent/Linux%20VMSS/LinkedTemplates/DataCollectionRuleAssociations-deployIfNotExists.json",
+                        "contentVersion": "1.0.0.0"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "id": "/providers/Microsoft.Authorization/policyDefinitions/274180c4-ea61-45a1-b02d-e1e49f6ec0c6",
+  "name": "274180c4-ea61-45a1-b02d-e1e49f6ec0c6"
+}

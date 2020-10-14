@@ -1,0 +1,96 @@
+{
+    "properties": {
+      "displayName": "Assign an existing Network Security Group to subnets",
+      "policyType": "Custom",
+      "mode": "All",
+      "description": "This policy enables you to protect virtual network subnets with an existing network security group (NSG) found in the same subscription.",
+      "metadata": {
+        "version": "1.0.0",
+        "category": "Security Center"
+      },
+    "policyRule": {
+      "if": {
+            "allOf": [
+              {
+                "field": "type",
+                "equals": "Microsoft.Network/virtualNetworks/subnets"
+              },
+              {
+                "not": {
+                  "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
+                  "exists": "true"
+                }
+              }
+            ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Network/networkSecurityGroups",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/4d97b98b-1d4f-4787-a291-c67834d212e7"
+          ],
+          "existenceCondition": {
+            "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
+            "equals": "[parameters('nsgName')]"
+          },
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "nsgName": {
+                  "value": "[parameters('nsgName')]"
+                },
+                "associatedSubnetName": {
+                  "value": "[field('fullname')]"
+                },
+                "subnetAddressPrefix": {
+                  "value": "[field('Microsoft.Network/virtualNetworks/subnets/addressPrefix')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "nsgName": {
+                    "type": "string"
+                  },
+                  "associatedSubnetName": {
+                    "type": "string"
+                  },
+                  "subnetAddressPrefix": {
+                    "type": "string"
+                  }
+                },
+                "variables": {},
+                "resources": [
+                  {
+                    "apiVersion": "2018-03-01",
+                    "type": "Microsoft.Network/virtualNetworks/subnets",
+                    "name": "[parameters('associatedSubnetName')]",
+                    "properties": {
+                      "addressPrefix": "[parameters('subnetAddressPrefix')]",
+                      "networkSecurityGroup": {
+                        "id": "[parameters('nsgName')]"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "nsgName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "NSG Name",
+          "description": "Select a spesific network security group within your subscription",
+          "strongType": "Microsoft.Network/NetworkSecurityGroups"
+        }
+      }
+    }
+  }
+}

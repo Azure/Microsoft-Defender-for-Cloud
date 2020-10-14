@@ -5,7 +5,7 @@ There are many ways to simulate an alert in Azure Security Center and if you jus
 
 ## Alert Simulation for Windows (Azure and Non-Azure VMs)
 
-- Download this [PDF](https://gallery.technet.microsoft.com/Azure-Security-Center-f621a046) from TechNet Gallery and follow the steps to configure a lab environment to test Windows VM-based threat detection.
+- Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Security%20Alerts%20Playbook_v2.pdf) and follow the steps to configure a lab environment to test Windows VM-based threat detection.
 
 - [Threat Detection for Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
 
@@ -15,7 +15,7 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 ## Alert Simulation for Linux (Azure and Non-Azure VMs)
 
-- Download this [PDF](https://gallery.technet.microsoft.com/Azure-Security-Center-0ac8a5ef) from TechNet Gallery and follow the steps to configure a lab environment to test Linux VM-based threat detection.
+- Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Linux%20Detections_v2.pdf) and follow the steps to configure a lab environment to test Linux VM-based threat detection.
 
 - [Threat Detection for Linux documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#linux-)
 
@@ -44,4 +44,4 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 - This simulation playbook go over a threat hunting scenario using Azure Security Center and searching for evidences of attack in Log Analtyics workspace.
 
-- Download [this PDF](https://gallery.technet.microsoft.com/Azure-Security-Center-549aa7a4) from TechNet Gallery and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.
+- Download [this PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Hunting%20Playbook_V2.pdf) and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.

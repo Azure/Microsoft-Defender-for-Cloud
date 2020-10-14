@@ -54,7 +54,7 @@
             "name": "[parameters('PlaybookName')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
-                "[resourceId('Microsoft.Web/connections', variables(''))]",
+                "[resourceId('Microsoft.Web/connections', variables('AzDevOpsConnectionName'))]",
                 "[resourceId('Microsoft.Web/connections', variables('ASCAssesmentConnectionName'))]"
             ],
             "properties": {
