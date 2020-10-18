@@ -7,8 +7,9 @@ The dashboard contains out-of-the-box reports that will help you analyze your se
 ## Prerequisite:
 
 1. Power BI account (to open the report as template app you need Pro account).
+3. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
+2. Power BI desktop intalled (version 2.86.727.0 or higher). This is required only if you chose to use the desktop version.
 
-2. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
 
 ## **Getting the reports**
 You can open the reports with two different options:
@@ -19,9 +20,13 @@ You can open the reports with two different options:
 1. Download the file *Secure Score Report* from the repository.
 2. Open the file using Power BI Desktop.
 3. Enter your Log Analytics workspace id and click **Load** button.
-![Enter log analytics id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LogAnalyticsIdDesktop.png?raw=true)
-4. Perform authentication using organizational account with **OAuth2** as the authentication method.  ![Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/Authentication2.png?raw=true)
 
+    ![Enter log analytics id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LogAnalyticsIdDesktop2.png?raw=true)
+
+4. Perform authentication using organizational account with **OAuth2** as the authentication method for your Log Analytics workspace.  
+![Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/Authentication2.png?raw=true)
+5. Perform anonymous authentication to our blob storage. This is required in order to keep you posted in versions updates.
+![Blob Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/BlobStorageAuth.png?raw=true)
 5. After authentication completed, the data will be loaded.  
 ***Note:**  
 You can connect your data only if the data already available at the Log Analytics workspace. You can check it by running “SecureScore_CL” in the Log Analytics. Only after you get results to this query you can connect your data.*
@@ -31,7 +36,7 @@ You can connect your data only if the data already available at the Log Analytic
 
 Using this option you will create a Power BI application based on our template app. Please make sure you have Power BI Pro account before starting the process.
 
-1. Go to [this](https://app.powerbi.com/Redirect?action=InstallApp&appId=0c3bbb94-36cc-4153-a5c2-b63181a17166&packageKey=14ec9028-3513-4a1c-aed1-83a01ecfc975qTsHacSHROKH9oDSq9Co9Ln72xYehlJKmEvIYPIxbz8&ownerId=72f988bf-86f1-41af-91ab-2d7cd011db47&buildVersion=12) link.
+1. Go to [this](https://app.powerbi.com/Redirect?action=InstallApp&appId=0c3bbb94-36cc-4153-a5c2-b63181a17166&packageKey=b4b0a452-779e-4e66-8bef-90fab69b36ecDZm66TQ7b05DpVhiTnT71ie0y1rnNOdkgRWoxCSJBqM&ownerId=72f988bf-86f1-41af-91ab-2d7cd011db47&buildVersion=14) link.
 2. Click **Install** button as shown in the example below: 
 
     ![Install app](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/InstallTemplateApp.png?raw=true)
@@ -85,7 +90,7 @@ Notice the reports can be filtered by time using the date scroll bar or by subsc
 * **Secure score over time per subscription** – Secure score over time to detect changes in the score for each subscription separately.  
 * **Controls score over time** – Security controls score over time to detect changes on a specific control.  
 * **Score trends per subscription** – Present the current score for each subscription and total score change in the last week and in the last month. 
-* **Detected changes that may affected your secure score** – To help you investigate the reasons for increase/decrease in your score, we present every day the changes which potentially affected the score. That includes deleted resources, newly deployed resources and resources with a change in status for one of the recommendations. Note, those changes are not necessarily the reason for the score change. Also note that it may take up to 24 hours for changes to appear. 
+* **Detected changes that may affected your secure score** – To help you investigate the reasons for increase/decrease in your score, we present every day the changes which potentially affected the score. That includes deleted resources, newly deployed resources and resources with a change in status for one of the recommendations. Note, those changes are not necessarily the reason for the score change. Also note that it may take up to 24 hours for changes to appear. Presents data for the last 30 days.
 
  ![Secure score report](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/Report1.png?raw=true)
 
@@ -95,7 +100,7 @@ Notice the reports can be filtered by time using the date scroll bar or by subsc
 
 * **Recommendations current state** – Number of healthy, unhealthy and not-applicable resources for each recommendation. 
 * **Controls status sorted by potential impact** – Comparison between healthy and unhealthy resources for each control. The controls are sorted by the control max score, to help you focus on the most important controls. 
-* **Remediated resources and new unhealthy resources** – In case you saw on the ‘Detected changes that may affected your secure score’ table resources that changed their security status, you can use this table to understand on which recommendation the status was changed, and what was the change. 
+* **Remediated resources and new unhealthy resources** – In case you saw on the ‘Detected changes that may affected your secure score’ table resources that changed their security status, you can use this table to understand on which recommendation the status was changed, and what was the change. Presents data for the last 30 days.
 * **Unhealthy resources over time per recommendation** – Number of unhealthy resources for each recommendation over time.  
 * **Number of healthy vs. unhealthy resources over time** – Total number of healthy and unhealthy resources over time. 
 
