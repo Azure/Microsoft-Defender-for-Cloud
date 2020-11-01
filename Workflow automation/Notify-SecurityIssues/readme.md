@@ -3,8 +3,8 @@
 
 ### Overview
 The Logic App allows you to notify resource owner/s of outstanding security issues (unhealthy recommendations).
-Asset inventory dashboard in Azure Security Center, allows you to trigger Logic App automation on selected resource/s right from the top menu bar.
-Once triggered, the resource owner (RBAC role) gets email message summarizes all active/unhealthy recommendations along with direct link to resource security heath blade – so resource owner can review the recommendations and resolve all the issues.
+[Asset inventory dashboard](https://docs.microsoft.com/en-us/azure/security-center/asset-inventory) in Azure Security Center, allows you to trigger Logic App automation on selected resource/s right from the top menu bar.
+Once triggered, the resource owner (RBAC role) gets email message summarizes all active/unhealthy recommendations along with a direct link to resource security heath blade – so resource owner can review the recommendations and resolve all the issues.
 After a successful deployment, you must grant the required permissions for the Logic App to run and authorize Office 365 connector to generate valid access tokens for authenticating your credentials – detailed instructions below.
 
 ![Trigger Logic App](.//trigger-logic-app.gif)
