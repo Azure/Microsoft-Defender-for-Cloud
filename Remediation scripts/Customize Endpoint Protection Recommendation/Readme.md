@@ -3,3 +3,8 @@
 **Author: Safeena Begum**
 
 Today Azure Security Center detects and supports wide variety of Endpoint Protection solutions. This automation artifact will help those customers who are using an Endpoint protection solution apart from what ASC already supports.  
+
+
+**Procedure to download the GitHub Folder**
+To download folders from GitHub leveraging the GitZip extension for Chrome and Firefox (or the corresponding web interface). For the latter, you just have to copy the GitHub directory you want to download and the web interface will than generate a zip container and download it to your machine: https://kinolien.github.io/gitzip/
+NOTE: Please do not rename/modify the folders structure for a successful deployment.
