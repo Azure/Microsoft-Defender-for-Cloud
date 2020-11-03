@@ -1,0 +1,473 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Notify-SecurityIssues",
+            "type": "String",
+            "metadata": {
+                "description": "Set the Logic App name"
+            }
+        },
+        "TenantID": {
+            "type": "string",
+            "defaultValue": "[subscription().tenantId]",
+            "metadata": {
+                "description": "Specify your Azure AD tenant ID. If you don’t know how to obtain your tenant ID, please visit https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Properties"
+            }
+        },
+        "UserPrincipalName": {
+            "defaultValue": "<username>@<domain.com>",
+            "type": "string",
+            "metadata": {
+                "description": "Specify your user principal name. For example, user@contoso.com"
+            }
+        }
+    },
+    "variables": {
+        "Office365ConnectionName": "[concat('Office365-', parameters('logicAppName'))]"
+    },
+    "resources": [
+        {
+            "name": "[variables('Office365ConnectionName')]",
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+            },
+            "properties": {
+                "displayName": "[parameters('UserPrincipalName')]",
+                "parameterValues": {},
+                "customParameterValues": {},
+                "nonSecretParameterValues": {},
+                "api": {
+                    "id": "[concat(subscription().id, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('logicAppName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "TenantID": {
+                            "defaultValue": "[parameters('TenantID')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "manual": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "schema": {
+                                    "items": {
+                                        "properties": {
+                                            "activeRecommendations": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "agentIssues": {
+                                                "type": "string"
+                                            },
+                                            "agentMonitoring": {
+                                                "type": "string"
+                                            },
+                                            "completedRecommendations": {
+                                                "items": {
+                                                    "type": "string"
+                                                },
+                                                "type": "array"
+                                            },
+                                            "pricingTier": {
+                                                "type": "string"
+                                            },
+                                            "resourceGroup": {
+                                                "type": "string"
+                                            },
+                                            "resourceId": {
+                                                "type": "string"
+                                            },
+                                            "resourceName": {
+                                                "type": "string"
+                                            },
+                                            "resourceType": {
+                                                "type": "string"
+                                            },
+                                            "subscriptionId": {
+                                                "type": "string"
+                                            },
+                                            "subscriptionName": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": [
+                                            "subscriptionId",
+                                            "subscriptionName",
+                                            "resourceGroup",
+                                            "resourceType",
+                                            "resourceName",
+                                            "resourceId",
+                                            "pricingTier",
+                                            "agentMonitoring",
+                                            "agentIssues",
+                                            "activeRecommendations",
+                                            "completedRecommendations"
+                                        ],
+                                        "type": "object"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "actions": {
+                        "For_Each_Item": {
+                            "foreach": "@triggerBody()",
+                            "actions": {
+                                "Build_Email_Body": {
+                                    "runAfter": {
+                                        "Build_Resource_Health_URL": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EmailBody",
+                                        "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:center; width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n\t\t\t\t\t\t\t\t<h2 style=\"text-align: left;\">Security issues found with your resource</h2>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p style=\"text-align: center;\">You&rsquo;re the owner of a resource that has outstanding security\n\t\t\t\t\trecommendations in Azure Security Center.<br />\n\t\t\t\t\tPlease review the recommendations and resolve them as instructed within Security Center.</p>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Resource details</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Resource name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{items('For_Each_Item')['resourceName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Subscription ID</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{items('For_Each_Item')['subscriptionId']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Subscription name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{items('For_Each_Item')['subscriptionName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Reource group</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{items('For_Each_Item')['resourceGroup']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Resource type</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{items('For_Each_Item')['resourceType']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Unheathy recommendations</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t\t\t<p>@{outputs('Replace_HTML_Tags_4')}</p>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Action items</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<ol>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>Select <a href=\"@{variables('ResourceDeepLink')}\">here</a> to open your resource&rsquo;s details page.</p>\n\t\t\t\t\t</li>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>Review the recommendations and resolve all the issues.</p>\n\t\t\t\t\t</li>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>If any recommendation isn&rsquo;t applicable to your resource, a security administrator can\n\t\t\t\t\t\t\texempt your resource by following the instructions <a\n\t\t\t\t\t\t\t\thref=\"https://docs.microsoft.com/en-us/azure/security-center/exempt-resource\">here</a>.\n\t\t\t\t\t\t</p>\n\t\t\t\t\t</li>\n\t\t\t\t</ol>\n\t\t\t</td>\n\t\t</tr>\n\t</tbody>\n</table>"
+                                    }
+                                },
+                                "Build_Resource_Health_URL": {
+                                    "runAfter": {
+                                        "Replace_HTML_Tags_4": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "ResourceDeepLink",
+                                        "value": "@concat('https://portal.azure.com/#blade/Microsoft_Azure_Security/GenericResourceHealthDetailsBlade/resourceId/',encodeUriComponent(items('For_Each_Item')['resourceId']))"
+                                    }
+                                },
+                                "Clear_Emails": {
+                                    "runAfter": {
+                                        "Until": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EmailAddresses",
+                                        "value": "@{null}"
+                                    }
+                                },
+                                "Clear_ObjectIDs": {
+                                    "runAfter": {
+                                        "Clear_Emails": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "ObjectIDs",
+                                        "value": "@null"
+                                    }
+                                },
+                                "Filter_Identity": {
+                                    "runAfter": {
+                                        "Get_Identity_Details": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@body('Get_Identity_Details')?['value']",
+                                        "where": "@not(equals(item()?['mail'], null))"
+                                    }
+                                },
+                                "Filter_Owners": {
+                                    "runAfter": {
+                                        "Get_Resource_Role_Assignments": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Query",
+                                    "inputs": {
+                                        "from": "@body('Get_Resource_Role_Assignments')?['value']",
+                                        "where": "@contains(item()?['properties']?['roleDefinitionId'], '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')"
+                                    }
+                                },
+                                "For_Each_ID": {
+                                    "foreach": "@body('Filter_Identity')",
+                                    "actions": {
+                                        "Build_Email_String": {
+                                            "runAfter": {},
+                                            "type": "AppendToStringVariable",
+                                            "inputs": {
+                                                "name": "EmailAddresses",
+                                                "value": "@{items('For_Each_ID')?['mail']};"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Filter_Identity": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "For_Each_Object_ID": {
+                                    "foreach": "@body('Filter_Owners')",
+                                    "actions": {
+                                        "Append_Object_ID": {
+                                            "runAfter": {},
+                                            "type": "AppendToArrayVariable",
+                                            "inputs": {
+                                                "name": "ObjectIDs",
+                                                "value": "@items('For_Each_Object_ID')?['properties']?['principalId']"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Filter_Owners": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "Get_Identity_Details": {
+                                    "runAfter": {
+                                        "For_Each_Object_ID": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://graph.microsoft.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "body": {
+                                            "ids": "@variables('ObjectIDs')",
+                                            "types": [
+                                                "user"
+                                            ]
+                                        },
+                                        "headers": {
+                                            "Content-type": "application/json"
+                                        },
+                                        "method": "POST",
+                                        "uri": "https://graph.microsoft.com/v1.0/directoryObjects/getByIds"
+                                    }
+                                },
+                                "Get_Resource_Role_Assignments": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/@{items('For_Each_Item')['resourceId']}/providers/Microsoft.Authorization/roleAssignments?api-version=2018-09-01-preview"
+                                    }
+                                },
+                                "Recommendations_to_HTML": {
+                                    "runAfter": {
+                                        "For_Each_ID": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Table",
+                                    "inputs": {
+                                        "columns": [
+                                            {
+                                                "value": "@item()"
+                                            }
+                                        ],
+                                        "format": "HTML",
+                                        "from": "@items('For_Each_Item')['activeRecommendations']"
+                                    }
+                                },
+                                "Replace_HTML_Tags_1": {
+                                    "runAfter": {
+                                        "Recommendations_to_HTML": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@replace(body('Recommendations_to_HTML'),'<table>','<ul><table>')"
+                                },
+                                "Replace_HTML_Tags_2": {
+                                    "runAfter": {
+                                        "Replace_HTML_Tags_1": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@replace(outputs('Replace_HTML_Tags_1'),'<td>','<td><li>')"
+                                },
+                                "Replace_HTML_Tags_3": {
+                                    "runAfter": {
+                                        "Replace_HTML_Tags_2": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@replace(outputs('Replace_HTML_Tags_2'),'</td>','</li></td>')"
+                                },
+                                "Replace_HTML_Tags_4": {
+                                    "runAfter": {
+                                        "Replace_HTML_Tags_3": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Compose",
+                                    "inputs": "@replace(outputs('Replace_HTML_Tags_3'),'</table>','</table></ul>')"
+                                },
+                                "Send_Email": {
+                                    "runAfter": {
+                                        "Build_Email_Body": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Body": "<p>@{variables('EmailBody')}</p>",
+                                            "Importance": "High",
+                                            "Subject": "Action required: Security issues found with @{items('For_Each_Item')['resourceName']}",
+                                            "To": "@variables('EmailAddresses')"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    }
+                                },
+                                "Until": {
+                                    "actions": {},
+                                    "runAfter": {
+                                        "Send_Email": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": "@not(equals(variables('EmailAddresses'), null))",
+                                    "limit": {
+                                        "count": 60,
+                                        "timeout": "PT1H"
+                                    },
+                                    "type": "Until"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_ResourceDeepLink": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Initialize_EmailBody": {
+                            "runAfter": {
+                                "Initialize_Emails": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_Emails": {
+                            "runAfter": {
+                                "Initialize_ObjectIDs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailAddresses",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_ObjectIDs": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ObjectIDs",
+                                        "type": "array",
+                                        "value": null
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_ResourceDeepLink": {
+                            "runAfter": {
+                                "Initialize_EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResourceDeepLink",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]",
+                                "connectionName": "[variables('Office365ConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
