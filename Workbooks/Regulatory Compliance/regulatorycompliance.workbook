@@ -1,0 +1,383 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Regulatory Compliance Workbook"
+      },
+      "name": "headertext"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::selected"
+        ],
+        "parameters": [
+          {
+            "id": "b859a03f-2283-43dd-8536-42714bbfced6",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "summarize by subscriptionId\r\n| project value = strcat('/subscriptions/', subscriptionId), label = subscriptionId",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "top-params"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "This workbook visualises the Regulatory Compliance standards and findings from Azure Defender."
+      },
+      "name": "abouttext"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "00bbb3ff-809c-4c98-baaf-4535f45f6213",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "ef9da66d-adb9-45c1-b6ec-45e4872eb2ef",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Regulatory Compliance Detail",
+            "subTarget": "Detail",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 3"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/regulatorycompliancestandards\"\r\n| extend \r\n\tpassedControls = trim (' ', tostring(properties.passedControls)), \r\n\tfailedControls = trim(' ',tostring(properties.failedControls)), \r\n\tstate \t\t   = trim(' ', tostring(properties.state)), \r\n\tunsupportedControls = trim(' ', tostring(properties.unsupportedControls)), \r\n\tskippedControls     = trim(' ', tostring(properties.skippedControls))\r\n| project subscriptionId, name, passedControls, failedControls, unsupportedControls, skippedControls ,  link = \"https://portal.azure.com/?feature.customportal=false#blade/Microsoft_Azure_Security/SecurityMenuBlade/22\"\r\n| order by passedControls desc",
+              "size": 0,
+              "noDataMessage": "No Regulatory Compliance controls detected in the subscription(s) you selected. Please ensure that Azure Defender is enabled and that you have added the regulatory compliance initiatives.",
+              "noDataMessageStyle": 2,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "linkColumn": "link",
+                      "linkTarget": "Url"
+                    }
+                  },
+                  {
+                    "columnMatch": "passedControls",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "green"
+                    }
+                  },
+                  {
+                    "columnMatch": "failedControls",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  },
+                  {
+                    "columnMatch": "link",
+                    "formatter": 5
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription"
+                  },
+                  {
+                    "columnId": "name",
+                    "label": "Compliance Standard"
+                  },
+                  {
+                    "columnId": "passedControls",
+                    "label": "Passed Controls"
+                  },
+                  {
+                    "columnId": "failedControls",
+                    "label": "Failed Controls"
+                  },
+                  {
+                    "columnId": "unsupportedControls",
+                    "label": "Unsupported Controls"
+                  },
+                  {
+                    "columnId": "skippedControls",
+                    "label": "Skipped Controls"
+                  },
+                  {
+                    "columnId": "link",
+                    "label": "Link"
+                  }
+                ]
+              }
+            },
+            "name": "regulatorycompliancesummary"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "RegulatoryComplianceOverview"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "parameters": [
+                {
+                  "id": "4bb21693-252d-4124-ad62-f37c0f6582b4",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Control",
+                  "label": "Regulatory Compliance Control",
+                  "type": 2,
+                  "isRequired": true,
+                  "query": "securityresources\r\n| where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols\"\r\n| parse id with * \"/regulatoryComplianceStandards/\" ComplianceStandard \"/\" *\r\n| summarize by ComplianceStandard\r\n| order by ComplianceStandard asc",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "value": "SOC-TSP",
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                }
+              ],
+              "style": "pills",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "reg-comp-selection"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "Note: you can use the down-arrow icon on the top right of the panel below to export the full status of the **{Control}** standard"
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols\"\r\n| parse id with * \"/regulatoryComplianceStandards/\" ComplianceStandard \"/\" *\r\n| extend Description = properties.description\r\n| extend State = properties.state\r\n| extend Passed = properties.passedAssessments, Failed = properties.failedAssessments, Skipped = properties.skippedAssessments\r\n| where ComplianceStandard == \"{Control}\"\r\n| project name, ComplianceStandard, Description, State, Passed, Failed, Skipped, subscriptionId\r\n| order by name asc",
+              "size": 3,
+              "title": "{Control}",
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "ComplianceStandard",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Description",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "State",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Passed",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unsupported",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Failed",
+                          "representation": "3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Passed",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Skipped",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  }
+                ],
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "subscriptionId"
+                  ]
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "name",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "name",
+                    "label": "Name"
+                  },
+                  {
+                    "columnId": "ComplianceStandard"
+                  },
+                  {
+                    "columnId": "Description"
+                  },
+                  {
+                    "columnId": "State"
+                  },
+                  {
+                    "columnId": "Passed"
+                  },
+                  {
+                    "columnId": "Failed"
+                  },
+                  {
+                    "columnId": "Skipped"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "name",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "name": "RegulatoryComplianceBreakdown"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Detail"
+      },
+      "name": "RegulatoryComplianceDetail"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
