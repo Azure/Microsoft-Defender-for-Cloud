@@ -72,6 +72,7 @@ $role.Actions.Clear()
 $role.Actions.Add("Microsoft.Security/locations/jitNetworkAccessPolicies/read")
 $role.Actions.Add("Microsoft.Security/locations/jitNetworkAccessPolicies/initiate/action")
 $role.Actions.Add("Microsoft.Security/policies/read")
+$role.Actions.Add("Microsoft.Security/pricings/read")
 if (!($forApiOnly))
 {
 	$role.Actions.Add("Microsoft.Compute/virtualMachines/read")
