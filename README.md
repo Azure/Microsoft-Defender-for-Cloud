@@ -8,6 +8,10 @@ Welcome to the Azure Security Center community repository. This repository conta
 
 All of the above will help you work programmatically at scale with Azure Security Center and provide you additional security value to secure your environment, some of which has not yet been embedded into the product. You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues).
 
+
+## Support
+All automations within this repository are provided as is, without SLA or official support. However, if you have an issue please fill out a [bug report](https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=bug_report.md&title=) and the community will try to solve it.
+
 # Wiki
 This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/wiki) which will provide you with further information about the Azure Security Center community, how to contribute, templates to use, and further resources. 
 
