@@ -2,7 +2,7 @@
 # Module manifest for module 'ServiceFabricDsc'
 #
 #
-# Generated on: 17/09/2020
+# Generated on: 11/24/2020
 #
 
 @{
@@ -11,7 +11,7 @@
   # RootModule = ''
 
   # Version number of this module.
-  ModuleVersion     = '1.0.0.0'
+  ModuleVersion     = '1.0.0.1'
 
   # ID used to uniquely identify this module
   GUID              = '133cef52-ffce-48d5-a1f6-c38d41fdaaa4'
