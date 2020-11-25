@@ -1,5 +1,14 @@
 {
+  "properties": {
+    "displayName": "Enable Azure Defender for Servers",
+    "policyType": "Custom",
     "mode": "All",
+    "description": "This policy enables Azure Defender for Servers.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {},
     "policyRule": {
       "if": {
         "allOf": [
@@ -24,7 +33,6 @@
             "equals": "Standard"
           },
           "deployment": {
-            "location": "westeurope",
             "properties": {
                 "mode": "incremental",
                 "parameters": {},
@@ -46,9 +54,9 @@
                     "outputs": {}
                 }
             }
-        }
+         }
         }
       }
-    },
-    "parameters": {}
+    }
   }
+}
