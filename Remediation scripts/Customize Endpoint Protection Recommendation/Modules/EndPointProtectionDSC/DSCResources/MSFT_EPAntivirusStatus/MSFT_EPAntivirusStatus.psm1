@@ -72,88 +72,187 @@ function Get-TargetResource
     Write-Verbose -Message "Getting Information about Antivirus {$AntivirusName}"
     $Reasons = @()
 
-    $AntivirusInfo = Get-EPDSCInstalledAntivirus -AntivirusName $AntivirusName
-
     $nullReturn = $PSBoundParameters
     $nullReturn.Ensure = "Absent"
     if ($null -ne $nullReturn.Verbose)
     {
         $nullReturn.Remove("Verbose")
     }
-    if ($null -eq $AntivirusInfo)
+
+    $OSInfo = Get-WmiObject Win32_OperatingSystem
+
+    if ($OSInfo.Caption -notlike "*Windows Server*")
     {
-        Write-Verbose -Message "Could not obtain Information about Antivirus {$AntivirusName}"
+        Write-Verbose -Message "Windows Desktop OS Detected"
+        $AntivirusInfo = Get-EPDSCInstalledAntivirus -AntivirusName $AntivirusName
 
-        # Antivirus should be installed but it's not
-        if ($Ensure -eq 'Present')
+        if ($null -eq $AntivirusInfo)
         {
-                $Reasons += @{
-                    Code = "epantivirusstatus:epantivirusstatus:antivirusnotinstalled"
-                    Phrase = "Antivirus {$AntivirusName} should be installed but it's NOT."
-                }
-        }
-        $nullReturn.Add("Reasons", $Reasons)
-        
-        return $nullReturn
-    }
+            Write-Verbose -Message "Could not obtain Information about Antivirus {$AntivirusName}"
 
-    # Antivirus should not be installed but it is
-    if ($Ensure -eq 'Absent')
-    {
-        $Reasons += @{
-            Code   = "epantivirusstatus:epantivirusstatus:antivirusinstalled"
-            Phrase = "Antivirus {$AntivirusName} is installed but it should NOT."
-        }
-    }
-
-    try
-    {
-        $executablePathParts = $AntivirusInfo.pathToSignedReportingExe.Split("\")
-        $executableName = $executablePathParts[$executablePathParts.Length -1].Split('.')[0]
-        $process = Get-EPDSCProcessByReportingExecutable -ExecutableName $executableName
-
-        $statusValue = "Running"
-        if ($null -eq $process)
-        {
-            $statusValue = "Stopped"
-        }
-
-        if ($Status -ne $statusValue)
-        {
-            # Antivirus Agent should be running but its not
-            if ($Status -eq 'Running')
+            # Antivirus should be installed but it's not
+            if ($Ensure -eq 'Present')
             {
-                $Reasons += @{
-                    Code   = "epantivirusstatus:epantivirusstatus:agentnotrunning"
-                    Phrase = "Antivirus Agent for {$AntivirusName} is not running and it SHOULD be."
+                    $Reasons += @{
+                        Code = "epantivirusstatus:epantivirusstatus:antivirusnotinstalled"
+                        Phrase = "Antivirus {$AntivirusName} should be installed but it's NOT."
+                    }
+            }
+            $nullReturn.Add("Reasons", $Reasons)
+            
+            return $nullReturn
+        }
+
+        # Antivirus should not be installed but it is
+        if ($Ensure -eq 'Absent')
+        {
+            $Reasons += @{
+                Code   = "epantivirusstatus:epantivirusstatus:antivirusinstalled"
+                Phrase = "Antivirus {$AntivirusName} is installed but it should NOT."
+            }
+        }
+
+        try
+        {
+            $executablePathParts = $AntivirusInfo.pathToSignedReportingExe.Split("\")
+            $executableName = $executablePathParts[$executablePathParts.Length -1].Split('.')[0]
+            $process = Get-EPDSCProcessByReportingExecutable -ExecutableName $executableName
+
+            $statusValue = "Running"
+            if ($null -eq $process)
+            {
+                $statusValue = "Stopped"
+            }
+
+            if ($Status -ne $statusValue)
+            {
+                # Antivirus Agent should be running but its not
+                if ($Status -eq 'Running')
+                {
+                    $Reasons += @{
+                        Code   = "epantivirusstatus:epantivirusstatus:agentnotrunning"
+                        Phrase = "Antivirus Agent for {$AntivirusName} is not running and it SHOULD be."
+                    }
+                }
+                # Antivirus is running and it should not
+                else
+                {
+                    $Reasons += @{
+                        Code   = "epantivirusstatus:epantivirusstatus:agentrunning"
+                        Phrase = "Antivirus Agent for {$AntivirusName} is running and it should NOT be."
+                    }
                 }
             }
-            # Antivirus is running and it should not
+
+            $result = @{
+                AntivirusName = $AntivirusName
+                Status        = $statusValue
+                Ensure        = "Present"
+                Reasons       = $Reasons
+            }
+        }
+        catch
+        {
+            Write-Verbose -Message "Could not retrieve process running for Antivirus {$AntivirusName}"
+            $Reasons = @{
+                Code   = "epantivirusstatus:epantivirusstatus:unexpected"
+                Phrase = "Unexpected Error."
+            }
+            $nullReturn.Add("Reasons", $Reasons)
+            return $nullReturn
+        }
+    }
+    else
+    {
+        Write-Verbose -Message "Windows Server OS Detected"
+
+        # Do a general scan of installed software on the machine just as FYI
+        $keys = @("antivirus", "anti-virus", "virus")
+        foreach ($key in $keys)
+        {
+            $instance = get-ciminstance -Namespace 'root/cimv2' `
+                -ClassName 'Win32_Product' | Where-Object -FilterScript {$_.Caption -like "*$key*" -or $_.Name -like "*$key*"}
+            
+            if ($null -ne $instance)
+            {
+                Write-Verbose -Message "Found potential Antivirus software {$($instance.Name)} installed"
+                break
+            }
+        }
+
+        # Find processes based on the provided name
+        $process = Get-Process | Where-Object -FilterScript {$_.Name -eq $AntivirusName -or $_.ProcessName -eq $AntivirusName -or $_.Description -eq $AntivirusName -or $_.Product -eq $AntivirusName}
+
+        try
+        {
+            $statusValue = "Running"
+            if ($null -eq $process)
+            {
+                Write-Verbose -Message "Could not find process for {$AntivirusName}"
+                # Attempt to find a running service based on the provided name
+                $service = Get-Service | Where-Object -FilterScript {$_.Name -eq $AntivirusName -or $_.DisplayName -eq $AntivirusName}
+
+                if ($null -eq $service)
+                {
+                    Write-Verbose -Message "Could not find service for {$AntivirusName}"
+                    $statusValue = "Stopped"
+                }
+                else
+                {
+                    Write-Verbose -Message "Found service {$($service.DisplayName)}"
+                    if ($service.Status -eq "Running")
+                    {
+                        Write-Verbose -Message "Service {$($service.DisplayName)} is running"
+                    }
+                    else
+                    {
+                        Write-Verbose -Message "Service {$($service.DisplayName)} is stopped"
+                        $statusValue = "Stopped"
+                    }
+                }
+            }
             else
             {
-                $Reasons += @{
-                    Code   = "epantivirusstatus:epantivirusstatus:agentrunning"
-                    Phrase = "Antivirus Agent for {$AntivirusName} is running and it should NOT be."
+                Write-Verbose -Message "Found process {$($process.Name)}"
+            }
+
+            if ($Status -ne $statusValue)
+            {
+                # Antivirus Agent should be running but its not
+                if ($Status -eq 'Running')
+                {
+                    $Reasons += @{
+                        Code   = "epantivirusstatus:epantivirusstatus:agentnotrunning"
+                        Phrase = "Antivirus Agent for {$AntivirusName} is not running and it SHOULD be."
+                    }
+                }
+                # Antivirus is running and it should not
+                else
+                {
+                    $Reasons += @{
+                        Code   = "epantivirusstatus:epantivirusstatus:agentrunning"
+                        Phrase = "Antivirus Agent for {$AntivirusName} is running and it should NOT be."
+                    }
                 }
             }
-        }
 
-        $result = @{
-            AntivirusName = $AntivirusName
-            Status        = $statusValue
-            Ensure        = "Present"
-            Reasons       = $Reasons
+            $result = @{
+                AntivirusName = $AntivirusName
+                Status        = $statusValue
+                Ensure        = "Present"
+                Reasons       = $Reasons
+            }
         }
-    }
-    catch
-    {
-        Write-Verbose -Message "Could not retrieve process running for Antivirus {$AntivirusName}"
-        $Reasons = @{
-            Code   = "epantivirusstatus:epantivirusstatus:unexpected"
-            Phrase = "Unexpected Error."
+        catch
+        {
+            Write-Verbose -Message "Could not retrieve process running for Antivirus {$AntivirusName}"
+            $Reasons = @{
+                Code   = "epantivirusstatus:epantivirusstatus:unexpected"
+                Phrase = "Unexpected Error."
+            }
+            $nullReturn.Add("Reasons", $Reasons)
+            return $nullReturn
         }
-        $nullReturn.Add("Reasons", $Reasons)
-        return $nullReturn
     }
     return $result
 }
