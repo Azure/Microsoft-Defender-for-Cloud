@@ -1,5 +1,14 @@
 {
+  "properties": {
+    "displayName": "Enable Azure Defender for Storage",
+    "policyType": "Custom",
     "mode": "All",
+    "description": "This policy enables Azure Defender for Storage.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {},
     "policyRule": {
       "if": {
         "allOf": [
@@ -10,12 +19,12 @@
         ]
       },
       "then": {
-        "effect": "DeployIfNotExists",
+        "effect": "deployIfNotExists",
         "details": {
           "type": "Microsoft.Security/pricings",
           "name": "StorageAccounts",
-          "deploymentScope": "Subscription",
-          "existenceScope": "Subscription",
+          "deploymentScope": "subscription",
+          "existenceScope": "subscription",
           "roleDefinitionIds": [
             "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
           ],
@@ -24,7 +33,6 @@
             "equals": "Standard"
           },
           "deployment": {
-            "location": "westeurope",
             "properties": {
                 "mode": "incremental",
                 "parameters": {},
@@ -49,6 +57,6 @@
          }
         }
       }
-    },
-    "parameters": {}
+    }
   }
+}
