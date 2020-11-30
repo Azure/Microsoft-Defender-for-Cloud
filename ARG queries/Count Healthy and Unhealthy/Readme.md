@@ -5,6 +5,7 @@ Azure Resource Graph (ARG) provides an efficient way to query at scale across a 
 Name: Count Healthy, Unhealthy and Not Applicable Resources Per Recommendation
 Description: Returns count of healthy, unhealthy and not applicable resources per recommendation.
 Query:
+```
 securityresources
 | where type == "microsoft.security/assessments"
 | extend resourceId=id,
@@ -24,3 +25,4 @@ securityresources
     threats=properties.metadata.threats,
     portalLink=properties.links.azurePortal
 | summarize numberOfResources=count(resourceId) by tostring(recommendationName), tostring(recommendationState)
+```
