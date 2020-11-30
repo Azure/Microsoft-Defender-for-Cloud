@@ -1,10 +1,10 @@
-# ARG Queries for Azure Security Center Pricing
+# Count Healthy, Unhealthy and Not Applicable Resources Per Recommendation
 Azure Resource Graph (ARG) provides an efficient way to query at scale across a given set of subscriptions for any Azure Resource (for more information please visit https://docs.microsoft.com/en-us/azure/governance/resource-graph/). A useful use case is to use ARG to query, visualize or export Azure Security Center (ASC) Pricing information across your subscriptions in order to get the information that matters most to you.
 
 
-Name: Count Healthy, Unhealthy and Not Applicable Resources Per Recommendation
-Description: Returns count of healthy, unhealthy and not applicable resources per recommendation.
+This query returns count of healthy, unhealthy and not applicable resources per recommendation.
 Query:
+
 ```
 securityresources
 | where type == "microsoft.security/assessments"
