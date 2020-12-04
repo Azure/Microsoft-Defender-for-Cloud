@@ -63,35 +63,48 @@
                 "state": "Enabled",
                 "definition": {
                     "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
-                    "contentVersion": "1.0.0.0",
-                    "parameters": {
-                        "$connections": {
-                            "defaultValue": {
-                            },
-                            "type": "Object"
-                        }
-                    },
-                    "triggers": {
-                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
-                            "type": "ApiConnectionWebhook",
-                            "inputs": {
-                                "body": {
-                                    "callback_url": "@{listCallbackUrl()}"
-                                },
-                                "host": {
-                                    "connection": {
-                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
-                                    }
-                                },
-                                "path": "/Microsoft.Security/Assessment/subscribe"
-                            }
-                        }
-                    },
                     "actions": {
-                        "Create_or_update_a_template_deployment": {
-                            "runAfter": {
+                        "Condition": {
+                            "actions": {
+                                "Set_variable": {
+                                    "inputs": {
+                                        "name": "Type",
+                                        "value": "@{concat(variables('ResourceProvider'), '/virtualmachines')}"
+                                    },
+                                    "runAfter": {},
+                                    "type": "SetVariable"
+                                }
                             },
-                            "type": "ApiConnection",
+                            "else": {
+                                "actions": {
+                                    "Set_variable_2": {
+                                        "inputs": {
+                                            "name": "Type",
+                                            "value": "@{concat(variables('ResourceProvider'), '/machines')}"
+                                        },
+                                        "runAfter": {},
+                                        "type": "SetVariable"
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@variables('ResourceProvider')",
+                                            "Microsoft.Compute"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Create_or_update_a_template_deployment": {
                             "inputs": {
                                 "body": {
                                     "properties": {
@@ -102,8 +115,8 @@
                                             "resources": [
                                                 {
                                                     "apiVersion": "2015-06-01-preview",
-                                                    "name": "[[concat('@{split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[8]}', '/Microsoft.Security/default')]",
-                                                    "type": "Microsoft.Compute/virtualMachines/providers/serverVulnerabilityAssessments"
+                                                    "name": "[concat('@{split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[8]}', '/Microsoft.Security/default')]",
+                                                    "type": "@{variables('Type')}/providers/serverVulnerabilityAssessments"
                                                 }
                                             ]
                                         }
@@ -115,15 +128,72 @@
                                     }
                                 },
                                 "method": "put",
-                                "path": "[concat('/subscriptions/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[2])}/resourcegroups/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[4])}/providers/Microsoft.Resources/deployments/@{encodeURIComponent(''', parameters('PlaybookName'), ''')}')]",
+                                "path": "/subscriptions/@{encodeURIComponent(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[2])}/resourcegroups/@{encodeURIComponent(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[4])}/providers/Microsoft.Resources/deployments/@{encodeURIComponent('Install-VulnAssesmentAgent')}",
                                 "queries": {
                                     "wait": true,
                                     "x-ms-api-version": "2016-06-01"
                                 }
-                            }
+                            },
+                            "runAfter": {
+                                "Condition": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection"
+                        },
+                        "Initialize_variable": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ResourceProvider",
+                                        "type": "string",
+                                        "value": "@{split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[6]}"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "Initialize_variable_2": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Type",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable"
                         }
                     },
-                    "outputs": {
+                    "contentVersion": "1.0.0.0",
+                    "outputs": {},
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            },
+                            "type": "ApiConnectionWebhook"
+                        }
                     }
                 },
                 "parameters": {
