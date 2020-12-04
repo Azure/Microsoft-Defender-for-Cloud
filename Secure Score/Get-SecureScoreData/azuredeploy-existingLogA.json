@@ -5,11 +5,7 @@
         "PlaybookName": {
             "defaultValue": "Get-SecureScoreData",
             "type": "String"
-        },
-        "GUID": {
-            "type": "string",
-            "defaultValue": "[newGuid()]"
-        },
+        },        
         "workspaceName": {
             "type": "string",
             "defaultValue": "Enter the workspace name"
@@ -26,7 +22,7 @@
     "variables": {
         "AzureLogAnalyticsDataCollectorConnectionName": "[concat('azureloganalyticsdatacollector-', parameters('PlaybookName'))]",
         "WorkbookName": "SecureScoreWorkbook",
-        "WorkbookId": "[guid('SecureScoreData', subscription().subscriptionId)]"
+        "WorkbookId": "[guid('SecureScoreData', resourceGroup().id)]"
     },
     "resources": [
         {
