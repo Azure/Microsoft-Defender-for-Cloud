@@ -1,0 +1,63 @@
+{
+  "properties": {
+    "displayName": "Enable Azure Defender for Servers",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy enables Azure Defender for Servers.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Resources/subscriptions"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Security/pricings",
+          "name": "VirtualMachines",
+          "deploymentScope": "subscription",
+          "existenceScope": "subscription",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+          ],
+          "existenceCondition": {
+            "field": "Microsoft.Security/pricings/pricingTier",
+            "equals": "Standard"
+          },
+          "deployment": {
+            "location": "westeurope",
+            "properties": {
+                "mode": "incremental",
+                "parameters": {},
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                      {
+                          "type": "Microsoft.Security/pricings",
+                          "apiVersion": "2018-06-01",
+                          "name": "VirtualMachines",
+                          "properties":{
+                              "pricingTier": "Standard"
+                          }
+                      }
+                  ],
+                    "outputs": {}
+                }
+            }
+         }
+        }
+      }
+    }
+  }
+}
