@@ -21,6 +21,22 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
 
     Write-Host "Connecting to Azure..." -NoNewLine
     Connect-AzAccount | Out-Null
+    $subscriptions = Get-AzSubscription | Where-Object {$_.State -eq "Enabled"}
+
+    # If there are more than one subscriptions, select which one to deploy to
+    if ($subscriptions.count -gt 1) {
+        $numberedSubscriptions = @()
+        For ($i=0; $i -lt $subscriptions.count; $i++) {
+            $numberedSubscriptions += $subscriptions[$i] | Select-Object @{Name = 'No'; Expression = {$i+1}},Name,Id, TenantId
+        }
+        
+        Write-Host "Select from following subscriptions"
+        $numberedSubscriptions | Format-Table
+
+        $subNumber = Read-Host "Select No"
+        Set-AzContext $numberedSubscriptions[$subNumber-1].Name
+    }
+    
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Compiling Configuration into a MOF file..." -NoNewLine
