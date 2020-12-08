@@ -25,7 +25,7 @@ securityresources
  | where type == "microsoft.security/pricings"
  | project name, pricingTier=properties.pricingTier, subscriptionId
  | summarize count() by subscriptionId, tostring(pricingTier)
- | where pricingTier == 'Standard' and count_ == 8
+ | where pricingTier == 'Standard' and count_ == 10
  | project subscriptionId
 
 ```
