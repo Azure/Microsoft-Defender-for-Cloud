@@ -1,13 +1,27 @@
 function New-EPDSCAzureGuestConfigurationPolicyPackage
 {
     [CmdletBinding()]
-    param()
-
-    $ResourceGroupName     = Read-Host "Resource Group Name"
-    $ResourceGroupLocation = Read-Host "Location"
-    $storageContainerName  = Read-Host "Storage Container Name"
-    $storageAccountName    = Read-Host "Storage Account Name"
-    $storageSKUName        = Read-Host "Storage SKU Name"
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Resource Group Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$ResourceGroupName,
+        [Parameter(Mandatory = $false,
+                   HelpMessage = '[string] Location')]
+        [string]$ResourceGroupLocation,
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Storage Container Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$storageContainerName,
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Storage Account Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$storageAccountName,
+        [Parameter(Mandatory = $false,
+                   HelpMessage = '[string] Storage SKU Name')]
+        [string]$storageSKUName
+    )
 
     if ([System.String]::IsNullOrEmpty($storageSKUName))
     {
