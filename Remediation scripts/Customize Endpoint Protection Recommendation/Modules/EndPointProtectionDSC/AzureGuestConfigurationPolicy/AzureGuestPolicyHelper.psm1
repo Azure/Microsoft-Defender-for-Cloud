@@ -9,7 +9,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
         [string]$ResourceGroupName,
         [Parameter(Mandatory = $false,
                    HelpMessage = '[string] Location')]
-        [string]$ResourceGroupLocation,
+        [string]$ResourceGroupLocation = 'eastus',
         [Parameter(Mandatory = $true,
                    HelpMessage = '[string] Storage Container Name')]
         [ValidateNotNullOrEmpty()]
@@ -20,18 +20,8 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
         [string]$storageAccountName,
         [Parameter(Mandatory = $false,
                    HelpMessage = '[string] Storage SKU Name')]
-        [string]$storageSKUName
+        [string]$storageSKUName = 'Standard_LRS'
     )
-
-    if ([System.String]::IsNullOrEmpty($storageSKUName))
-    {
-        $storageSKUName = "Standard_LRS"
-    }
-
-    if ([System.String]::IsNullOrEmpty($ResourceGroupLocation))
-    {
-        $storageSKUName = "eastus"
-    }
 
     Write-Host "Connecting to Azure..." -NoNewLine
     Connect-AzAccount | Out-Null
