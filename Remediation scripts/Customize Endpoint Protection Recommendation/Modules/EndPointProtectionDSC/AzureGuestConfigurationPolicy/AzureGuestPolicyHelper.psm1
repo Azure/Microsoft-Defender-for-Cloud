@@ -38,7 +38,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
         $numberedSubscriptions | Format-Table
 
         $subNumber = Read-Host "Select No"
-        Set-AzContext $numberedSubscriptions[$subNumber-1].Name
+        Set-AzContext $numberedSubscriptions[$subNumber-1].Name | Out-Null
     }
     
     Write-Host "Done" -ForegroundColor Green
