@@ -157,7 +157,7 @@
                                     }
                                 },
                                 "method": "put",
-                                "path": "[concat('/subscriptions/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[2])}/resourcegroups/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[4])}/providers/Microsoft.Resources/deployments/@{encodeURIComponent(''', parameters('workflows_Install_VulnAssesmentAgent_name'), ''')}')]",
+                                "path": "[concat('/subscriptions/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[2])}/resourcegroups/@{encodeURIComponent(split(triggerBody()?[''properties'']?[''resourceDetails'']?[''id''], ''/'')[4])}/providers/Microsoft.Resources/deployments/@{encodeURIComponent(''', parameters('PlaybookName'), ''')}')]",
                                 "queries": {
                                     "wait": true,
                                     "x-ms-api-version": "2016-06-01"
