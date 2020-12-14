@@ -1,0 +1,107 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Web/sites"
+      },
+      "then": {
+        "effect": "[parameters('effectType')]",
+        "details": {
+          "type": "Microsoft.Web/sites/config",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "not": {
+                  "field": "Microsoft.Web/sites/config/web.scmIpSecurityRestrictions[*].action",
+                  "notEquals": "Deny"
+                }
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/de139f84-1756-47ae-9be6-808fbbe84772"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "location": {
+                    "type": "string"
+                  },
+                  "appName": {
+                    "type": "String"
+                  },
+                  "serverFarm": {
+                    "type": "String"
+                  }
+                },
+                "resources": [
+                  {
+                    "apiVersion": "2020-06-01",
+                    "name": "[parameters('appName')]",
+                    "type": "Microsoft.Web/sites",
+                    "location": "[parameters('location')]",
+                    "properties": {
+                      "name": "[parameters('appName')]",
+                      "serverFarmId": "[parameters('serverFarm')]"
+                    },
+                    "resources": [
+                      {
+                        "apiVersion": "2020-06-01",
+                        "type": "config",
+                        "name": "web",
+                        "dependsOn": [
+                          "[parameters('appName')]"
+                        ],
+                        "properties": {
+                          "ipSecurityRestrictions": [
+                            {
+                              "ipAddress": "YOUR PUBLIC DATACENTER IP ADDRESS XX.XX.XX.XX/32",
+                              "action": "Allow",
+                              "priority": 100,
+                              "name": "Allow Corp DC",
+                              "description": "Allow Corp Datacenter Access"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              "parameters": {
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "appName": {
+                  "value": "[field('name')]"
+                },
+                "serverFarm": {
+                  "value": "[field('Microsoft.Web/sites/serverFarmId')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "effectType": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "auditIfNotExists",
+          "deployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "auditIfNotExists"
+      }
+    }
+  }
