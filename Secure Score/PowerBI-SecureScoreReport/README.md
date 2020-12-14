@@ -7,7 +7,7 @@ The dashboard contains out-of-the-box reports that will help you analyze your se
 ## Prerequisite:
 
 1. Power BI account (to open the report as template app you need Pro account).
-3. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
+3. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign security reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
 2. Power BI desktop intalled (version 2.86.727.0 or higher). This is required only if you chose to use the desktop version.
 
 
@@ -111,7 +111,3 @@ Notice the reports can be filtered by time using the date scroll bar or by subsc
 Have you tried the template app? Help us getting better by filling this [form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR_CzuCpXTVhBswcSTF6htOtUOFNBS1gxQ01BTVIwOElNNldSVllTNTNBNC4u). Your feedback is highly appreciated. 
 
  
-
-## **Need Help?** 
-
-Please contact: ammagen@microsoft.com 
