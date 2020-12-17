@@ -1,23 +1,27 @@
 function New-EPDSCAzureGuestConfigurationPolicyPackage
 {
     [CmdletBinding()]
-    param()
-
-    $ResourceGroupName     = Read-Host "Resource Group Name"
-    $ResourceGroupLocation = Read-Host "Location"
-    $storageContainerName  = Read-Host "Storage Container Name"
-    $storageAccountName    = Read-Host "Storage Account Name"
-    $storageSKUName        = Read-Host "Storage SKU Name"
-
-    if ([System.String]::IsNullOrEmpty($storageSKUName))
-    {
-        $storageSKUName = "Standard_LRS"
-    }
-
-    if ([System.String]::IsNullOrEmpty($ResourceGroupLocation))
-    {
-        $storageSKUName = "eastus"
-    }
+    param
+    (
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Resource Group Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$ResourceGroupName,
+        [Parameter(Mandatory = $false,
+                   HelpMessage = '[string] Location')]
+        [string]$ResourceGroupLocation = 'eastus',
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Storage Container Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$storageContainerName,
+        [Parameter(Mandatory = $true,
+                   HelpMessage = '[string] Storage Account Name')]
+        [ValidateNotNullOrEmpty()]
+        [string]$storageAccountName,
+        [Parameter(Mandatory = $false,
+                   HelpMessage = '[string] Storage SKU Name')]
+        [string]$storageSKUName = 'Standard_LRS'
+    )
 
     Write-Host "Connecting to Azure..." -NoNewLine
     Connect-AzAccount | Out-Null
@@ -34,7 +38,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
         $numberedSubscriptions | Format-Table
 
         $subNumber = Read-Host "Select No"
-        Set-AzContext $numberedSubscriptions[$subNumber-1].Name
+        Set-AzContext $numberedSubscriptions[$subNumber-1].Name | Out-Null
     }
     
     Write-Host "Done" -ForegroundColor Green
