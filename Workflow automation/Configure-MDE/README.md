@@ -31,7 +31,7 @@ Using a custom policy initiative, Azure Security Center will determine if a mach
 1. On the Azure portal, navigate to **Azure Policy** blade or [click here](https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade).
 2. Assign the *[Preview]: Deploy prerequisites to enable Guest Configuration policies on virtual machines* initiative – this step is necessary to deploy the guest configuration extension on virtual machines (both Linux and Windows).
 
-<a href="https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fliorarviv%2FAutomations%2Fmain%2FMDEOnboarding%2FSource%2FAuditIfNotExists.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FConfigure-MDE%2FSource%2FAuditIfNotExists.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
    * On the **Definition location** select either subscription or a management group. Click **Save**.
 
@@ -54,7 +54,7 @@ On the **Add custom initiatives​** click on **Create new**. Provide the follow
 
 1. Deploy the Logic app automation and a storage account with private blob container:
    
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fliorarviv%2FAutomations%2Fmain%2FMDEOnboarding%2FSource%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FConfigure-MDE%2FSource%2Fazuredeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
    * Provide a name for the storage account.
 
@@ -75,8 +75,10 @@ On the **Add custom initiatives​** click on **Create new**. Provide the follow
 7. From the dropdown menu (operating system to start onboarding process), select **Linux Server**.
 8. Verify that *local script* is selected as the deployment method and then click on **download onboarding package**.
 9. Extract the `WindowsDefenderATPOnboardingPackage.zip` package to get the `MicrosoftDefenderATPOnboardingLinuxServer.py` file - this file is unique per organization.
-10. Download both `ConfigureDefender.ps1` and `ConfigureDefender.sh` files from this library.
-11. Upload 4 files (`WindowsDefenderATPOnboardingScript.cmd`, `MicrosoftDefenderATPOnboardingLinuxServer.py`, `ConfigureDefender.ps1` and `ConfigureDefender.sh`) to the `scripts` private blob container.
+10. Download `ConfigureDefender.zip` and extract it.
+11. Upload 4 files (`WindowsDefenderATPOnboardingScript.cmd`, `MicrosoftDefenderATPOnboardingLinuxServer.py`, `ConfigureDefender.ps1` and `ConfigureDefender.sh`) to the `scripts` private blob container (storage account)
+
+![](./Images/mde-storage-scripts.gif?raw=true)
 
 ### Remediate unhealthy resources
 
