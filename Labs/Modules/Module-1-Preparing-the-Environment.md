@@ -71,7 +71,7 @@ Continue with the exercise below until the deployment has completed.
 
 1. Prepare your lab environment by clicking on the blue **Deploy to Azure** button below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fliorarviv%2FAzure-Security-Center%2Fmaster%2FLabs%2FFiles%2Flabdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FLabs%2FFiles%2Flabdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 2.	You will be redirected to Azure Portal > custom deployment page where you should specify mandatory fields for deployment.
 3.	On the subscription field, select **Azure subscription 1**.
