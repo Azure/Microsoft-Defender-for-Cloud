@@ -1,5 +1,5 @@
 # Azure Defender for Arc enabled Kubernetes
-In this section you can find code snippets & settings configurations required for Azure defender for Arc enabled Kubernetes private preview 
+In this section you can find code snippets & setting configurations required for Azure defender for Arc enabled Kubernetes private preview 
 
 # Description
 Azure defender for Kubernetes is expanding its support from AKS to any Kubernetes cluster, leveraging Azure Arc for Kubernetes. The preview offers parity between the threat detection capabilities that ASC has today in AKS and brings these capabilities to Arc connected Kubernetes clusters.
