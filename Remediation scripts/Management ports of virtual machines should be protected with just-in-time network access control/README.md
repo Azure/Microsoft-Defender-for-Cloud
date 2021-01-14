@@ -1,9 +1,9 @@
-# Samples for remediating "Apply a just in time VM access control"
+# Samples for remediating "Management ports of virtual machines should be protected with just-in-time network access control"
 
-These samples provide various ways to resolve the "Apply a just in time VM access control" recommendation
+These samples provide various ways to resolve the "Management ports of virtual machines should be protected with just-in-time network access control" recommendation
 in Azure Security Center.  There are two samples:
 
-* PowerShell script - Will loop through and rememdiate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
+* PowerShell script - Will loop through and remediate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
     - Requires Azure (Az) PowerShell module
 * Logic App - Uses the REST API to enumerate and remediate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
     - Will need to create a managed identity.  This will need to be added to the 
