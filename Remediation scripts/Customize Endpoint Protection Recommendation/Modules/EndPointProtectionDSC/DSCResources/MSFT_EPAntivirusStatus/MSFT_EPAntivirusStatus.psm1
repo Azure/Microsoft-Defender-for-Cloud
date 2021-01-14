@@ -79,9 +79,8 @@ function Get-TargetResource
         $nullReturn.Remove("Verbose")
     }
 
-    $OSInfo = Get-WmiObject Win32_OperatingSystem
-
-    if ($OSInfo.Caption -notlike "*Windows Server*")
+    $OSInfo = Get-CimInstance -ClassName Win32_OperatingSystem
+    if ($OSInfo.ProductType -eq 1)
     {
         Write-Verbose -Message "Windows Desktop OS Detected"
         $AntivirusInfo = Get-EPDSCInstalledAntivirus -AntivirusName $AntivirusName
@@ -162,7 +161,7 @@ function Get-TargetResource
             return $nullReturn
         }
     }
-    else
+    elseif ($OSInfo.ProductType -eq 3)
     {
         Write-Verbose -Message "Windows Server OS Detected"
 
