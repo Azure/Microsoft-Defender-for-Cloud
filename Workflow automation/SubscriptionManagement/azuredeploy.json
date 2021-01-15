@@ -1,0 +1,819 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "RootManagementGroupQueryLA",
+            "type": "String"
+        },
+        "UserAssignedManagedIdentityResourceId": {
+            "type": "String",
+            "metadata": {
+                "value": "Enter the ResourceID of the UserManaged Identity Name"
+            }
+        },
+        "NotificationEmailAddress": {
+            "type": "string",
+            "defaultValue": "Enter the recipient's email address"
+        }
+    },
+    "variables": {
+        "o365ConnectionName": "[concat('office365-', parameters('PlaybookName'))]",
+        "armconnectionName": "[concat('arm-', parameters('PlaybookName'))]",
+        "azuretablesConnectionName": "[concat('azuretables-', parameters('PlaybookName'))]",
+        "workflows_Logicapp2_name": "ExcludeSubscriptionLA",
+        "storageaccountname": "[uniqueString(concat(subscription().subscriptionId),parameters('PlaybookName'))]",
+        "tablename": "Exclusions"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2020-08-01-preview",
+            "name": "[variables('storageaccountname')]",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "Standard_LRS",
+                "tier": "Standard"
+            },
+            "kind": "StorageV2",
+            "properties": {
+                "minimumTlsVersion": "TLS1_2",
+                "allowBlobPublicAccess": true,
+                "networkAcls": {
+                    "bypass": "AzureServices",
+                    "virtualNetworkRules": [],
+                    "ipRules": [],
+                    "defaultAction": "Allow"
+                },
+                "supportsHttpsTrafficOnly": true,
+                "encryption": {
+                    "services": {
+                        "file": {
+                            "keyType": "Account",
+                            "enabled": true
+                        },
+                        "blob": {
+                            "keyType": "Account",
+                            "enabled": true
+                        }
+                    },
+                    "keySource": "Microsoft.Storage"
+                },
+                "accessTier": "Cool"
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices",
+            "apiVersion": "2020-08-01-preview",
+            "name": "[concat(variables('storageaccountname'), '/default')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname'))]"
+            ],
+            "properties": {
+                "cors": {
+                    "corsRules": []
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
+            "apiVersion": "2020-08-01-preview",
+            "name": "[concat(variables('storageaccountname'), '/default/',variables('tablename'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('storageaccountname'), 'default')]",
+                "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname'))]"
+            ]
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('armconnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('armconnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/arm')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('azuretablesConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('azuretablesConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuretables')]"
+                },
+                "parameterValues": {
+                    "storageAccount": "[variables('storageaccountname')]",
+                    "sharedKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname')), providers('Microsoft.Storage', 'storageAccounts').apiVersions[0]).keys[0].value]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('o365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('o365ConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[variables('workflows_Logicapp2_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('armconnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('azuretablesConnectionName'))]"
+            ],
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "request": {
+                            "type": "Request",
+                            "kind": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "schema": {}
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Initialize_variable": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "subid",
+                                        "type": "string",
+                                        "value": "@{triggerOutputs()['queries']['subid']}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Insert_or_Merge_Entity": {
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                    }
+                                },
+                                "method": "patch",
+                                "body": {
+                                    "PartitionKey": "Subscription",
+                                    "RowKey": "@{variables('subid')}"
+                                },
+                                "path": "[concat('/Tables/@{encodeURIComponent(''', variables('tablename'), ''')}/entities(PartitionKey=''@{encodeURIComponent(''Subscription'')}'',RowKey=''@{encodeURIComponent(variables(''subid''))}'')')]"
+                            }
+                        },
+                        "Response": {
+                            "runAfter": {
+                                "Insert_or_Merge_Entity": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Response",
+                            "inputs": {
+                                "body": "<html>\n<body>\nYour subscription @{variables('subid')} has been excluded.\n</body>\n</html>",
+                                "headers": {
+                                    "Content-Type": "text/html; charset=UTF-8"
+                                },
+                                "statusCode": 200
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuretables": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('azuretablesConnectionName'))]",
+                                "connectionName": "azuretables",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuretables')]"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('armconnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('azuretablesConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('storageaccountname'), 'default')]",
+                "[resourceId('Microsoft.Logic/workflows', variables('workflows_Logicapp2_name'))]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[parameters('UserAssignedManagedIdentityResourceId')]": {}
+                }
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "emailtosend": {
+                            "defaultValue": "[parameters('NotificationEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Week",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Condition_2": {
+                            "actions": {
+                                "Build_Email_Body": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "EmailBody",
+                                        "value": "<style type=\"text/css\">\n       h1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:left; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t<td>\n\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n                                                          \n                  </td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n            </tbody>\n             <tr>\n\t\t<td style=\"width:500px\">\n\t\t<p style=\"text-align: left;\"><strong>Found new subscription(s) that might not be monitored by Azure Security Center.</strong><br><br>\n\n\t\tPlease review the list below and take action to either add the subscription(s) to the Management Groups in order to start monitoring using Azure Security Center or click Exclude subscription from monitoring option to add the subscription ID to the Exclusion list in the Storage account.</p>\n\t\t\t</td>\n\t\t</tr>\n<br>\n<table align=\"center\" border=\"1\">\n<tr>\n<td><b>Subscription Name</b></td>\n<td><b>Subscription ID</b></td>\n<td><b>Action</b></td>\n</tr>\n@{variables('EmailSubscriptionRowItems')}\n</table>"
+                                    }
+                                },
+                                "Send_an_email_(V2)": {
+                                    "runAfter": {
+                                        "Build_Email_Body": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "Body": "<p>@{variables('EmailBody')}</p>",
+                                            "IsHtml": true,
+                                            "Subject": "Found new subscriptions that might not be monitored by Azure Security Center",
+                                            "To": "safeenab@microsoft.com"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/v2/Mail"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Terminate": {
+                                        "runAfter": {},
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runStatus": "Succeeded"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greater": [
+                                            "@variables('filteredSubscriptionCount')",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "EmailBody": {
+                            "runAfter": {
+                                "EmailSubscriptionRowItems": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "EmailSubscriptionRowItems": {
+                            "runAfter": {
+                                "Initialize_token": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailSubscriptionRowItems",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@variables('Output of POST')",
+                            "actions": {
+                                "Condition": {
+                                    "actions": {
+                                        "Condition_3": {
+                                            "actions": {
+                                                "Append_to_string_variable": {
+                                                    "runAfter": {
+                                                        "FilteredSubscriptionCount": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToStringVariable",
+                                                    "inputs": {
+                                                        "name": "EmailSubscriptionRowItems",
+                                                        "value": "<tr>\n<td>@{items('For_each')?['properties']?['displayName']}</td>\n<td>@{items('For_each')?['name']}</td>\n<td><a href='@{body('Parse_JSON_2')?['value']}&subid=@{items('For_each')?['name']}'> Exclude @{items('For_each')?['properties']?['displayName']}</a></td>\n</tr>"
+                                                    }
+                                                },
+                                                "FilteredSubscriptionCount": {
+                                                    "runAfter": {},
+                                                    "type": "IncrementVariable",
+                                                    "inputs": {
+                                                        "name": "filteredSubscriptionCount",
+                                                        "value": 1
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Get_entity": [
+                                                    "Succeeded",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@{outputs('Get_entity')['statusCode']}",
+                                                            "404"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "Get_entity": {
+                                            "runAfter": {},
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuretables']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "get",
+                                                "path": "[concat('/Tables/@{encodeURIComponent(''', variables('tablename'), ''')}/entities(PartitionKey=''@{encodeURIComponent(''Subscription'')}'',RowKey=''@{encodeURIComponent(items(''For_each'')?[''name''])}'')')]"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Set_current_item's_parent_count": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "contains": [
+                                                    "@string(items('For_each'))",
+                                                    "/subscriptions"
+                                                ]
+                                            },
+                                            {
+                                                "equals": [
+                                                    "@variables('item parent count')",
+                                                    1
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Set_current_item": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "current item",
+                                        "value": "@{string(items('For_each'))}"
+                                    }
+                                },
+                                "Set_current_item's_parent_count": {
+                                    "runAfter": {
+                                        "Set_current_itemproperties": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "item parent count",
+                                        "value": "@length(variables('item properties'))"
+                                    }
+                                },
+                                "Set_current_itemproperties": {
+                                    "runAfter": {
+                                        "Set_current_itemtype": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "item properties",
+                                        "value": "@items('For_each')?['properties']?['parentNameChain']"
+                                    }
+                                },
+                                "Set_current_itemtype": {
+                                    "runAfter": {
+                                        "Set_current_item": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "item type",
+                                        "value": "@{string(items('For_each')?['type'])}"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 3
+                                }
+                            }
+                        },
+                        "HTTP": {
+                            "runAfter": {
+                                "EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "identity": "[parameters('UserAssignedManagedIdentityResourceId')]",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://management.azure.com/providers/Microsoft.Management/getEntities?api-version=2020-02-01"
+                            }
+                        },
+                        "Initialize_current_item's_parent_chain_count": {
+                            "runAfter": {
+                                "Initialize_current_item_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "item parent count",
+                                        "type": "integer"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_current_item_variable": {
+                            "runAfter": {
+                                "Initialize_current_itemproperties": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "current item",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_current_itemproperties": {
+                            "runAfter": {
+                                "Initialize_current_itemtype": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "item properties",
+                                        "type": "array"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_current_itemtype": {
+                            "runAfter": {
+                                "Initialize_filtered_array": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "item type",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_filtered_array": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "filteredSubscriptionCount",
+                                        "type": "integer",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_token": {
+                            "runAfter": {
+                                "Output_of_POST": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "token",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Invoke_resource_operation": {
+                            "runAfter": {
+                                "Set_POST_Output": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['arm']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "[concat('/subscriptions/@{encodeURIComponent(''', subscription().subscriptionId, ''')}/resourcegroups/@{encodeURIComponent(''', resourceGroup().name, ''')}/providers/@{encodeURIComponent(''Microsoft.Logic'')}/@{encodeURIComponent(''workflows/', variables('workflows_Logicapp2_name'), ''')}/@{encodeURIComponent(''triggers/request/listCallbackUrl'')}')]",
+                                "queries": {
+                                    "x-ms-api-version": "2016-06-01"
+                                }
+                            }
+                        },
+                        "Output_of_POST": {
+                            "runAfter": {
+                                "Initialize_current_item's_parent_chain_count": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Output of POST",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "HTTP": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "properties": {
+                                                        "properties": {
+                                                            "displayName": {
+                                                                "type": "string"
+                                                            },
+                                                            "inheritedPermissions": {
+                                                                "type": "string"
+                                                            },
+                                                            "numberOfChildGroups": {
+                                                                "type": "integer"
+                                                            },
+                                                            "numberOfChildren": {
+                                                                "type": "integer"
+                                                            },
+                                                            "numberOfDescendants": {
+                                                                "type": "integer"
+                                                            },
+                                                            "parent": {
+                                                                "properties": {
+                                                                    "id": {}
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "parentDisplayNameChain": {
+                                                                "type": "array"
+                                                            },
+                                                            "parentNameChain": {
+                                                                "type": "array"
+                                                            },
+                                                            "permissions": {
+                                                                "type": "string"
+                                                            },
+                                                            "tenantId": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "name",
+                                                    "id",
+                                                    "type",
+                                                    "properties"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_JSON_2": {
+                            "runAfter": {
+                                "Invoke_resource_operation": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Invoke_resource_operation')",
+                                "schema": {
+                                    "properties": {
+                                        "basePath": {
+                                            "type": "string"
+                                        },
+                                        "method": {
+                                            "type": "string"
+                                        },
+                                        "queries": {
+                                            "properties": {
+                                                "api-version": {
+                                                    "type": "string"
+                                                },
+                                                "sig": {
+                                                    "type": "string"
+                                                },
+                                                "sp": {
+                                                    "type": "string"
+                                                },
+                                                "sv": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "value": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Set_POST_Output": {
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "Output of POST",
+                                "value": "@body('Parse_JSON')?['value']"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "arm": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('armconnectionName'))]",
+                                "connectionName": "arm",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/arm')]"
+                            },
+                            "azuretables": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('azuretablesConnectionName'))]",
+                                "connectionName": "azuretables",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuretables')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
