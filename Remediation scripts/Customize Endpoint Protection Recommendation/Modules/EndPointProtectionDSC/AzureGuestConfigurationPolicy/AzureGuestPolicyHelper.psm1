@@ -4,22 +4,18 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     param
     (
         [Parameter(Mandatory = $true,
-                   HelpMessage = '[string] Resource Group Name')]
+            HelpMessage = '[string] Resource Group Name')]
         [ValidateNotNullOrEmpty()]
         [string]$ResourceGroupName,
         [Parameter(Mandatory = $false,
-                   HelpMessage = '[string] Location')]
+            HelpMessage = '[string] Location')]
         [string]$ResourceGroupLocation = 'eastus',
         [Parameter(Mandatory = $true,
-                   HelpMessage = '[string] Storage Container Name')]
-        [ValidateNotNullOrEmpty()]
-        [string]$storageContainerName,
-        [Parameter(Mandatory = $true,
-                   HelpMessage = '[string] Storage Account Name')]
+            HelpMessage = '[string] Storage Account Name')]
         [ValidateNotNullOrEmpty()]
         [string]$storageAccountName,
         [Parameter(Mandatory = $false,
-                   HelpMessage = '[string] Storage SKU Name')]
+            HelpMessage = '[string] Storage SKU Name')]
         [string]$storageSKUName = 'Standard_LRS'
     )
 
@@ -53,13 +49,12 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
 
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
     $package = New-GuestConfigurationPackage -Name MonitorAntivirus `
-                                  -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof"
+        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof"
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Package to Azure Storage..." -NoNewLine
     $Url = Publish-EPDSCPackage -ResourceGroupName $ResourceGroupName `
         -StorageAccountName $StorageAccountName.ToLower() `
-        -StorageContainerName $StorageContainerName.ToLower() `
         -StorageSKUName $StorageSKUName `
         -ResourceGroupLocation $ResourceGroupLocation
     Write-Host "Done" -ForegroundColor Green
@@ -87,7 +82,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     Write-Host "Done" -ForegroundColor Green
 }
 
-function Publish-EPDSCPackage 
+function Publish-EPDSCPackage
 {
     [CmdletBinding()]
     [OutputType([System.String])]
@@ -99,10 +94,6 @@ function Publish-EPDSCPackage
         [Parameter(Mandatory = $true)]
         [System.String]
         $StorageAccountName,
-
-        [Parameter(Mandatory = $true)]
-        [System.String]
-        $StorageContainerName,
 
         [Parameter(Mandatory = $true)]
         [System.String]
@@ -130,47 +121,41 @@ function Publish-EPDSCPackage
             -Location $ResourceGroupLocation
     }
 
+    # Wait until storage account is successfully created
+    do {
+        Start-Sleep -Seconds 3
+    } until (Get-AzStorageAccount -Name $StorageAccountName `
+    -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue")
     # Get Storage Context
     $storageContext = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName `
         -Name $StorageAccountName | `
         ForEach-Object { $_.Context }
 
-    $storageContainer = Get-AzStorageContainer $StorageContainerName `
-        -Context $storageContext -ErrorAction "SilentlyContinue"
-    if ($null -ne $storageContainer)
-    {
-        while ($null -ne $storageContainer)
-        {
-            Start-Sleep 2
-            $storageContainer = Get-AzStorageContainer $StorageContainerName `
-                -Context $storageContext -ErrorAction "SilentlyContinue"
-        }
-        Remove-AzStorageContainer -Name $StorageContainerName `
-            -Context $storageContext -Force -Confirm:$false
-    }
-
-    $storageContainer = New-AzStorageContainer -Name $StorageContainerName `
-            -Context $storageContext -Permission Container
-
-    # Upload file
+    # Enable Static Web
+    Enable-AzStorageStaticWebsite -Context $storageContext
+    
+    # Upload to static web
     $blobName = "MonitorAntivirus.zip"
-    $Blob = Set-AzStorageBlobContent -Context $storageContext `
-        -Container $StorageContainerName `
-        -File $($env:Temp + "/MonitorAntivirus/MonitorAntivirus.zip") `
-        -Blob $blobName `
-        -Force
 
-    # Get url with SAS token
-    $StartTime = (Get-Date)
-    $ExpiryTime = $StartTime.AddYears('3')  # THREE YEAR EXPIRATION
-    $SAS = New-AzStorageBlobSASToken -Context $storageContext `
-        -Container $StorageContainerName `
+    Set-AzStorageblobcontent -File $($env:Temp + "/MonitorAntivirus/MonitorAntivirus.zip") `
+        -Container `$web `
         -Blob $blobName `
-        -StartTime $StartTime `
-        -ExpiryTime $ExpiryTime `
-        -Permission rl `
-        -FullUri
+        -Context $storageContext `
+        -Force | Out-Null
 
-    # Output
-    return $SAS
+    # Re-read Storage account and obtain static web URL
+    $storageAccount = Get-AzStorageAccount -Name $StorageAccountName `
+        -ResourceGroupName $ResourceGroupName
+    
+    $url = $storageAccount.PrimaryEndpoints.Web + $blobName
+    
+    # Check to make sure the url is good
+
+    $response = $null
+    do {
+        try { $response = Invoke-WebRequest -Uri $url -UseBasicParsing } catch {}           
+        Start-Sleep -Seconds 3
+    } until ($response -and ($response.StatusCode -eq 200))
+
+    return $url
 }
