@@ -10,8 +10,9 @@ So, this automation queries Root management group for subscription(s) that are n
 ## Prerequisites: 
 The automation uses User Assigned Managed Identity to be able to query Root management groups. Please follow the steps below:
 a. Create User Assigned Managed Identity. Follow the instructions listed in the doc to [create user-assigned managed identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-manage-ua-identity-portal#create-a-user-assigned-managed-identity)
+
 b. Once User-assgined managed identity is created, make sure to provide Reader Permissions to the Root Management Group  
-c. Enable and add the above created User assigned Identity to the Logic App. Follow the instructions [here] https://docs.microsoft.com/en-us/azure/logic-apps/create-managed-service-identity#create-user-assigned-identity-in-the-azure-portal to assign the User assigned identity to the Logic App. 
+c. Enable and add the above created User assigned Identity to the Logic App. Follow the instructions [here](https://docs.microsoft.com/en-us/azure/logic-apps/create-managed-service-identity#create-user-assigned-identity-in-the-azure-portal) to assign the User assigned identity to the Logic App. 
 
 ## How it works: 
 The Automation that runs weekly, queries RootManagement Group to query and identify the subscription(s) that are directly assigned to the RootManagement Group and not any child MG. 
