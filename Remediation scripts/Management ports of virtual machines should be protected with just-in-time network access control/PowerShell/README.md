@@ -1,6 +1,6 @@
-# Powershell Script to Remediate
+# PowerShell script to remediate
 
-This script will find all Security Score recommendations for JIT VM Access and create access policies for each VM for ports 22 and 3389.
+This script uses Azure Resource Graph (ARG) to query all applicable/unhealthy resources found on the recommendation for JIT Access and create policy for each VM on ports 22 and 3389.
 
 # Contributing
 
