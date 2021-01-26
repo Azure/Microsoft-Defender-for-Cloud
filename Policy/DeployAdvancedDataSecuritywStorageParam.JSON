@@ -1,0 +1,135 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+      "if": {
+        "allof": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Sql/servers"
+          },
+          {
+            "field": "location",
+            "equals": "[parameters('SAlocation')]"
+          }
+        ]
+      },
+      "then": {
+        "effect": "DeployIfNotExists",
+        "details": {
+          "type": "Microsoft.Sql/servers/securityAlertPolicies",
+          "name": "Default",
+          "existenceCondition": {
+            "anyof": [
+              {
+                "field": "Microsoft.Sql/securityAlertPolicies.state",
+                "equals": "Enabled"
+              },
+              {
+                "field": "Microsoft.Sql/servers/vulnerabilityAssessments/recurringScans.isEnabled",
+                "equals": "True"
+              }
+            ]
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/056cd41c-7e88-42e1-933e-88ba6a50c9c3",
+            "/providers/microsoft.authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "serverName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  },
+                  "blobStorage": {
+                    "type": "string"
+                  },
+                  "blobSAName": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "serverResourceGroupName": "[resourceGroup().name]",
+                  "subscriptionId": "[subscription().subscriptionId]",
+                  "uniqueStorage": "[uniqueString(variables('subscriptionId'), variables('serverResourceGroupName'), parameters('location'))]",
+                  "storageName": "[tolower(concat('sqlva', variables('uniqueStorage')))]"
+                },
+                "resources": [
+                  {
+                    "name": "[concat(parameters('serverName'), '/Default')]",
+                    "type": "Microsoft.Sql/servers/securityAlertPolicies",
+                    "apiVersion": "2017-03-01-preview",
+                    "properties": {
+                      "state": "Enabled",
+                      "emailAccountAdmins": true
+                    }
+                  },
+                  {
+                    "name": "[concat(parameters('serverName'), '/Default')]",
+                    "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+                    "apiVersion": "2018-06-01-preview",
+                    "properties": {
+                      "storageContainerPath": "[parameters('blobStorage')]",
+                      "storageAccountAccessKey": "[listKeys(parameters('blobSAName'), '2018-02-01').keys[0].value]",
+                      "recurringScans": {
+                        "isEnabled": true,
+                        "emailSubscriptionAdmins": true,
+                        "emails": []
+                      }
+                    },
+                    "dependsOn": [
+                      "[concat('Microsoft.Sql/servers/', parameters('serverName'), '/securityAlertPolicies/Default')]"
+                    ]
+                  }
+                ]
+              },
+              "parameters": {
+                "serverName": {
+                  "value": "[field('name')]"
+                },
+                "location": {
+                  "value": "[field('location')]"
+                },
+                "blobStorage": {
+                  "value": "[parameters('blobstorageContainerPath')]"
+                },
+                "blobSAName": {
+                  "value": "[parameters('SAName')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "blobstorageContainerPath": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Blob Storage Container Path",
+          "description": "A blob storage container path to hold the scan results (e.g. https://myStorage.blob.core.windows.net/VaScans/"
+        }
+      },
+      "SAName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Storage Account Resource ID",
+          "description": "Storage Account Resource ID"
+        }
+      },
+      "SAlocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Storage Account and SQL Server location ",
+          "description": "Note: The storage account must be in the same location as the SQL Server. Please assign this policy multiple times for each location.",
+          "strongType": "location"
+        }
+      }
+    }
+  }
