@@ -1,7 +1,15 @@
-# Block the IPs in NSG as response to a brute force attack when an ASC alert is triggered/created
-**Author: Safeena Begum**
+# Block attacking IP addresses in an NSG as response to a brute force attack when an ASC alert is triggered/created
+**Author: Safeena Begum/Tom Janetscheck**
 
-When Azure Security Center detects a brute force attack, this playbook will create a security rule in the NSG attached to the VM to deny inbound traffic from the IP addresses attached to the alert. 
+When Azure Security Center detects a brute force attack, this playbook will create a security rule in the NSG attached to the VM's network interface to deny inbound traffic from the attacking IP addresses.
+This automation will consider the following settings:
+
+1. The Logic App will create one Network Security Group (NSG) rule with the lowest possible (= free) priority number. For example, if there are existing NSG rules with priorities from 100 to 105, and from 110 to 1,000, the Logic App will create the rule with priority 106.
+2. The NSG rule will contain all attacking IP addresses that are mentioned in the alert.
+3. The NSG rule name will be unique, consisting of _BlockBruteForce_ and the priority number. For example, if the priority is 106, the name will be _BlockBruteForce-106_.
+4. After the NSG rule is created, the Logic App will send an informational email to the email address you have configured during the template deployment. The email will contain the following information:
+
+![Email template](.//emailTemplate.png)
 
 You can deploy the main template by clicking on the buttons below:
 
