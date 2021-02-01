@@ -28,7 +28,7 @@ Notice that you can assign permissions only if your account has been assigned Ow
 
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
 
-To assign Managed Identity to specific scope:
+**To assign Managed Identity to specific scope:**
 
 1. Make sure you have User Access Administrator or Owner permissions for this scope.
 2. Go to the subscription/management group page.
@@ -40,7 +40,7 @@ To assign Managed Identity to specific scope:
 8. Select _BlockBruteForceAttackedIP_ Logic App.
 9. Press _save_.
 
-To authorize the API connection:
+**To authorize the API connection:**
 
 1. Go to the Resource Group you have used to deployed the template resources.
 2. Select the Office365 API connection and press _Edit API connection_.
@@ -56,4 +56,3 @@ Once you have deployed and authorized the Logic App, you can create a [new Workf
 4. In the _Alert name contains_ field, enter _brute_.
 5. In the _actions_ area, make sure to select the _BlockBruteForceAttackedIP_ Logic App you have deployed and authorized before.
 6. Press _create_.
-7. 
