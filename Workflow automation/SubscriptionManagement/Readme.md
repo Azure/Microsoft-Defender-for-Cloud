@@ -20,7 +20,7 @@ Make sure to add the subscription(s) to the Management Groups in order to start 
 The automation artifact also creates a Storage account with a table storage in it during the deployment of the template. If the intent of assigning the subscription to the root management group was on purpose, you could exclude the subscription from being displayed in the email on next run by just clicking on the hyperlink ‘Exclude <subscriptionname>’ under the Action column of Image 1. 
 In the next run (weekly) it will not display the subscriptions you added to the Exclusion list (table storage) and notifies only newly added subscription(s) via email. 
 
-![](https://github.com/Azure/Azure-Security-Center/blob/master/Workflow%20automation/SubscriptionManagement/Images/EmailOutput_Example.PNG)
+![](https://github.com/Azure/Azure-Security-Center/blob/master/Workflow%20automation/SubscriptionManagement/Images/ExampleEmailOutput.PNG)
 ***
 
 You can deploy the main template by clicking on the buttons below:
