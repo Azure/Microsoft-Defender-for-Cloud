@@ -1,0 +1,32 @@
+name: manage-azure-policy-d021cab6
+on:
+  workflow_dispatch:
+    inputs:
+      remarks:
+        description: 'Reason for triggering the workflow run'
+        required: false
+        default: 'Updating Azure Policies'
+
+
+## Uncomment the following if you wish to automatically trigger workflow run with every commit
+#
+#  push:
+#    paths:
+#      - ' Enable Disk Encryption on Windows VMs only /policies/Disk_encryption_should_be_applied_on_virtual_machines_-_Windows_VMs_only_862ffd01-390d-4311-85d9-6b576102c91b/**'
+#      - .github/workflows/manage-azure-policy-d021cab6.yml
+jobs:
+  apply-azure-policy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS_d021cab6}}
+        allow-no-subscriptions: true
+    - name: Create or Update Azure Policies
+      uses: azure/manage-azure-policy@v0
+      with:
+        paths: |
+           Enable Disk Encryption on Windows VMs only /policies/Disk_encryption_should_be_applied_on_virtual_machines_-_Windows_VMs_only_862ffd01-390d-4311-85d9-6b576102c91b/**
