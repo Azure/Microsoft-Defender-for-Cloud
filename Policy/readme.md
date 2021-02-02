@@ -1,3 +1,5 @@
+#Modification for Vulnerability Assessment quick fix
+
 Problem: The Azure Security Center recommendation "Vulnerability assessment should be enabled on your SQL servers" includes a Quick Fix remediation, but this remediation creates a new storage account for every SQL server. Below is a modified policy definition to input a storage account as parameter. Upon policy assignment, the Vulnerability Assessment for any SQL server at the given scope will report data to the storage account defined. 
 
 The policy assignment will need the blob container URI, the Resource ID of the storage account, and the location of the SQL server/Storage Account. 
