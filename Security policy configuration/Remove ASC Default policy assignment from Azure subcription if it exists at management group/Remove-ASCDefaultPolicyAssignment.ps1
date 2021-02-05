@@ -66,21 +66,22 @@ foreach ($azuremgmt in $azuremgmts){
                 Write-Host $_.Name
                 Write-Host $_.DisplayName
 
-                $policyassignsub = Get-AzPolicyAssignment -Scope $_.Id
 
                 # Matching condition of policy assignment resourcename and subid not being null, mgmt assignments do not have SubscriptionId in object
-                if ($policyassignsub.ResourceName -contains "SecurityCenterBuiltIn" -and $policyassignsub.SubscriptionId -ne $null ) {
-    
-                    ## Used below for Testing ensure no false positives in above if matching
-                    #Write-Host $policyassignsub.Name
-                    #Write-Host $policyassignsub.ResourceId[0] 
-    
-                    ## Remove the following policy assignemnt from subscription.
-                    Remove-AzPolicyAssignment -Id $policyassignsub.ResourceId[0]
-                    $policyassignsub.Name | out-file $outfilepath -append
-
+                foreach ($policyassignsub in (Get-AzPolicyAssignment -Scope $_.Id)) {
+                    if ($policyassignsub.ResourceName -contains "SecurityCenterBuiltIn" -and $policyassignsub.SubscriptionId -ne $null ) {
+                    
+                        ## Used below for Testing ensure no false positives in above if matching
+                        #Write-Host $policyassignsub.Name
+                        #Write-Host $policyassignsub.ResourceId
+                
+                        ## Remove the following policy assignemnt from subscription.
+                        Remove-AzPolicyAssignment -Id $policyassignsub.ResourceId
+                        $policyassignsub.Name | out-file $outfilepath -append
+                    
+                    }
                 }
-
+    
             }
 
         }    
