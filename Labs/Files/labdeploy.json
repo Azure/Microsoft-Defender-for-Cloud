@@ -74,7 +74,7 @@
         "sqlServerName": "[toLower(concat('asclab-sql-',uniqueString(subscription().subscriptionId)))]",
         "sqlDatabaseName": "asclab-db",
         "aksClusterName": "asclab-aks",
-        "aksVersion": "1.16.13",
+        "aksVersion": "1.16.15",
         "aksDNSPrefix": "asclab-aks",
         "aksNetworkPlugin": "kubenet"
     },
