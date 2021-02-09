@@ -15,11 +15,21 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
         [string]$storageAccountName,
         [Parameter(Mandatory = $false,
             HelpMessage = '[string] Storage SKU Name')]
-        [string]$storageSKUName = 'Standard_LRS'
+        [string]$storageSKUName = 'Standard_LRS',
+        [Parameter(Mandatory = $false,
+            HelpMessage = '[string] Provide policy scope, default to same subscription of target Resource Group, can also choose Management Group')]
+        [ValidateSet('subscription', 'managementGroup')]
+        [string]$policyScope = 'subscription'
     )
 
     Write-Host "Connecting to Azure..." -NoNewLine
-    Connect-AzAccount | Out-Null
+    # Connect-AzAccount | Out-Null
+
+    # Select Management Group for policy scope
+    $managementGroupId = $null
+    if ($policyScope -eq 'managementGroup') {
+        $managementGroupId = Select-ManagementGroup
+    }
 
     # Select a subscription to create Resource Group and Storage Account
     Select-Subscription
@@ -34,7 +44,8 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
-    $package = New-GuestConfigurationPackage -Name MonitorAntivirus `
+    
+    New-GuestConfigurationPackage -Name MonitorAntivirus `
         -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force
     Write-Host "Done" -ForegroundColor Green
 
@@ -52,7 +63,8 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     Import-LocalizedData -BaseDirectory "$PSScriptRoot/ParameterFiles/" `
         -FileName "EPAntivirusStatus.Params.psd1" `
         -BindingVariable ParameterValues
-    $policy = New-GuestConfigurationPolicy `
+    
+    New-GuestConfigurationPolicy `
         -ContentUri $Url `
         -DisplayName 'Monitor Antivirus' `
         -Description 'Audit if a given Antivirus Software is not enabled on Windows machine.' `
@@ -63,7 +75,10 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Guest Configuration Policy..." -NoNewLine
-    $publishedPolicies = Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose
+    switch ($policyScope) {
+        subscription { Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose }
+        managementGroup { Publish-GuestConfigurationPolicy -Path ".\policies" -ManagementGroupName $managementGroupId -Verbose}
+    }
     Write-Host "Done" -ForegroundColor Green
 }
 
@@ -155,13 +170,14 @@ function Select-Subscription {
         [int]$subNumber = $null
         do {
             Write-Host "Select from following subscriptions to create Resource Group and Storage Account"
-            $numberedSubscriptions | Format-Table
+            Write-Host ($numberedSubscriptions | Format-Table | Out-String)
     
             $subNumber = Read-Host "Select No"
         } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedSubscriptions.count)) -and ($subNumber -ge 1))
 
         Set-AzContext $numberedSubscriptions[$subNumber - 1].Name | Out-Null
-    } else {
+    }
+    else {
         Write-Error "Cannot find any subscription"
         exit
     }
@@ -242,7 +258,7 @@ function Select-ManagementGroup {
     [int]$subNumber = $null
     do {
         Write-Host "Select from following management groups"
-        $numberedMGs | Format-Table
+        Write-Host ($numberedMGs | Format-Table | Out-String)
 
         $subNumber = Read-Host "Select No"
     } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedMGs.count)) -and ($subNumber -ge 1))
