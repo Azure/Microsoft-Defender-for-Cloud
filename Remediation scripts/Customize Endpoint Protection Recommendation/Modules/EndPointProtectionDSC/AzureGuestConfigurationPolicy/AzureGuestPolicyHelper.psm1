@@ -1,5 +1,4 @@
-function New-EPDSCAzureGuestConfigurationPolicyPackage
-{
+function New-EPDSCAzureGuestConfigurationPolicyPackage {
     [CmdletBinding()]
     param
     (
@@ -28,8 +27,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Compiling Configuration into a MOF file..." -NoNewLine
-    if (Test-Path 'MonitorAntivirus')
-    {
+    if (Test-Path 'MonitorAntivirus') {
         Remove-Item "MonitorAntivirus" -Recurse -Force -Confirm:$false
     }
     & "$PSScriptRoot/Configurations/MonitorAntivirus.ps1" | Out-Null
@@ -48,8 +46,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Generating Guest Configuration Policy..." -NoNewLine
-    if (Test-Path 'policies')
-    {
+    if (Test-Path 'policies') {
         Remove-Item "policies" -Recurse -Force -Confirm:$false
     }
     Import-LocalizedData -BaseDirectory "$PSScriptRoot/ParameterFiles/" `
@@ -70,8 +67,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     Write-Host "Done" -ForegroundColor Green
 }
 
-function Publish-EPDSCPackage
-{
+function Publish-EPDSCPackage {
     [CmdletBinding()]
     [OutputType([System.String])]
     param(
@@ -92,17 +88,15 @@ function Publish-EPDSCPackage
         $ResourceGroupLocation
     )
 
-    $resourceGroup     = Get-AzResourceGroup $ResourceGroupName -ErrorAction "SilentlyContinue"
-    if ($null -eq $resourceGroup)
-    {
+    $resourceGroup = Get-AzResourceGroup $ResourceGroupName -ErrorAction "SilentlyContinue"
+    if ($null -eq $resourceGroup) {
         $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName `
             -Location $ResourceGroupLocation
     }
 
     $storageAccount = Get-AzStorageAccount -Name $StorageAccountName `
         -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue"
-    if ($null -eq $storageAccount)
-    {
+    if ($null -eq $storageAccount) {
         $storageAccount = New-AzStorageAccount -Name $StorageAccountName `
             -ResourceGroupName $ResourceGroupName `
             -SkuName $StorageSKUName `
@@ -113,7 +107,7 @@ function Publish-EPDSCPackage
     do {
         Start-Sleep -Seconds 3
     } until (Get-AzStorageAccount -Name $StorageAccountName `
-    -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue")
+            -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue")
     # Get Storage Context
     $storageContext = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName `
         -Name $StorageAccountName | `
@@ -149,19 +143,109 @@ function Publish-EPDSCPackage
 }
 
 function Select-Subscription {
-    $subscriptions = Get-AzSubscription | Where-Object {$_.State -eq "Enabled"}
+    $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq "Enabled" }
 
     # If there are more than one subscriptions, select which one to deploy to
     if ($subscriptions.count -gt 1) {
         $numberedSubscriptions = @()
-        For ($i=0; $i -lt $subscriptions.count; $i++) {
-            $numberedSubscriptions += $subscriptions[$i] | Select-Object @{Name = 'No'; Expression = {$i+1}},Name,Id, TenantId
+        For ($i = 0; $i -lt $subscriptions.count; $i++) {
+            $numberedSubscriptions += $subscriptions[$i] | Select-Object @{Name = 'No'; Expression = { $i + 1 } }, Name, Id, TenantId
         }
         
-        Write-Host "Select from following subscriptions"
-        $numberedSubscriptions | Format-Table
+        [int]$subNumber = $null
+        do {
+            Write-Host "Select from following subscriptions to create Resource Group and Storage Account"
+            $numberedSubscriptions | Format-Table
+    
+            $subNumber = Read-Host "Select No"
+        } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedSubscriptions.count)) -and ($subNumber -ge 1))
+
+        Set-AzContext $numberedSubscriptions[$subNumber - 1].Name | Out-Null
+    } else {
+        Write-Error "Cannot find any subscription"
+        exit
+    }
+}
+
+function Get-AzCachedAccessToken() {
+    $ErrorActionPreference = 'Stop'
+  
+    if (-not (Get-Module Az.Accounts)) {
+        Import-Module Az.Accounts
+    }
+    $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    if (-not $azProfile.Accounts.Count) {
+        Write-Error "Ensure you have logged in before calling this function."    
+    }
+  
+    $currentAzureContext = Get-AzContext
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azProfile)
+    Write-Debug ("Getting access token for tenant" + $currentAzureContext.Tenant.TenantId)
+    $token = $profileClient.AcquireAccessToken($currentAzureContext.Tenant.TenantId)
+    $token.AccessToken
+}
+
+function Get-AzBearerToken() {
+    $ErrorActionPreference = 'Stop'
+    ('Bearer {0}' -f (Get-AzCachedAccessToken))
+}
+
+function Select-ManagementGroup {
+
+    # Get authentication token from cached credential
+    $bearerToken = Get-AzBearerToken
+    $authHeader = @{ }
+    $authHeader.Add('authorization', $bearerToken)
+
+    $managementGroups = @()
+
+    # Get top manamgenet groups names
+    $uri = "https://management.azure.com/providers/Microsoft.Management/managementGroups?api-version=2020-02-01"
+
+    $topMGsResponse = @()
+    $topMGsResponse = Invoke-RestMethod -Method Get -Uri $uri -Headers $authHeader
+
+    if ($topMGsResponse) {
+        $topMGs = @()
+        foreach ($topMG in $topMGsResponse.value) {
+            $topMGs += $topMG | Select-Object name, @{Name = 'displayName'; Expression = { $_.properties | Select-Object -ExpandProperty displayName } }, id
+        }
+        $managementGroups += $topMGs
+    }
+    else {
+        Write-Error "Unable to find any top level management groups"
+        exit
+    }
+
+    # Get descendants management groups
+    foreach ($topMG in $topMGs) {
+        $topMGId = $topMG.name
+        $uri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$topMGId/descendants?api-version=2020-02-01"
+        $descendantMGsResponse = $null
+        $descendantMGsResponse = Invoke-RestMethod -Method Get -Uri $uri -Headers $authHeader
+        if ($descendantMGsResponse) {
+            foreach ($descendantMG in $descendantMGsResponse.value) {
+                if ($descendantMG.type -eq 'Microsoft.Management/managementGroups') {
+                    $managementGroups += $descendantMG | Select-Object name, @{Name = 'displayName'; Expression = { $_.properties | Select-Object -ExpandProperty displayName } }, id
+                }
+            }
+        }
+    }
+
+    # Add number to each management group
+    $numberedMGs = @()
+    For ($i = 0; $i -lt $managementGroups.count; $i++) {
+        $numberedMGs += $managementGroups[$i] | Select-Object @{Name = 'No'; Expression = { $i + 1 } }, Name, displayName, id
+    }
+
+    # Select which management group you want to deploy the policy into:
+    [int]$subNumber = $null
+    do {
+        Write-Host "Select from following management groups"
+        $numberedMGs | Format-Table
 
         $subNumber = Read-Host "Select No"
-        Set-AzContext $numberedSubscriptions[$subNumber-1].Name | Out-Null
-    }
+    } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedMGs.count)) -and ($subNumber -ge 1))
+    
+    $numberedMGs[$subNumber - 1].name
 }
