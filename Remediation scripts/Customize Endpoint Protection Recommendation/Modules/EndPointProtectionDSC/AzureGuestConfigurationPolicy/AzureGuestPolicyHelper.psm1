@@ -23,7 +23,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     )
 
     Write-Host "Connecting to Azure..." -NoNewLine
-    # Connect-AzAccount | Out-Null
+    Connect-AzAccount | Out-Null
 
     # Select Management Group for policy scope
     $managementGroupId = $null
