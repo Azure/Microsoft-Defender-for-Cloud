@@ -49,7 +49,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
 
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
     $package = New-GuestConfigurationPackage -Name MonitorAntivirus `
-        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof"
+        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Package to Azure Storage..." -NoNewLine
