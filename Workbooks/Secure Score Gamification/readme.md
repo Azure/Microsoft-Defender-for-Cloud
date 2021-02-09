@@ -3,6 +3,11 @@
 
 This workbook displays the Secure Score from Azure Defender across all subscriptions selected, as well as the security posture by team or department. The team/department information is retrieved from the specified tag.
 
+## Try on Portal
+<br>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FSecure%2520Score%2520Gamification%2FarmTemplate.json" target="_blank">
+<img src="https://aka.ms/deploytoazurebutton"/></a>
+
 **Overall Secure Score tab**:
 ![Workbook Overview2](./workbook-securescore.png)
 
