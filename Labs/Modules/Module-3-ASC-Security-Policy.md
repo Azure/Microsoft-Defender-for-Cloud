@@ -119,7 +119,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 > ❗ Important: <br>
 > Security misconfigurations are a major cause of security incidents
 
-5.	On the **Deny - Prevent resource creation (Preview)**, select **Azure subscription 1** (which is currently set to audit mode). This allow you to ensure that from now on, storage account without the security transfer feature turned on will be denied.
+5.	On the **Deny - Prevent resource creation**, select **Azure subscription 1** (which is currently set to audit mode). This allow you to ensure that from now on, storage account without the security transfer feature turned on will be denied.
 
 ![Prevent resource creation](../Images/asc-storage-deny-policy.gif?raw=true)
 
