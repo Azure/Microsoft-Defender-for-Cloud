@@ -48,7 +48,7 @@
   RequiredModules   = @(
         @{
             ModuleName      = "GuestConfiguration"
-            RequiredVersion = "1.19.4"
+            RequiredVersion = "3.1.3"
         }
   )
 
