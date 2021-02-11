@@ -46,7 +46,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
     
     New-GuestConfigurationPackage -Name MonitorAntivirus `
-        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force
+        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Package to Azure Storage..." -NoNewLine
@@ -62,7 +62,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     }
     Import-LocalizedData -BaseDirectory "$PSScriptRoot/ParameterFiles/" `
         -FileName "EPAntivirusStatus.Params.psd1" `
-        -BindingVariable ParameterValues
+        -BindingVariable ParameterValues | Out-Null
     
     New-GuestConfigurationPolicy `
         -ContentUri $Url `
@@ -71,13 +71,13 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
         -Path './policies' `
         -Platform 'Windows' `
         -Version 1.0.0 `
-        -Parameter $ParameterValues -Verbose
+        -Parameter $ParameterValues -Verbose | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Guest Configuration Policy..." -NoNewLine
     switch ($policyScope) {
-        subscription { Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose }
-        managementGroup { Publish-GuestConfigurationPolicy -Path ".\policies" -ManagementGroupName $managementGroupId -Verbose}
+        subscription { Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose | Out-Null }
+        managementGroup { Publish-GuestConfigurationPolicy -Path ".\policies" -ManagementGroupName $managementGroupId -Verbose | Out-Null }
     }
     Write-Host "Done" -ForegroundColor Green
 }
