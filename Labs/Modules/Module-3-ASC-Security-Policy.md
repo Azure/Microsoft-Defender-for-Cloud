@@ -81,7 +81,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 2.	Expend **Secure management ports** security control.
 3.	Select the **Management ports should be closed on your virtual machines** recommendation.
 4.	On the list of **unhealthy resources**, see the current resources: *asclab-win* and *asclab-linux*.
-5.	Select the ellipsis menu ("**...**") for **asclab-win** resource and then click on **Create exemption**.
+5.	Select the **asclab-win** resource and then click on **Create exemption**.
 
 ![Create exemption](../Images/asc-management-ports-resource-exemption.gif?raw=true)
 
@@ -119,7 +119,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 > ❗ Important: <br>
 > Security misconfigurations are a major cause of security incidents
 
-5.	On the **Deny - Prevent resource creation (Preview)**, select **Azure subscription 1** (which is currently set to audit mode). This allow you to ensure that from now on, storage account without the security transfer feature turned on will be denied.
+5.	On the **Deny - Prevent resource creation**, select **Azure subscription 1** (which is currently set to audit mode). This allow you to ensure that from now on, storage account without the security transfer feature turned on will be denied.
 
 ![Prevent resource creation](../Images/asc-storage-deny-policy.gif?raw=true)
 
