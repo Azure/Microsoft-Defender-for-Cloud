@@ -16,75 +16,75 @@ More information mentioned here : https://docs.microsoft.com/en-us/azure/governa
 .Requirements
 
   PowerShell 7
-  Az.Resources
+  Az.Resources >=2.4.0 (Included with Az >= 5.0.0)
 
 .Known Issues
     
-  
-
 #>
 
 
 #comment the below line out if using cloud shell
+#$checkcloudshell = Get-ChildItem -Path ~/clouddrive
 
-$checkcloudshell = Get-ChildItem -Path ~/clouddrive
-
-$outfilepath = "C:\users\subs.txt"
+$outfilepath = ".\PoliciesRemoved_$(Get-Date -Format yyyyMMdd_HHmmss).txt"
 
 #comment out the below line if using local powershell (will detect in later release)
-$outfilepath = "~/clouddrive/asc_pol_removed.txt"
+#$outfilepath = "~/clouddrive/asc_pol_removed.txt"
 
-$subascassignmentname = "ASC Default"
+#Management Group ID to scan
+$managementGroupId = 'mg1'
 
-# gets all management groups from authorized login 
-$azuremgmts = Get-AzManagementGroup
+#When set to true, script will only report which subscriptions have ASC policies assignments at both the Management Group and Subscription Level.
+#Set to $false to remove ASC policies assignments at the Subscription Level when assignment is already at the Management Group Level
+$reportOnly = $true
 
-#loop through each management group
-foreach ($azuremgmt in $azuremgmts){
-    
-    # Matching to ensure the Management Group is not Root and does have a ASC Policy assigned
-    $mgmtscope = "/providers/Microsoft.Management/managementgroups/" + $azuremgmt.name
-    $mgmtpolicycheck = Get-AzPolicyAssignment -Scope $mgmtscope
-    if ($azuremgmt.DisplayName -notmatch "Tenant Root Group" -and $mgmtpolicycheck.Properties.policyDefinitionId -match "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" ){
+######################################################################
+Function Process-AzManagementGroupChildren {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory = $true)]
+        [string]
+        $ManagementGroupId
+    )
+    $ManagementGroup = Get-AzManagementGroup -GroupId $ManagementGroupId -Expand -WarningAction SilentlyContinue
 
-        $managementGroupName = $azuremgmt.Name
-        $azmgmt = Get-AzManagementGroup -GroupName $managementGroupName -Expand
-    
-        # get the assigned subscriptions to the managaement group
-        $azmgmtsubs = $azmgmt.Children
-
+    Write-Output "`nManagement Group: $($ManagementGroup.DisplayName) ($($ManagementGroup.Name))"
+    $mgmtpolicycheck = Get-AzPolicyAssignment -Scope $ManagementGroup.Id
+    # Matching to ensure the Management Group has the ASC Policy assigned
+    if ($mgmtpolicycheck.Properties.policyDefinitionId -match "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8" ) {
         # run through all subscriptions under Management group
-        $azmgmtsubs | ForEach-Object -ThrottleLimit 10 -Parallel {
-
+        $childSubscriptions = $ManagementGroup.Children | ? { $_.Type -eq '/subscriptions' }
+        foreach ($childSubscription in $childSubscriptions) {
             # Matching to ensure the subscription is not "Access to Azure Active Directory" those subscriptions are non billable\deploayble into
-            if ($_.DisplayName -notmatch "Access to Azure Active Directory"){
-
+            if ($childSubscription.DisplayName -notmatch "Access to Azure Active Directory") {
                 # Get policy Assignments from each subscription
-                
-                Write-Host $_.Type
-                Write-Host $_.Id
-                Write-Host $_.Name
-                Write-Host $_.DisplayName
-
-                $policyassignsub = Get-AzPolicyAssignment -Scope $_.Id
-
                 # Matching condition of policy assignment resourcename and subid not being null, mgmt assignments do not have SubscriptionId in object
-                if ($policyassignsub.ResourceName -contains "SecurityCenterBuiltIn" -and $policyassignsub.SubscriptionId -ne $null ) {
-    
-                    ## Used below for Testing ensure no false positives in above if matching
-                    #Write-Host $policyassignsub.Name
-                    #Write-Host $policyassignsub.ResourceId[0] 
-    
-                    ## Remove the following policy assignemnt from subscription.
-                    Remove-AzPolicyAssignment -Id $policyassignsub.ResourceId[0]
-                    $policyassignsub.Name | out-file $outfilepath -append
-
+                foreach ($policyassignsub in (Get-AzPolicyAssignment -Scope $childSubscription.Id)) {
+                    if ($policyassignsub.ResourceName -contains "SecurityCenterBuiltIn" -and $policyassignsub.SubscriptionId -ne $null ) {
+                        Write-Output "`tSubscription: $($childSubscription.DisplayName) ($($childSubscription.Name))"
+                        if ($reportOnly -eq $false) {
+                            Write-Output "`t   Removing Policy Assignment:"
+                            Remove-AzPolicyAssignment -Id $policyassignsub.ResourceId
+                            Write-Output "Subscription: $($childSubscription.DisplayName) ($($childSubscription.Name))" | Out-File -FilePath $outfilepath -Append
+                            Write-Output "`tPolicy Name: $($policyassignsub.Name)" | Out-File -FilePath $outfilepath -Append
+                            Write-Output "`tPolicy Assignment ID: $($policyassignsub.PolicyAssignmentId)" | Out-File -FilePath $outfilepath -Append
+                            Write-Output "`tPolicy Definition ID: $($policyassignsub.Properties.PolicyDefinitionId)" | Out-File -FilePath $outfilepath -Append
+                        }
+                    
+                        Write-Output "`t`tPolicy Name: $($policyassignsub.Name)"
+                        Write-Output "`t`tPolicy Assignment ID: $($policyassignsub.PolicyAssignmentId)"
+                        Write-Output "`t`tPolicy Definition ID: $($policyassignsub.Properties.PolicyDefinitionId)"
+                    }
                 }
-
             }
-
-        }    
-
+        }
     }
 
+    #Recurse through child Management Groups
+    $childManagementGroups = $ManagementGroup.Children | ? { $_.Type -eq '/providers/Microsoft.Management/managementGroups' }
+    foreach ($childManagementGroup in $childManagementGroups) {
+        Process-AzManagementGroupChildren -ManagementGroupId $childManagementGroup.Name
+    }
 }
+
+Process-AzManagementGroupChildren -ManagementGroupId $managementGroupId

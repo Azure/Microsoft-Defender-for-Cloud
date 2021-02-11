@@ -1,13 +1,13 @@
-# Logic Apps sample playbook to remediate
+# Samples for remediating "Management ports of virtual machines should be protected with just-in-time network access control"
 
-This logic app will find all Security Score recommendations for JIT VM Access and create access policies for each VM for ports 22 and 3389.
+These samples provide various ways to resolve the "Management ports of virtual machines should be protected with just-in-time network access control" recommendation
+in Azure Security Center.  There are two samples:
 
-The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriete subscription permissions (contributor) on the resources (subscriptions, tasks, and VMs) that you would like to remediate.
-
-<a
-href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FSecure%2520Score%2FJust-In-Time%2520network%2520access%2520control%2520should%2520be%2520applied%2520on%2520virtual%2520machines%2FLogic%2520App%2FEnable-JIT.json" target="_blank">
-    <img src="https://azuredeploy.net/deploybutton.png"/>
-</a>
+* PowerShell script - Will loop through and remediate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
+    - Requires Azure (Az) PowerShell module
+* Logic App - Uses the REST API to enumerate and remediate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
+    - Will need to create a managed identity.  This will need to be added to the 
+    subscription with access to tasks and VMs.
 
 # Contributing
 

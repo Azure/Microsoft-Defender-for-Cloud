@@ -1,13 +1,8 @@
-# Samples for remediating "Apply a just in time VM access control"
+# KQL queries for Azure Security Center
+In this folder you can find sample KQL queries to query Azure Security Center data via Log Analytics. We encourage you to change the sample queries by your specific needs.
 
-These samples provide various ways to resolve the "Apply a just in time VM access control" recommendation
-in Azure Security Center.  There are two samples:
-
-* PowerShell script - Will loop through and rememdiate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
-    - Requires Azure (Az) PowerShell module
-* Logic App - Uses the REST API to enumerate and remediate each applicable VM and implement JIT Access Control on ports 22 & 3389 for each subscription.
-    - Will need to create a managed identity.  This will need to be added to the 
-    subscription with access to tasks and VMs.
+# Questions
+You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues). Please also refer to our [Wiki](https://github.com/Azure/Azure-Security-Center/wiki#resources), as it will provide you with further information.
 
 # Contributing
 

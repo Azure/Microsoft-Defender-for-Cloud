@@ -15,8 +15,8 @@ More information mentioned here : https://docs.microsoft.com/en-us/azure/governa
 
 ## Module Requirements
 
-  PowerShell 7
-  Az.Resources
+  - PowerShell 7
+  - Az.Resources >=2.4.0 (Included with Az >= 5.0.0)
 
 
 ## Known Issues
