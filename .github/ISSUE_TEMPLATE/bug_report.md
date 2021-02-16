@@ -8,7 +8,7 @@ assignees: ''
 ---
 
 **Describe the bug**
-A clear and concise description of what the bug is. Make sure to reference the automation artifact this bug relates to.
+A clear and concise description of what the bug is. Make sure to [reference the automation artifact](https://docs.github.com/en/github/managing-your-work-on-github/opening-an-issue-from-code) or code this bug relates to.
 
 **To Reproduce**
 Steps to reproduce the behavior:
