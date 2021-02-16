@@ -8,10 +8,13 @@ the rights to use your contribution. For details, visit https://cla.microsoft.co
 
 Please note that this project is released with a [Contributor Code of Conduct](https://opensource.microsoft.com/codeofconduct/). By participating in this project you agree to abide by its terms.
 
-- [Creating issues](#creating-issues)
-- [Recommended setup for contributing](#recommended-setup-for-contributing)
-- [Commit messages](#commit-messages)
-- [Pull requests](#pull-requests)
+- [Contributing](#contributing)
+  - [How to contribute](#how-to-contribute)
+  - [Creating issues](#creating-issues)
+    - [Related repositories](#related-repositories)
+  - [Recommended setup for contributing](#recommended-setup-for-contributing)
+  - [Commit messages](#commit-messages)
+  - [Pull Requests](#pull-requests)
 
 ## Creating issues
 
@@ -42,8 +45,7 @@ When creating commits, always try to create useful commit messages explaining wh
 
 ## Pull Requests
 
-When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change.
-The github pull request will verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
+When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change. Make sure to provide a [readme](https://github.com/Azure/Azure-Security-Center/wiki/Readme.md-Template) file so people will know what your artifact will do. Once your pull request is submitted, we will automatically verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
 
 [code-of-conduct]: https://opensource.microsoft.com/codeofconduct/
 [new-issue]: https://github.com/Azure/Azure-Security-Center/issues/new
