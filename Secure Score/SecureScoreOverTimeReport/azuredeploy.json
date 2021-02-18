@@ -7,20 +7,30 @@
             "type": "String"
         },
         "LogAnalyticsWorkspaceSubscriptionID": {
-            "defaultValue": "YourLogAnalyticsWorkspace-SubscriptionID",
-            "type": "string"
+            "type": "string",
+             "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-SubscriptionID.",
+                "description": "Enter your LogAnalyticsWorkspace-SubscriptionID."
+                }
         },
         "LogAnalyticsWorkspaceResourceGroupName": {
-            "defaultValue": "YourLogAnalyticsWorkspace-ResourceGroupName",
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-ResourceGroupName.",
+                "description": "Enter your LogAnalyticsWorkspace-ResourceGroupName."
+                }
         },
         "LogAnalyticsWorkspaceName": {
             "defaultValue": "YourLogAnalyticsWorkspace-WorkspaceName",
-            "type": "string"
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-WorkspaceName.",
+                "description": "Enter your LogAnalyticsWorkspace-WorkspaceName."
+                }
         },
         "NotificationEmailAddress": {
             "type": "string"
-        },
+        }
     },
     "variables": {
         "azuremonitorlogsConnectionName": "[concat('azuremonitorlogs-', parameters('PlaybookName'))]",
