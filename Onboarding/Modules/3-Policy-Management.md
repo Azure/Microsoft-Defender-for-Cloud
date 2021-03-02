@@ -69,10 +69,33 @@ Since assigning a regulatory compliance standard is normally a one-time task, mo
 ### Automation options
 
 * Azure Policy: Assign the appropriate policy via
-    * Azure PowerShell
-    * Azure CLI
-    * Azure REST API
-    * ARM Template
+    * [Azure PowerShell](https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azpolicyassignment?view=azps-5.3.0)  
+` $definition = Get-AzPolicySetDefinition -Name 1f3afdf9-d0c9-4c3d-847f-89da613e70a8
+New-AzPolicyAssignment -Name 'ASCDefault' -PolicySetDefinition $definition`
+    * [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/policy/assignment?view=azure-cli-latest#az_policy_assignment_create)  
+`az policy assignment create --name ‘ASCDefault’ –policy-set-definition 1f3afdf9-d0c9-4c3d-847f-89da613e70a8`
+    * [Azure REST API](https://docs.microsoft.com/en-us/rest/api/resources/policyassignments/create)  
+Make a PUT request to https://management.azure.com/{scope}/providers/Microsoft.Authorization/policyAssignments/{policyAssignmentName}?api-version=2020-09-01
+with the following request body  
+      ```json
+      {
+        "properties": {
+          "policyDefinitionId": "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8",
+        }
+      }
+      ```
+    * [ARM Template](https://docs.microsoft.com/en-us/azure/templates/microsoft.authorization/policyassignments)  
+To create a *Microsoft.Authorization/policyAssignments* resource, add the following JSON to the resources section of your ARM template:  
+        ```json
+        {  
+          "type": " Microsoft.Authorization/policyAssignments",  
+          "name": "ASCDefault",  
+          "apiVersion": "2019-09-01",  
+          "properties": {  
+            "policyDefinitionId": "1f3afdf9-d0c9-4c3d-847f-89da613e70a8"  
+          }  
+        }
+        ```
 
 <br />
 
