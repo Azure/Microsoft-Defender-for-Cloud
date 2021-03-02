@@ -95,10 +95,10 @@ After some time, ASC will detect the policies and they will appear in the recomm
 ### Automation options
 
 * **To create the policy definition(s)**
-    * REST API (recommended)
-    * Azure PowerShell
-    * Azure CLI
-    * ARM Template
+    * [REST API](https://docs.microsoft.com/en-us/rest/api/resources/policydefinitions/createorupdateatmanagementgroup)
+    * [Azure PowerShell](https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azpolicydefinition?view=azps-5.5.0)
+    * [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/policy/definition?view=azure-cli-latest#az_policy_definition_create)
+    * [ARM Template](https://docs.microsoft.com/en-us/azure/templates/microsoft.authorization/policydefinitions)
 * **To create the policy initiative**
     * **[Azure PowerShell](https://docs.microsoft.com/en-us/powershell/module/az.resources/new-azpolicysetdefinition?view=azps-5.5.0)**  
     ```
