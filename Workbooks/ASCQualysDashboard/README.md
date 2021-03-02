@@ -4,8 +4,8 @@ This Workbook provides an unified view on the information collected by the Qualy
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FASCQualysDashboard%2FASC%2520Qualys%2520Report%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FASCQualysDashboard%2FASC%2520Qualys%2520Report%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FASCQualysDashboard%2FASC%2520Qualys%2520Report%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FASCQualysDashboard%2FASC%2520Qualys%2520Report%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 * Overall recommendations by severity and category
 ![Image of OverallView](https://github.com/carlosfar/public/blob/master/Azure%20Security%20Center/ASCQualysWorkbook/Screenshot_Overview.png?raw=true)
