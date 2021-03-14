@@ -1,23 +1,28 @@
-# Azure Defender for Arc enabled Kubernetes - Private Preview
+# Azure Defender for Arc enabled Kubernetes - preview
 In this section you can find code snippets & setting configurations required for Azure defender for Arc enabled Kubernetes private preview 
 
 # Description
-Azure defender for Kubernetes is expanding its support from AKS to any Kubernetes cluster, leveraging Azure Arc for Kubernetes. The preview offers parity between the threat detection capabilities that ASC has today in AKS and brings these capabilities to Arc connected Kubernetes clusters.
+Azure Defender for Kubernetes is expanding its support from Azure Kubernetes Service to *any* Kubernetes cluster, leveraging Azure Arc enabled Kubernetes.
 
-# Register for the preview 
+This preview brings the management layer threat detection capabilities that Azure Security Center offers today (through Azure Defender for Kubernetes) to Arc connected Kubernetes clusters.
 
-Members of our private preview program can sign up in [here](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR29qPXYA7fJFpXjPCSwLwsNUNjVHR0ZVQzEwOEtMWFkxWFVSQzc3MVo5MC4u). 
+## Architecture overview
+
+Azure Defender for Kubernetes' ability to monitor and provide threat protection capabilities relies on an Azure Arc extension. The extension collects Kubernetes audit logs data from all control plane (master) nodes in the cluster and sends them to the Azure Defender for Kubernetes backend in the cloud for further analysis. The extension is registered with a Log Analytics workspace that's used as a data pipeline. The audit log data isn't stored in the Log Analytics workspace.
+
+This is a high-level diagram outlining the interaction between Azure Defender for Kubernetes and the Azure Arc-enabled Kubernetes cluster:
+![A high-level architecture diagram outlining the interaction between Azure Defender for Kubernetes and an Azure Arc enabled Kubernetes clusters](media/k8s-extensions-azure-defender/defender-for-kubernetes-architecture-overview.png)
+
+# Installation of the Defender extension on Azure Arc enabled Kubernetes clusters
+In this repository you can find an ARM tamplate and a sample of Defender extension installation on an Azure Arc enabled Kubernetes cluster, in case you would like to install the extension manualy. Otherwise there is an you can automatic installation via Azure Security Center the Azure Security Center portal under the "Azure Defender extension for Kubernetes should be installed on your Arc connected clusters" recommendation which has a "Quick Fix" button for your convenience. 
+
 
 # Ensuring you're collecting the necessary events to your Kubernetes audit log
 
-Azure Defender for Kubernetes needs to collect your Kubernetes audit logs to analyze them for runtime threat protection capabilities.
-
-To ensure they're setup as required before installing the Azure Defender for Kubernetes containerized agent (for private preview purpuses only):
+To provide runtime threat protection capabilities, the extension collects [Kubernetes audit logs](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/) from your cluster. To validate you Kubernetes audit logs are configured correctly:
 
 * If you've already enabled audit logs, use the audit_policy.yaml policy file in this repository to verify that you're collecting the necessary events for Azure Defender for Kubernetes. If audit logs are already enabled on your cluster, your cluster's audit configuration and settings will remain untouched.
 
-* If you haven't enabled audit logs, they'll automatically be enabled during the installation of the Azure Defender for Kubernetes containerized agent. When audit logs are automatically enabled in your cluster, a backup is generated to provide you with rollback option.
+* If you haven't enabled audit logs, they'll automatically be enabled during the installation of the Azure Defender for Kubernetes containerized agent. When audit logs are automatically enabled in your cluster, a backup is generated to provide you with rollback option. For an OpenShift Kubernetes Cluster, audit logs policy will be automatically updated from ``Default`` to ``WriteRequestBodies``.
 
-[!NOTE] In OpenShift, audit logs are enabled by default.
-
-* To manually enable Kubernetes audit logs, before Azure Defender for Kubernetes agent installation follow the steps in Manually enable audit logs.
+[!NOTE] In OpenShift, audit logs are enabled by default. In this case, audit logs policy will be automatically updated from ``Default`` to ``WriteRequestBodies``.
