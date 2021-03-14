@@ -23,6 +23,6 @@ To provide runtime threat protection capabilities, the extension collects [Kuber
 
 * If you've already enabled audit logs, use the audit_policy.yaml policy file in this repository to verify that you're collecting the necessary events for Azure Defender for Kubernetes. If audit logs are already enabled on your cluster, your cluster's audit configuration and settings will remain untouched.
 
-* If you haven't enabled audit logs, they'll automatically be enabled during the installation of the Azure Defender for Kubernetes containerized agent. When audit logs are automatically enabled in your cluster, a backup is generated to provide you with rollback option. For an OpenShift Kubernetes Cluster, audit logs policy will be automatically updated from ``Default`` to ``WriteRequestBodies``.
+* If you haven't enabled audit logs, they'll automatically be enabled during the installation of the Azure Defender for Kubernetes containerized agent. When audit logs are automatically enabled in your cluster, a backup is generated to provide you with rollback option.
 
-[!NOTE] In OpenShift, audit logs are enabled by default. In this case, audit logs policy will be automatically updated from ``Default`` to ``WriteRequestBodies``.
+In OpenShift, audit logs are enabled by default. In this case, audit logs policy will be automatically updated from ``Default`` to ``WriteRequestBodies``.
