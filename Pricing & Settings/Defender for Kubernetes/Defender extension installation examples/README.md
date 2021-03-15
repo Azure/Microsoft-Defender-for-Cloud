@@ -3,7 +3,7 @@
 In this repository you can find examples & setting configurations required for the installation of Defender extension on Arc enabled Kubernetes clusters, in case you would like to install the extension manualy. 
 Otherwise there is an you can automatic installation via Azure Security Center the Azure Security Center portal under the "Azure Defender extension for Kubernetes should be installed on your Arc connected clusters" recommendation which has a "Quick Fix" button for your convenience. 
 
-## Installation of Azure Defender extension with an ARM tamplate - try on portal
+## Installation of Azure Defender extension with an ARM template - try on portal
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%20%26%20Settings%2FDefender%20for%20Kubernetes%2FDefender%20extension%20installation%20examples%2Fazure-defender-extension-arm-template.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
