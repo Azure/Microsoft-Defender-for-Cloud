@@ -4,9 +4,10 @@ In this repository you can find examples & setting configurations required for t
 Otherwise there is an you can automatic installation via Azure Security Center the Azure Security Center portal under the "Azure Defender extension for Kubernetes should be installed on your Arc connected clusters" recommendation which has a "Quick Fix" button for your convenience. 
 
 ## Installation of Azure Defender extension with an ARM tamplate - try on portal
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%20%26%20Settings%2FDefender%2%2Ffor%20%26%20Kubernetess%2%2FDEfender%2Fextension%2%2Finstallation%20%26%20examples%2%2Fazure-defender-extension-arm-template.json target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https:%3A%2F%2Fgithub.com%2FAzure%2FAzure-Security-Center%2Ftree%2Fmaster%2FPricing%20%26%20Settings%2FDefender%20for%20Kubernetes%2FDefender%20extension%20installation%20examples%2Fazure-defender-extension-arm-template.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
+
 ## Ensuring you're collecting the necessary events to your Kubernetes audit log
 
 To provide runtime threat protection capabilities, the extension collects [Kubernetes audit logs](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/) from your cluster. To validate you Kubernetes audit logs are configured correctly:
