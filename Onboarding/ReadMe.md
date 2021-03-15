@@ -9,7 +9,7 @@ This document describes the actions that an organization must take in order to s
 
 ## Last release notes
 
-* Version 0.5 - Preview documentation of Azure Security Center Enterprise Onboarding Guide
+* Version 0.5 - Preview documentation of Azure Security Center Enterprise Onboarding Guide. Use at your own risk.
 
 ## Implementation steps - Overview
 The following table provides an overview of the steps required to onboard Azure Security Center at scale. For each of the steps, customers can see a summary of the required action as well as the available automation options. Further details on each step are provided in the following sections of this document.
