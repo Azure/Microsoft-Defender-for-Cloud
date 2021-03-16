@@ -14,9 +14,6 @@ This is a high-level diagram outlining the interaction between Azure Defender fo
 
 ![defender-for-kubernetes-architecture-overview](https://user-images.githubusercontent.com/62830936/111069341-4c6c5280-84d5-11eb-8df3-d52be7aae8ca.png)
 
-## Installation of the Defender extension on Azure Arc enabled Kubernetes clusters
-In this repository you can find an ARM tamplate and a sample of Defender extension installation on an Azure Arc enabled Kubernetes cluster, in case you would like to install the extension manualy. Otherwise there is an you can automatic installation via Azure Security Center the Azure Security Center portal under the "Azure Defender extension for Kubernetes should be installed on your Arc connected clusters" recommendation which has a "Quick Fix" button for your convenience. 
-
 ## Ensuring you're collecting the necessary events to your Kubernetes audit log
 
 To provide runtime threat protection capabilities, the extension collects [Kubernetes audit logs](https://kubernetes.io/docs/tasks/debug-application-cluster/audit/) from your cluster. To validate you Kubernetes audit logs are configured correctly:
