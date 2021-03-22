@@ -43,6 +43,11 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 - [Azure Defender for Resource Manager](https://docs.microsoft.com/en-us/azure/security-center/defender-for-resource-manager-introduction)
 
+## Alert Simulation for Azure Defender for DNS
+- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-defender-for-dns-alerts/ba-p/2227845) go over the steps to simulate an attack that can be identified by Azure Defender for DNS.
+
+- [Azure Defender for DNS](https://docs.microsoft.com/en-us/azure/security-center/defender-for-dns-introduction)
+
 ## Threat Hunting in Azure Security Center and Log Analytics Workspace
 
 - This simulation playbook go over a threat hunting scenario using Azure Security Center and searching for evidences of attack in Log Analtyics workspace.
