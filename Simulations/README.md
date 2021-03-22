@@ -7,9 +7,9 @@ There are many ways to simulate an alert in Azure Security Center and if you jus
 
 - Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Security%20Alerts%20Playbook_v2.pdf) and follow the steps to configure a lab environment to test Windows VM-based threat detection.
 
-- [Threat Detection for Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
+- [Azure Defender for Servers - Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
 
-- [Potential alerts for Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-windows)
+- [Azure Defender for Servers - Windows alerts](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-windows)
 
 If you are testing the integration with Microsoft Defender ATP for Servers, use [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-wdatp#test-the-feature) to validate the alert integration. Make sure that the server that you are testing this procedure is already onboarded and using MDATP.
 
@@ -17,28 +17,31 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 - Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Linux%20Detections_v2.pdf) and follow the steps to configure a lab environment to test Linux VM-based threat detection.
 
-- [Threat Detection for Linux documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#linux-)
+- [Azure Defender for Server - Linux documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#linux-)
 
-- [Potential alerts for Linux documentation](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-linux)
+- [Azure Defender for Server - Linux Alerts](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-linux)
 
 
 ## Alert Simulation for Containers
-
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/how-to-demonstrate-the-new-containers-features-in-azure-security/ba-p/1011270) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
 
-- [Threat detection for containers documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-compute#azure-containers-)
+- [Azure Defender for AKS](https://docs.microsoft.com/en-us/azure/security-center/kubernetes-workload-protections)
 
 
-## Alert Simulation for Advanced Threat Protection for Azure Storage
-
+## Alert Simulation for Azure Defender for Storage
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-atp-for-azure-storage-detections-in-azure-security/ba-p/1068131) go over the steps to simulate an upload of a test malware (EICAR) to an Azure Storage account that has ATP for Azure Storage enabled.
 
-- [Threat detection for Azure Storage](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-data-services#azure-storage-)
+- [Azure Defender Storage](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
 
-## Alert Simulation for Key Vault Threat Protection
+## Alert Simulation for Azure Defender for Key Vault
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-key-vault-threat-detection-in-azure-security/ba-p/1220336) go over the steps to simulate an anonymizer access to the Key Vault using a TOR browser.
 
-- [Threat detection for Key Vault](https://docs.microsoft.com/en-us/azure/security-center/threat-protection#threat-protection-for-azure-key-vault-preview)
+- [Azure Defender for Key Vault](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
+
+## Alert Simulation for Azure Defender for Resource Manager
+- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-defender-for-resource-manager-alerts/ba-p/2227469) go over the steps to simulate an extension manipulation using Azure Resource Manager.
+
+- [Azure Defender for Resource Manager](https://docs.microsoft.com/en-us/azure/security-center/defender-for-resource-manager-introduction)
 
 ## Threat Hunting in Azure Security Center and Log Analytics Workspace
 
