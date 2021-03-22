@@ -9,7 +9,7 @@ There are many ways to simulate an alert in Azure Security Center and if you jus
 
 - [Azure Defender for Servers - Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
 
-- [Azure Defender for Servers - Windows alerts](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-windows)
+- [Azure Defender for Servers - Windows Alerts](https://docs.microsoft.com/en-us/azure/security-center/alerts-reference#alerts-windows)
 
 If you are testing the integration with Microsoft Defender ATP for Servers, use [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-wdatp#test-the-feature) to validate the alert integration. Make sure that the server that you are testing this procedure is already onboarded and using MDATP.
 
@@ -25,7 +25,7 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 ## Alert Simulation for Containers
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/how-to-demonstrate-the-new-containers-features-in-azure-security/ba-p/1011270) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
 
-- [Azure Defender for AKS](https://docs.microsoft.com/en-us/azure/security-center/kubernetes-workload-protections)
+- [Azure Defender for ACR](https://docs.microsoft.com/en-us/azure/security-center/defender-for-container-registries-introduction)
 
 
 ## Alert Simulation for Azure Defender for Storage
