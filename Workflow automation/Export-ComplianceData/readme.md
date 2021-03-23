@@ -2,7 +2,7 @@
 
 **Author: Tom Janetscheck**
 
-This LogicApp leverages Azure Resource Graph to get a regulatory compliance snapshot and export it to an existing Log Analytics Workspace once a week.
+This LogicApp leverages the Microsoft.Security/regulatoryComplianceStandards REST API to get a regulatory compliance snapshot and export it to an existing Log Analytics Workspace once a week.
 
 The ARM template will create the LogicApp Playbook and an API connection to Log Analytics. In order to be able to deploy the resources, your user account needs to be granted [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) rights on the target Resource Group. The LogicApp uses a system-assigned [Managed Identity](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/overview) to access data from the ARG API. You need to make sure to grant the Managed Identity [Security Reader](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security-reader) rights to all Azure subscriptions you want to export compliance data from. You need to have the [User Access Administrator](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#user-access-administrator) or [Owner](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#owner) role assigned to your account for the respective scope (Management Group or Subscriptions) in order to assign access rights for the Managed Identity.
 
