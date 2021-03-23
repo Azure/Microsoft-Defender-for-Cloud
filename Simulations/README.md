@@ -3,7 +3,7 @@
 
 There are many ways to simulate an alert in Azure Security Center and if you just want a simple validation to get an alert, use the procedures described in [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-alert-validation). For a more scenario-based approach, you have the resources below that you can use to validate different threat detections capabilities available in Azure Security Center.
 
-## lert Simulation for Azure Defender for Servers (Azure and Non-Azure VMs - Windows)
+## Alert Simulation for Azure Defender for Servers (Azure and Non-Azure VMs - Windows)
 
 - Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Security%20Alerts%20Playbook_v2.pdf) and follow the steps to configure a lab environment to test Windows VM-based threat detection.
 
