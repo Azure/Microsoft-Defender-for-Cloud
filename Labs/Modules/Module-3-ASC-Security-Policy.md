@@ -78,10 +78,10 @@ When working with a recommendation, you can create an exemption by clicking the 
 Note: Exemptions is a premium Azure policy capability that's offered for Azure Defender customers with no additional cost. For other users, charges may apply in the future.
 
 1.	Open **Security Center blade** and from the left navigation pane and select **Recommendations**.
-2.	Expand **Secure management ports** security control.
+2.	Expend **Secure management ports** security control.
 3.	Select the **Management ports should be closed on your virtual machines** recommendation.
 4.	On the list of **unhealthy resources**, see the current resources: *asclab-win* and *asclab-linux*.
-5.	Select the **asclab-win** resource and then click on **Create exemption**.
+5.	Select the **asclab-win** resource and then click on **Exempt*.
 
 ![Create exemption](../Images/asc-management-ports-resource-exemption.gif?raw=true)
 
@@ -90,7 +90,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
     - Switch the **expiration** toggle button **ON** and set datetime for two days ahead on 12:00 AM.
     - Select **Waiver** as exemption category.
     - Provide a description: **Testing exemption capability – module 3**.
-    - Select **Save**.
+    - Select **Create**.
     - 
 > ⭐ Good to know: <br>
 > **Mitigated** - This issue isn't relevant to the resource because it's been handled by a different tool or process than the one being suggested
