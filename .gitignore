@@ -328,3 +328,19 @@ ASALocalRun/
 
 # MFractors (Xamarin productivity tool) working folder 
 .mfractor/
+ARG queries/.DS_Store
+Container Image Scan Vulnerability Assessment/.DS_Store
+Labs/.DS_Store
+Labs/Images/.DS_Store
+Log Analytics KQL queries/.DS_Store
+Policy/.DS_Store
+Pricing & Settings/.DS_Store
+Remediation scripts/.DS_Store
+Remediation scripts/Install monitoring agent on your machines/.DS_Store
+Secure Score/.DS_Store
+Secure Score/Secure Score Reduction Alerts/.DS_Store
+Security Recommendations/.DS_Store
+Workbooks/.DS_Store
+Workflow automation/.DS_Store
+Workflow automation/Request-ResourceExemption/.DS_Store
+.vscode/settings.json
