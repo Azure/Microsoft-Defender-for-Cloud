@@ -87,6 +87,6 @@ if  ($newRole -eq $Null)
 }
 else
 {
-Write-Host "$roleName successfully created" -ForegroundColor Green
-Get-AzRoleDefinition -Name "$roleName"
+    Write-Host "$roleName successfully created" -ForegroundColor Green
+    Write-Host "`tTo validate: `"Get-AzRoleDefinition -Name `$roleName`" `n`tIt might take 2-3 minutes to refresh"    
 }
