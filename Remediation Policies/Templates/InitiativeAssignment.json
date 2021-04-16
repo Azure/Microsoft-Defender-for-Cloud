@@ -4,70 +4,164 @@
     "parameters": {
         "AssignPolicyToEnableDiagnosticLogs": {
             "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
             "metadata": {
                 "description": "Collect logs for your logic apps, service bus, event hub, and key vault"
             }
         },
         "AssignPolicyToInstallQualysVAExtension": {
             "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
             "metadata": {
                 "description": "Install Qualys Vulnerability assessment soluiton on your VMs - You need to have Azure Defender!"
             }
         },
         "AssignPolicyToEnforceHttpsAccess": {
             "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
             "metadata": {
-                "description": "Enforce https access in web apps"
+                "description": "Enforce https access in app services"
             }
         },
         "AssignPolicyToEnforceSecureAccess": {
             "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
             "metadata": {
                 "description": "Enforce secure transfer required for your storage accounts"
             }
         },
         "AssignPolicyToEnforceAzureSqlAdvancedDataSecurity": {
             "type": "string",
+            "allowedValues": [
+                "Yes",
+                "No"
+            ],
+            "defaultValue": "Yes",
             "metadata": {
                 "description": "This policy enables Advanced Data Security on SQL Servers. This includes turning on Threat Detection and Vulnerability Assessment. It will automatically create a storage account in the same region and resource group as the SQL server to store scan results, with a 'sqlva' prefix."
             }
-        }
-    },
-    "variables": {
-        "policySetAssignmentName": "enforce-security-center-recommendations-assignment",
-        "policySetName": "enforce-security-center-recommendations"
-    },
+        },
+        "workspaceID": {
+            "type": "string",
+            "metadata": {
+                "description": "ID for the Log analytics workspace where you want to send diagnostic logs. It should start with /subscriptions/.."
+            }
+        }},
+    "variables": {},
     "resources": [
         {
-            "type": "Microsoft.Authorization/policyAssignments",
-            "apiVersion": "2019-09-01",
-            "name": "[variables('policySetAssignmentName')]",
-            "identity": {
-                "type": "SystemAssigned"
-            },
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "policyHttps",
             "location": "[deployment().location]",
             "properties": {
-                "policyDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/policySetDefinitions/', variables('policySetName'))]",
-                "parameters": {
-                    "diaglogsEffect": {
-                        "value": "[if(equals(parameters('AssignPolicyToEnableDiagnosticLogs'),'Yes'),'DeployIfNotExists','Disabled')]"
-                    },
-                    "qualysVAEffect": {
-                        "value": "[if(equals(parameters('AssignPolicyToInstallQualysVAExtension'),'Yes'),'DeployIfNotExists','Disabled')]"
-                    },
-                    "appserviceEffect": {
-                        "value": "[if(equals(parameters('AssignPolicyToEnforceHttpsAccess'),'Yes'),'DeployIfNotExists','Disabled')]"
-                    },
-                    "saEffect": {
-                        "value": "[if(equals(parameters('AssignPolicyToEnforceSecureAccess'),'Yes'),'DeployIfNotExists','Disabled')]"
-                    },
-                    "sqlEffect": {
-                        "value": "[if(equals(parameters('AssignPolicyToEnforceAzureSqlAdvancedDataSecurity'),'Yes'),'DeployIfNotExists','Disabled')]"
-                    }
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyAppHttpsAccess.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "policySASec",
+            "location": "[deployment().location]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicySASecureTransfer.json",
+                    "contentVersion": "1.0.0.0"
+                }
+        }
+    },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "PolicySQLAudit",
+            "location": "[deployment().location]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyToEnforceAzureSqlSec.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "ASCEnforcementInitiativeDef",
+            "dependson": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments','policyHttps')]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments','PolicySQLAudit')]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments','policySASec')]"
+            ],
+            "location": "[deployment().location]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeDefinition.json",
+                    "contentVersion": "1.0.0.0"
                 },
-                "metadata": {
+                "parameters": {
+                    "workspaceName": { "value": "[parameters('workspaceName')]" }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "ASCEnforcementInitiativeAssignment",
+            "dependson": [
+                "[subscriptionResourceId('Microsoft.Resources/deployments','policyHttps')]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments','PolicySQLAudit')]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments','policySASec')]",
+                "[subscriptionResourceId('Microsoft.Resources/deployments','ASCEnforcementInitiativeDef')]"
+            ],
+            "location": "[deployment().location]",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeAssignment.json",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "AssignPolicyToEnableDiagnosticLogs": {
+                        "value": "[parameters('AssignPolicyToEnableDiagnosticLogs')]"
+                    },
+                    "AssignPolicyToInstallQualysVAExtension": {
+                        "value": "[parameters('AssignPolicyToInstallQualysVAExtension')]"
+                    },
+                    "AssignPolicyToEnforceHttpsAccess": {
+                        "value": "[parameters('AssignPolicyToEnforceHttpsAccess')]"
+                    },
+                    "AssignPolicyToEnforceSecureAccess": {
+                        "value": "[parameters('AssignPolicyToEnforceSecureAccess')]"
+                    },
+                    "AssignPolicyToEnforceAzureSqlAdvancedDataSecurity": {
+                        "value": "[parameters('AssignPolicyToEnforceAzureSqlAdvancedDataSecurity')]"
+                    }
                 }
             }
         }
-    ]
+    ],
+    "outputs": {
+    }
 }
