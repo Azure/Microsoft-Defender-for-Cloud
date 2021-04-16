@@ -51,7 +51,7 @@
             "identity": {
                 "type": "SystemAssigned"
             },
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "policyDefinitionId": "[concat(subscription().id, '/providers/Microsoft.Authorization/policySetDefinitions/', variables('policySetName'))]",
                 "parameters": {
