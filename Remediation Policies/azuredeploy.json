@@ -10,7 +10,7 @@
             ],
             "defaultValue": "Yes",
             "metadata": {
-                "description": "Collect logs for your logic apps, service bus, event hub, and key vault"
+                "description": "Collect logs from the logic apps, service bus, event hub, and key vault and send them to log analytics"
             }
         },
         "AssignPolicyToInstallQualysVAExtension": {
@@ -21,7 +21,7 @@
             ],
             "defaultValue": "Yes",
             "metadata": {
-                "description": "Install Qualys Vulnerability assessment soluiton on your VMs - You need to have Azure Defender!"
+                "description": "Install Qualys Vulnerability assessment soluiton on your VMs"
             }
         },
         "AssignPolicyToEnforceHttpsAccess": {
@@ -57,43 +57,10 @@
                 "description": "This policy enables Advanced Data Security on SQL Servers. This includes turning on Threat Detection and Vulnerability Assessment. It will automatically create a storage account in the same region and resource group as the SQL server to store scan results, with a 'sqlva' prefix."
             }
         },
-        "workspaceName": {
+        "workspaceID": {
             "type": "string",
             "metadata": {
-                "description": "Name for the log analytics workspace where you want to send diagnostic logs"
-            }
-        },
-		"location": {
-            "type": "string",
-            "defaultValue": "westeurope",
-            "allowedValues": [
-                "australiacentral",
-                "australiaeast",
-                "australiasoutheast",
-                "brazilsouth",
-                "canadacentral",
-                "centralindia",
-                "centralus",
-                "eastasia",
-                "eastus",
-                "eastus2",
-                "francecentral",
-                "japaneast",
-                "koreacentral",
-                "northcentralus",
-                "northeurope",
-                "southafricanorth",
-                "southcentralus",
-                "southeastasia",
-                "uksouth",
-                "ukwest",
-                "westcentralus",
-                "westeurope",
-                "westus",
-                "westus2"
-            ],
-            "metadata": {
-                "description": "Location for the template deployment metadata."
+                "description": "ID for the Log analytics workspace where you want to send diagnostic logs to. It should start with: /subscriptions/.."
             }
         }},
     "variables": {},
@@ -102,11 +69,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "policyHttps",
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/SecurityOptimization/master/Templates/PolicyAppHttpsAccess.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyAppHttpsAccess.json",
                     "contentVersion": "1.0.0.0"
                 }
             }
@@ -115,11 +82,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "policySASec",
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/SecurityOptimization/master/Templates/PolicySASecureTransfer.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicySASecureTransfer.json",
                     "contentVersion": "1.0.0.0"
                 }
         }
@@ -128,11 +95,11 @@
             "type": "Microsoft.Resources/deployments",
             "apiVersion": "2020-06-01",
             "name": "PolicySQLAudit",
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/SecurityOptimization/master/Templates/PolicyToEnforceAzureSqlSec.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyToEnforceAzureSqlSec.json",
                     "contentVersion": "1.0.0.0"
                 }
             }
@@ -146,15 +113,15 @@
                 "[subscriptionResourceId('Microsoft.Resources/deployments','PolicySQLAudit')]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments','policySASec')]"
             ],
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/SecurityOptimization/master/Templates/InitiativeDefinition.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeDefinition.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
-                    "workspaceName": { "value": "[parameters('workspaceName')]" }
+                    "workspaceID": { "value": "[parameters('workspaceID')]" }
                 }
             }
         },
@@ -168,11 +135,11 @@
                 "[subscriptionResourceId('Microsoft.Resources/deployments','policySASec')]",
                 "[subscriptionResourceId('Microsoft.Resources/deployments','ASCEnforcementInitiativeDef')]"
             ],
-            "location": "[parameters('location')]",
+            "location": "[deployment().location]",
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/SecurityOptimization/master/Templates/InitiativeAssignment.json",
+                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeAssignment.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
@@ -190,9 +157,6 @@
                     },
                     "AssignPolicyToEnforceAzureSqlAdvancedDataSecurity": {
                         "value": "[parameters('AssignPolicyToEnforceAzureSqlAdvancedDataSecurity')]"
-                    },
-                    "location": {
-                        "value": "[parameters('location')]"
                     }
                 }
             }
