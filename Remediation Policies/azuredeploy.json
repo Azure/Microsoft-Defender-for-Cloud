@@ -32,7 +32,7 @@
             ],
             "defaultValue": "Yes",
             "metadata": {
-                "description": "Enforce https access in web apps"
+                "description": "Enforce https access in app services"
             }
         },
         "AssignPolicyToEnforceSecureAccess": {
