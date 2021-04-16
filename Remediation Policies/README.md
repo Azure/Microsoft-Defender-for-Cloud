@@ -20,9 +20,6 @@ The current version of the initiative has the following policies:
 | Configure machines to receive the Qualys vulnerability assessment agent |
 | Enforce https access for App Services |
 | Enforce secure transfer to storage account |
-| Enable diagnostic logs collection from logic apps, service bus, event hub, activity logs and key vault | 
-| Install Integrated vulnerability assessment solution (powered by Qualys) | 
-| Enforce https access in web apps, api apps and storage accounts | 
 | Deploy Advanced Data Security on SQL servers | 
 | Deploy Diagnostic Settings for Logic Apps to Log Analytics workspace | 
 | Deploy Diagnostic Settings for Service Bus to Log Analytics workspace | 
