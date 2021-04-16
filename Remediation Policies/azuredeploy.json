@@ -73,7 +73,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyAppHttpsAccess.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyAppHttpsAccess.json",
                     "contentVersion": "1.0.0.0"
                 }
             }
@@ -86,7 +86,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicySASecureTransfer.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicySASecureTransfer.json",
                     "contentVersion": "1.0.0.0"
                 }
         }
@@ -99,7 +99,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyToEnforceAzureSqlSec.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/PolicyToEnforceAzureSqlSec.json",
                     "contentVersion": "1.0.0.0"
                 }
             }
@@ -117,7 +117,7 @@
             "properties": {
                 "mode": "Incremental",
                 "templateLink": {
-                    "uri": "https://raw.githubusercontent.com/joanabmartins/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeDefinition.json",
+                    "uri": "https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Remediation%20Policies/Templates/InitiativeDefinition.json",
                     "contentVersion": "1.0.0.0"
                 },
                 "parameters": {
