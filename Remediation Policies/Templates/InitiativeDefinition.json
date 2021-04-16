@@ -2,7 +2,7 @@
     "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workspaceName": {
+        "workspaceID": {
             "type": "string",
             "metadata": {
                 "description": "Name of the central Log Analytics workspace to store the log collection"
@@ -104,7 +104,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
@@ -115,7 +115,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
@@ -126,7 +126,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
@@ -137,7 +137,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
