@@ -104,7 +104,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
                             }
                         }
                     },
@@ -115,7 +115,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
                             }
                         }
                     },
@@ -126,7 +126,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
                             }
                         }
                     },
@@ -137,7 +137,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "[concat('providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
+                                "value": "[concat('/providers/microsoft.operationalinsights/workspaces/', parameters('workspaceName'))]"
                             }
                         }
                     },
