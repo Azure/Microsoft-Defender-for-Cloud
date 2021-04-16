@@ -10,7 +10,7 @@
             ],
             "defaultValue": "Yes",
             "metadata": {
-                "description": "Collect logs for your logic apps, service bus, event hub, and key vault"
+                "description": "Collect logs from the logic apps, service bus, event hub, and key vault and send them to log analytics"
             }
         },
         "AssignPolicyToInstallQualysVAExtension": {
@@ -21,7 +21,7 @@
             ],
             "defaultValue": "Yes",
             "metadata": {
-                "description": "Install Qualys Vulnerability assessment soluiton on your VMs - You need to have Azure Defender!"
+                "description": "Install Qualys Vulnerability assessment soluiton on your VMs"
             }
         },
         "AssignPolicyToEnforceHttpsAccess": {
@@ -60,7 +60,7 @@
         "workspaceID": {
             "type": "string",
             "metadata": {
-                "description": "ID for the Log analytics workspace where you want to send diagnostic logs. It should start with /subscriptions/.."
+                "description": "ID for the Log analytics workspace where you want to send diagnostic logs to. It should start with: /subscriptions/.."
             }
         }},
     "variables": {},
