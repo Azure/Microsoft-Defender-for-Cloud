@@ -1,0 +1,181 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workspaceName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the central Log Analytics workspace to store the log collection"
+            }
+        }
+    },
+    "variables": {
+        "policySetName": "enforce-security-center-recommendations",
+        "policySetDisplayName": "Enforce Security Center Recommendations",
+        "policySetDescription": "This initiative automatically applies some of the recommendations from security center",
+        "logicappsPolicyID": "b889a06c-ec72-4b03-910a-cb169ee18721",
+        "serviceBusPolicyID": "04d53d87-841c-4f23-8a5b-21564380b55e",
+        "eventHubPolicyID": "1f6e93e8-6b31-41b1-83f6-36e449a42579",
+        "AKVPolicyID": "bef3f64c-5290-43b7-85b0-9b254eef4c47",
+        "qualysPolicyID": "13ce0167-8ca6-4048-8e6b-f996402e3c1b",
+        "appservicePolicyID": "EnforceHttpsAppServices",
+        "sasecuretransferPolicyID": "deploySASecureTransfer",
+        "sqlAuditPolicyID": "DeployAdvDataSecSQL"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Authorization/policySetDefinitions",
+            "apiVersion": "2019-09-01",
+            "name": "[variables('policySetName')]",
+            "properties": {
+                "displayName": "[variables('policySetDisplayName')]",
+                "description": "[variables('policySetDescription')]",
+                "policyType": "Custom",
+                "metadata": {
+                    "category": "Security Center"
+                },
+                "parameters": {
+                    "diaglogsEffect": {
+                        "type": "string",
+                        "defaultValue": "DeployIfNotExists",
+                        "allowedValues": [
+                            "DeployIfNotExists",
+                            "Disabled"
+                        ],
+                        "metadata": {
+                            "displayName": "Effect of the diagnostic Logs policy",
+                            "description": "Enable or disable the execution of the policies to deploy diagnostic logs on logic apps, service bus, event hub, and key vault"
+                        }
+                    },
+                    "qualysVAEffect": {
+                        "type": "string",
+                        "defaultValue": "DeployIfNotExists",
+                        "allowedValues": [
+                            "DeployIfNotExists",
+                            "Disabled"
+                        ],
+                        "metadata": {
+                            "displayName": "Effect of the Qualys agent policy",
+                            "description": "Enable or disable the execution of the policy to deploy qualys vulnerability assessmeng agent"
+                        }
+                    },
+                    "appserviceEffect": {
+                        "type": "string",
+                        "defaultValue": "DeployIfNotExists",
+                        "allowedValues": [
+                            "DeployIfNotExists",
+                            "Disabled"
+                        ],
+                        "metadata": {
+                            "displayName": "Effect of the HTTPS for App Services Policy",
+                            "description": "Enable or disable the execution of the policy to enforce htpps access to app services"
+                        }
+                    },
+                    "saEffect": {
+                        "type": "string",
+                        "defaultValue": "DeployIfNotExists",
+                        "allowedValues": [
+                            "DeployIfNotExists",
+                            "Disabled"
+                        ],
+                        "metadata": {
+                            "displayName": "Effect of the Secure Transfer for Storage Accounts Policy",
+                            "description": "Enable or disable the execution of the policy to enforce secure transfer for storage accounts"
+                        }
+                    },
+                    "sqlEffect": {
+                        "type": "string",
+                        "defaultValue": "DeployIfNotExists",
+                        "allowedValues": [
+                            "DeployIfNotExists",
+                            "Disabled"
+                        ],
+                        "metadata": {
+                            "displayName": "Effect of the Audit on SQL Servers Policy",
+                            "description": "Enable or disable the execution of the policy to enforce audit on SQL Servers"
+                        }
+                    }
+                },
+                "policyDefinitions": [
+                    {
+                        "policyDefinitionId": "[concat('/providers/Microsoft.Authorization/policyDefinitions/', variables('logicappsPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('diaglogsEffect')]"
+                            },
+                            "logAnalytics": {
+                                "value": "[parameters('workspaceName')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/providers/Microsoft.Authorization/policyDefinitions/', variables('serviceBusPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('diaglogsEffect')]"
+                            },
+                            "logAnalytics": {
+                                "value": "[parameters('workspaceName')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/providers/Microsoft.Authorization/policyDefinitions/', variables('eventHubPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('diaglogsEffect')]"
+                            },
+                            "logAnalytics": {
+                                "value": "[parameters('workspaceName')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/providers/Microsoft.Authorization/policyDefinitions/', variables('AKVPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('diaglogsEffect')]"
+                            },
+                            "logAnalytics": {
+                                "value": "[parameters('workspaceName')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/providers/Microsoft.Authorization/policyDefinitions/', variables('qualysPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('qualysVAEffect')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId,'/providers/Microsoft.Authorization/policyDefinitions/', variables('appservicePolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('appserviceEffect')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId,'/providers/Microsoft.Authorization/policyDefinitions/', variables('sasecuretransferPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('saEffect')]"
+                            }
+                        }
+                    },
+                    {
+                        "policyDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId,'/providers/Microsoft.Authorization/policyDefinitions/', variables('sqlAuditPolicyID'))]",
+                        "parameters": {
+                            "effect": {
+                                "value": "[[parameters('sqlEffect')]"
+                            }
+                        }
+                    }
+
+                ]
+            }
+        }
+    ]
+}
