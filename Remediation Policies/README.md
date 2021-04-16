@@ -32,8 +32,24 @@ The current version of the initiative has the following policies:
 
  
  <br/>
+ <br/>
  
-Once you assign the policies, the new resources that you deploy will automatically be remediated by them. For the existing resources, you will need to [manually create a remediation task](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources#create-a-remediation-task-through-portal).
+After you deploy the templates, if you go to *Policy Assignment* -> *Remediation Tasks* you may see this issue:
+ <p align="left">
+  <img src="./media/PolicyAssignmentError.png" >
+</p>
+<br/>
+<br/>
+
+The *DeployIfNotExists* policy requires a managed identity, and through the ARM template we cannot define the right roles for the managed identity. So, you need to **edit the assignment**, without having to change anything, just to give the right roles for the managed identity to perform the remediation tasks.
+ <p align="left">
+  <img src="./media/PolicyAssignmentEdit.png">
+</p>
+
+<br/>
+<br/>
+
+After that he new resources that you deploy will automatically be remediated by the policies. For the existing resources, you will need to [manually create a remediation task](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources#create-a-remediation-task-through-portal).
 <br/>
 <br/>
 # Questions
