@@ -104,7 +104,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "value": "[parameters('workspaceID')]"
+                                "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
@@ -115,7 +115,7 @@
                                 "value": "[[parameters('diaglogsEffect')]"
                             },
                             "logAnalytics": {
-                                "value": "value": "[parameters('workspaceID')]"
+                                "value": "[parameters('workspaceID')]"
                             }
                         }
                     },
