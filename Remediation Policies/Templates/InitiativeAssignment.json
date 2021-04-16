@@ -31,12 +31,6 @@
             "metadata": {
                 "description": "This policy enables Advanced Data Security on SQL Servers. This includes turning on Threat Detection and Vulnerability Assessment. It will automatically create a storage account in the same region and resource group as the SQL server to store scan results, with a 'sqlva' prefix."
             }
-        },
-        "location": {
-            "type": "string",
-            "metadata": {
-                "description": "This policy enables Advanced Data Security on SQL Servers. This includes turning on Threat Detection and Vulnerability Assessment. It will automatically create a storage account in the same region and resource group as the SQL server to store scan results, with a 'sqlva' prefix."
-            }
         }
     },
     "variables": {
