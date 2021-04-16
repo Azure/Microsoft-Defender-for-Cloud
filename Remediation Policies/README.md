@@ -34,6 +34,8 @@ The current version of the initiative has the following policies:
  <br/>
  <br/>
  
+# Post-Deployment Operations
+
 After you deploy the templates, if you go to *Policy Assignment* -> *Remediation Tasks* you may see this issue:
  <p align="left">
   <img src="./media/PolicyAssignmentError.png" >
@@ -49,7 +51,7 @@ The *DeployIfNotExists* policy requires a managed identity, and through the ARM 
 <br/>
 <br/>
 
-After that he new resources that you deploy will automatically be remediated by the policies. For the existing resources, you will need to [manually create a remediation task](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources#create-a-remediation-task-through-portal).
+With that he new resources that you deploy will automatically be remediated by the policies. For the existing resources, you will need to [manually create a remediation task](https://docs.microsoft.com/en-us/azure/governance/policy/how-to/remediate-resources#create-a-remediation-task-through-portal).
 <br/>
 <br/>
 # Questions
