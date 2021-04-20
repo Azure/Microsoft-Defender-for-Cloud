@@ -1,0 +1,39 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageAccountToScanSubscriptionID": {
+            "value": "" // Required
+        },
+        "storageAccountToScanResourceGroupName": {
+            "value": "" // Required
+        },
+        "nameOfStorageAccountToScan": {
+            "value": "" // Required
+        },
+        "nameOfContainerToScan": {
+            "value": "" // Required
+        },
+        "cleanContainerName": {
+            "value": "clean-files"
+        },
+        "quarantineContainerName": {
+            "value": "quarantine-files"
+        },
+        "appServicePlanSku": {
+            "value": "S1"
+        },
+        "vmAdminUsername": {
+            "value": "" // Required
+        },
+        "vmAdminPassword": {
+            "value": "" // Required
+        },
+        "vmSize": {
+            "value": "Standard_B1ms"
+        },
+        "addPublicIpToVM": {
+            "value": false
+        }
+    }
+}
