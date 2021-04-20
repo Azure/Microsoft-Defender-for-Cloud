@@ -1,13 +1,17 @@
 #Init
 $BuildPath = "C:\build-httpserver"
 $RunPath = "C:\HttpServerApp"
-$HttpServerSrcCodeUrl = $args[0]
+$githubRepoUrl = "https://github.com/t-ashitrit/Azure-Security-Center/archive/AutomationAvForStorage.zip"
+# https://github.com/Azure/Azure-Security-Center/archive/master.zip
 
 New-Item -ItemType Directory $BuildPath
 New-Item -ItemType Directory $RunPath
 
 # Install .net 5 sdk + runtime
-Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $BuildPath\dotnet-install.ps1
+$isExist = Test-Path $BuildPath\dotnet-install.ps1
+if (-Not $isExist){
+    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $BuildPath\dotnet-install.ps1
+}
 cd $BuildPath
 #installing SDK
 .\dotnet-install.ps1 -Channel Current
@@ -15,10 +19,17 @@ cd $BuildPath
 .\dotnet-install.ps1 -Channel Current -Runtime dotnet
 
 # Download Http Server src files app
-Invoke-WebRequest $HttpServerSrcCodeUrl -OutFile httpServer.zip
-#Unzip
-Expand-Archive httpServer.zip -Force
-cd $BuildPath\httpServer
+if (-Not (Test-Path $BuildPath\ASC-Github.zip)){
+    Invoke-WebRequest $githubRepoUrl -OutFile $BuildPath\ASC-Github.zip
+}
+
+if (-Not (Test-Path $BuildPath\ScanHttpServer\)){
+    Expand-Archive $BuildPath\ASC-Github.zip -DestinationPath $BuildPath\ -Force
+    Copy-Item -Path "$BuildPath\Azure-Security-Center-AutomationAvForStorage\Storage Automation AV\ScanHttpServer\" -Destination $BuildPath -Recurse
+}
+# ASC-Github\Azure-Security-Center-master\Storage Automation AV\ScanHttpServer\
+
+cd $BuildPath\ScanHttpServer
 
 #Publish the app
 Write-Host Building the app
