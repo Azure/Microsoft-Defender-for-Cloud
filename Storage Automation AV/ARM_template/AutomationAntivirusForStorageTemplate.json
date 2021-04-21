@@ -77,23 +77,23 @@
                 "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint make the VM less secure  "
             }
         },
-        "AutoAVAntivirusFunctionZipUrl": {
+        "ScanHttpServerZipUrl": {
             "type": "string",
-            "defaultValue": "https://automationavprod.blob.core.windows.net/release-container/ScanUploadedBlobFunction.zip",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanHttpServer.zip",
             "metadata": {
                 "description": "URL of the zipped Function Code, deafult value points to the lastest build"
             }
         },
-        "AutoAVAntivirusHttpServerUrl": {
+        "ScanUploadedBlobFunctionZipUrl": {
             "type": "string",
-            "defaultValue": "https://automationavprod.blob.core.windows.net/release-container/ScanHttpServer.zip",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanUploadedBlobFunction.zip",
             "metadata": {
                 "description": "URL of the source code of the Http Server That will run on the VM, deafult value points to the lastest build"
             }
         },
         "vmInitScriptUrl": {
             "type": "string",
-            "defaultValue": "https://automationavprod.blob.core.windows.net/release-container/VMInit.ps1",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/VMInit.ps1",
             "metadata": {
                 "description": "URL of the VMInit.ps1 script, deafult value points to the lastest build"
             }
@@ -122,7 +122,7 @@
         "targetStorageAccountSecretName": "[concat(parameters('nameOfStorageAccountToScan'), 'connectionString')]",
         "virtualNetworkName": "[concat('vnet', variables('uniqueStringSuffix'))]",
         "vmDiskSizeGB": 32,
-        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('AutoAVAntivirusHttpServerUrl'), '\"')]",
+        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanHttpServerZipUrl'), '\"')]",
         "vmName": "[concat('vm', variables('uniqueStringSuffix'))]",
         "vmNetworkInterfateworkInterfaceName": "[concat('vmnic', variables('uniqueStringSuffix'))]",
         "vmSubnetAddressPrefix": "10.0.2.0/24",
@@ -391,7 +391,7 @@
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
                         "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~10",
-                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('AutoAVAntivirusFunctionZipUrl')]",
+                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipUrl')]",
                         "windowsdefender_host": "[reference(variables('vmNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
                         "windowsdefender_port": "[variables('communicationPort')]",
                         "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]"

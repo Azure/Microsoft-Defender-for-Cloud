@@ -1,40 +1,33 @@
 #Init
-$BuildPath = "C:\build-httpserver"
-$RunPath = "C:\HttpServerApp"
-$githubRepoUrl = "https://github.com/t-ashitrit/Azure-Security-Center/archive/AutomationAvForStorage.zip"
-# https://github.com/Azure/Azure-Security-Center/archive/master.zip
+$ScanHttpServerPath = "C:\ScanHttpServer"
+$ExePath = "$ScanHttpServerPath\bin"
 
-New-Item -ItemType Directory $BuildPath
-New-Item -ItemType Directory $RunPath
+New-Item -ItemType Directory $ScanHttpServerPath
+New-Item -ItemType Directory $ExePath
+
+if($args.Count -gt 0){
+    if(-Not (Test-Path $ExePath\vminit.config)){
+        New-Item $ExePath\vminit.config
+    }
+    Set-Content $ExePath\vminit.config $args[0]
+}
+
+$ScanHttpServerBinZipUrl = Get-Content $ExePath\vminit.config
 
 # Install .net 5 sdk + runtime
-$isExist = Test-Path $BuildPath\dotnet-install.ps1
-if (-Not $isExist){
-    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $BuildPath\dotnet-install.ps1
+if (-Not (Test-Path $ExePath\dotnet-install.ps1)){
+    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $ExePath\dotnet-install.ps1
 }
-cd $BuildPath
-#installing SDK
-.\dotnet-install.ps1 -Channel Current
+cd $ExePath
 #instaling runtime
 .\dotnet-install.ps1 -Channel Current -Runtime dotnet
 
-# Download Http Server src files app
-if (-Not (Test-Path $BuildPath\ASC-Github.zip)){
-    Invoke-WebRequest $githubRepoUrl -OutFile $BuildPath\ASC-Github.zip
-}
+# Download Http Server bin files
+Invoke-WebRequest $ScanHttpServerBinZipUrl -OutFile $ExePath\ScanHttpServer.zip
+Expand-Archive $ExePath\ScanHttpServer.zip -DestinationPath $ExePath\ -Force
+Copy-Item -Path "$ExePath\runLoop.ps1" -Destination $ScanHttpServerPath
 
-if (-Not (Test-Path $BuildPath\ScanHttpServer\)){
-    Expand-Archive $BuildPath\ASC-Github.zip -DestinationPath $BuildPath\ -Force
-    Copy-Item -Path "$BuildPath\Azure-Security-Center-AutomationAvForStorage\Storage Automation AV\ScanHttpServer\" -Destination $BuildPath -Recurse
-}
-# ASC-Github\Azure-Security-Center-master\Storage Automation AV\ScanHttpServer\
-
-cd $BuildPath\ScanHttpServer
-
-#Publish the app
-Write-Host Building the app
-dotnet publish -c Release -o $RunPath
-cd $RunPath
+cd $ScanHttpServerPath
 
 #Adding firewall rules to enable traffic
 Write-Host adding firewall rules
@@ -44,13 +37,11 @@ New-NetFirewallRule -DisplayName "allowing port 4151" -Direction Outbound -Local
 
 #Adding VMInit.ps1 as startup job
 $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
-Register-ScheduledJob -Trigger $trigger -FilePath $BuildPath\httpServer\VMInit.ps1 -Name InitVmScanning.
+Register-ScheduledJob -Trigger $trigger -FilePath $ScanHttpServerPath\runLoop.ps1 -Name StartRunLoopScanHttpServer.
 
 #Updating antivirus Signatures
 Write-Host Updating Signatures for the antivirus
 & "C:\Program Files\Windows Defender\MpCmdRun.exe" -SignatureUpdate
-
-Copy-Item $BuildPath\httpServer\runLoop.ps1 -Destination $RunPath
 
 #Running the App
 Write-Host Starting Run-Loop
