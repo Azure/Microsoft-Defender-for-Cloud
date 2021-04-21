@@ -14,14 +14,6 @@ if($args.Count -gt 0){
 
 $ScanHttpServerBinZipUrl = Get-Content $ExePath\vminit.config
 
-# Install .net 5 sdk + runtime
-if (-Not (Test-Path $ExePath\dotnet-install.ps1)){
-    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $ExePath\dotnet-install.ps1
-}
-cd $ExePath
-#instaling runtime
-.\dotnet-install.ps1 -Channel Current -Runtime dotnet
-
 # Download Http Server bin files
 Invoke-WebRequest $ScanHttpServerBinZipUrl -OutFile $ExePath\ScanHttpServer.zip
 Expand-Archive $ExePath\ScanHttpServer.zip -DestinationPath $ExePath\ -Force
@@ -37,7 +29,7 @@ New-NetFirewallRule -DisplayName "allowing port 4151" -Direction Outbound -Local
 
 #Adding VMInit.ps1 as startup job
 $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
-Register-ScheduledJob -Trigger $trigger -FilePath $ScanHttpServerPath\runLoop.ps1 -Name StartRunLoopScanHttpServer.
+Register-ScheduledJob -Trigger $trigger -FilePath "$ScanHttpServerPath\runLoop.ps1" -Name StartRunLoopScanHttpServer
 
 #Updating antivirus Signatures
 Write-Host Updating Signatures for the antivirus

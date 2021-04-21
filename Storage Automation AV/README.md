@@ -39,10 +39,13 @@ This part requires some knowledge in PowerShell scripting and Git.
     git clone https://github.com/Azure/Azure-Security-Center.git
     ```
 1. Create Storage Automation AV/ARM_template/AutomationAntivirusForStorageTemplate.parameters.json file and fill the parameters.
-1. Open Storage Automation AVScripts\deploymentScript.ps1
-1. Edit the parameters in the script. "ResourceGroupName" can be the name of a new group or an existing one.
+    * Deployment Script Parameters:
+        * location
+        * resourceGroupName - Can be the name of a new group or an existing one.
+        * subscriptionID
+        * armTemplateFile
+        * armTemplateParametersFile
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
-
 
 ## Getting Started - Advanced
 This part is for users that want to modify the code and make some changes.
