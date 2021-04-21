@@ -8,33 +8,36 @@ param (
     $deploymentResourceGroupName = "resource-group-name",
     $deploymentResourceGroupLocation = "location",
     $vmUserName = "username",
+    $ArmTemplatFile = "$PSScriptRoot/../ARM_template/AutomationAntivirusForStorageTemplate.json",
     [SecureString] $vmPassword = "password"
 )
 
-
 $ScanHttpServerRoot = "$PSScriptRoot\..\ScanHttpServer"
 $ScanHttpServerZipPath = "$ScanHttpServerRoot\ScanHttpServer.Zip"
+
 $VMInitScriptPath = "$ScanHttpServerRoot\VMInit.ps1"
 
 $ScanUploadedBlobRoot = "$PSScriptRoot\..\ScanUploadedBlobFunction"
 $ScanUploadedBlobZipPath = "$ScanUploadedBlobRoot\ScanUploadedBlobFunction.zip"
 
-
 az login
 
-# Zip ScanHttpServer code 
-Write-Host Zip ScanHttpServer code
+#Build and Zip ScanHttpServer code 
+Write-Host Build ScanHttpServer
+dotnet publish $ScanHttpServerRoot\ScanHttpServer.csproj -c Release -o $ScanHttpServerRoot/out
+
+Write-Host Zip ScanHttpServer
 $compress = @{
-    Path            = "$ScanHttpServerRoot\*.cs", "$ScanHttpServerRoot\*.csproj", "$ScanHttpServerRoot\*.ps1"
+    Path            = "$ScanHttpServerRoot\out\*", "$ScanHttpServerRoot\runLoop.ps1"
     DestinationPath = $ScanHttpServerZipPath
 }
 Compress-Archive @compress -Update
 Write-Host ScanHttpServer zipped successfully
 
-# prepare ScanUploadedBlob Function code
+# Build and Zip ScanUploadedBlob Function
 Write-Host Build ScanUploadedBlob
-dotnet publish $ScanUploadedBlobRoot\ScanUploadedBlobFunction.csproj -c Release -o $ScanUploadedBlobRoot/out
-Write-Host Build ScanUploadedBlob
+dotnet publish $ScanUploadedBlobRoot\ScanUploadedBlobFunction.csproj -c Release -o $ScanUploadedBlobRoot\out
+
 Write-Host Zip ScanUploadedBlob code
 Compress-Archive -Path $ScanUploadedBlobRoot\out\* -DestinationPath $ScanUploadedBlobZipPath -Update
 Write-Host ScanUploadedBlob zipped successfully
@@ -111,7 +114,7 @@ az deployment group create `
     --subscription $subscriptionID `
     --name "AutomationAntivirusForStorageTemplate" `
     --resource-group $deploymentResourceGroupName `
-    --template-file "$PSScriptRoot/../ARM_template/AutomationAntivirusForStorageTemplate.json"`
+    --template-file $ArmTemplatFile `
     --parameters AutoAVAntivirusHttpServerUrl=$ScanHttpServerUrl `
     --parameters AutoAVAntivirusFunctionZipUrl=$ScanUploadedBlobFubctionUrl `
     --parameters vmInitScriptUrl=$VMInitScriptUrl `

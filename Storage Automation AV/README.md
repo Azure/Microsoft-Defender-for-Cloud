@@ -23,9 +23,10 @@ The simplest way to create the system is to use an ARM Template that is provided
 There are two ways to deploy the template:
 
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fautomationavprod.blob.core.windows.net%2Frelease-container%2FAutomationAntivirusForStorageTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FAutomationAvForStorage%2FStorage%20Automation%20AV%2FARM_template%2FAutomationAntivirusForStorageTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
+
 
 ### Deploy the ARM template with an Azure CLI script
 
@@ -33,12 +34,12 @@ This part requires some knowledge in PowerShell scripting and Git.
 
 1. Make sure you have [Azure CLI Tools][instalCliUrl] installed.
 
-1. Clone the repo using the latest branch 
+1. Clone the repo
     ```
-    git clone https://t-ashitrit@dev.azure.com/t-ashitrit/DIY%20Antivirus%20For%20Azure%20Storage/_git/DIY_Antivirus_For_Azure_Storage
+    git clone https://github.com/Azure/Azure-Security-Center.git
     ```
-1. Create ARM_template/DiyAntivirusForStorageTemplate.parameters.json file and fill the parameters.
-1. Open Scripts\deploymentScript.ps1
+1. Create Storage Automation AV/ARM_template/AutomationAntivirusForStorageTemplate.parameters.json file and fill the parameters.
+1. Open Storage Automation AVScripts\deploymentScript.ps1
 1. Edit the parameters in the script. "ResourceGroupName" can be the name of a new group or an existing one.
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
 
@@ -55,11 +56,11 @@ This part is for users that want to modify the code and make some changes.
 * Knowledge of PowerShell scripting and Git
 
 ### Project Structure:
-* ScanUploadedBlobFunction - contain the Azure Function Blob Trigger source code, the files will be build using this command.
+* ScanUploadedBlobFunction - contain the Azure Function Blob Trigger source code.
 
-* ScanHttpServer - contains the HttpServer project that runs on the VM and waits for requests, the VM has in Init Script to build and start the ScanHttpServer and can be found in the same folder and can be modified too. The ScanHttpServer will be run with a simple script that restart the app if it crashes (/ScanHttpServer/runLoop.ps1)
+* ScanHttpServer - contains the HttpServer project that runs on the VM and waits for requests, the VM has in Init Script to start the ScanHttpServer. The script can be found in the same folder and can be modified too. The ScanHttpServer will be run with a simple script that restart the app if it crashes (/ScanHttpServer/runLoop.ps1)
 
-* Build and Deploy Script (BuildAndDeploy.ps1) - will prepare the project for deployment, upload the source code to the host storage account and deploy the arm template using the parameters in the script (the script overrides the ARM template parameters file).
+* Build and Deploy Script (BuildAndDeploy.ps1) - will prepare the project for deployment, upload the source code to a host storage account and deploy the arm template using the parameters in the script (the script overrides the ARM template parameters file).
 
     *  Function Code - build, zipped and uploaded
         * build command:
@@ -68,15 +69,15 @@ This part is for users that want to modify the code and make some changes.
         dotnet publish <csproj-file-location> -c Release -o <out-path>
         ```
 
-    *  ScanHttpServer Code - the folder is zipped and uploaded, the build take place inside the VM as part of the VMInit.ps1 script using this command:
+    *  ScanHttpServer Code - build, zipped and uploaded using this command:
 
         ```powershell
-        dotnet publish -c Release -o $RunPath
+        dotnet publish -c Release -o <csproj-file-location>
         ```
 
-    * The folder must contain the ScanHttpServer.csproj file, runLoop.ps1 script and every other file needed to build the project.
+    * The zip file must contain the ScanHttpServer binary files and runLoop.ps1 script to run the server on the VM.
 
-    * Script Parameters:
+    * Build and Deploy Script Parameters:
         * sourceCodeStorageAccountName - Storage account name to store the source code, must be public access enabled.
         * sourceCodeContainerName - Container name to store the source code, can be new or existing, if already exists must be with public access.
         * subscriptionID - Storage account to scan subscription ID.
@@ -89,12 +90,12 @@ This part is for users that want to modify the code and make some changes.
         * vmPassword - VM password
 
 ### Deployment Steps
-1. Clone the repo using the latest brach 
+1. Clone the repo
     ```
-    git clone --branch feature/dummyPullRequest https://t-ashitrit@dev.azure.com/t-ashitrit/DIY%20Antivirus%20For%20Azure%20Storage/_git/DIY_Antivirus_For_Azure_Storage
+    git clone https://github.com/Azure/Azure-Security-Center.git
     ```
 1. Modify the project
-1. Open Scripts/BuildAndDeploy.ps1 and enter the necessary parameters
+1. Open Storage Automation AV/Scripts/BuildAndDeploy.ps1 and enter the necessary parameters
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
 
 ## Important Notes
