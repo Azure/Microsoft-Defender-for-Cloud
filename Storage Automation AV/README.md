@@ -23,7 +23,7 @@ The simplest way to create the system is to use an ARM Template that is provided
 There are two ways to deploy the template:
 
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FAutomationAvForStorage%2FStorage%20Automation%20AV%2FARM_template%2FAutomationAntivirusForStorageTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2FAutomationAvForStorage%2Fmaster%2FARM_template%2FAutomationAntivirusForStorageTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
 
@@ -105,9 +105,11 @@ This part is for users that want to modify the code and make some changes.
 
 ## Scanning storage account inside a virtual network
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FAutomationAvForStorage%2FStorage%20Automation%20AV%2FARM_template%AutomationAVForStorageExistingVnetTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FAutomationAvForStorage%2FStorageAVAuto-AddExistingVnetScenario%2FARM_template%AutomationAVForStorageExistingVnetTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
+
+
 ## Important Notes
 
 * Blobs uploaded to the protected container are sent from the Function to VM through HTTP request inside the Virtual Network.
