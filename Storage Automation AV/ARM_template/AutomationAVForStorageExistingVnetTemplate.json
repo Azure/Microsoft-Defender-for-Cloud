@@ -2,30 +2,30 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "storageAccountToScanSubscriptionID": {
-            "type": "string",
+        "SubscriptionIDOfTheTargetStorageAccount": {
+           "type": "string",
             "defaultValue": "[subscription().subscriptionId]",
             "metadata": {
-                "description": "The ID of the subcription that contains the target storage account."
+                "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in"
             }
         },
-        "storageAccountToScanResourceGroupName": {
+        "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
             "type": "string",
             "defaultValue": "[resourceGroup().name]",
             "metadata": {
-                "description": "The reasource group containing the target storage account."
+                "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in"
             }
         },
-        "nameOfStorageAccountToScan": {
+        "NameOfTargetStorageAccount": {
             "type": "string",
             "metadata": {
-                "description": "The name of the storage account to protect."
+                "description": "The name of the Storage Account that should be scanned"
             }
         },
-        "nameOfContainerToScan": {
+        "NameOfTargetContainer": {
             "type": "string",
             "metadata": {
-                "description": "The name of the container to protect. This container must exist inside the target storage account."
+                "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account"
             }
         },
         "existingVnetName": {
@@ -40,7 +40,7 @@
                 "description": "Available address space inside the vnet address space."
             }
         },
-        "vmSubnetAdressSpace": {
+        "VMSubnetAdressSpace": {
             "type": "string",
             "metadata": {
                 "description": "Available address space inside the vnet address space."
@@ -73,53 +73,56 @@
                 "P1V2",
                 "P2V2",
                 "P3V2"
-            ]
+            ],
+            "metadata":{
+                "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime"
+            }
         },
-        "vmAdminUsername": {
-            "type": "string"
-        },
-        "vmAdminPassword": {
-            "type": "securestring"
-        },
-        "vmSize": {
+        "VMSize": {
             "type": "string",
             "defaultValue": "Standard_B1ms",
             "metadata": {
-                "description": "The Virtual Machine's SKU. Must be at least `Standard_B1ms`."
+                "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime"
             }
         },
-        "addPublicIpToVM": {
+        "VMAdminUsername": {
+            "type": "string"
+        },
+        "VMAdminPassword": {
+            "type": "securestring"
+        },
+        "addPublicIPToVM": {
             "type": "bool",
             "defaultValue": false,
             "metadata": {
-                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint make the VM less secure  "
+                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure  "
             }
         },
-        "ScanHttpServerZipUrl": {
+        "ScanHttpServerZipURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanHttpServer.zip",
             "metadata": {
-                "description": "URL of the zipped Function Code, deafult value points to the lastest build"
+                "description": "URL of the zipped Function Code, default value points to the lastest build"
             }
         },
-        "ScanUploadedBlobFunctionZipUrl": {
+        "ScanUploadedBlobFunctionZipURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanUploadedBlobFunction.zip",
             "metadata": {
-                "description": "URL of the source code of the Http Server That will run on the VM, deafult value points to the lastest build"
+                "description": "URL of the source code of the Http Server That will run on the VM, default value points to the lastest build"
             }
         },
-        "vmInitScriptUrl": {
+        "VMInitScriptURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/VMInit.ps1",
             "metadata": {
-                "description": "URL of the VMInit.ps1 script, deafult value points to the lastest build"
+                "description": "URL of the VMInit.ps1 script, default value points to the lastest build"
             }
         }
     },
     "variables": {
         "hostStorageAccountType": "Standard_LRS",
-        "resourceNameSuffix": "[concat('autoav',uniqueString(parameters('nameOfStorageAccountToScan'), parameters('nameOfContainerToScan')))]",
+        "resourceNameSuffix": "[concat('autoav',uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer')))]",
         "appServicePlanName": "[concat('appplan', variables('resourceNameSuffix'))]",
         "communicationPort": "4151",
         "computerName": "AntivirusVm",
@@ -135,10 +138,10 @@
         "publicIpId": {
             "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
         },
-        "targetStorageAccountResourceID": "[resourceId(parameters('storageAccountToScanSubscriptionID'), parameters('storageAccountToScanResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('nameOfStorageAccountToScan'))]",
-        "targetStorageAccountSecretName": "[concat(parameters('nameOfStorageAccountToScan'), 'connectionString')]",
+        "targetStorageAccountResourceID": "[resourceId(parameters('SubscriptionIDOfTheTargetStorageAccount'), parameters('NameOfTheResourceGroupTheTargetStorageAccountBelongsTo'), 'Microsoft.Storage/storageAccounts', parameters('NameOfTargetStorageAccount'))]",
+        "targetStorageAccountSecretName": "[concat(parameters('NameOfTargetStorageAccount'), 'connectionString')]",
         "vmDiskSizeGB": 32,
-        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanHttpServerZipUrl'), '\"')]",
+        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanHttpServerZipURL'), '\"')]",
         "vmName": "[concat('vm', variables('resourceNameSuffix'))]",
         "vmNetworkInterfateworkInterfaceName": "[concat('vmnic', variables('resourceNameSuffix'))]",
         "vmSubnetName": "VMSubnet"
@@ -235,14 +238,14 @@
                 "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), variables('functionSubnetName'))]"
             ],
             "properties": {
-                "addressPrefix": "[parameters('vmSubnetAdressSpace')]",
+                "addressPrefix": "[parameters('VMSubnetAdressSpace')]",
                 "networkSecurityGroup": {
                     "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
                 }
             }
         },
         {
-            "condition": "[parameters('addPublicIpToVM')]",
+            "condition": "[parameters('addPublicIPToVM')]",
             "apiVersion": "2020-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddressName')]",
@@ -268,7 +271,7 @@
                     {
                         "name": "ipconfig1",
                         "properties": {
-                            "publicIPAddress": "[if(parameters('addPublicIpToVM'), variables('publicIpId'), json('null'))]",
+                            "publicIPAddress": "[if(parameters('addPublicIPToVM'), variables('publicIpId'), json('null'))]",
                             "subnet": {
                                 "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', parameters('existingVnetName'), variables('vmSubnetName'))]"
                             }
@@ -290,7 +293,7 @@
             ],
             "properties": {
                 "hardwareProfile": {
-                    "vmSize": "[parameters('vmSize')]"
+                    "VMSize": "[parameters('VMSize')]"
                 },
                 "storageProfile": {
                     "imageReference": {
@@ -310,8 +313,8 @@
                 },
                 "osProfile": {
                     "computerName": "[variables('computerName')]",
-                    "adminUsername": "[parameters('vmAdminUsername')]",
-                    "adminPassword": "[parameters('vmAdminPassword')]"
+                    "adminUsername": "[parameters('VMAdminUsername')]",
+                    "adminPassword": "[parameters('VMAdminPassword')]"
                 },
                 "networkProfile": {
                     "networkInterfaces": [
@@ -337,7 +340,7 @@
                 "autoUpgradeMinorVersion": true,
                 "settings": {
                     "fileUris": [
-                        "[parameters('VMInitScriptUrl')]"
+                        "[parameters('VMInitScriptURL')]"
                     ],
                     "commandToExecute": "[variables('vmInitScriptCommand')]"
                 }
@@ -395,11 +398,11 @@
                         "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
                         "malwareContainerName": "[parameters('quarantineContainerName')]",
                         "PROJECT": "LocalAntiMalware.csproj",
-                        "targetContainerName": "[parameters('nameOfContainerToScan')]",
+                        "targetContainerName": "[parameters('NameOfTargetContainer')]",
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
                         "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~10",
-                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipUrl')]",
+                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
                         "windowsdefender_host": "[reference(variables('vmNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
                         "windowsdefender_port": "[variables('communicationPort')]",
                         "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]"
@@ -462,7 +465,7 @@
                         "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]"
                     ],
                     "properties": {
-                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('nameOfStorageAccountToScan'), ';AccountKey=', listKeys(variables('targetStorageAccountResourceID'),'2015-05-01-preview').key1)]"
+                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('NameOfTargetStorageAccount'), ';AccountKey=', listKeys(variables('targetStorageAccountResourceID'),'2015-05-01-preview').key1)]"
                     }
                 }
             ]
