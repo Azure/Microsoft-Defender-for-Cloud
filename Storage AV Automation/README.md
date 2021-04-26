@@ -1,5 +1,5 @@
-# Automation Antivirus for Azure Storage
-Automation Antivirus for Azure Storage  is an independent system that protects one Azure Blob Container from malware by performing a scan on each uploaded blob. The project consists of an Azure Function Blob Trigger that starts upon blob upload, and a Windows VM that utilizes Windows Defender as a malware scanner.
+# Antivirus Automation for Azure Storage
+Antivirus Automation for Azure Storage is an independent system that protects one Azure Blob Container from malware by performing a scan on each uploaded blob. The project consists of an Azure Function Blob Trigger that starts upon blob upload, and a Windows VM that utilizes Windows Defender as a malware scanner.
 
 For each blob uploaded to the protected container, the function will send the blob to the VM for scanning and changes the blob location according to the scan results:
 * If the blob is clean, it will be moved to the "clean-files-container" 
@@ -36,7 +36,7 @@ The simplest way to create the system is to use an ARM Template that is provided
 There are two ways to deploy the template:
 
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FStorage%20Automation%20AV%2FARM_template%2FAutomationAntivirusForStorageTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FStorage%20AV%20Automation%2FARM_template%2FAntivirusAutomationForStorageTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>   
 
@@ -51,7 +51,7 @@ This part requires some knowledge in PowerShell scripting and Git.
     ```
     git clone https://github.com/Azure/Azure-Security-Center.git
     ```
-1. Create Storage Automation AV/ARM_template/AutomationAntivirusForStorageTemplate.parameters.json file and fill the parameters.
+1. Create Storage AV Automation/ARM_template/AntivirusAutomationForStorageTemplate.parameters.json file and fill the parameters.
     * Deployment Script Parameters:
         * location
         * resourceGroupName - Can be the name of a new group or an existing one.
@@ -112,7 +112,7 @@ This part is for users that want to modify the code and make some changes.
     git clone https://github.com/Azure/Azure-Security-Center.git
     ```
 1. Modify the project
-1. Open Storage Automation AV/Scripts/BuildAndDeploy.ps1 and enter the necessary parameters
+1. Open Storage AV Automation/Scripts/BuildAndDeploy.ps1 and enter the necessary parameters
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
 
 
@@ -132,7 +132,7 @@ Unlike the simple scenario this case require some manual steps in order to compl
  
 
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FStorageAVAuto%2DAddExistingVnetScenario%2FStorage%20Automation%20AV%2FARM_template%2FAutomationAVForStorageExistingVnetTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FStorageAVAuto%2DAddExistingVnetScenario%2FStorage%20AV%20Automation%2FARM_template%2FAVAutomationForStorageExistingVnetTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
 

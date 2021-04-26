@@ -8,7 +8,7 @@ param (
     $deploymentResourceGroupName = "resource-group-name",
     $deploymentResourceGroupLocation = "location",
     $vmUserName = "username",
-    $ArmTemplatFile = "$PSScriptRoot/../ARM_template/AutomationAntivirusForStorageTemplate.json",
+    $ArmTemplatFile = "$PSScriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json",
     [SecureString] $vmPassword = "password"
 )
 
@@ -112,7 +112,7 @@ az group create `
 
 az deployment group create `
     --subscription $subscriptionID `
-    --name "AutomationAntivirusForStorageTemplate" `
+    --name "AntivirusAutomationForStorageTemplate" `
     --resource-group $deploymentResourceGroupName `
     --template-file $ArmTemplatFile `
     --parameters AutoAVAntivirusHttpServerUrl=$ScanHttpServerUrl `
