@@ -7,12 +7,23 @@ For each blob uploaded to the protected container, the function will send the bl
 
 The Azure Function and the VM are connected through a virtual network and communicate using HTTP requests.
 
-The system:
+The systems specifications:
 * Supports parallel blob scanning
 * Designed for simple use for Dev and Non-Dev users 
 * Can be modified if needed.
 
-
+List of created resource:
+1. Function App
+1. App Service Plan
+1. Virtual Network
+1. Network Security Group
+1. Storage Account - Host for the function app
+1. Virtual Machine
+1. Disk - Storage for the VM
+1. Network Interface - NIC for the VM
+1. Key Vault
+    1. Stores connection string to the storage account to scan as a secret
+1. Optional: Public IP - Used to acces the VM from public endpoint
 
 ## Getting Started - Simple Deployment
 
@@ -117,7 +128,7 @@ Unlike the simple scenario this case require some manual steps in order to compl
     * functionSubnet
     * VMSubnet
 * Click "Add"
-* Then save the new configuration using the "Save" button
+* Save the new configuration using the "Save" button
  
 
 ### Deploy the ARM template from the Azure portal:
