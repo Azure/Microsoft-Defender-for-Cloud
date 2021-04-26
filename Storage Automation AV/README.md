@@ -47,6 +47,7 @@ This part requires some knowledge in PowerShell scripting and Git.
         * armTemplateParametersFile
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
 
+
 ## Getting Started - Advanced
 This part is for users that want to modify the code and make some changes.
 
@@ -101,6 +102,12 @@ This part is for users that want to modify the code and make some changes.
 1. Open Storage Automation AV/Scripts/BuildAndDeploy.ps1 and enter the necessary parameters
 1. Run the script. During the execution, you will be prompted to enter your Azure credentials.
 
+
+## Scanning storage account inside a virtual network
+### Deploy the ARM template from the Azure portal:
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FAutomationAvForStorage%2FStorage%20Automation%20AV%2FARM_template%AutomationAVForStorageExistingVnetTemplate.json" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton"/>
+</a>  
 ## Important Notes
 
 * Blobs uploaded to the protected container are sent from the Function to VM through HTTP request inside the Virtual Network.
