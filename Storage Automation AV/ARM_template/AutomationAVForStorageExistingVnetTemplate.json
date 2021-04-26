@@ -138,7 +138,7 @@
         "targetStorageAccountResourceID": "[resourceId(parameters('storageAccountToScanSubscriptionID'), parameters('storageAccountToScanResourceGroupName'), 'Microsoft.Storage/storageAccounts', parameters('nameOfStorageAccountToScan'))]",
         "targetStorageAccountSecretName": "[concat(parameters('nameOfStorageAccountToScan'), 'connectionString')]",
         "vmDiskSizeGB": 32,
-        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanUploadedBlobFunctionZipUrl'), '\"')]",
+        "vmInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanHttpServerZipUrl'), '\"')]",
         "vmName": "[concat('vm', variables('resourceNameSuffix'))]",
         "vmNetworkInterfateworkInterfaceName": "[concat('vmnic', variables('resourceNameSuffix'))]",
         "vmSubnetName": "VMSubnet"
@@ -399,7 +399,7 @@
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
                         "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
                         "WEBSITE_NODE_DEFAULT_VERSION": "~10",
-                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanHttpServerZipUrl')]",
+                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipUrl')]",
                         "windowsdefender_host": "[reference(variables('vmNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
                         "windowsdefender_port": "[variables('communicationPort')]",
                         "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]"

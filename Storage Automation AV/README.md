@@ -12,6 +12,8 @@ The system:
 * Designed for simple use for Dev and Non-Dev users 
 * Can be modified if needed.
 
+
+
 ## Getting Started - Simple Deployment
 
 ### Prerequisites:
@@ -104,11 +106,24 @@ This part is for users that want to modify the code and make some changes.
 
 
 ## Scanning storage account inside a virtual network
+This section refers to the case in which your storage account can't be accessed through public endpoints but only through virtual network.  
+This template deploys the scanning system to an existing virtual network to gain access to your storage account.
+
+Unlike the simple scenario this case require some manual steps in order to complete the deployment using Azure portal:
+* Open your the storage account (the storage account to scan)
+* Go to Networking section under Security + networking
+* Under Virtual Networks click "Add existing virtual network"
+* Inside the "Add network" form choose the virtual network used for the deployment and add the new subnets:
+    * functionSubnet
+    * VMSubnet
+* Click "Add"
+* Then save the new configuration using the "Save" button
+ 
+
 ### Deploy the ARM template from the Azure portal:
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FStorageAVAuto%2DAddExistingVnetScenario%2FStorage%20Automation%20AV%2FARM_template%2FAutomationAVForStorageExistingVnetTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
-
 
 
 ## Important Notes
