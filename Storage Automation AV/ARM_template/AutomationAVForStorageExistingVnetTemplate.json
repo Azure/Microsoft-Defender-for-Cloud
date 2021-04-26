@@ -6,26 +6,26 @@
            "type": "string",
             "defaultValue": "[subscription().subscriptionId]",
             "metadata": {
-                "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in"
+                "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in."
             }
         },
         "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
             "type": "string",
             "defaultValue": "[resourceGroup().name]",
             "metadata": {
-                "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in"
+                "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in."
             }
         },
         "NameOfTargetStorageAccount": {
             "type": "string",
             "metadata": {
-                "description": "The name of the Storage Account that should be scanned"
+                "description": "The name of the Storage Account that should be scanned."
             }
         },
         "NameOfTargetContainer": {
             "type": "string",
             "metadata": {
-                "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account"
+                "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account."
             }
         },
         "existingVnetName": {
@@ -50,14 +50,14 @@
             "type": "string",
             "defaultValue": "clean-files",
             "metadata": {
-                "description": "The Container name to transfer clean scanned blobs to, can be new or existing"
+                "description": "The Container name to transfer clean scanned blobs to, can be new or existing."
             }
         },
         "quarantineContainerName": {
             "type": "string",
             "defaultValue": "quarantine-files",
             "metadata": {
-                "description": "The Container name to transfer files that contain malware to, can be new or existing"
+                "description": "The Container name to transfer files that contain malware to, can be new or existing."
             }
         },
         "appServicePlanSku": {
@@ -75,14 +75,14 @@
                 "P3V2"
             ],
             "metadata":{
-                "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime"
+                "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
             }
         },
         "VMSize": {
             "type": "string",
             "defaultValue": "Standard_B1ms",
             "metadata": {
-                "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime"
+                "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
             }
         },
         "VMAdminUsername": {
@@ -95,28 +95,28 @@
             "type": "bool",
             "defaultValue": false,
             "metadata": {
-                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure  "
+                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure."
             }
         },
         "ScanHttpServerZipURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanHttpServer.zip",
             "metadata": {
-                "description": "URL of the zipped Function Code, default value points to the lastest build"
+                "description": "URL of the zipped Function Code, default value points to the latest build."
             }
         },
         "ScanUploadedBlobFunctionZipURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanUploadedBlobFunction.zip",
             "metadata": {
-                "description": "URL of the source code of the Http Server That will run on the VM, default value points to the lastest build"
+                "description": "URL of the source code of the Http Server That will run on the VM, default value points to the latest build."
             }
         },
         "VMInitScriptURL": {
             "type": "string",
             "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/VMInit.ps1",
             "metadata": {
-                "description": "URL of the VMInit.ps1 script, default value points to the lastest build"
+                "description": "URL of the VMInit.ps1 script, default value points to the latest build."
             }
         }
     },
