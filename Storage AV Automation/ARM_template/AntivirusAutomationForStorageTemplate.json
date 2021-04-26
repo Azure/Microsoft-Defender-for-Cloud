@@ -154,9 +154,9 @@
             "kind": "app"
         },
         {
-            "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('networkSecurityGroupName')]",
+            "apiVersion": "2020-05-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
@@ -237,9 +237,9 @@
         },
         {
             "condition": "[parameters('addPublicIPToVM')]",
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddressName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "PublicIPAddress"
@@ -249,9 +249,9 @@
             }
         },
         {
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[variables('VMNetworkInterfateworkInterfaceName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[variables('publicIPAddressName')]",
@@ -272,9 +272,9 @@
             }
         },
         {
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('VMName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "VirtualMachine"
@@ -318,8 +318,8 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2019-12-01",
             "name": "[concat(variables('VMName'),'/', 'VmInitScript')]",
+            "apiVersion": "2019-12-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('VMName'))]"
@@ -359,8 +359,8 @@
             },
             "resources": [
                 {
-                    "name": "virtualNetwork",
                     "type": "config",
+                    "name": "virtualNetwork",
                     "apiVersion": "2019-08-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
@@ -373,8 +373,8 @@
                     }
                 },
                 {
-                    "name": "appsettings",
                     "type": "config",
+                    "name": "appsettings",
                     "apiVersion": "2020-09-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",

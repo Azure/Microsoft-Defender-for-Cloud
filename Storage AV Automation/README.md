@@ -132,7 +132,7 @@ Unlike the simple scenario this case require some manual steps in order to compl
  
 
 ### Deploy the ARM template from the Azure portal:
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Ft-ashitrit%2FAzure-Security-Center%2FStorageAVAuto%2DAddExistingVnetScenario%2FStorage%20AV%20Automation%2FARM_template%2FAVAutomationForStorageExistingVnetTemplate.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FStorage%20AV%20Automation%2FARM_template%2FAVAutomationForStorageExistingVnetTemplate.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>  
 

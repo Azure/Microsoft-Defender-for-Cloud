@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "SubscriptionIDOfTheTargetStorageAccount": {
-           "type": "string",
+            "type": "string",
             "defaultValue": "[subscription().subscriptionId]",
             "metadata": {
                 "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in."
@@ -122,7 +122,7 @@
     },
     "variables": {
         "hostStorageAccountType": "Standard_LRS",
-        "resourceNameSuffix": "[concat('autoav',uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer')))]",
+        "resourceNameSuffix": "[concat('avauto',uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer')))]",
         "appServicePlanName": "[concat('appplan', variables('resourceNameSuffix'))]",
         "communicationPort": "4151",
         "computerName": "AntivirusVm",
@@ -168,9 +168,9 @@
             "kind": "app"
         },
         {
-            "apiVersion": "2020-05-01",
             "type": "Microsoft.Network/networkSecurityGroups",
             "name": "[variables('networkSecurityGroupName')]",
+            "apiVersion": "2020-05-01",
             "location": "[resourceGroup().location]",
             "properties": {
                 "securityRules": [
@@ -246,9 +246,9 @@
         },
         {
             "condition": "[parameters('addPublicIPToVM')]",
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Network/publicIPAddresses",
             "name": "[variables('publicIPAddressName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "PublicIPAddress"
@@ -258,9 +258,9 @@
             }
         },
         {
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Network/networkInterfaces",
             "name": "[variables('vmNetworkInterfateworkInterfaceName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[variables('publicIPAddressName')]",
@@ -281,9 +281,9 @@
             }
         },
         {
-            "apiVersion": "2020-06-01",
             "type": "Microsoft.Compute/virtualMachines",
             "name": "[variables('vmName')]",
+            "apiVersion": "2020-06-01",
             "location": "[resourceGroup().location]",
             "tags": {
                 "displayName": "VirtualMachine"
@@ -327,8 +327,8 @@
         },
         {
             "type": "Microsoft.Compute/virtualMachines/extensions",
-            "apiVersion": "2019-12-01",
             "name": "[concat(variables('vmName'),'/', 'VmInitScript')]",
+            "apiVersion": "2019-12-01",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Compute/virtualMachines', variables('vmName'))]"
@@ -367,8 +367,8 @@
             },
             "resources": [
                 {
-                    "name": "virtualNetwork",
                     "type": "config",
+                    "name": "virtualNetwork",
                     "apiVersion": "2019-08-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
@@ -381,8 +381,8 @@
                     }
                 },
                 {
-                    "name": "appsettings",
                     "type": "config",
+                    "name": "appsettings",
                     "apiVersion": "2020-09-01",
                     "dependsOn": [
                         "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
@@ -397,7 +397,6 @@
                         "FUNCTIONS_EXTENSION_VERSION": "~3",
                         "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
                         "malwareContainerName": "[parameters('quarantineContainerName')]",
-                        "PROJECT": "LocalAntiMalware.csproj",
                         "targetContainerName": "[parameters('NameOfTargetContainer')]",
                         "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
                         "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
