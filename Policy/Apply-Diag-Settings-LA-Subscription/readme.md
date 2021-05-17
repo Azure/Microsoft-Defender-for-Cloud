@@ -4,7 +4,7 @@ the policy audits and deploys diagnostic settings (Activity Log) to a Log Analyt
 
 ##
 
-![Parameter](./parameter.png)
+![Parameter](./parameter2.png)
 
 ##
 
