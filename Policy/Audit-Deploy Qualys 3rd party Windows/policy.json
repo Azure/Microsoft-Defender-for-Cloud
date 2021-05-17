@@ -1,0 +1,129 @@
+{
+  "mode": "Indexed",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.osType",
+          "like": "Windows*"
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "Microsoft.Compute/virtualMachines/extensions/publisher",
+              "in": "[parameters('publisher')]"
+            },
+            {
+              "field": "Microsoft.Compute/virtualMachines/extensions/type",
+              "in": "[parameters('type')]"
+            },
+            {
+              "field": "Microsoft.Compute/virtualMachines/extensions/provisioningState",
+              "equals": "Succeeded"
+            }
+          ]
+        },
+        "roleDefinitionIds": [
+          "/providers/microsoft.authorization/roleDefinitions/9980e02c-c2be-4d73-94e8-173b1dc7cf3c"
+        ],
+        "deployment": {
+          "properties": {
+            "mode": "incremental",
+            "template": {
+              "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "vmName": {
+                  "type": "string"
+                },
+                "vmlocation": {
+                  "type": "string"
+                },
+                "LicenseCode": {
+                  "type": "string"
+                }
+              },
+              "resources": [
+                {
+                  "name": "[concat(parameters('vmName'),'/QualysAgent')]",
+                  "type": "Microsoft.Compute/virtualMachines/extensions",
+                  "location": "[parameters('vmlocation')]",
+                  "apiVersion": "2015-06-15",
+                  "properties": {
+                    "publisher": "Qualys",
+                    "type": "QualysAgent",
+                    "typeHandlerVersion": "1.6",
+                    "autoUpgradeMinorVersion": false,
+                    "settings": {
+                      "LicenseCode": "[parameters('LicenseCode')]",
+                      "ResourceID": "",
+                      "VmRegion": "",
+                      "Logging": ""
+                    }
+                  }
+                }
+              ]
+            },
+            "parameters": {
+              "vmName": {
+                "value": "[field('name')]"
+              },
+              "vmlocation": {
+                "value": "[field('location')]"
+              },
+              "LicenseCode": {
+                "value": "[parameters('LicenseCode')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "Disabled",
+        "deployIfNotExists"
+      ],
+      "defaultValue": "AuditIfNotExists"
+    },
+    "type": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Audit extension Type",
+        "description": "The list of types to recognize VM as Compliant. Example: QualysAgent"
+      }
+    },
+    "publisher": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Audit extension Publisher",
+        "description": "The list of publsihers to recognize VM as Compliant. Example: Qualys"
+      }
+    },
+    "LicenseCode": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Qualys License key",
+        "description": "Enter License key for Qualys connection endpoint"
+      }
+    }
+  }
+}

@@ -1,0 +1,384 @@
+{
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "field": "type",
+      "equals": "Microsoft.Resources/subscriptions"
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "deploymentScope": "subscription",
+        "existenceScope": "subscription",
+        "type": "Microsoft.Insights/diagnosticSettings",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "Microsoft.Insights/diagnosticSettings/workspaceId",
+              "matchInsensitively": "[parameters('logAnalytics')]"
+            },
+            {
+              "field": "name",
+              "equals": "[parameters('diagnosticsSettingNameToUse')]"
+            },
+            {
+              "count": {
+                "field": "Microsoft.Insights/diagnosticSettings/logs[*]",
+                "where": {
+                  "anyOf": [
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Administrative"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_administrative')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Security"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_security')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "ServiceHealth"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_servicehealth')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Alert"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_alert')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Recommendation"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_recommendation')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Policy"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_policy')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "Autoscale"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_autoscale')]"
+                        }
+                      ]
+                    },
+                    {
+                      "allOf": [
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].category",
+                          "equals": "ResourceHealth"
+                        },
+                        {
+                          "field": "Microsoft.Insights/diagnosticSettings/logs[*].enabled",
+                          "equals": "[parameters('log_resourcehealth')]"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              },
+              "equals": 8
+            }
+          ]
+        },
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        ],
+        "deployment": {
+          "location": "westeurope",
+          "properties": {
+            "mode": "incremental",
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "settingName": {
+                  "type": "String"
+                },
+                "workspaceId": {
+                  "type": "String"
+                },
+                "log_administrative": {
+                  "type": "String"
+                },
+                "log_security": {
+                  "type": "String"
+                },
+                "log_servicehealth": {
+                  "type": "String"
+                },
+                "log_alert": {
+                  "type": "String"
+                },
+                "log_recommendation": {
+                  "type": "String"
+                },
+                "log_policy": {
+                  "type": "String"
+                },
+                "log_autoscale": {
+                  "type": "String"
+                },
+                "log_resourcehealth": {
+                  "type": "String"
+                }
+              },
+              "resources": [
+                {
+                  "type": "Microsoft.Insights/diagnosticSettings",
+                  "apiVersion": "2017-05-01-preview",
+                  "name": "[parameters('settingName')]",
+                  "properties": {
+                    "workspaceId": "[parameters('workspaceId')]",
+                    "logs": [
+                      {
+                        "category": "Administrative",
+                        "enabled": "[parameters('log_administrative')]"
+                      },
+                      {
+                        "category": "Security",
+                        "enabled": "[parameters('log_security')]"
+                      },
+                      {
+                        "category": "ServiceHealth",
+                        "enabled": "[parameters('log_servicehealth')]"
+                      },
+                      {
+                        "category": "Alert",
+                        "enabled": "[parameters('log_alert')]"
+                      },
+                      {
+                        "category": "Recommendation",
+                        "enabled": "[parameters('log_recommendation')]"
+                      },
+                      {
+                        "category": "Policy",
+                        "enabled": "[parameters('log_policy')]"
+                      },
+                      {
+                        "category": "Autoscale",
+                        "enabled": "[parameters('log_autoscale')]"
+                      },
+                      {
+                        "category": "ResourceHealth",
+                        "enabled": "[parameters('log_resourcehealth')]"
+                      }
+                    ]
+                  }
+                }
+              ]
+            },
+            "parameters": {
+              "settingName": {
+                "value": "[parameters('diagnosticsSettingNameToUse')]"
+              },
+              "workspaceId": {
+                "value": "[parameters('logAnalytics')]"
+              },
+              "log_administrative": {
+                "value": "[parameters('log_administrative')]"
+              },
+              "log_security": {
+                "value": "[parameters('log_security')]"
+              },
+              "log_servicehealth": {
+                "value": "[parameters('log_servicehealth')]"
+              },
+              "log_alert": {
+                "value": "[parameters('log_alert')]"
+              },
+              "log_recommendation": {
+                "value": "[parameters('log_recommendation')]"
+              },
+              "log_policy": {
+                "value": "[parameters('log_policy')]"
+              },
+              "log_autoscale": {
+                "value": "[parameters('log_autoscale')]"
+              },
+              "log_resourcehealth": {
+                "value": "[parameters('log_resourcehealth')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "DeployIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "AuditIfNotExists"
+    },
+    "diagnosticsSettingNameToUse": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Setting name",
+        "description": "Name of the policy for the diagnostics settings."
+      },
+      "defaultValue": "setByPolicyLA"
+    },
+    "logAnalytics": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Log Analytics workspace",
+        "description": "Select the Log Analytics workspace from dropdown list",
+        "strongType": "omsWorkspace"
+      },
+      "defaultValue": "insertLA_ID"
+    },
+    "log_administrative": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Administrative",
+        "description": "Administrative log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_security": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Security",
+        "description": "Security log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_servicehealth": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: ServiceHealth",
+        "description": "ServiceHealth log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_alert": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Alert",
+        "description": "Alert log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_recommendation": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Recommendation",
+        "description": "Recommendation log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_policy": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Policy",
+        "description": "Policy log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_autoscale": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: Autoscale",
+        "description": "Autoscale log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    },
+    "log_resourcehealth": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Enable Log: ResourceHealth",
+        "description": "ResourceHealth log"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "true"
+    }
+  }
+}
