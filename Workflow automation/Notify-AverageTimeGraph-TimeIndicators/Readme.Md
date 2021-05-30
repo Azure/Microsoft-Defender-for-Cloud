@@ -8,6 +8,8 @@ Azure Security Center uses assessments to determine if a resource is flagged as 
 exports the assessments identified by Azure security center, to a custom log analytics workspace and calculates the average time taken to remediate unhealthy resources in your environment, so that you can better calculate the RCA for changes. This playbook will send you a notification email that will inform you about Overtime Graph, Top 5 Security Controls that are unhealthy as well as total count of unhealthy resources for the last 24hrs that needs action immediately to better harden your resources. 
 With the help of this OverTimeReport, you can easily calculate RCA for changes as well as stay on top of healthy resources that needs action.
 
+![](https://github.com/Azure/Azure-Security-Center/blob/safeenab786-patch-4/Workflow%20automation/Notify-AverageTimeGraph-TimeIndicators/notificationMail.png)
+
 The template in this folder will deploy a LogicApp and and API connections to Office 365. During the deployment, it is highly recommended to create a new resource group, which will contain all the required resources for the playbook. 
 
 You can deploy the main template by clicking the button below:
