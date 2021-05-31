@@ -1,3 +1,5 @@
+**Deprecation Notice: This project moved to another repo [azure-storage-av-automation][new-repo-link]**
+
 # Antivirus Automation for Azure Storage
 Antivirus Automation for Azure Storage is an independent system that protects one Azure Blob Container from malware by performing a scan on each uploaded blob. The project consists of an Azure Function Blob Trigger that starts upon blob upload, and a Windows VM that utilizes Windows Defender as a malware scanner.
 
@@ -153,3 +155,5 @@ Unlike the simple scenario this case require some manual steps in order to compl
 
 
 [instalCliUrl]: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli
+
+[new-repo-link]: https://github.com/Azure/azure-storage-av-automation
