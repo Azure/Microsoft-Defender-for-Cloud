@@ -1,0 +1,765 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "AverageTimeGraph",
+            "type": "String"
+        },
+    "LogAnalyticsWorkspaceName": {
+        "type": "String",
+        "defaultValue": "Enter the workspace name"
+    },
+    "LogAnalyticsWorkspaceResourceGroupName": {
+        "type": "string",
+        "defaultValue": "Enter the LogAnalytics Workspace ResourceGroup Name"
+    },
+    "LogAnalyticsWorkspaceSubscriptionID": {
+        "type": "string",
+        "defaultValue": "Enter the LogAnalytics Workspace SubscriptionID"
+    },
+    "NotificationEmailAddress":{
+        "type": "string",
+        "metadata": {
+            "displayName": "Enter the recipient's email address",
+            "description": "Enter the recipient's email address"
+        }
+    }
+},
+    "variables" :{
+        "o365ConnectionName" : "office365",
+        "SendDataConnectionName": "azuremonitorlogs",
+        "QueryDataConnectionName": "azureloganalyticsdatacollector"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('QueryDataConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "dependsOn": [
+            ],
+            "properties": {
+                "displayName": "Log Analytics Data Collector",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                },
+                "parameterValues": {
+                    "username": "[reference(concat('/subscriptions/', parameters('LogAnalyticsWorkspaceSubscriptionID'), '/resourceGroups/', parameters('LogAnalyticsWorkspaceResourceGroupName'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-11-01-preview').customerId]",
+                    "password": "[listKeys(concat('/subscriptions/', parameters('LogAnalyticsWorkspaceSubscriptionID'), '/resourceGroups/', parameters('LogAnalyticsWorkspaceResourceGroupName'), '/providers/Microsoft.OperationalInsights/workspaces/', parameters('LogAnalyticsWorkspaceName')), '2015-11-01-preview').primarySharedKey]" 
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('SendDataConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('SendDataConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('o365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('o365ConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                   "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('QueryDataConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('SendDataConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                            "emailtosend": {
+                            "defaultValue": "[parameters('NotificationEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Hour",
+                                "interval": 24
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Aggregation_loop": {
+                            "foreach": "@variables('HealthyArray')",
+                            "actions": {
+                                "Set_variable": {
+                                    "runAfter": {
+                                        "Set_variable_2": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "HealthyAggregate",
+                                        "value": "@variables('tempadd')"
+                                    }
+                                },
+                                "Set_variable_2": {
+                                    "runAfter": {
+                                        "Set_variable_currentitem": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "tempadd",
+                                        "value": "@add(variables('tempitem'),variables('HealthyAggregate'))"
+                                    }
+                                },
+                                "Set_variable_currentitem": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "tempitem",
+                                        "value": "@items('Aggregation_loop')"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Average_Remediation_Time": {
+                            "runAfter": {
+                                "Condition_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "RemediationDaysDaily_CL\n| extend Average = todouble(RemediationDaysAvg_s)\n|order by TimeGenerated asc\n| project TimeGenerated, Average",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Last 24 hours",
+                                    "visType": "Time Chart"
+                                }
+                            }
+                        },
+                        "Build_EmailBody": {
+                            "runAfter": {
+                                "List_Unhealthy_Resources_Count": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "EmailBody",
+                                "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n    h2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n\n<td>\n<img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" />\n</td>\n                <td>\n                 <h1 style=\"text-align: left;\">Azure Security Center</h1>\n                 </td>\n              <br>\n                 <h2 style=\"text-align: left;\">Average time taken to remediate resources</h2>\n                    </td>\n               <td>\n                 <p style=\"text-align: left;\"> Please refer to the below overtime graph, to understand the average time taken to remediate the resources in your environment and better RCA for changes\n                 </p>   \n\n           <td>\n                 <h2 style=\"text-align: left;\">Average Time Graph</h2>\n                       @{base64ToString(body('Average_Remediation_Time')?['body'])}\n\n                    </td>\n                    \n                    \n             <h2 style=\"text-align: left;\"> Summary \n                 </h2> \n                 \n         <p style=\"text-align: left;\"> <strong> Top 5 recommendations that are currently open </strong>\n    @{base64ToString(body('List_Top_5_Security_Controls')?['body'])}\n                 </p> \n\n                   <p style=\"text-align: left;\"> <strong> Total count of unhealthy resources for the last 24hrs are :  </strong>  @{base64ToString(body('List_Unhealthy_Resources_Count')?['body'])} \n                             </p> \n\n                   <tr class=\"notification-card-footer\">    <td colspan=\"2\">     <p style='text-indent:36.0pt;'><span style='font-size:0.0pt;'>&nbsp;</span>     </p>     <p style='text-align:center;'><span style='font-size:12.0pt;'>Visit Azure Security Center dashboard in the Azure portal to review your Secure Score and resolve active recommendations to harden your resources <a href=\"https://ms.portal.azure.com/#blade/Microsoft_Azure_Security/SecurityMenuBlade/5\">here</a>.</span><br>     </p>    </td>   </tr>\n                            </td>\n                        </tr>\n"
+                            }
+                        },
+                        "Condition_2": {
+                            "actions": {},
+                            "runAfter": {
+                                "Aggregation_loop": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Send_Data_2": {
+                                        "runAfter": {},
+                                        "type": "ApiConnection",
+                                        "inputs": {
+                                            "body": "{\n\"RemediationDaysAvg\":\"@{div(variables('HealthyAggregate'),length(variables('HealthyArray')))}\"\n}",
+                                            "headers": {
+                                                "Log-Type": "RemediationDaysDaily"
+                                            },
+                                            "host": {
+                                                "connection": {
+                                                    "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                                }
+                                            },
+                                            "method": "post",
+                                            "path": "/api/logs"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "or": [
+                                    {
+                                        "equals": [
+                                            "@variables('HealthyAggregate')",
+                                            "@null"
+                                        ]
+                                    },
+                                    {
+                                        "equals": [
+                                            "@variables('HealthyAggregate')",
+                                            ""
+                                        ]
+                                    },
+                                    {
+                                        "lessOrEquals": [
+                                            "@variables('HealthyAggregate')",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "For_each": {
+                            "foreach": "@outputs('Parse_JSON')?['body']?['value']",
+                            "actions": {
+                                "Condition": {
+                                    "actions": {
+                                        "If_PrevEvalDate_is_Empty": {
+                                            "actions": {},
+                                            "runAfter": {
+                                                "PrevEvalDate": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "Append_to_array_HealthyArray_variable": {
+                                                        "runAfter": {},
+                                                        "type": "AppendToArrayVariable",
+                                                        "inputs": {
+                                                            "name": "HealthyArray",
+                                                            "value": "@div(sub(ticks(variables('lastevaldate')),ticks(variables('PrevEvaldate'))),864000000000)"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "or": [
+                                                    {
+                                                        "equals": [
+                                                            "@variables('PrevEvaldate')",
+                                                            "@null"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "equals": [
+                                                            "@variables('PrevEvaldate')",
+                                                            ""
+                                                        ]
+                                                    },
+                                                    {
+                                                        "equals": [
+                                                            "@variables('PrevEvaldate')",
+                                                            "@empty(body('Run_query_and_list_results')?['value'])"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "PrevEvalDate": {
+                                            "runAfter": {
+                                                "Run_query_and_list_results": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "PrevEvaldate",
+                                                "value": "@{last(body('Run_query_and_list_results')?['value'])?['statusChangeDate_t']}"
+                                            }
+                                        },
+                                        "Run_query_and_list_results": {
+                                            "runAfter": {},
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": "DailyResourceStatus_CL\n| where status_s contains \"Unhealthy\" and ResourceId has '@{items('For_each')?['properties']?['resourceDetails']?['Id']}' and assessmentId_s has '@{items('For_each')?['id']}' and TimeGenerated > todatetime(\"@{items('For_each')?['properties']?['status']?['firstEvaluationDate']}\")\n| order by statusChangeDate_t desc \n| top 1 by statusChangeDate_t \n| project statusChangeDate_t ",
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/queryData",
+                                                "queries": {
+                                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                                    "resourcetype": "Log Analytics Workspace",
+                                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                                    "timerange": "@items('For_each')?['properties']?['status']?['firstEvaluationDate']"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "LastEvalDate": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "contains": [
+                                                    "@items('For_each')?['properties']?['status']?['code']",
+                                                    "Healthy"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "LastEvalDate": {
+                                    "runAfter": {
+                                        "Send_Data": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "lastevaldate",
+                                        "value": "@items('For_each')?['properties']?['status']?['statusChangeDate']"
+                                    }
+                                },
+                                "Send_Data": {
+                                    "runAfter": {},
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": "{\n      \"ResourceId\": \"@{items('For_each')?['properties']?['resourceDetails']?['Id']}\",\n      \"statusChangeDate\": \"@{items('For_each')?['properties']?['status']?['statusChangeDate']}\",\n      \"firstEvaluationDate\": \"@{items('For_each')?['properties']?['status']?['firstEvaluationDate']}\", \n       \"status\":\"@{items('For_each')?['properties']?['status']?['code']}\", \n        \"assessmentId\":\"@{items('For_each')?['id']}\",\n         \"displayname\":\"@{items('For_each')?['properties']?['displayName']}\"\n }",
+                                        "headers": {
+                                            "Log-Type": "DailyResourceStatus"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/api/logs"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "Initializing_EmailBody": {
+                            "runAfter": {
+                                "Initializing_HealthyAggreate": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_HealthyAggreate": {
+                            "runAfter": {
+                                "Initializing_LastEvalDate": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "HealthyAggregate",
+                                        "type": "float",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_HealthyArray": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "HealthyArray",
+                                        "type": "array"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_LastEvalDate": {
+                            "runAfter": {
+                                "Initializing_PrevEvalDate": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "lastevaldate",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_PrevEvalDate": {
+                            "runAfter": {
+                                "Initializing_HealthyArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PrevEvaldate",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_Temp": {
+                            "runAfter": {
+                                "Initializing_EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "tempitem",
+                                        "type": "float",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "Initializing_Temp2": {
+                            "runAfter": {
+                                "Initializing_Temp": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "tempadd",
+                                        "type": "float",
+                                        "value": 0
+                                    }
+                                ]
+                            }
+                        },
+                        "List_Top_5_Security_Controls": {
+                            "runAfter": {
+                                "Average_Remediation_Time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "SecureScoreControls\n| extend potentialScoreIncrease=MaxScore-CurrentScore\n| join kind =inner (\n SecureScoreControls\n | summarize latestTimestamp=max(TimeGenerated) by ControlName\n) on ControlName\n| where latestTimestamp == TimeGenerated\n| project ControlName, latestTimestamp, potentialScoreIncrease\n| top 5 by potentialScoreIncrease",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Set in query",
+                                    "visType": "Html Table"
+                                }
+                            }
+                        },
+                        "List_Unhealthy_Resources_Count": {
+                            "runAfter": {
+                                "List_Top_5_Security_Controls": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "DailyResourceStatus_CL\n| where TimeGenerated >ago(24h) and status_s has \"UnHealthy\"\n| distinct ResourceId\n| count",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Last 24 hours",
+                                    "visType": "Html Table"
+                                }
+                            }
+                        },
+                        "Parse_JSON": {
+                            "runAfter": {
+                                "Query_API": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('Query_API')",
+                                "schema": {
+                                    "properties": {
+                                        "body": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "additionalData": {
+                                                                        "properties": {},
+                                                                        "type": "object"
+                                                                    },
+                                                                    "displayName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "resourceDetails": {
+                                                                        "properties": {
+                                                                            "Id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "Source": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "status": {
+                                                                        "properties": {
+                                                                            "code": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "firstEvaluationDate": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "statusChangeDate": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "type",
+                                                            "id",
+                                                            "name",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "headers": {
+                                            "properties": {
+                                                "Cache-Control": {
+                                                    "type": "string"
+                                                },
+                                                "Content-Length": {
+                                                    "type": "string"
+                                                },
+                                                "Content-Type": {
+                                                    "type": "string"
+                                                },
+                                                "Date": {
+                                                    "type": "string"
+                                                },
+                                                "Expires": {
+                                                    "type": "string"
+                                                },
+                                                "Pragma": {
+                                                    "type": "string"
+                                                },
+                                                "Strict-Transport-Security": {
+                                                    "type": "string"
+                                                },
+                                                "Transfer-Encoding": {
+                                                    "type": "string"
+                                                },
+                                                "Vary": {
+                                                    "type": "string"
+                                                },
+                                                "X-Content-Type-Options": {
+                                                    "type": "string"
+                                                },
+                                                "x-ms-correlation-request-id": {
+                                                    "type": "string"
+                                                },
+                                                "x-ms-ratelimit-remaining-subscription-resource-requests": {
+                                                    "type": "string"
+                                                },
+                                                "x-ms-request-id": {
+                                                    "type": "string"
+                                                },
+                                                "x-ms-routing-request-id": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "statusCode": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Query_API": {
+                            "runAfter": {
+                                "Initializing_Temp2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions/67aa2338-7300-43a4-9610-4e6a310e952d/providers/Microsoft.Security/assessments?api-version=2019-01-01-preview&$expand=statusEvaluationDates"
+                            }
+                        },
+                        "Send_an_email": {
+                            "runAfter": {
+                                "Build_EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Attachments": [
+                                        {
+                                            "ContentBytes": "@{body('Average_Remediation_Time')?['attachmentContent']}",
+                                            "Name": "@body('Average_Remediation_Time')?['attachmentName']"
+                                        }
+                                    ],
+                                    "Body": "<p>@{variables('EmailBody')}</p>",
+                                    "Subject": "Average Time to Remediate Resources",
+                                    "To": "@parameters('emailtosend')"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azureloganalyticsdatacollector": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('QueryDataConnectionName'))]",
+                                "connectionName": "[variables('QueryDataConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azureloganalyticsdatacollector')]"
+                            },
+                            "azuremonitorlogs": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('SendDataConnectionName'))]",
+                                "connectionName": "[variables('SendDataConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
