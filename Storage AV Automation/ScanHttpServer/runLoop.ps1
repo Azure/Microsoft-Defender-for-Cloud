@@ -4,7 +4,7 @@ $ExePath = "$ScanHttpServerFolder\ScanHttpServer.dll"
 cd $ScanHttpServerFolder
 # Install .net 5 sdk + runtime
 if (-Not (Test-Path $ScanHttpServerFolder\dotnet-install.ps1)){
-    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $ExePath\dotnet-install.ps1
+    Invoke-WebRequest "https://dotnet.microsoft.com/download/dotnet/scripts/v1/dotnet-install.ps1" -OutFile $ScanHttpServerFolder\dotnet-install.ps1
 }
 
 #instaling runtime

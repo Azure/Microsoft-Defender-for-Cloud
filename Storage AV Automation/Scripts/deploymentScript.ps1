@@ -2,8 +2,8 @@ param (
     $location,
     $resourceGroupName,
     $subscriptionID,
-    $armTemplateFile = "$PSScriptRoot/../ARM_template/AutomationAntivirusForStorageTemplate.json",
-    $armTemplateParametersFile = "$PSScriptRoot/../ARM_template/AutomationAntivirusForStorageTemplate.json"
+    $armTemplateFile = "$PSScriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json",
+    $armTemplateParametersFile = "$PSScriptRoot/../ARM_template/AntivirusAutomationForStorageTemplate.json"
 )
 
 az login
@@ -15,7 +15,7 @@ az group create `
 
 az deployment group create `
     --subscription $subscriptionID `
-    --name "AutomationAntivirusForStorageTemplate" `
+    --name "AntivirusAutomationForStorageTemplate" `
     --resource-group $resourceGroupName `
     --template-file $armTemplateFile `
     --parameters $armTemplateParametersFile

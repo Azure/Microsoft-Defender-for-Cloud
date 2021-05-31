@@ -269,4 +269,3 @@ __pycache__/
 
 local*
 *.zip
-ScanUploadedBlobFunction/out/ScanUploadedBlob/function.json

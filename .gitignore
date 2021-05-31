@@ -344,3 +344,5 @@ Workbooks/.DS_Store
 Workflow automation/.DS_Store
 Workflow automation/Request-ResourceExemption/.DS_Store
 .vscode/settings.json
+.DS_Store
+Kusto/Azure Resource Graph/.DS_Store
