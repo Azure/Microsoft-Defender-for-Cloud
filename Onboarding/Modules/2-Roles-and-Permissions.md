@@ -41,8 +41,7 @@ Customers need to make sure that the central security team has been assigned the
 | Action |	RBAC Role	| Option A) | Option B)
 | --- | :---: | :---: | :---:
 Need to view configurations, update the security policy, and dismiss recommendations and alerts in Security Center.	| **Security Admin** on Root MG*	|	&#10003; |	&#10003;
-Need to have read and write access to Azure resources for remediation (this includes assigning the appropriate permission to the managed identity used by a deployIfNotExists or modify policy)	| **Contributor**
-on Root MG*	|	&#10003; |	&#10005;
+Need to have read and write access to Azure resources for remediation (this includes assigning the appropriate permission to the managed identity used by a deployIfNotExists or modify policy)	| **Contributor** on Root MG*	|	&#10003; |	&#10005;
 Need to have read only access to Azure resources for investigation. (This does not include read access to secrets or data plane details)	| **Reader** on Root MG*	|	&#10005; |	&#10003;
 > *Depending on the customer’s management group structure, an assignment lower in the management group hierarchy may be more appropriate.*
 
