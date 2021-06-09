@@ -1,14 +1,14 @@
 # ASC Defender for Storage - Price Estimation Dashboard 1.0
 Azure Defender for Storage currently supports and monitors transactions for Azure Blobs, Azure files, and Azure Data Lake Storage Gen 2. [Learn more here.](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
 
-This workbook considers all storage accounts with and without Azure Defender for Storage enabled across your selected subscription. The results are from within the last 7 days. 
+[This workbook](https://techcommunity.microsoft.com/t5/azure-security-center/azure-defender-for-storage-price-estimation-dashboard/ba-p/2429724) considers all storage accounts with and without Azure Defender for Storage enabled across your selected subscription. The results are from within the last 7 days. 
 - The **Estimated Price for 7 days** is based on the number of transactions performed within that period
 - The **Estimated Monthly Price** takes those 7 days as sample and calculates it for a month
 
 > Important!! To pull Blob and File transactions metric from each storage account in larger subscriptions or across a tenant use the PowerShell script [Read Azure Storage Transaction Metrics](https://github.com/Azure/Azure-Security-Center/tree/main/Powershell%20scripts/Read%20Azure%20Storage%20Transaction%20Metrics)
 
 ## Try it on the Azure Portal
-You can deploy the workbook by clicking on the buttons below:
+Learn more about the workbook in [this blog post](https://techcommunity.microsoft.com/t5/azure-security-center/azure-defender-for-storage-price-estimation-dashboard/ba-p/2429724). You can deploy the workbook by clicking on the buttons below:
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Storage%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Storage%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
