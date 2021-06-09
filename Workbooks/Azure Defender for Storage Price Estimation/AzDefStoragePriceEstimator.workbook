@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## Azure Defender for Storage - Price Estimation Dashboard \r\n> [This workbook]() considers all storage accounts with/without Azure Defender for Storage enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\r\n\r\n> To pull the Blob and File transactions metric from each storage account in larger subcriptions or across a tenant use [Read Azure Storage Transaction Metrics](https://github.com/Azure/Azure-Security-Center/tree/main/Powershell%20scripts/Read%20Azure%20Storage%20Transaction%20Metrics)"
+        "json": "## Azure Defender for Storage - Price Estimation Dashboard \r\n> [This workbook](https://techcommunity.microsoft.com/t5/azure-security-center/azure-defender-for-storage-price-estimation-dashboard/ba-p/2429724) considers all storage accounts with/without Azure Defender for Storage enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\r\n\r\n> To pull the Blob and File transactions metric from each storage account in larger subcriptions or across a tenant use [Read Azure Storage Transaction Metrics](https://github.com/Azure/Azure-Security-Center/tree/main/Powershell%20scripts/Read%20Azure%20Storage%20Transaction%20Metrics)"
       },
       "name": "text - 2"
     },
