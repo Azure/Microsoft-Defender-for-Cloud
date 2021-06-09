@@ -10,11 +10,12 @@ This workbook considers all storage accounts with and without Azure Defender for
 ## Try it on the Azure Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FVulnerability%2520Scanner%2520Unified%2520Dashboard%25201.0%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FVulnerability%2520Scanner%2520Unified%2520Dashboard%25201.0%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://github.com/Azure/Azure-Security-Center/blob/main/Workbooks/Azure%20Defender%20for%20Storage%20Price%20Estimation/AzDefStoragePriceEstimator.workbook" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://github.com/Azure/Azure-Security-Center/blob/main/Workbooks/Azure%20Defender%20for%20Storage%20Price%20Estimation/AzDefStoragePriceEstimator.workbook" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ## Overview Tab
-![Image of OverviewTab](ovrvw.png)
+![Image of OverviewTab](ovrvw.PNG)
+
 Columns:
 - **Subscription** 
 - **Storage Account**
