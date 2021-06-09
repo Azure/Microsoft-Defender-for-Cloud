@@ -8,20 +8,13 @@
         "metadata": {
           "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
         }
-      },
-      "workbookId": {
-        "type": "string",
-        "defaultValue": "[newGuid()]",
-        "metadata": {
-          "description": "The unique guid for this workbook instance"
-        }
       }
     },
     "resources": [
       {
         "type": "microsoft.insights/workbooks",
         "apiVersion": "2018-06-17-preview",
-        "name": "[parameters('workbookId')]",
+        "name": "[guid(resourceGroup().id, deployment().name)]",
         "location": "[resourceGroup().location]",
         "kind": "shared",
         "identity": {
