@@ -3,17 +3,25 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
       "workbookDisplayName": {
-        "type": "string",
+        "type": "String",
         "defaultValue": "Azure Defender for Storage – Price Estimation Dashboard",
         "metadata": {
           "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+        }
+      },
+      "workbookId": {
+        "type": "string",
+        "defaultValue": "[newGuid()]",
+        "metadata": {
+          "description": "The unique guid for this workbook instance"
         }
       }
     },
     "resources": [
       {
-        "name": "[guid(resourceGroup().id, deployment().name)]",
         "type": "microsoft.insights/workbooks",
+        "apiVersion": "2018-06-17-preview",
+        "name": "[parameters('workbookId')]",
         "location": "[resourceGroup().location]",
         "kind": "shared",
         "identity": {
