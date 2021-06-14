@@ -20,7 +20,7 @@ To get started with Security Center, you must have a subscription to Microsoft A
 Each of these pillars also has its own dedicated dashboard allowing deeper insights and actions around that vertical, providing easy access and better visibility for security professionals.
 
 > ❗ Important: <br>
-> It takes few hours for all tiles on the oerview page to update.
+> It takes few hours for all tiles on the overview page to update.
 
 ![Azure Security Center: Overview dashboard](../Images/asc-dashboard-overview.gif?raw=true)
 
