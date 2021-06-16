@@ -1,7 +1,16 @@
-# Block the IPs in NSG as response to a brute force attack when an ASC alert is triggered/created
-**Author: Safeena Begum**
+# Block attacking IP addresses in an NSG as response to a brute force attack when an ASC alert is triggered/created
 
-When Azure Security Center detects a brute force attack, this playbook will create a security rule in the NSG attached to the VM to deny inbound traffic from the IP addresses attached to the alert. 
+**Author: Safeena Begum/Tom Janetscheck**
+
+When Azure Security Center detects a brute force attack, this playbook will create a security rule in the NSG attached to the VM's network interface to deny inbound traffic from the attacking IP addresses.
+This automation will consider the following settings:
+
+1. The Logic App will create one Network Security Group (NSG) rule with the lowest possible (= free) priority number. For example, if there are existing NSG rules with priorities from 100 to 105, and from 110 to 1,000, the Logic App will create the rule with priority 106.
+2. The NSG rule will contain all attacking IP addresses that are mentioned in the alert.
+3. The NSG rule name will be unique, consisting of _BlockBruteForce_ and the priority number. For example, if the priority is 106, the name will be _BlockBruteForce-106_.
+4. After the NSG rule is created, the Logic App will send an informational email to the email address you have configured during the template deployment. The email will contain the following information:
+
+![Email template](.//emailTemplate.png)
 
 You can deploy the main template by clicking on the buttons below:
 
@@ -19,7 +28,8 @@ Notice that you can assign permissions only if your account has been assigned Ow
 
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
 
-To assign Managed Identity to specific scope:
+**To assign Managed Identity to specific scope:**
+
 1. Make sure you have User Access Administrator or Owner permissions for this scope.
 2. Go to the subscription/management group page.
 3. Press _Access Control (IAM)_ on the navigation bar.
@@ -30,7 +40,8 @@ To assign Managed Identity to specific scope:
 8. Select _BlockBruteForceAttackedIP_ Logic App.
 9. Press _save_.
 
-To authorize the API connection:
+**To authorize the API connection:**
+
 1. Go to the Resource Group you have used to deployed the template resources.
 2. Select the Office365 API connection and press _Edit API connection_.
 3. Press the _Authorize_ button.
@@ -38,6 +49,7 @@ To authorize the API connection:
 5. Press _save_.
 
 Once you have deployed and authorized the Logic App, you can create a [new Workflow automation](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation) in Azure Security Center:
+
 1. Go to Azure Security Center and select the _Workflow automation_ button in the navigation pane.
 2. Select _+ Add workflow automation_.
 3. Enter the values needed. Especially make sure you select _Threat detection alerts_ as the trigger condition.

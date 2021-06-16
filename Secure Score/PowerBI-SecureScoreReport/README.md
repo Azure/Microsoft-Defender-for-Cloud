@@ -7,7 +7,7 @@ The dashboard contains out-of-the-box reports that will help you analyze your se
 ## Prerequisite:
 
 1. Power BI account (to open the report as template app you need Pro account).
-3. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
+3. Use [Get-SecureScoreData](https://github.com/Azure/Azure-Security-Center/tree/master/Secure%20Score/Get-SecureScoreData) playbook to export your data. This Logic App playbook exports your secure score and recommendations data every 24 hours to a Log Analytics workspace. The playbook uses a Managed Identity, so assign security reader permissions to all the subscriptions or management groups you want to include in the reports. The required steps for assigning a Managed Identity are detailed in the playbook’s README file. 
 2. Power BI desktop intalled (version 2.86.727.0 or higher). This is required only if you chose to use the desktop version.
 
 
@@ -24,13 +24,11 @@ You can open the reports with two different options:
     ![Enter log analytics id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LogAnalyticsIdDesktop2.png?raw=true)
 
 4. Perform authentication using organizational account with **OAuth2** as the authentication method for your Log Analytics workspace.  
-![Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/Authentication2.png?raw=true)
-5. Perform anonymous authentication to our blob storage. This is required in order to keep you posted in versions updates.
-![Blob Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/BlobStorageAuth.png?raw=true)
+
 5. After authentication completed, the data will be loaded.  
 ***Note:**  
 You can connect your data only if the data already available at the Log Analytics workspace. You can check it by running “SecureScore_CL” in the Log Analytics. Only after you get results to this query you can connect your data.*
-6. Publish the report to your Power BI Service. You are now ready to analyze your secure score data over time. 
+6. Publish the report to your Power BI Service. You are now ready to analyze your secure score data over time (optional). 
 
 ## Open with Power BI Service
 
@@ -111,7 +109,3 @@ Notice the reports can be filtered by time using the date scroll bar or by subsc
 Have you tried the template app? Help us getting better by filling this [form](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR_CzuCpXTVhBswcSTF6htOtUOFNBS1gxQ01BTVIwOElNNldSVllTNTNBNC4u). Your feedback is highly appreciated. 
 
  
-
-## **Need Help?** 
-
-Please contact: ammagen@microsoft.com 

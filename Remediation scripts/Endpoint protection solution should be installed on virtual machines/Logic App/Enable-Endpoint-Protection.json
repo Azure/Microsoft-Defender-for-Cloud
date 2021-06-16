@@ -3,7 +3,7 @@
     "contentVersion": "1.0.0.0",
     "parameters": {
         "workflows_EnableEndpointProtection_name": {
-            "defaultValue": "EnableEndpoitnProtection",
+            "defaultValue": "EnableEndpointProtection",
             "type": "String"
         }
     },
