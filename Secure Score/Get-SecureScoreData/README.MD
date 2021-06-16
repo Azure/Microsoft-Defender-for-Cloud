@@ -6,6 +6,8 @@ This playbook uses the new Secure Score API and Assessments API to pull Secure S
 The ARM template will create a Log Analytics workspace, API Connection, Logic App Playbook and an Azure Monitor Workbook.
 As part of the template parameters you will need to choose under which subscription and resource group to deploy the resources. It is highly recommended to create a new resource group, which will contain all the required resources for the playbook.
 
+*Please notice that the Secure Score Workbook deployed in this template is **deprecated** and has been replaced by the builtin [Secure Score Over Time workbook](https://docs.microsoft.com/en-us/azure/security-center/custom-dashboards-azure-workbooks) in Azure Security Center.*
+
 The playbook uses a Managed Identity. You need to assign reader permissions to subscriptions you want to export for the Manage Identity (explained in details below). Notice you can assign permissions only as an owner and make sure all selected subscriptions registered to Azure Security Center.
 
 You have 3 options:
