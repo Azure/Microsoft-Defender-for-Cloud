@@ -1,5 +1,5 @@
 {
-    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
         "PlaybookName": {
@@ -11,7 +11,7 @@
             "metadata": {
                 "value": "Enter the ResourceID of the UserManaged Identity Name"
             }
-        },
+    },
         "NotificationEmailAddress": {
             "type": "string",
             "defaultValue": "Enter the recipient's email address"
@@ -26,9 +26,9 @@
         "tablename": "Exclusions"
     },
     "resources": [
-        {
+       {
             "type": "Microsoft.Storage/storageAccounts",
-            "apiVersion": "2020-08-01-preview",
+            "apiVersion": "2019-06-01",
             "name": "[variables('storageaccountname')]",
             "location": "[resourceGroup().location]",
             "sku": {
@@ -64,7 +64,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices",
-            "apiVersion": "2020-08-01-preview",
+            "apiVersion": "2019-06-01",
             "name": "[concat(variables('storageaccountname'), '/default')]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts', variables('storageaccountname'))]"
@@ -77,7 +77,7 @@
         },
         {
             "type": "Microsoft.Storage/storageAccounts/tableServices/tables",
-            "apiVersion": "2020-08-01-preview",
+            "apiVersion": "2019-06-01",
             "name": "[concat(variables('storageaccountname'), '/default/',variables('tablename'))]",
             "dependsOn": [
                 "[resourceId('Microsoft.Storage/storageAccounts/tableServices', variables('storageaccountname'), 'default')]",
@@ -183,16 +183,16 @@
                             },
                             "type": "ApiConnection",
                             "inputs": {
+                                "body": {
+                                    "PartitionKey": "Subscription",
+                                    "RowKey": "@{variables('subid')}"
+                                },
                                 "host": {
                                     "connection": {
                                         "name": "@parameters('$connections')['azuretables']['connectionId']"
                                     }
                                 },
                                 "method": "patch",
-                                "body": {
-                                    "PartitionKey": "Subscription",
-                                    "RowKey": "@{variables('subid')}"
-                                },
                                 "path": "[concat('/Tables/@{encodeURIComponent(''', variables('tablename'), ''')}/entities(PartitionKey=''@{encodeURIComponent(''Subscription'')}'',RowKey=''@{encodeURIComponent(variables(''subid''))}'')')]"
                             }
                         },
@@ -204,7 +204,7 @@
                             },
                             "type": "Response",
                             "inputs": {
-                                "body": "<html>\n<body>\nYour subscription @{variables('subid')} has been excluded.\n</body>\n</html>",
+                                "body": "<html>\n<body>\nYour subscription @{variables('subid')}​​​​ has been excluded.\n</body>\n</html>",
                                 "headers": {
                                     "Content-Type": "text/html; charset=UTF-8"
                                 },
@@ -277,7 +277,7 @@
                                     "type": "SetVariable",
                                     "inputs": {
                                         "name": "EmailBody",
-                                        "value": "<style type=\"text/css\">\n       h1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:left; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t<td>\n\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n                                                          \n                  </td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n            </tbody>\n             <tr>\n\t\t<td style=\"width:500px\">\n\t\t<p style=\"text-align: left;\"><strong>Found new subscription(s) that might not be monitored by Azure Security Center.</strong><br><br>\n\n\t\tPlease review the list below and take action to either add the subscription(s) to the Management Groups in order to start monitoring using Azure Security Center or click Exclude subscription from monitoring option to add the subscription ID to the Exclusion list in the Storage account.</p>\n\t\t\t</td>\n\t\t</tr>\n<br>\n<table align=\"center\" border=\"1\">\n<tr>\n<td><b>Subscription Name</b></td>\n<td><b>Subscription ID</b></td>\n<td><b>Action</b></td>\n</tr>\n@{variables('EmailSubscriptionRowItems')}\n</table>"
+                                        "value": "<style type=\"text/css\">\n       h1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:left; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t<td>\n\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n                                                          \n                  </td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n            </tbody>\n             <tr>\n\t\t<td style=\"width:500px\">\n\t\t<p style=\"text-align: left;\"><strong>Found new subscription(s) that might not be monitored by Azure Security Center.</strong><br><br>\n\n\t\tPlease review the list below and take action to either add the subscription(s) to the Management Groups in order to start monitoring using Azure Security Center or click Exclude subscription from monitoring option to add the subscription ID to the Exclusion list in the Storage account.</p>\n\t\t\t</td>\n\t\t</tr>\n<br>\n<table align=\"center\" border=\"1\">\n<tr>\n<td><b>Subscription Name</b></td>\n<td><b>Subscription ID</b></td>\n<td><b>Action</b></td>\n<td><b>ASC Enabled</b></td>\n</tr>\n@{variables('EmailSubscriptionRowItems')}\n</table>"
                                     }
                                 },
                                 "Send_an_email_(V2)": {
@@ -292,11 +292,11 @@
                                             "Body": "<p>@{variables('EmailBody')}</p>",
                                             "IsHtml": true,
                                             "Subject": "Found new subscriptions that might not be monitored by Azure Security Center",
-                                            "To": "safeenab@microsoft.com"
+                                            "To": "[parameters('NotificationEmailAddress')]"
                                         },
                                         "host": {
                                             "connection": {
-                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                                "name": "@parameters('$connections')['office365_1']['connectionId']"
                                             }
                                         },
                                         "method": "post",
@@ -373,15 +373,52 @@
                                             "actions": {
                                                 "Append_to_string_variable": {
                                                     "runAfter": {
-                                                        "FilteredSubscriptionCount": [
+                                                        "Condition_4": [
                                                             "Succeeded"
                                                         ]
                                                     },
                                                     "type": "AppendToStringVariable",
                                                     "inputs": {
                                                         "name": "EmailSubscriptionRowItems",
-                                                        "value": "<tr>\n<td>@{items('For_each')?['properties']?['displayName']}</td>\n<td>@{items('For_each')?['name']}</td>\n<td><a href='@{body('Parse_JSON_2')?['value']}&subid=@{items('For_each')?['name']}'> Exclude @{items('For_each')?['properties']?['displayName']}</a></td>\n</tr>"
+                                                        "value": "<tr>\n<td>@{items('For_each')?['properties']?['displayName']}</td>\n<td>@{items('For_each')?['name']}</td>\n<td><a href='@{body('Parse_JSON_2')?['value']}&subid=@{items('For_each')?['name']}'> Exclude @{items('For_each')?['properties']?['displayName']}</a></td><td>@{variables('PricingFlag')}</td>\n</tr>"
                                                     }
+                                                },
+                                                "Condition_4": {
+                                                    "actions": {},
+                                                    "runAfter": {
+                                                        "Set_variable_2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "Set_variable_3": {
+                                                                "runAfter": {},
+                                                                "type": "SetVariable",
+                                                                "inputs": {
+                                                                    "name": "PricingFlag",
+                                                                    "value": "No"
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "or": [
+                                                            {
+                                                                "contains": [
+                                                                    "@variables('pricingoutput')",
+                                                                    "Standard"
+                                                                ]
+                                                            },
+                                                            {
+                                                                "contains": [
+                                                                    "@variables('pricingoutput')",
+                                                                    "Free"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
                                                 },
                                                 "FilteredSubscriptionCount": {
                                                     "runAfter": {},
@@ -390,6 +427,47 @@
                                                         "name": "filteredSubscriptionCount",
                                                         "value": 1
                                                     }
+                                                },
+                                                "Set_variable": {
+                                                    "runAfter": {
+                                                        "FilteredSubscriptionCount": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "TempSubID",
+                                                        "value": "@{items('For_each')?['name']}"
+                                                    }
+                                                },
+                                                "Set_variable_2": {
+                                                    "runAfter": {
+                                                        "pricing": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "pricingoutput",
+                                                        "value": "@{string(body('pricing'))}"
+                                                    }
+                                                },
+                                                "pricing": {
+                                                    "runAfter": {
+                                                        "Set_variable": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "identity": "[parameters('UserAssignedManagedIdentityResourceId')]",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com/subscriptions/@{variables('TempSubID')}/providers/Microsoft.Security/pricings?api-version=2018-06-01"
+                                                    },
+                                                    "operationOptions": "DisableAsyncPattern"
                                                 }
                                             },
                                             "runAfter": {
@@ -504,7 +582,7 @@
                                 }
                             }
                         },
-                        "HTTP": {
+                        "HTTPGetEntities": {
                             "runAfter": {
                                 "EmailBody": [
                                     "Succeeded"
@@ -616,6 +694,55 @@
                                 ]
                             }
                         },
+                        "Initialize_variable": {
+                            "runAfter": {
+                                "Initialize_current_item's_parent_chain_count": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TempSubID",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_2": {
+                            "runAfter": {
+                                "Initialize_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "pricingoutput",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_3": {
+                            "runAfter": {
+                                "Initialize_variable_2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "PricingFlag",
+                                        "type": "string",
+                                        "value": "Yes"
+                                    }
+                                ]
+                            }
+                        },
                         "Invoke_resource_operation": {
                             "runAfter": {
                                 "Set_POST_Output": [
@@ -626,7 +753,7 @@
                             "inputs": {
                                 "host": {
                                     "connection": {
-                                        "name": "@parameters('$connections')['arm']['connectionId']"
+                                        "name": "@parameters('$connections')['arm_1']['connectionId']"
                                     }
                                 },
                                 "method": "post",
@@ -638,7 +765,7 @@
                         },
                         "Output_of_POST": {
                             "runAfter": {
-                                "Initialize_current_item's_parent_chain_count": [
+                                "Initialize_variable_3": [
                                     "Succeeded"
                                 ]
                             },
@@ -655,13 +782,13 @@
                         },
                         "Parse_JSON": {
                             "runAfter": {
-                                "HTTP": [
+                                "HTTPGetEntities": [
                                     "Succeeded"
                                 ]
                             },
                             "type": "ParseJson",
                             "inputs": {
-                                "content": "@body('HTTP')",
+                                "content": "@body('HTTPGetEntities')",
                                 "schema": {
                                     "properties": {
                                         "count": {

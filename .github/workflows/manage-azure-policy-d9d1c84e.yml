@@ -1,0 +1,38 @@
+name: manage-azure-policy-d9d1c84e
+on:
+  workflow_dispatch:
+    inputs:
+      remarks:
+        description: 'Reason for triggering the workflow run'
+        required: false
+        default: 'Updating Azure Policies'
+
+
+## Uncomment the following if you wish to automatically trigger workflow run with every commit
+#
+#  push:
+#    paths:
+#      - 'Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Windows_VMs_-_Location_Based_117bee00-5ae8-4226-852f-5d9b2186b2a9/**'
+#      - 'Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Linux_VMs_-_Location_Based_be4ef9a1-1798-41c4-ba08-78b3247dd40c/**'
+#      - 'Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Windows_virtual_machine_scale_sets_-_Location_Based_c90d6803-2408-4194-891e-a878a6925566/**'
+#      - 'Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Linux_virtual_machine_scale_sets_-_Location_Based_c90d6803-2408-4194-891e-a878a6925573/**'
+#      - .github/workflows/manage-azure-policy-d9d1c84e.yml
+jobs:
+  apply-azure-policy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Login to Azure
+      uses: azure/login@v1
+      with:
+        creds: ${{secrets.AZURE_CREDENTIALS_d9d1c84e}}
+        allow-no-subscriptions: true
+    - name: Create or Update Azure Policies
+      uses: azure/manage-azure-policy@v0
+      with:
+        paths: |
+          Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Windows_VMs_-_Location_Based_117bee00-5ae8-4226-852f-5d9b2186b2a9/**
+          Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Linux_VMs_-_Location_Based_be4ef9a1-1798-41c4-ba08-78b3247dd40c/**
+          Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Windows_virtual_machine_scale_sets_-_Location_Based_c90d6803-2408-4194-891e-a878a6925566/**
+          Policy/Deploy LA agent based on location/policies/Deploy_Log_Analytics_agent_for_Linux_virtual_machine_scale_sets_-_Location_Based_c90d6803-2408-4194-891e-a878a6925573/**

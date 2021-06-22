@@ -1,5 +1,4 @@
-function New-EPDSCAzureGuestConfigurationPolicyPackage
-{
+function New-EPDSCAzureGuestConfigurationPolicyPackage {
     [CmdletBinding()]
     param
     (
@@ -16,40 +15,38 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
         [string]$storageAccountName,
         [Parameter(Mandatory = $false,
             HelpMessage = '[string] Storage SKU Name')]
-        [string]$storageSKUName = 'Standard_LRS'
+        [string]$storageSKUName = 'Standard_LRS',
+        [Parameter(Mandatory = $false,
+            HelpMessage = '[string] Provide policy scope, default to same subscription of target Resource Group, can also choose Management Group')]
+        [ValidateSet('subscription', 'managementGroup')]
+        [string]$policyScope = 'subscription'
     )
 
     Write-Host "Connecting to Azure..." -NoNewLine
     Connect-AzAccount | Out-Null
-    $subscriptions = Get-AzSubscription | Where-Object {$_.State -eq "Enabled"}
 
-    # If there are more than one subscriptions, select which one to deploy to
-    if ($subscriptions.count -gt 1) {
-        $numberedSubscriptions = @()
-        For ($i=0; $i -lt $subscriptions.count; $i++) {
-            $numberedSubscriptions += $subscriptions[$i] | Select-Object @{Name = 'No'; Expression = {$i+1}},Name,Id, TenantId
-        }
-        
-        Write-Host "Select from following subscriptions"
-        $numberedSubscriptions | Format-Table
-
-        $subNumber = Read-Host "Select No"
-        Set-AzContext $numberedSubscriptions[$subNumber-1].Name | Out-Null
+    # Select Management Group for policy scope
+    $managementGroupId = $null
+    if ($policyScope -eq 'managementGroup') {
+        $managementGroupId = Select-ManagementGroup
     }
+
+    # Select a subscription to create Resource Group and Storage Account
+    Select-Subscription
     
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Compiling Configuration into a MOF file..." -NoNewLine
-    if (Test-Path 'MonitorAntivirus')
-    {
+    if (Test-Path 'MonitorAntivirus') {
         Remove-Item "MonitorAntivirus" -Recurse -Force -Confirm:$false
     }
     & "$PSScriptRoot/Configurations/MonitorAntivirus.ps1" | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
-    $package = New-GuestConfigurationPackage -Name MonitorAntivirus `
-        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof"
+    
+    New-GuestConfigurationPackage -Name MonitorAntivirus `
+        -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Package to Azure Storage..." -NoNewLine
@@ -60,30 +57,32 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Generating Guest Configuration Policy..." -NoNewLine
-    if (Test-Path 'policies')
-    {
+    if (Test-Path 'policies') {
         Remove-Item "policies" -Recurse -Force -Confirm:$false
     }
     Import-LocalizedData -BaseDirectory "$PSScriptRoot/ParameterFiles/" `
         -FileName "EPAntivirusStatus.Params.psd1" `
-        -BindingVariable ParameterValues
-    $policy = New-GuestConfigurationPolicy `
+        -BindingVariable ParameterValues | Out-Null
+    
+    New-GuestConfigurationPolicy `
         -ContentUri $Url `
         -DisplayName 'Monitor Antivirus' `
         -Description 'Audit if a given Antivirus Software is not enabled on Windows machine.' `
         -Path './policies' `
         -Platform 'Windows' `
         -Version 1.0.0 `
-        -Parameter $ParameterValues -Verbose
+        -Parameter $ParameterValues -Verbose | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Publishing Guest Configuration Policy..." -NoNewLine
-    $publishedPolicies = Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose
+    switch ($policyScope) {
+        subscription { Publish-GuestConfigurationPolicy -Path ".\policies" -Verbose | Out-Null }
+        managementGroup { Publish-GuestConfigurationPolicy -Path ".\policies" -ManagementGroupName $managementGroupId -Verbose | Out-Null }
+    }
     Write-Host "Done" -ForegroundColor Green
 }
 
-function Publish-EPDSCPackage
-{
+function Publish-EPDSCPackage {
     [CmdletBinding()]
     [OutputType([System.String])]
     param(
@@ -104,17 +103,15 @@ function Publish-EPDSCPackage
         $ResourceGroupLocation
     )
 
-    $resourceGroup     = Get-AzResourceGroup $ResourceGroupName -ErrorAction "SilentlyContinue"
-    if ($null -eq $resourceGroup)
-    {
+    $resourceGroup = Get-AzResourceGroup $ResourceGroupName -ErrorAction "SilentlyContinue"
+    if ($null -eq $resourceGroup) {
         $resourceGroup = New-AzResourceGroup -Name $ResourceGroupName `
             -Location $ResourceGroupLocation
     }
 
     $storageAccount = Get-AzStorageAccount -Name $StorageAccountName `
         -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue"
-    if ($null -eq $storageAccount)
-    {
+    if ($null -eq $storageAccount) {
         $storageAccount = New-AzStorageAccount -Name $StorageAccountName `
             -ResourceGroupName $ResourceGroupName `
             -SkuName $StorageSKUName `
@@ -125,7 +122,7 @@ function Publish-EPDSCPackage
     do {
         Start-Sleep -Seconds 3
     } until (Get-AzStorageAccount -Name $StorageAccountName `
-    -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue")
+            -ResourceGroupName $ResourceGroupName -ErrorAction "SilentlyContinue")
     # Get Storage Context
     $storageContext = Get-AzStorageAccount -ResourceGroupName $ResourceGroupName `
         -Name $StorageAccountName | `
@@ -158,4 +155,113 @@ function Publish-EPDSCPackage
     } until ($response -and ($response.StatusCode -eq 200))
 
     return $url
+}
+
+function Select-Subscription {
+    $subscriptions = Get-AzSubscription | Where-Object { $_.State -eq "Enabled" }
+
+    # If there are more than one subscriptions, select which one to deploy to
+    if ($subscriptions.count -gt 1) {
+        $numberedSubscriptions = @()
+        For ($i = 0; $i -lt $subscriptions.count; $i++) {
+            $numberedSubscriptions += $subscriptions[$i] | Select-Object @{Name = 'No'; Expression = { $i + 1 } }, Name, Id, TenantId
+        }
+        
+        [int]$subNumber = $null
+        do {
+            Write-Host "Select from following subscriptions to create Resource Group and Storage Account"
+            Write-Host ($numberedSubscriptions | Format-Table | Out-String)
+    
+            $subNumber = Read-Host "Select No"
+        } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedSubscriptions.count)) -and ($subNumber -ge 1))
+
+        Set-AzContext $numberedSubscriptions[$subNumber - 1].Name | Out-Null
+    }
+    else {
+        Write-Error "Cannot find any subscription"
+        exit
+    }
+}
+
+function Get-AzCachedAccessToken() {
+    $ErrorActionPreference = 'Stop'
+  
+    if (-not (Get-Module Az.Accounts)) {
+        Import-Module Az.Accounts
+    }
+    $azProfile = [Microsoft.Azure.Commands.Common.Authentication.Abstractions.AzureRmProfileProvider]::Instance.Profile
+    if (-not $azProfile.Accounts.Count) {
+        Write-Error "Ensure you have logged in before calling this function."    
+    }
+  
+    $currentAzureContext = Get-AzContext
+    $profileClient = New-Object Microsoft.Azure.Commands.ResourceManager.Common.RMProfileClient($azProfile)
+    Write-Debug ("Getting access token for tenant" + $currentAzureContext.Tenant.TenantId)
+    $token = $profileClient.AcquireAccessToken($currentAzureContext.Tenant.TenantId)
+    $token.AccessToken
+}
+
+function Get-AzBearerToken() {
+    $ErrorActionPreference = 'Stop'
+    ('Bearer {0}' -f (Get-AzCachedAccessToken))
+}
+
+function Select-ManagementGroup {
+
+    # Get authentication token from cached credential
+    $bearerToken = Get-AzBearerToken
+    $authHeader = @{ }
+    $authHeader.Add('authorization', $bearerToken)
+
+    $managementGroups = @()
+
+    # Get top manamgenet groups names
+    $uri = "https://management.azure.com/providers/Microsoft.Management/managementGroups?api-version=2020-02-01"
+
+    $topMGsResponse = @()
+    $topMGsResponse = Invoke-RestMethod -Method Get -Uri $uri -Headers $authHeader
+
+    if ($topMGsResponse) {
+        $topMGs = @()
+        foreach ($topMG in $topMGsResponse.value) {
+            $topMGs += $topMG | Select-Object name, @{Name = 'displayName'; Expression = { $_.properties | Select-Object -ExpandProperty displayName } }, id
+        }
+        $managementGroups += $topMGs
+    }
+    else {
+        Write-Error "Unable to find any top level management groups"
+        exit
+    }
+
+    # Get descendants management groups
+    foreach ($topMG in $topMGs) {
+        $topMGId = $topMG.name
+        $uri = "https://management.azure.com/providers/Microsoft.Management/managementGroups/$topMGId/descendants?api-version=2020-02-01"
+        $descendantMGsResponse = $null
+        $descendantMGsResponse = Invoke-RestMethod -Method Get -Uri $uri -Headers $authHeader
+        if ($descendantMGsResponse) {
+            foreach ($descendantMG in $descendantMGsResponse.value) {
+                if ($descendantMG.type -eq 'Microsoft.Management/managementGroups') {
+                    $managementGroups += $descendantMG | Select-Object name, @{Name = 'displayName'; Expression = { $_.properties | Select-Object -ExpandProperty displayName } }, id
+                }
+            }
+        }
+    }
+
+    # Add number to each management group
+    $numberedMGs = @()
+    For ($i = 0; $i -lt $managementGroups.count; $i++) {
+        $numberedMGs += $managementGroups[$i] | Select-Object @{Name = 'No'; Expression = { $i + 1 } }, Name, displayName, id
+    }
+
+    # Select which management group you want to deploy the policy into:
+    [int]$subNumber = $null
+    do {
+        Write-Host "Select from following management groups"
+        Write-Host ($numberedMGs | Format-Table | Out-String)
+
+        $subNumber = Read-Host "Select No"
+    } until ($subNumber -and ($subNumber -match "^\d+$") -and ($subNumber -le ($numberedMGs.count)) -and ($subNumber -ge 1))
+    
+    $numberedMGs[$subNumber - 1].name
 }

@@ -24,13 +24,11 @@ You can open the reports with two different options:
     ![Enter log analytics id](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/LogAnalyticsIdDesktop2.png?raw=true)
 
 4. Perform authentication using organizational account with **OAuth2** as the authentication method for your Log Analytics workspace.  
-![Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/Authentication2.png?raw=true)
-5. Perform anonymous authentication to our blob storage. This is required in order to keep you posted in versions updates.
-![Blob Authentication](https://github.com/amitmag-ms/Public/blob/master/Azure%20Security%20Center/Secure%20Score/Imgs/BlobStorageAuth.png?raw=true)
+
 5. After authentication completed, the data will be loaded.  
 ***Note:**  
 You can connect your data only if the data already available at the Log Analytics workspace. You can check it by running “SecureScore_CL” in the Log Analytics. Only after you get results to this query you can connect your data.*
-6. Publish the report to your Power BI Service. You are now ready to analyze your secure score data over time. 
+6. Publish the report to your Power BI Service. You are now ready to analyze your secure score data over time (optional). 
 
 ## Open with Power BI Service
 

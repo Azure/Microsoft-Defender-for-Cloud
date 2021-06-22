@@ -1,6 +1,6 @@
 <#PSScriptInfo
 
-.VERSION 1.0
+.VERSION 1.2
 
 .GUID 8acc693a-076b-4e28-8e9d-288f27ebbaeb
 
@@ -26,9 +26,8 @@ https://github.com/JimGBritt/Azure-Security-Center
 .EXTERNALSCRIPTDEPENDENCIES 
 
 .RELEASENOTES
-January 6, 2020 1.0
-    - Initial Release
-    - Special tanks to Jim Britt (Microsoft) https://twitter.com/JimBrittPhotos for the policy script which has many of the discovery functions!
+March 15, 2020 1.1
+    - Updated to use Get-AzAccessToken
 #>
 
 <#  
@@ -66,10 +65,11 @@ January 6, 2020 1.0
 
 .NOTES
    AUTHOR: Nicholas DiCola Principal Group PM  Manager - Security CxE 
-   LASTEDIT: September 19, 2020 1.1
+   LASTEDIT: March 15, 2021 1.2
     - Initial Release
     - Special tanks to Jim Britt (Microsoft) https://twitter.com/JimBrittPhotos for the policy script which has many of the discovery functions!
     - Added support for Blob and File transactions only
+    - Added support for Get-AzAccessToken
 
 .LINK
     This script posted to and discussed at the following locations:
@@ -109,7 +109,7 @@ function BuildBody
 {
     $BuildBody = @{
     Headers = @{
-        Authorization = "Bearer $($token.AccessToken)"
+        Authorization = "Bearer $($token.token)"
         'Content-Type' = 'application/json'
     }
     Method = $Method
@@ -158,7 +158,7 @@ try
 {
     $AzureLogin = Get-AzSubscription
     $currentContext = Get-AzContext
-    $token = $currentContext.TokenCache.ReadItems() | Where-Object {$_.tenantid -eq $currentContext.Tenant.Id} 
+    $token = Get-AzAccessToken 
     if($Token.ExpiresOn -lt $(get-date))
     {
         "Logging you out due to cached token is expired for REST AUTH.  Re-run script"
@@ -170,7 +170,7 @@ catch
     $null = Login-AzAccount
     $AzureLogin = Get-AzSubscription
     $currentContext = Get-AzContext
-    $token = $currentContext.TokenCache.ReadItems() | Where-Object {$_.tenantid -eq $currentContext.Tenant.Id} 
+    $token = Get-AzAccessToken
 
 }
 

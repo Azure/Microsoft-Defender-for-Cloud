@@ -1,6 +1,8 @@
 # Request resource exemption from a particular security recommendation
 **Author: Tom Janetscheck**
 
+Please make sure to also read the [corresponding article](https://techcommunity.microsoft.com/t5/azure-security-center/resource-exemption-in-azure-security-center/ba-p/1703052) in the Azure Security Center TechCommunity.
+
 With the new resource exemption feature in Azure Security Center, you can make sure that a particular security recommendation is not applied to a particular resource in case the recommendation does not fit to your environment. In order to be able to create a resource exemption, you need to have elevated access rights. With this automation playbook, you can _request a resource exemption_ directly from Azure Security Center, even if you're not allowed to directly create the exemption yourself. The template will deploy a LogicApp and three connections to the Office 365, MS Teams, and ASC Assessment APIs. When remediating recommendations, users can select a resource and trigger the Logic App from the recommendation details page.
 
 ![Trigger exemption request](https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/Workflow%20automation/Request-ResourceExemption/TriggerExemptionRequest.png)

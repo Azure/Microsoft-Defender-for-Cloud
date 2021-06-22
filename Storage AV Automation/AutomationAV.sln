@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31105.61
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScanUploadedBlobFunction", "ScanUploadedBlobFunction\ScanUploadedBlobFunction.csproj", "{B728FCE2-3717-41AF-A3A7-292081A57848}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScanHttpServer", "ScanHttpServer\ScanHttpServer.csproj", "{AC416AB0-43E3-4CD6-B5F3-B3B503A13056}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B728FCE2-3717-41AF-A3A7-292081A57848}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B728FCE2-3717-41AF-A3A7-292081A57848}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B728FCE2-3717-41AF-A3A7-292081A57848}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B728FCE2-3717-41AF-A3A7-292081A57848}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC416AB0-43E3-4CD6-B5F3-B3B503A13056}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC416AB0-43E3-4CD6-B5F3-B3B503A13056}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC416AB0-43E3-4CD6-B5F3-B3B503A13056}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC416AB0-43E3-4CD6-B5F3-B3B503A13056}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1CBEDDB3-A908-47AE-904E-B06B29BBFBD7}
+	EndGlobalSection
+EndGlobal

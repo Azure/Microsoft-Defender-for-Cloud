@@ -4,27 +4,51 @@ This project welcomes contributions and suggestions.  Most contributions require
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
 the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
-## Add in your new or updated contributions to GitHub
-Brand new or update to a contribution via these methods:
-* Submit for review directly on GitHub website 
-    * Browse to the folder you want to upload your file to
-    * Choose Upload Files and browse to your file. 
-    * You will be required to create your own branch and then submit the Pull Request for review.
-* Use [GitHub Desktop](https://help.github.com/en/desktop/getting-started-with-github-desktop) or [Visual Studio](https://visualstudio.microsoft.com/vs/) or [VSCode](https://code.visualstudio.com/?wt.mc_id=DX_841432)
-    * [Clone the repo](https://help.github.com/en/github/creating-cloning-and-archiving-repositories/cloning-a-repository)
-    * [Create your own branch](https://help.github.com/en/desktop/contributing-to-projects/creating-a-branch-for-your-work)
-    * Do your additions/updates in GitHub Desktop 
-    * [Push your changes to GitHub](https://help.github.com/en/github/using-git/pushing-commits-to-a-remote-repository)
+## How to contribute
 
-## Pull Request
-* After you push your changes, you will need to submit the [Pull Request (PR)](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests)
-* After submission, check the [Pull Request](https://github.com/Azure/Azure-Security-Center/pulls) for comments
-* Make changes as suggested and update your branch or explain why no change is needed. Resolve the comment when done.
+Please note that this project is released with a [Contributor Code of Conduct](https://opensource.microsoft.com/codeofconduct/). By participating in this project you agree to abide by its terms.
 
-When you submit a pull request, a CLA-bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
+- [Contributing](#contributing)
+  - [How to contribute](#how-to-contribute)
+  - [Creating issues](#creating-issues)
+    - [Related repositories](#related-repositories)
+  - [Recommended setup for contributing](#recommended-setup-for-contributing)
+  - [Commit messages](#commit-messages)
+  - [Pull Requests](#pull-requests)
 
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+## Creating issues
+
+- You can [create an issue][new-issue], but before doing that please read the bullets below and include as many details as possible. In case the issue is related to a bug, make sure to [add a reference](https://docs.github.com/en/github/managing-your-work-on-github/opening-an-issue-from-code) to the artifact.
+- Perform a [cursory search][issue-search] to see if a similar issue has already been submitted.
+- Make sure to use our [bug report][bug-report] or [feature request][feature-request] templates.
+
+### Related repositories
+
+This is the repository for Azure Security Center. Please ensure that you are opening issues in the right repository. Other repos you might be looking for:
+
+- [Azure Monitor Community](https://github.com/microsoft/AzureMonitorCommunity#azure-monitor-community) repo, with query, alerts, workbook samples.
+- [Azure Monitor Workbook Templates](https://github.com/microsoft/Application-Insights-Workbooks) repo - contains workbook templates shown in the workbook galleries for Azure Monitor workbooks
+- [Log Analytics Query Examples](https://github.com/MicrosoftDocs/LogAnalyticsExamples) repo - contains example log analytics queries
+- [Azure Sentinel](https://github.com/azure/azure-sentinel) repo - contains queries, dashboards, templates used by Azure Sentinel
+
+## Recommended setup for contributing
+
+- To contribute your own examples, [fork the repo](https://help.github.com/articles/about-forks), [create a new branch](https://help.github.com/articles/about-branches), make your changes or additions, and then [submit a pull request](https://help.github.com/articles/about-pull-requests/).
+
+- If you submit a pull request, we'll add a comment to the pull request asking you to submit an online [CLA](https://cla.microsoft.com) (Contribution License Agreement). We'll need you to complete the online form before we can accept your pull request.
+
+- We do not allow adding new folders to the top level folder.
+
+## Commit messages
+
+When creating commits, always try to create useful commit messages explaining what that commit contains. Avoid commit messages like "fix" or "commit". If you're fixing something that's been reported as an issue in the repo, refer to the issue number in commit messages.
+
+## Pull Requests
+
+When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change. Make sure to provide a [readme](https://github.com/Azure/Azure-Security-Center/wiki/Readme.md-Template) file so people will know what your artifact will do. Once your pull request is submitted, we will automatically verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
+
+[code-of-conduct]: https://opensource.microsoft.com/codeofconduct/
+[new-issue]: https://github.com/Azure/Azure-Security-Center/issues/new
+[bug-report]: https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=bug_report.md&title=
+[feature-request]: https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=feature_request.md&title=%5BFeature%20Request%5D%20%3Center%20your%20request%20title%3E
+[issue-search]: https://github.com/Azure/Azure-Security-Center/issues

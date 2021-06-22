@@ -1,0 +1,464 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "SubscriptionIDOfTheTargetStorageAccount": {
+            "type": "string",
+            "defaultValue": "[subscription().subscriptionId]",
+            "metadata": {
+                "description": "The Subscription ID of the Storage Account that should be scanned. The default option will use the subscription of the resource group you chose to deploy the template in."
+            }
+        },
+        "NameOfTheResourceGroupTheTargetStorageAccountBelongsTo": {
+            "type": "string",
+            "defaultValue": "[resourceGroup().name]",
+            "metadata": {
+                "description": "The name of the Resource Group the target Storage Account belongs to (the account that should be scanned). The default option will use the resource group you chose to deploy the template in."
+            }
+        },
+        "NameOfTargetStorageAccount": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the Storage Account that should be scanned."
+            }
+        },
+        "NameOfTargetContainer": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the container that should be scanned. This field expects the name of an existing container in your target Storage Account."
+            }
+        },
+        "cleanContainerName": {
+            "type": "string",
+            "defaultValue": "clean-files",
+            "metadata": {
+                "description": "The Container name to transfer clean scanned blobs to, can be new or existing."
+            }
+        },
+        "quarantineContainerName": {
+            "type": "string",
+            "defaultValue": "quarantine-files",
+            "metadata": {
+                "description": "The Container name to transfer files that contain malware to, can be new or existing."
+            }
+        },
+        "appServicePlanSKU": {
+            "type": "string",
+            "defaultValue": "S1",
+            "allowedValues":[
+                "S1",
+                "S2",
+                "S3",
+                "P1",
+                "P2",
+                "P3",
+                "P1V2",
+                "P2V2",
+                "P3V2"
+            ],
+            "metadata":{
+                "description": "Choose the right App Service Plan to support your needs. The App Service Plan affects the throughput - the amount of data that can be scanned at a certain time. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
+            }
+        },
+        "VMSize": {
+            "type": "string",
+            "defaultValue": "Standard_B1ms",
+            "metadata": {
+                "description": "Choose the right VM size to support your needs. The VM size affects the maximal file size that you can scan. You can modify this configuration any time to support higher loads, the update will cause a few minutes downtime."
+            }
+        },
+        "VMAdminUsername": {
+            "type": "string"
+        },
+        "VMAdminPassword": {
+            "type": "securestring"
+        },
+        "addPublicIPToVM": {
+            "type": "bool",
+            "defaultValue": false,
+            "metadata": {
+                "description": "Specifies whether the VM will have a public IP endpoint. Having a public endpoint makes the VM less secure."
+            }
+        },
+        "ScanHttpServerZipURL": {
+            "type": "string",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanHttpServer.zip",
+            "metadata": {
+                "description": "URL of the zipped Function Code, default value points to the latest build."
+            }
+        },
+        "ScanUploadedBlobFunctionZipURL": {
+            "type": "string",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/ScanUploadedBlobFunction.zip",
+            "metadata": {
+                "description": "URL of the source code of the Http Server That will run on the VM, default value points to the latest build."
+            }
+        },
+        "VMInitScriptURL": {
+            "type": "string",
+            "defaultValue": "https://github.com/t-ashitrit/Azure-Security-Center/releases/download/1.0/VMInit.ps1",
+            "metadata": {
+                "description": "URL of the VMInit.ps1 script, default value points to the latest build."
+            }
+        }
+    },
+    "variables": {
+        "hostStorageAccountType": "Standard_LRS",
+        "uniqueStringSuffix": "[uniqueString(parameters('NameOfTargetStorageAccount'), parameters('NameOfTargetContainer'))]",
+        "appServicePlanName": "[concat('appplan', variables('uniqueStringSuffix'))]",
+        "communicationPort": "4151",
+        "computerName": "AntivirusVm",
+        "functionAppName": "[concat('functionapp', variables('uniqueStringSuffix'))]",
+        "functionHostStorageAccountName": "[concat('hoststorage', variables('uniqueStringSuffix'))]",
+        "functionSubnetAddressPrefix": "10.0.1.0/24",
+        "functionSubnetName": "functionSubnet",
+        "functionWorkerRuntime": "dotnet",
+        "hostStorageAccountSecretName": "hostStorageConnectionString",
+        "keyVaultName": "[concat('keyvault', variables('uniqueStringSuffix'))]",
+        "keyVaultSkuName": "Standard",
+        "networkSecurityGroupName": "[concat('nsg', variables('uniqueStringSuffix'))]",
+        "publicIpAddressName": "[concat('publicip', variables('uniqueStringSuffix'))]",
+        "publicIpId": {
+            "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('publicIPAddressName'))]"
+        },
+        "targetStorageAccountResourceID": "[resourceId(parameters('SubscriptionIDOfTheTargetStorageAccount'), parameters('NameOfTheResourceGroupTheTargetStorageAccountBelongsTo'), 'Microsoft.Storage/storageAccounts', parameters('NameOfTargetStorageAccount'))]",
+        "targetStorageAccountSecretName": "[concat(parameters('NameOfTargetStorageAccount'), 'connectionString')]",
+        "virtualNetworkName": "[concat('vnet', variables('uniqueStringSuffix'))]",
+        "VMDiskSizeGB": 32,
+        "VMInitScriptCommand": "[concat('powershell.exe -ExecutionPolicy Bypass -File VMInit.ps1 \"', parameters('ScanHttpServerZipURL'), '\"')]",
+        "VMName": "[concat('vm', variables('uniqueStringSuffix'))]",
+        "VMNetworkInterfateworkInterfaceName": "[concat('vmnic', variables('uniqueStringSuffix'))]",
+        "VMSubnetAddressPrefix": "10.0.2.0/24",
+        "VMSubnetName": "VMSubnet",
+        "vnetAddressPrefix": "10.0.0.0/16"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "name": "[variables('functionHostStorageAccountName')]",
+            "apiVersion": "2019-06-01",
+            "location": "[resourceGroup().location]",
+            "kind": "StorageV2",
+            "sku": {
+                "name": "[variables('hostStorageAccountType')]"
+            }
+        },
+        {
+            "type": "Microsoft.Web/serverfarms",
+            "name": "[variables('appServicePlanName')]",
+            "apiVersion": "2019-08-01",
+            "location": "[resourceGroup().location]",
+            "sku": {
+                "name": "[parameters('appServicePlanSKU')]"
+            },
+            "kind": "app"
+        },
+        {
+            "type": "Microsoft.Network/networkSecurityGroups",
+            "name": "[variables('networkSecurityGroupName')]",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "securityRules": [
+                    {
+                        "name": "Function-VM-Communication-Rule-in",
+                        "properties": {
+                            "description": "Open port to allow Http requests between Function and VM",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "[variables('communicationPort')]",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Inbound"
+                        }
+                    },
+                    {
+                        "name": "Function-VM-Communication-Rule-out",
+                        "properties": {
+                            "description": "Open port to allow Http requests between Function and VM",
+                            "protocol": "Tcp",
+                            "sourcePortRange": "*",
+                            "destinationPortRange": "[variables('communicationPort')]",
+                            "sourceAddressPrefix": "VirtualNetwork",
+                            "destinationAddressPrefix": "VirtualNetwork",
+                            "access": "Allow",
+                            "priority": 1000,
+                            "direction": "Outbound"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Network/virtualNetworks",
+            "name": "[variables('virtualNetworkName')]",
+            "apiVersion": "2020-05-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+            ],
+            "properties": {
+                "addressSpace": {
+                    "addressPrefixes": [
+                        "[variables('vnetAddressPrefix')]"
+                    ]
+                },
+                "subnets": [
+                    {
+                        "name": "[variables('functionSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('functionSubnetAddressPrefix')]",
+                            "delegations": [
+                                {
+                                    "name": "DelegationService",
+                                    "properties": {
+                                        "serviceName": "Microsoft.Web/serverFarms"
+                                    }
+                                }
+                            ],
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+                            }
+                        }
+                    },
+                    {
+                        "name": "[variables('VMSubnetName')]",
+                        "properties": {
+                            "addressPrefix": "[variables('VMSubnetAddressPrefix')]",
+                            "networkSecurityGroup": {
+                                "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "condition": "[parameters('addPublicIPToVM')]",
+            "type": "Microsoft.Network/publicIPAddresses",
+            "name": "[variables('publicIPAddressName')]",
+            "apiVersion": "2020-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "PublicIPAddress"
+            },
+            "properties": {
+                "publicIPAllocationMethod": "Dynamic"
+            }
+        },
+        {
+            "type": "Microsoft.Network/networkInterfaces",
+            "name": "[variables('VMNetworkInterfateworkInterfaceName')]",
+            "apiVersion": "2020-06-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('publicIPAddressName')]",
+                "[resourceId('Microsoft.Network/virtualNetworks', variables('virtualNetworkName'))]"
+            ],
+            "properties": {
+                "ipConfigurations": [
+                    {
+                        "name": "ipconfig1",
+                        "properties": {
+                            "publicIPAddress": "[if(parameters('addPublicIPToVM'), variables('publicIpId'), json('null'))]",                            
+                            "subnet": {
+                                "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('VMSubnetName'))]"
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines",
+            "name": "[variables('VMName')]",
+            "apiVersion": "2020-06-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "displayName": "VirtualMachine"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNetworkInterfateworkInterfaceName'))]"
+            ],
+            "properties": {
+                "hardwareProfile": {
+                    "VMSize": "[parameters('VMSize')]"
+                },
+                "storageProfile": {
+                    "imageReference": {
+                        "publisher": "MicrosoftWindowsServer",
+                        "offer": "WindowsServer",
+                        "sku": "2019-Datacenter-smalldisk",
+                        "version": "latest"
+                    },
+                    "osDisk": {
+                        "osType": "Windows",
+                        "name": "[concat(variables('VMName'), '_OsDisk_1')]",
+                        "createOption": "FromImage",
+                        "caching": "ReadWrite",
+                        "diskSizeGB": "[variables('VMDiskSizeGB')]"
+                    },
+                    "dataDisks": []
+                },
+                "osProfile": {
+                    "computerName": "[variables('computerName')]",
+                    "adminUsername": "[parameters('VMAdminUsername')]",
+                    "adminPassword": "[parameters('VMAdminPassword')]"
+                },
+                "networkProfile": {
+                    "networkInterfaces": [
+                        {
+                            "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('VMNetworkInterfateworkInterfaceName'))]"
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Compute/virtualMachines/extensions",
+            "name": "[concat(variables('VMName'),'/', 'VmInitScript')]",
+            "apiVersion": "2019-12-01",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Compute/virtualMachines', variables('VMName'))]"
+            ],
+            "properties": {
+                "publisher": "Microsoft.Compute",
+                "type": "CustomScriptExtension",
+                "typeHandlerVersion": "1.7",
+                "autoUpgradeMinorVersion": true,
+                "settings": {
+                    "fileUris": [
+                        "[parameters('VMInitScriptURL')]"
+
+                    ],
+                    "commandToExecute": "[variables('VMInitScriptCommand')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "name": "[variables('functionAppName')]",
+            "apiVersion": "2020-09-01",
+            "location": "[resourceGroup().location]",
+            "kind": "functionapp",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+                "siteConfig": {
+                    "alwaysOn": true,
+                    "use32BitWorkerProcess": false
+                }
+            },
+            "resources": [
+                {
+                    "type": "config",
+                    "name": "virtualNetwork",
+                    "apiVersion": "2019-08-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+                        "[resourceId('Microsoft.Network/virtualNetworks',variables('virtualNetworkName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName'))]"
+                    ],
+                    "properties": {
+                        "subnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('virtualNetworkName'), variables('functionSubnetName'))]",
+                        "swiftSupported": true
+                    }
+                },
+                {
+                    "type": "config",
+                    "name": "appsettings",
+                    "apiVersion": "2020-09-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), variables('hostStorageAccountSecretName'))]",
+                        "[resourceId('Microsoft.KeyVault/vaults/secrets', variables('keyVaultName'), variables('targetStorageAccountSecretName'))]",
+                        "[resourceId('Microsoft.Compute/virtualMachines', variables('VMName'))]"
+                    ],
+                    "properties": {
+                        "AzureWebJobsStorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                        "cleanContainerName": "[parameters('cleanContainerName')]",
+                        "FUNCTIONS_EXTENSION_VERSION": "~3",
+                        "FUNCTIONS_WORKER_RUNTIME": "[variables('functionWorkerRuntime')]",
+                        "malwareContainerName": "[parameters('quarantineContainerName')]",
+                        "PROJECT": "LocalAntiMalware.csproj",
+                        "targetContainerName": "[parameters('NameOfTargetContainer')]",
+                        "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('hostStorageAccountSecretName')).secretUriWithVersion,')')]",
+                        "WEBSITE_CONTENTSHARE": "[toLower(variables('functionAppName'))]",
+                        "WEBSITE_NODE_DEFAULT_VERSION": "~10",
+                        "WEBSITE_RUN_FROM_PACKAGE": "[parameters('ScanUploadedBlobFunctionZipURL')]",
+                        "windowsdefender_host": "[reference(variables('VMNetworkInterfateworkInterfaceName'),'2020-06-01').ipConfigurations[0].properties.privateIPAddress]",
+                        "windowsdefender_port": "[variables('communicationPort')]",
+                        "windefenderstorage": "[concat('@Microsoft.KeyVault(SecretUri=',reference(variables('targetStorageAccountSecretName')).secretUriWithVersion,')')]"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "name": "[variables('keyVaultName')]",
+            "apiVersion": "2019-09-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/sites', variables('functionAppName'))]"
+            ],
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "accessPolicies": [
+                    {
+                        "tenantId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-02-01', 'Full').identity.tenantId]",
+                        "objectId": "[reference(resourceId('Microsoft.Web/sites', variables('functionAppName')), '2018-02-01', 'Full').identity.principalId]",
+                        "permissions": {
+                            "secrets": [ "get" ]
+                        }
+                    }
+                ],
+                "enableSoftDelete": true,
+                "enabledForDeployment": false,
+                "enabledForDiskEncryption": false,
+                "enabledForTemplateDeployment": true,
+                "tenantId": "[subscription().tenantId]",
+                "sku": {
+                    "name": "[variables('keyVaultSkuName')]",
+                    "family": "A"
+                },
+                "networkAcls": {
+                    "defaultAction": "Allow",
+                    "bypass": "AzureServices"
+                }
+            },
+            "resources": [
+                {
+                    "type": "secrets",
+                    "name": "[variables('hostStorageAccountSecretName')]",
+                    "apiVersion": "2019-09-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]",
+                        "[resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName'))]"
+                    ],
+                    "properties": {
+                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', variables('functionHostStorageAccountName'), ';AccountKey=', listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('functionHostStorageAccountName')),'2019-06-01').keys[0].value)]"
+                    }
+                },
+                {
+                    "type": "secrets",
+                    "name": "[variables('targetStorageAccountSecretName')]",
+                    "apiVersion": "2019-09-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.KeyVault/vaults/', variables('keyVaultName'))]"
+                    ],
+                    "properties": {
+                        "value": "[concat('DefaultEndpointsProtocol=https;AccountName=', parameters('NameOfTargetStorageAccount'), ';AccountKey=', listKeys(variables('targetStorageAccountResourceID'),'2015-05-01-preview').key1)]"
+                    }
+                }
+            ]
+        }
+    ]
+}

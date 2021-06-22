@@ -44,8 +44,8 @@ In this exercise, you will understand how to configure the continuous export for
 4.	Adding Azure Sentinel to workspace asclab-la-xxx is now in progress. The process will few minutes. 
 5.	Once Sentinel News and guides opens, use the Azure Security Center connector to enable the integration.
 6.	From Sentinel’s sidebar, click on the **Data connectors**.
-7.	On the Data connectors page, use the search field and type: *Security Center*.
-8.	Select the **Azure Security Center** connector and then click on **Open connector page**.
+7.	On the Data connectors page, use the search field and type: *Azure Defender*.
+8.	Select the **Azure Defender** connector and then click on **Open connector page**.
 
 ![ASC pricing & settings page](../Images/asc-sentinel-data-connectors.gif?raw=true)
 
