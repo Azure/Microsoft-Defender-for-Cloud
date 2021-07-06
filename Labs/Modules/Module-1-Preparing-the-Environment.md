@@ -116,7 +116,7 @@ When the deployment is complete, you should see the following:
 ![Enable Azure Defender on the workspace level](../Images/asc-enable-defender-workspace.gif?raw=true)
 
 3. Go back to the **Pricing & Setting** and drill down into your **Azure subscription** (Azure subscription 1).
-4. Navigate to **Data Collection**
+4. Navigate to **Auto provisioning**
 5. On the **Auto provisioning - Extensions** page, set **Log Analytics agent for Azure VMs** to **On** (if it's not already set to On)
 6. Click **Edit configuration**.
 7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **asc-lab-xxx** (which has been created by the ARM template).

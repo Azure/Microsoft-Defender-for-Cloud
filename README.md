@@ -2,7 +2,7 @@
 
 ![GitHub](https://img.shields.io/github/license/azure/azure-security-center?label=License&style=plastic)
 ![GitHub contributors](https://img.shields.io/github/contributors/azure/azure-security-center?label=Contributors&style=plastic)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/azure-security-center/master?label=Last%20commit&style=plastic)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/azure-security-center/main?label=Last%20commit&style=plastic)
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/azure-security-center?label=Commit%20activity&style=plastic)
 ![GitHub issues](https://img.shields.io/github/issues/azure/azure-security-center?label=Issues&style=plastic)
 
