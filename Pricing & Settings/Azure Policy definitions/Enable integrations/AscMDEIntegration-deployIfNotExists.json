@@ -1,0 +1,64 @@
+{
+  "properties": {
+    "displayName": "Enable MDE service integration",
+    "policyType": "Custom",
+    "mode": "All",
+    "description": "This policy enables MDE service integrations into ASC.",
+    "metadata": {
+      "version": "1.0.0",
+      "category": "Security Center"
+    },
+    "parameters": {},
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Resources/subscriptions"
+          }
+        ]
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Security/settings",
+          "name": "WDATP",
+          "deploymentScope": "subscription",
+          "existenceScope": "subscription",
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+          ],
+          "existenceCondition": {
+            "field": "Microsoft.Security/settings/DataExportSetting.enabled",
+            "equals": true
+          },
+          "deployment": {
+            "location": "westeurope",
+            "properties": {
+                "mode": "incremental",
+                "parameters": {},
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "variables": {},
+                    "resources": [
+                      {
+                          "type": "Microsoft.Security/settings",
+                          "apiVersion": "2019-01-01",
+                          "name": "WDATP",
+                          "kind": "DataExportSettings",
+                          "properties":{
+                              "enabled": true
+                          }
+                      }
+                  ],
+                    "outputs": {}
+                }
+            }
+         }
+        }
+      }
+    }
+  }
+}
