@@ -36,6 +36,9 @@ You can deploy all policies by clicking the respective button below.
 ### Enable Azure Defender for Key Vault
 [![Deploy to Azure](https://docs.microsoft.com/en-us/azure/governance/policy/media/deploy/deploybutton.png)](https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%20%26%20Settings%2FAzure%20Policy%20definitions%2FAzure%20Defender%20Plans%2FASC-AzureDefender-for-KeyVault.json)
 
+### Enable Azure Defender for open-source relational databases
+[![Deploy to Azure](https://docs.microsoft.com/en-us/azure/governance/policy/media/deploy/deploybutton.png)](https://portal.azure.com/?#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FPricing%20%26%20Settings%2FAzure%20Policy%20definitions%2FAzure%20Defender%20Plans%2FASC-AzureDefender-for-OSRDBs.json)
+
 # Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
