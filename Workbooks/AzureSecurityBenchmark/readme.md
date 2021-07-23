@@ -7,10 +7,11 @@ A filter set in guide, subscription, workspace, time, ASB control family, and AS
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Ftree%2Fpreview%2FWorkbooks%2FAzureSecurityBenchmark%2FAzureSecurityBenchmark.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Ftree%2Fpreview%2FWorkbooks%2FAzureSecurityBenchmark%2FAzureSecurityBenchmark.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FAzureSecurityBenchmark%2FAzureSecurityBenchmark.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FAzureSecurityBenchmark%2FAzureSecurityBenchmark.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ##
 
-![Workbook Overview](./picture1.png)
-![Workbook Overview](./picture2.png)
+![Workbook Overview](./picture1.PNG)
+
+![Workbook Overview](./picture2.PNG)
