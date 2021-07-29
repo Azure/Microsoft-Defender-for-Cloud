@@ -9,10 +9,10 @@ The ARM template will create the LogicApp and an API connection to Office 365 an
 
 Click on the **Deploy to Azure** button to create the Logic App in a target resource group.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FUpgrade%20Pricing%20Tier/UpgradePricingTierForSubs_Template.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FUpgrade%20Pricing%20Tier%2FUpgradePricingTierForSubs_Template.json" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton"/></a>
 
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FUpgrade%20Pricing%20Tier/UpgradePricingTierForSubs_Template.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FUpgrade%20Pricing%20Tier%2FUpgradePricingTierForSubs_Template.json" target="_blank">
 <img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 **To assign Managed Identity to specific scope:**
