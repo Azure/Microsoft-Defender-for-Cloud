@@ -5,10 +5,6 @@ This LogicApp leverages the Resource Management, Application Insights and Azure 
 
 The ARM template will create the LogicApp which will run in recurrence with frequency of 30 minutes. The workflow picks up specific administrative signals from Azure Activity log associated to Vnet and Public Ip Address in every valid subscriptions. Based on the signal it creates Alerts if it is not created earlier or Enables the alert if it is disabled. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group. The LogicApp uses a system-assigned Managed Identity to access data from API. You need to make sure to grant the Managed Identity 'Security Admin' and 'Monitoring Contributor' rights to all Azure subscriptions.
 
-
-You can deploy the main template by clicking on the buttons below:
-
- 
 To assign Managed Identity to specific scope:
 
 Make sure you have User Access Administrator permissions for this scope.

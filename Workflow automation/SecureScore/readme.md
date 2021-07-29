@@ -5,9 +5,6 @@ This LogicApp leverages the Microsoft.Security/regulatoryComplianceStandards RES
 
 The ARM template will create the LogicApp which runs in recurrence with a frequency of once a week. The workflow will pick up the compliance data from every subscription in an Azure Tenant and the feed into a SQL Table. In every iteration the SQL table will be dropped and created with recent data. Later the data can be used for PowerBI to feed in so it can be visualised. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group. The LogicApp uses a system-assigned Managed Identity to access data from the ARG API. You need to make sure to grant the Managed Identity 'Security Reader' rights to all Azure subscriptions you want to export compliance data from and 'SQL Server contributor' on the Azure SQL Server in which the database will be residing and also appropriate permissions to perform DB operations.
 
-
-You can deploy the main template by clicking on the buttons below:
-
  
 To assign Managed Identity to specific scope:
 
