@@ -15,15 +15,15 @@ Click on the **Deploy to Azure** button to create the Logic App in a target reso
  
 **To assign Managed Identity to specific scope:**
 
-Make sure you have User Access Administrator permissions for this scope.
-Go to the subscription/management group page.
-Press 'Access Control (IAM)' on the navigation bar.
-Press '+Add' and 'Add role assignment'.
-Choose 'Security Reader' and 'SQL Server Contributor' role.
-Assign access to Logic App.
-Choose the subscription where the logic app was deployed.
-Choose 'GetComplianceState' Logic App.
-Press 'save'.
+1. Make sure you have User Access Administrator permissions for this scope.
+2. Go to the subscription/management group page.
+3. Press 'Access Control (IAM)' on the navigation bar.
+4. Press '+Add' and 'Add role assignment'.
+5. Choose 'Security Reader' and 'SQL Server Contributor' role.
+6. Assign access to Logic App.
+7. Choose the subscription where the logic app was deployed.
+8. Choose 'GetComplianceState' Logic App.
+7. Press 'save'.
 
 **Prerequisites:**
 Azure SQL Server with DB and Table.
