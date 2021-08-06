@@ -7,10 +7,10 @@ The ARM template will create the LogicApp which will run in recurrence with freq
 
 Click on the **Deploy to Azure** button to create the Logic App in a target resource group.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FSecure%20Storage%20Remediation%2FSecureStorageRemediation_Template.json" target="_blank">
+<a href="https://aka.ms/AAdd1bg" target="_blank">
 <img src="https://aka.ms/deploytoazurebutton"/></a>
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FSecure%20Storage%20Remediation%2FSecureStorageRemediation_Template.json" target="_blank">
+<a href="https://aka.ms/AAdctrr" target="_blank">
 <img src="https://aka.ms/deploytoazuregovbutton"/></a>
  
 **To assign Managed Identity to specific scope:**
