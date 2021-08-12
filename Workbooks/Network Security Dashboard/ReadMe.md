@@ -1,6 +1,6 @@
-# Network Security workbook for Security Center
+# Network Security Dashboard for Security Center
 
-The new network security workbook for Security Center provides you a unified view and full visibility to your network security resources in Azure. If you have been actively using Security Center and Network Security features in Azure, this workbook is for you!
+The new network security dashboard for Security Center provides you a unified view and full visibility to your network security resources in Azure. If you have been actively using Security Center and Network Security features in Azure, this workbook is for you!
 Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided to several sections such as:
 
 -	**Overview:** summary view of all your network security resources for selected subscription(s).
@@ -18,7 +18,9 @@ Informational options: using the action bars at the top section, select FAQ butt
 To deploy the new workbook into your Security Center console, click on *Deploy to Azure* for Azure Public cloud or *Deploy to Azure Gov* for government cloud.
 During the deployment, you must select a subscription and resource group to store the report. Once the workbook is successfully deployed, however to Security Center to start using it.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Storage%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Storage%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FNetwork%2520Security%2520for%2520ASC%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FNetwork%2520Security%2520for%2520ASC%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ![Dashboard demo](netsec.gif)
+
+### Upcoming changes
