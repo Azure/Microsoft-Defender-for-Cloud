@@ -1,8 +1,9 @@
 # Deployment Guide
-## For the successful deployment of the dashboard, Azure Defender should be enabled for the subscription and targeted workspace. Continuous export should be enabled too. Below is the stepwise guide along with snapshots.
+## This is a Continuous Cloud Security Optimization Dashboard built using Azure Workbooks to enable the customer to quickly gain insights about their Azure Platform security footprint & configuration.
+## For the successful deployment of the dashboard, subscription and workspace settings should be configured. Below is the stepwise guide along with snapshots.
  
 ### 1.	Configure subscription settings:
-      1.Head to Management -> Pricing & Settings in the left panel. Select required targeted workspace
+      1.Head to Management -> Pricing & Settings in the left panel of Azure Security Center. Select required targeted workspace.
    <img src="./images/1.png" width=80%>    
    
       2.Select required subscription
