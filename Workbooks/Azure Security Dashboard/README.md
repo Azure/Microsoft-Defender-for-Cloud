@@ -2,9 +2,10 @@
 ## For the successful deployment of the dashboard, Azure Defender should be enabled for the subscription and targeted workspace. Continuous export should be enabled too. Below is the stepwise guide along with snapshots.
  
 ### 1.	Configure subscription settings:
-        1.Head to Management -> Pricing & Settings in the left panel. Select required targeted workspace
+      1.Head to Management -> Pricing & Settings in the left panel. Select required targeted workspace
    <img src="./images/1.png" width=80%>    
-       2.Select required subscription
+   
+      2.Select required subscription
    <img src="./images/2.png" width=80%>  
    
       3.Enable azure defender and save
@@ -105,7 +106,7 @@
                 e.Container vulnerabilities
                 f.SQL vulnerabilities
   <img src="./images/26.png" width=80%>      
-   <img src="./images/27.png" width=80%> 
+  <img src="./images/27.png" width=80%> 
    
         6.System Updates Tab
                 a.Resource health under system updates
