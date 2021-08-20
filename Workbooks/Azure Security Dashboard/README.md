@@ -39,6 +39,12 @@
         
 ## The environment is finally set for the deployment of the dashboard.
 
+## Dashboard of deployment:
+    1.	Copy the JSON of the Azure Security Dashboard from Dashboard.json file.
+    2.	Head to Azure Security Center and create an empty workbook.
+    3.	Open advanced editor symbolized as “</>” .
+    4.	Paste the JSON in the editor and click apply.
+
 ## Snapshots of Dashboard
         1.Overview Tab:
                 a.Total resources
