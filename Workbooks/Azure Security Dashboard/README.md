@@ -5,40 +5,25 @@
  
 ### 1.	Configure subscription settings:
       1.Head to Management -> Pricing & Settings in the left panel of Azure Security Center. Select required targeted workspace.
-   <img src="./images/1.png" width=80%>    
    
       2.Select required subscription
-   <img src="./images/2.png" width=80%>  
    
       3.Enable azure defender and save
-   <img src="./images/3.png" width=80%>  
    
       4.Select “Auto provisioning”  from the left panel. Click “Edit configuration” in “Log Analytics agent Azure VMs"
-   <img src="./images/4.png" width=80%>  
    
-      5.Select the required target workspace -> Apply -> Save
-   <img src="./images/6.png" width=80%>  
+      5.Select the required target workspace -> Apply -> Save 
    
       6.Select “Continuous Export”  from the left panel and head to “Log Analytics workspace” tab
-   <img src="./images/7.png" width=80%>  
    
-      7.Enable “Export enabled”. Check all the boxes under this tab. Also select the required targeted resource group, workspace and subscription. Click Save
-   <img src="./images/8.png" width=80%>  
-   
-   <img src="./images/9.png" width=80%>  
+      7.Enable “Export enabled”. Check all the boxes under this tab. Also select the required targeted resource group, workspace and subscription. Click Sav
    
 ### 2.	Configure targeted workspace settings:
         1.Head to Management -> Pricing & Settings in the left panel. Select required targeted workspace
-   <img src="./images/10.png" width=80%>  
    
         2.Enable Azure Defender and save
-   <img src="./images/11.png" width=80%>  
    
-        3.Select “Data collection” from the left panel. Select “All events” and Save
-   <img src="./images/12.png" width=80%>  
-   
-        The pricing and settings tab should look like this now:
-   <img src="./images/13.png" width=80%>  
+        3.Select “Data collection” from the left panel. Select “All events” and Save   
         
 ## The environment is finally set for the deployment of the dashboard.
 
