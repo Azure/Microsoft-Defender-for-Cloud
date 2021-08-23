@@ -596,7 +596,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "// List Azure Security Center Recommendations\r\nsecurityresources\r\n| where type == 'microsoft.security/assessments'\r\n| extend RecommendationName=properties.displayName\r\n//| project  RecommendationName\r\n| summarize Count=count()\r\n",
+              "query": "securityresources\r\n| where type == 'microsoft.security/assessments'\r\n| extend RecommendationName=properties.displayName, RecommendationState=properties.status.code\r\n| summarize Count=count()\r\n",
               "size": 4,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -614,7 +614,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | where properties.Status in ('Active')\r\n  | where properties.Severity in ('Low', 'Medium', 'High')\r\n  | extend SeverityRank = case(\r\n    properties.Severity == 'High', 3,\r\n    properties.Severity == 'Medium', 2,\r\n    properties.Severity == 'Low', 1,\r\n    0\r\n    )\r\n  | summarize Count=count()",
+              "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | where properties.Status in ('Active')\r\n  | where properties.Severity in ('Low', 'Medium', 'High')\r\n  | summarize Count=count()",
               "size": 4,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -675,7 +675,7 @@
         "size": 0,
         "aggregation": 5,
         "timeContext": {
-          "durationMs": 5184000000
+          "durationMs": 0
         },
         "timeContextFromParameter": "TimeRange",
         "queryType": 0,
@@ -780,7 +780,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "// List Azure Security Center Recommendations\r\nsecurityresources\r\n| where type == 'microsoft.security/assessments'\r\n| extend RecommendationName=properties.displayName\r\n//| project  RecommendationName\r\n| summarize Count=count()\r\n",
+              "query": "securityresources\r\n| where type == 'microsoft.security/assessments'\r\n| extend RecommendationName=properties.displayName\r\n//| project  RecommendationName\r\n| summarize Count=count()\r\n",
               "size": 4,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -826,7 +826,7 @@
               "query": "SecureScoreControls\r\n| extend ResourceName = (tostring(split(AssessedResourceId, \"/\")[8]))\r\n| extend ResourceGroupName = (tostring(split(AssessedResourceId, \"/\")[4]))//\r\n| summarize arg_max(TimeGenerated, *) by ControlName\r\n| project  ControlName,\r\n            HealthyResources,\r\n            UnhealthyResources,\r\n            NotApplicableResources\r\n",
               "size": 0,
               "timeContext": {
-                "durationMs": 5184000000
+                "durationMs": 0
               },
               "timeContextFromParameter": "TimeRange",
               "queryType": 0,
@@ -866,8 +866,7 @@
                     "{Subscriptions}"
                   ],
                   "value": [
-                    "Medium",
-                    "High"
+                    "value::all"
                   ],
                   "typeSettings": {
                     "additionalResourceOptions": [
@@ -949,9 +948,7 @@
                     "{Subscriptions}"
                   ],
                   "value": [
-                    "A vulnerability assessment solution should be enabled on your virtual machines",
-                    "Adaptive application controls for defining safe applications should be enabled on your machines",
-                    "Adaptive network hardening recommendations should be applied on internet facing virtual machines"
+                    "System updates should be installed on your machines"
                   ],
                   "typeSettings": {
                     "additionalResourceOptions": [
@@ -988,7 +985,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "// List Azure Security Center Recommendations\r\nsecurityresources\r\n| where type == 'microsoft.security/assessments'\r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource}) and tostring(properties.displayName) in ({Recommendations})\r\n| extend RecommendationName=properties.displayName\r\n//| project  RecommendationName\r\n| summarize Count=count()\r\n",
+              "query": "securityresources\r\n| where type == 'microsoft.security/assessments'\r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource}) and tostring(properties.displayName) in ({Recommendations})\r\n| extend RecommendationName=properties.displayName\r\n//| project  RecommendationName\r\n| summarize Count=count()\r\n",
               "size": 4,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -1006,7 +1003,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type == 'microsoft.security/assessments' \r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource})\r\n|distinct tolower(tostring(properties.resourceDetails.Id))\r\n|summarize Count=count()",
+              "query": "securityresources\r\n| where type == 'microsoft.security/assessments' \r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource}) and  tostring(properties.displayName) in ({Recommendations})\r\n|distinct tolower(tostring(properties.resourceDetails.Id))\r\n|summarize Count=count()",
               "size": 4,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -1031,7 +1028,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "// Count Healthy, Unhealthy and Not Applicable Resources Per Recommendation\r\n// Returns count of healthy, unhealthy and not applicable resources per recommendation.\r\n// \r\n// Use 'summarize' and 'count' to define how to group and aggregate the values by property.\r\n// \r\n// Click the \"Run query\" command above to execute the query and see results.\r\nsecurityresources\r\n| where type == 'microsoft.security/assessments'\r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource})\r\n| extend resourceId=id,\r\n    recommendationId=name,\r\n    resourceType=type,\r\n    recommendationName=properties.displayName,\r\n    source=properties.resourceDetails.Source,\r\n    recommendationState=properties.status.code,\r\n    description=properties.metadata.description,\r\n    assessmentType=properties.metadata.assessmentType,\r\n    remediationDescription=properties.metadata.remediationDescription,\r\n    policyDefinitionId=properties.metadata.policyDefinitionId,\r\n    implementationEffort=properties.metadata.implementationEffort,\r\n    recommendationSeverity=properties.metadata.severity,\r\n    category=properties.metadata.categories,\r\n    userImpact=properties.metadata.userImpact,\r\n    threats=properties.metadata.threats,\r\n    portalLink=properties.links.azurePortal\r\n| summarize numberOfResources=count(resourceId) by tostring(recommendationName), tostring(recommendationState)",
+              "query": "securityresources\r\n| where type == 'microsoft.security/assessments'\r\n|where properties.status.code in ({State}) and properties.metadata.severity in ({Severity}) and  tolower(tostring(properties.resourceDetails.Id)) in ({Resource}) and  tostring(properties.displayName) in ({Recommendations})\r\n| extend resourceId=id,\r\n    recommendationId=name,\r\n    resourceType=type,\r\n    recommendationName=properties.displayName,\r\n    source=properties.resourceDetails.Source,\r\n    recommendationState=properties.status.code,\r\n    description=properties.metadata.description,\r\n    assessmentType=properties.metadata.assessmentType,\r\n    remediationDescription=properties.metadata.remediationDescription,\r\n    policyDefinitionId=properties.metadata.policyDefinitionId,\r\n    implementationEffort=properties.metadata.implementationEffort,\r\n    recommendationSeverity=properties.metadata.severity,\r\n    category=properties.metadata.categories,\r\n    userImpact=properties.metadata.userImpact,\r\n    threats=properties.metadata.threats,\r\n    portalLink=properties.links.azurePortal\r\n| summarize numberOfResources=count(resourceId) by tostring(recommendationName), tostring(recommendationState)",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -1040,7 +1037,7 @@
               ],
               "visualization": "piechart"
             },
-            "name": "query - 7"
+            "name": "Number of Resources Under a Recommendation"
           },
           {
             "type": 1,
@@ -1484,7 +1481,7 @@
               "visualization": "piechart"
             },
             "customWidth": "50",
-            "name": "query - 0",
+            "name": "Resource Health under System Updates",
             "styleSettings": {
               "showBorder": true
             }
@@ -1504,7 +1501,7 @@
               "visualization": "piechart"
             },
             "customWidth": "25",
-            "name": "query - 4",
+            "name": "Count of Unhealthy machines by Operating System Type",
             "styleSettings": {
               "showBorder": true
             }
@@ -1524,7 +1521,7 @@
               "visualization": "piechart"
             },
             "customWidth": "25",
-            "name": "query - 5",
+            "name": " Count of Missing Updates by Severity",
             "styleSettings": {
               "showBorder": true
             }
