@@ -1,5 +1,6 @@
 # Deployment Guide
 ## This is a Continuous Cloud Security Optimization Dashboard built using Azure Workbooks to enable the customer to quickly gain insights about their Azure Platform security footprint & configuration.
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%2520Security%2520Dashboard%2FARMTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 ## For the successful deployment of the dashboard, subscription and workspace settings should be configured. Below is the stepwise guide along with snapshots.
  
 ### 1.	Configure subscription settings:
