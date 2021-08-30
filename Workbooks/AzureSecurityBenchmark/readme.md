@@ -15,3 +15,20 @@ You can deploy the workbook by clicking on the buttons below:
 ![Workbook Overview](./picture1.PNG)
 
 ![Workbook Overview](./picture2.PNG)
+
+## Feedback 
+Please share your feedback, specifically in the areas below. You can submit your feedback via the [ASB Workbook Feedback Portal](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR2S7iBSzt7xHgt8hpEjayo1UMlQ0U0JQT1dZQkk0WThJTEVHV1RBNTcxSi4u)
+1.	How do you see your organization using the ASB Workbook?<br>
+        a.	Gathering evidence data for controls assessments<br>
+        b.	Hardening cloud workloads and evaluating protection posture<br>
+        c.	Support compliance reporting requirements with auditors/regulators<br>
+        d.	Reporting cloud security metrics for leadership<br>
+        e.	Identify control gaps and security weaknesses<br>
+        f.	Track security incidents and alerting<br>
+        g.	Navigate Microsoft security offerings/tools from a single interface<br>
+2.	Are there any panels which are not operational or working properly during your preview?
+3.	Do you feel any control areas or queries are missing from this workbook?
+a.	Which control areas or queries do you feel are missing?
+4.	Does this best practice guide align with the expectations of ASB?
+5.	Do you feel this workbook will save your organization in designing/engineering/operating cloud workloads?
+6.	Are there areas we can expand upon to improve this Workbook for both your organization and the information security community?
