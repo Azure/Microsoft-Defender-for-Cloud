@@ -36,6 +36,21 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     
     Write-Host "Done" -ForegroundColor Green
 
+    Write-Host "Checking if policy already published, if so incrementing version..."
+    $PublishedPolicy = $null
+    $PublishedPolicy = Get-AzPolicyDefinition | Where-Object {$_.Properties.DisplayName -eq 'Monitor Antivirus'}
+    if ($PublishedPolicy) {
+        $PreviousVersion = $null
+        [version]$PreviousVersion = $PublishedPolicy.Properties.Metadata.guestConfiguration.version
+        [version]$NewVersion = [version]::new($PreviousVersion.Major,$PreviousVersion.Minor,$PreviousVersion.Build+1)
+    } else {
+        [version]$NewVersion = [version]::new(1,0,0)
+    }
+
+    [string]$Version = $NewVersion.ToString()
+
+    $PackageName = "MonitorAntivirus_$Version" 
+
     Write-Host "Compiling Configuration into a MOF file..." -NoNewLine
     if (Test-Path 'MonitorAntivirus') {
         Remove-Item "MonitorAntivirus" -Recurse -Force -Confirm:$false
@@ -45,7 +60,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
 
     Write-Host "Generating Guest Configuration Package..." -NoNewLine
     
-    New-GuestConfigurationPackage -Name MonitorAntivirus `
+    New-GuestConfigurationPackage -Name $PackageName `
         -Configuration "$env:Temp/MonitorAntivirus/MonitorAntivirus.mof" -Force | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
@@ -53,7 +68,8 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
     $Url = Publish-EPDSCPackage -ResourceGroupName $ResourceGroupName `
         -StorageAccountName $StorageAccountName.ToLower() `
         -StorageSKUName $StorageSKUName `
-        -ResourceGroupLocation $ResourceGroupLocation
+        -ResourceGroupLocation $ResourceGroupLocation `
+        -Version $Version
     Write-Host "Done" -ForegroundColor Green
 
     Write-Host "Generating Guest Configuration Policy..." -NoNewLine
@@ -70,7 +86,7 @@ function New-EPDSCAzureGuestConfigurationPolicyPackage {
         -Description 'Audit if a given Antivirus Software is not enabled on Windows machine.' `
         -Path './policies' `
         -Platform 'Windows' `
-        -Version 1.0.0 `
+        -Version $Version `
         -Parameter $ParameterValues -Verbose | Out-Null
     Write-Host "Done" -ForegroundColor Green
 
@@ -100,7 +116,11 @@ function Publish-EPDSCPackage {
 
         [Parameter(Mandatory = $true)]
         [System.String]
-        $ResourceGroupLocation
+        $ResourceGroupLocation,
+
+        [Parameter(Mandatory = $true)]
+        [System.String]
+        $Version
     )
 
     $resourceGroup = Get-AzResourceGroup $ResourceGroupName -ErrorAction "SilentlyContinue"
@@ -131,10 +151,10 @@ function Publish-EPDSCPackage {
     # Enable Static Web
     Enable-AzStorageStaticWebsite -Context $storageContext
     
-    # Upload to static web
-    $blobName = "MonitorAntivirus.zip"
+    # Upload to static web    
+    $blobName = "MonitorAntivirus_$Version.zip"
 
-    Set-AzStorageblobcontent -File $($env:Temp + "/MonitorAntivirus/MonitorAntivirus.zip") `
+    Set-AzStorageblobcontent -File $($env:Temp + "/MonitorAntivirus_$Version/MonitorAntivirus_$Version.zip") `
         -Container `$web `
         -Blob $blobName `
         -Context $storageContext `
