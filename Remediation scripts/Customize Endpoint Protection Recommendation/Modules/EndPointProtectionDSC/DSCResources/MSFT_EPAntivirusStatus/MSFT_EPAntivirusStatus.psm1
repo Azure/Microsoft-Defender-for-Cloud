@@ -161,7 +161,7 @@ function Get-TargetResource
             return $nullReturn
         }
     }
-    elseif ($OSInfo.ProductType -eq 3)
+    elseif (($OSInfo.ProductType -eq 2) -or ($OSInfo.ProductType -eq 3)) # ProductType=3 Windows Server, ProductType=2 Domain Controller, which is also Windows Server
     {
         Write-Verbose -Message "Windows Server OS Detected"
 
