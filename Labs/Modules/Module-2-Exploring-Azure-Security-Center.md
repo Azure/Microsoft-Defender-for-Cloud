@@ -22,7 +22,7 @@ Each of these pillars also has its own dedicated dashboard allowing deeper insig
 > ❗ Important: <br>
 > It takes few hours for all tiles on the overview page to update.
 
-![Security Center Snapshot](../Images/asc-security-snapshot.gif)
+![Security Center Snapshot](../Images/asc-security-center-snapshot.gif)
 
 4.	The new overview page also includes a new tile for **Firewall Manager**. By clicking the **Assessed Resources** button, this provides a snapshot to make it easy to find and filter individual resources that are healthy and unhealthy.
 
@@ -61,9 +61,6 @@ You can add standards by clicking on `Manage compliance policies` and selecting 
 ![Manage compliance policies](../Images/asc-manage-compliance-policies.gif?raw=true)
 
 13.	The last tile on the overview page is **Firewall Manager**. Clicking on this tile will redirects you to the Azure Firewall Manager dashboard where you can design a central security policy and setup services to manage routes for cloud-based security perimeters.
-
-> ❗ Important: <br>
-> Unmonitored VMs are considered to as virtual machines that have Log Analytics agent deployed, but the agent isn't sending data or has other health issues.
 
 14.	On the right pane, you can find the **Insights** section which offers tailored items for your environments: 
 
