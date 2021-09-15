@@ -119,7 +119,7 @@ When the deployment is complete, you should see the following:
 4. Navigate to **Auto provisioning**
 5. On the **Auto provisioning - Extensions** page, set **Log Analytics agent for Azure VMs** to **On** (if it's not already set to On)
 6. Click **Edit configuration**.
-7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **asc-lab-xxx** (which has been created by the ARM template).
+7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **asc-la-xxx** (which has been created by the ARM template).
 8. Under **Store additional raw data - Windows security events** section, select **All Events** option.
 
 ![Enable Azure Defender on the workspace level](../Images/asc-extension-deployment-configuration.gif?raw=true)
