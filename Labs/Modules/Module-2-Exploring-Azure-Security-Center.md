@@ -22,7 +22,7 @@ Each of these pillars also has its own dedicated dashboard allowing deeper insig
 > ❗ Important: <br>
 > It takes few hours for all tiles on the overview page to update.
 
-![Security Center Snapshot](https://user-images.githubusercontent.com/86690212/127543089-5e7ed1a9-09a1-475a-9c83-36fa1647907f.PNG)
+![Security Center Snapshot](../Images/asc-security-snapshot.gif)
 
 4.	The new overview page also includes a new tile for **Firewall Manager**. By clicking the **Assessed Resources** button, this provides a snapshot to make it easy to find and filter individual resources that are healthy and unhealthy.
 
@@ -52,9 +52,15 @@ In this lab we will use only one but selecting different/additional subscription
 > The higher the score, the lower the identified risk level.
 
 11.	On the **Azure Defender** tile, you can see the coverage of your connected resources (for the currently selected subscriptions) and the recent alerts, color-coded by severity. Your current resource coverage should be **100% which means full protection**. Clicking on this tile will redirects you Azure Defender dashboard.
-12.	On the **Regulatory Compliance** tile, you can get insights into your compliance posture based on continuous assessment of your both Azure and hybrid cloud environments. This tile shows only 4 standards which are SOC TSP, ISO 27001, PCI DSS 3.2.1 and Azure CIS 1.1.0. Clicking on this tile will redirects you to Regulatory Compliance dashboard – where you can add additional standards and explore the current ones.
-13.	The last tile on the overview page is the **Inventory** – it shows the number of unmonitored VMs alongside with the total covered resources - **you should expect to have zero unmonitored VMs**.
-Resources are divided by their health status. Clicking on this tile will redirects you to the asset inventory dashboard where you can explore your resource and their security posture – see a dedicated exercise below.
+12.	On the **Regulatory Compliance** tile, you can get insights into your compliance posture based on continuous assessment of your both Azure and hybrid cloud environments. Clicking on this tile will redirects you to Regulatory Compliance dashboard. 
+
+![Regulatory Compliance dashboard](../Images/asc-regulatory-compliance-dashboard.gif?raw=true)
+
+You can add standards by clicking on `Manage compliance policies` and selecting your subscription in the following page. You are directed to the Security Policy page where you can add out of the box standards (SOC TSP, PCI DSS 3.2.1 and Azure CIS 1.1.0) or explore others.
+
+![Manage compliance policies](../Images/asc-manage-compliance-policies.gif?raw=true)
+
+13.	The last tile on the overview page is **Firewall Manager**. Clicking on this tile will redirects you to the Azure Firewall Manager dashboard where you can design a central security policy and setup services to manage routes for cloud-based security perimeters.
 
 > ❗ Important: <br>
 > Unmonitored VMs are considered to as virtual machines that have Log Analytics agent deployed, but the agent isn't sending data or has other health issues.
@@ -90,9 +96,9 @@ Exploring secure score
 
 **Exploring Security Controls and Recommendations**
 
-1.	On the recommendations page, pay attention to the first part of the page; the **summary view** which includes the current score, progress on the recommendations (both completed security controls and recommendations) and resource health (by severity).
+1.	On the **Secure score recommendations** tab, pay attention to the first part of the page; the **summary view** which includes the current score, progress on the recommendations (both completed security controls and recommendations) and resource health (by severity).
 2.	On the top menu, click on **Download CSV report** button – this allow you to get a snapshot of your resources, their health status and the associated recommendations. You can use it for pivoting and reporting.
-3.	Notice the second part of the page; here you have a **list of all recommendations grouped by security controls**:
+3.	To see **all recommendations**, click on the tab with the same name.
 
 > ⭐ Notice: <br>
 > -	Each security control is a logical group of related security recommendations and represents a security risk you should mitigate.
@@ -101,12 +107,8 @@ Exploring secure score
 > -	To get the max score, fix all recommendations for all resources in a control.
 > To understand how the score and the downstream recommendations are calculated, please visit our official [documentation](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls#calculations---understanding-your-score "Understanding your score calculation").
 
-4.	On the right side, **switch the toggle button to OFF** to disable the group by controls view – now you should get a flat view of all recommendations. **Switch it back to ON**.
-
-![Recommendations group by controls](../Images/asc-recommendations-group-by-controls.gif?raw=true)
-
-5.	Look for the **Encrypt data in transit** security control. Notice its max score 4 and the potential increase for the score. You should have three recommendations within this control.
-6.	Click on the **Secure transfer to storage accounts should be enabled** recommendation. As you can see, this recommendation has the **Quick Fix** avaialble.
+4.	Look for the **Encrypt data in transit** security control. Notice its max score 4 and the potential increase for the score. You should have five recommendations within this control.
+5.	Click on the **Secure transfer to storage accounts should be enabled** recommendation. As you can see, this recommendation has the **Quick Fix** available.
 
 > ⭐ Notice: <br>
 > Quick Fix allows you to remediate a group of resources quickly when possible with a single click. This option is only available for supported recommendations and enables you to quickly improve your secure score and increase the security in your environment.
@@ -114,7 +116,7 @@ Exploring secure score
 7.	On the top section, notice the following:
 
 * Title of the recommendation: **Secure transfer to storage accounts should be enabled**
-* Top menu controls: (Enforce and Deny buttons on supported recommendations): **Deny**
+* Top menu controls: (Exempt and Deny buttons on supported recommendations): **Deny**
 * Severity indicator: **High**
 * Refreshens interval on supported recommendations: **30 Min**
 
@@ -133,16 +135,16 @@ Exploring secure score
 }
 ```
 
-9.	On the bottom part, **select a resource** (the single storage account on the unhealthy tab) and **click Remediate**.
+9.	On the bottom part, **select a resource** (the single storage account on the unhealthy tab) and **click Fix**.
 
-10. On the right pane, review the implications for this remediation and press **Remediate 1 resource**.
+10. On the right pane, review the implications for this remediation and press **Fix 1 resource**.
 
 ![Remediate a resource](../Images/asc-storage-remediate-resource.gif?raw=true)
 
 11. Wait for a notification: ✅ **Remediation successful** - Successfully remediated the issues on the selected 
 resources. Note: It can take several minutes after remediation completes to see the resources in the 'healthy resources' tab.
 
-12.	Return to recommendations list. Expend the "Manage access and permissions" security control, you can now see recommendations flagged as `Preview`. Those aren’t included in the calculation of your score. They should be still remediated, so that when the preview period ends, they will contribute towards your score.
+12.	Return to recommendations list. Expand the "Manage access and permissions" security control, you can now see recommendations with a flag icon on the left. These are `Preview` recommendations. Those aren’t included in the calculation of your score. They should be still remediated, so that when the preview period ends, they will contribute towards your score.
 
 ### Exercise 3: Exploring the Inventory capability
 
@@ -150,7 +152,7 @@ Asset inventory dashboard allows you to get a single pane of glass view to all y
 
 1.	From Security Center’s sidebar, select **Inventory**
 2.	Hover to the **Summaries strip** at the top of the page.
-3.	Notice the total number of resources: **15**
+3.	Notice the total number of resources: **17**
 
 > ⭐ Notice: <br>
 > The total number of resources are the ones which are connected to Security Center and NOT the total number of resources that you have in your subscriptions/s.
@@ -158,12 +160,10 @@ Asset inventory dashboard allows you to get a single pane of glass view to all y
 4.	Notice the number of **unhealthy resources: 11** (resources with active recommendations based on the selected filter)
 5.	Notice the **unmonitored resources: 0** (indicates if there are resources with Log Analytics agent deployed but with health issues). Since we enabled the auto-provisioning in the previous module, all existing VMs are covered and connected = monitored.
 6.	Use the **Filter by name** box to search for **linux**. You should now see a filtered view containing your desired resource: *asclab-linux*
-7.	Hover on the **recommendations** column to see a tooltip with the active recommendations. You should expect to see **8 active out of 16** recommendations – these are the recommendations you must attend.
+7.	Hover on the **recommendations** column to see a tooltip with the active recommendations. You should expect to see **9 active out of 26** recommendations – these are the recommendations you must attend.
 8.	Open the resource health pane by selecting the resource. Click on **asclab-linux**. You can also right click on any resource and select **view resource**.
-9.	On the resource health pane for **asclab-linux**, review the virtual machine information alongside with a recommendation list.
+9.	On the resource health pane for **asclab-linux**, review the virtual machine information alongside with a recommendation list. Close the resource health pane.
 10.	From the filter menu, select the **Resource Group** filter and then **asclab-asc**. Using this filter, you can see all resources related to the predefined Kubernetes resources which are monitored with no active recommendations. Clear the filter by selecting **Resource Group** and then **Select all**.
-
-> Notice! The entire grid can be filtered and sorted
 
 11.	From the filter menu, select **Recommendations**, uncheck **select all** option and then select the **Auditing on SQL Server should be enabled**. You can also use the search area within the filter to better find across the list. Clear your filter.
 12.	Tag is very common asset management in Azure to do asset management. Using this view, you can assign tags to the filtered resources:
@@ -176,8 +176,8 @@ Asset inventory dashboard allows you to get a single pane of glass view to all y
 
 ![Inventory: Assign tags](../Images/asc-inventory-assign-tags.gif?raw=true)
 
-13.	Notice the **Security findings** filter – it allows you to find all resources that are vulnerable by a specific vulnerability. You can also search for CVE, KB ID, name and missing update.
-14.	From the filter pane, select **Azure Defender** and value **On**. On the **Resource Group** select **asclab**. From the top menu bar, click on **Download CSV report**. You will get a snapshot to work on it offline already filtered. You can also right click on any of the resource and upgrade to Azure Defender plan (when applicable).
+13.	Notice the **Security findings** filter – it allows you to find all resources that are vulnerable by a specific vulnerability.
+14.	From the filter pane, select **Azure Defender** and value **On**. On the **Resource Group** select **asclab**. From the top menu bar, click on **Download CSV report**. You will get a snapshot to work on it offline already filtered.
 15.	From the top menu, click on **open query**. This will open up the resource graph explorer blade, click on **Run Query**. You should now have the same list of resources and columns like in the previous step. This query can be editable for your needs and here it gets very powerful.
 16.	Save the query for later use by clicking on **Save as** from the top menu. You can use it to create periodic reports. Name the report as *asc-filtered-query* and select **save**.
 
