@@ -6,7 +6,7 @@ Dismiss all alerts for subscription, based on filter (default is to dismiss all)
 Subscription Id
 
 Example usage:
-dismissAll.ps1 -SubscriptionId 4D4F988C-D81F-4BF6-862D-5DB94A067DB5
+dismissAllAlerts.ps1 -SubscriptionId 4D4F988C-D81F-4BF6-862D-5DB94A067DB5
 #>
 
 Param(
