@@ -7,7 +7,7 @@ These playbooks can be easily integrated with Azure Security Center using Workfl
 After selecting a playbook, in the Azure portal:
 1. Search for deploy a custom template
 2. Click build your own template in the editor
-3. Paste the conents from the GitHub playbook 
+3. Paste the contents from the GitHub playbook 
 4. Click Save
 5. Fill in needed data and click purchase
 
@@ -51,7 +51,7 @@ Once you have created a playbook that you want to export to share, go to the Log
     },
 ```
 * The variables will be the connection names.  Here we are creating a connection name using the connection (AzureAD) and "-" and the playbook name.
-7. Next,, you will need to add resources to be created for each connection.
+7. Next, you will need to add resources to be created for each connection.
 ```json
    "resources": [
         {

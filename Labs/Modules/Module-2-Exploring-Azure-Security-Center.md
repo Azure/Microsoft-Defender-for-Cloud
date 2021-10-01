@@ -20,11 +20,11 @@ To get started with Security Center, you must have a subscription to Microsoft A
 Each of these pillars also has its own dedicated dashboard allowing deeper insights and actions around that vertical, providing easy access and better visibility for security professionals.
 
 > ❗ Important: <br>
-> It takes few hours for all tiles on the oerview page to update.
+> It takes few hours for all tiles on the overview page to update.
 
-![Azure Security Center: Overview dashboard](../Images/asc-dashboard-overview.gif?raw=true)
+![Security Center Snapshot](https://user-images.githubusercontent.com/86690212/127543089-5e7ed1a9-09a1-475a-9c83-36fa1647907f.PNG)
 
-4.	The new overview page also includes a new tile for **Asset Inventory Dashboard** to make it easy to find and filter individual resources.
+4.	The new overview page also includes a new tile for **Firewall Manager**. By clicking the **Assessed Resources** button, this provides a snapshot to make it easy to find and filter individual resources that are healthy and unhealthy.
 
 ![Azure Security Center: Asset inventory](../Images/asc-dashboard-inventory.gif?raw=true)
 

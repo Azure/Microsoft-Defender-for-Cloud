@@ -48,6 +48,11 @@ If you are testing the integration with Microsoft Defender ATP for Servers, use 
 
 - [Azure Defender for DNS](https://docs.microsoft.com/en-us/azure/security-center/defender-for-dns-introduction)
 
+## Alert Simulation for Azure Defender for App Service
+- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/azure-defender-poc-series-azure-defender-for-app-service/ba-p/2652443) go over the steps to simulate an attack that can be identified by Azure Defender for App Service.
+
+- [Azure Defender for App Service](https://docs.microsoft.com/en-us/azure/security-center/defender-for-app-service-introduction)
+
 ## Threat Hunting in Azure Security Center and Log Analytics Workspace
 
 - This simulation playbook go over a threat hunting scenario using Azure Security Center and searching for evidences of attack in Log Analtyics workspace.
