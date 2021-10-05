@@ -16,12 +16,12 @@ When this automation is executed it will automatically extend the expiration tim
 * For each ASR, returned as a result in the previous step, it then checks if the current expiration date of that ASR is less or equal to the timeUntilExpiration variable (in days). For the ones that are, the Logic App will consider these ASR's as being about to expire.
 * Should the number of ASRs that are about to expire be greater than zero, an approval email will be sent out to the (recepient and sender address both can be modified during deployment).  
 
-![Approval Email](.//approvalEmail.png)
+![Approval Email](./images/approvalEmail.PNG)
 
 * By selecting the **Extend All** option in the approval email, **ALL** of the ASRs which were indetified as about to expire, will have their current expiration date extended by the amount of days specified in the extendExpirationBy variable.  
 * Once the expiration date of all ASRs have been extended, a confirmation email will be sent (leveragng the recepient and sender address that were specified during deployment).
 
-![Confirmation Email](.//confirmationEmail.png)
+![Confirmation Email](./images/confirmationEmail.PNG)
 
 **Deploy the template by clicking the respective button below.**
 
