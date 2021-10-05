@@ -1,5 +1,5 @@
 # Notify-ASCRecommendationsResourceTag
-author: João Paulo Ramos / Nathan Swift
+author: João Paulo Ramos / Nathan Swift / Maxim Gross
 
 This Logic App for Workflow Automations will notify ASC generated recommendations to Azure Resource TAG Owners including Azure Arc resources.
 
