@@ -1,0 +1,969 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata":{
+        "comments": "This automation will extend the current expiration date of ALL alert suppression rules that are about to expire",
+        "author": "Bojan Magusic, Liana Tomescu, Prasad Patil"
+    }, 
+    "parameters": {
+        "workflows_Extend_AlertSuppressionRulesAboutToExpire_name": {
+            "defaultValue": "Extend-AlertSuppressionRulesAboutToExpire",
+            "type": "String"
+        },
+        "SenderAddress": {
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the sender's email address",
+                "description": "Enter the sender's email address. Make sure to use an account which can authorize the API connection after deploying this automation artifact."
+                }
+        },
+        "RecipientAddress": {
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the recipient's email address",
+                "description": "Enter the recipient's email address. Make sure to use an account which can authorize the API connection after deploying this automation artifact."
+                }
+        },
+        "TimeUntilExpiration": {
+            "type": "int",
+            "metadata": {
+                "displayName": "Enter days until expiration",
+                "description": "How many days ahead should the Logic App look for expiration dates"
+                }
+        },
+        "ExtendExpirationTimeBy": {
+            "type": "int",
+            "metadata": {
+                "displayName": "Enter days to extend expiration date",
+                "description": "By how many days should current expiration dates get extended"
+                }
+        }
+    },
+    "variables": {
+        "o365ConnectionName" : "office365"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('o365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[parameters('SenderAddress')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location ,'/managedApis/', variables('o365ConnectionName'))]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_Extend_AlertSuppressionRulesAboutToExpire_name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "startTime": "2021-10-01T09:00:00Z",
+                                "timeZone": "GMT Standard Time"
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "startTime": "2021-10-01T09:00:00Z",
+                                "timeZone": "GMT Standard Time"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Condition_Check_updateASRs_Not_Empty": {
+                            "actions": {
+                                "Condition_Check_Approval_Email_Response": {
+                                    "actions": {
+                                        "For_each_Sub_ID_": {
+                                            "foreach": "@body('Parse_JSON_Body_from_HTTP_Get_Subscriptions')?['value']",
+                                            "actions": {
+                                                "For_each_ASR_": {
+                                                    "foreach": "@body('Parse_JSON_Body_from_HTTP_GET_Alert_Suppression_Rules')?['value']",
+                                                    "actions": {
+                                                        "Add_to_time": {
+                                                            "runAfter": {},
+                                                            "type": "Expression",
+                                                            "kind": "AddToTime",
+                                                            "inputs": {
+                                                                "baseTime": "@body('Get_Current_time')",
+                                                                "interval": "@variables('timeUntilExpiration')",
+                                                                "timeUnit": "Day"
+                                                            }
+                                                        },
+                                                        "Condition_Check_ASR_Expiration_Date": {
+                                                            "actions": {
+                                                                "Append_to_array_variable": {
+                                                                    "runAfter": {
+                                                                        "Parse_JSON_Body_from_HTTP_Update_Alert_Suppression_Rule": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "AppendToArrayVariable",
+                                                                    "inputs": {
+                                                                        "name": "updateASRs",
+                                                                        "value": "@body('Parse_JSON_Body_from_HTTP_Update_Alert_Suppression_Rule')?['name']"
+                                                                    }
+                                                                },
+                                                                "Calculate_New_Expiration_Date_Time": {
+                                                                    "runAfter": {},
+                                                                    "type": "Expression",
+                                                                    "kind": "AddToTime",
+                                                                    "inputs": {
+                                                                        "baseTime": "@items('For_each_ASR_')?['properties']?['expirationDateUtc']",
+                                                                        "interval": "@variables('extendExpirationTimeBy')",
+                                                                        "timeUnit": "Day"
+                                                                    }
+                                                                },
+                                                                "HTTP_Update_Alert_Suppression_Rule_": {
+                                                                    "runAfter": {
+                                                                        "Calculate_New_Expiration_Date_Time": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "Http",
+                                                                    "inputs": {
+                                                                        "authentication": {
+                                                                            "type": "ManagedServiceIdentity"
+                                                                        },
+                                                                        "body": {
+                                                                            "properties": {
+                                                                                "alertType": "@items('For_each_ASR_')?['properties']?['alertType']",
+                                                                                "comment": "Alert Suppression Rule Extended. ",
+                                                                                "expirationDateUtc": "@body('Calculate_New_Expiration_Date_Time')",
+                                                                                "reason": "@items('For_each_ASR_')?['properties']?['reason']",
+                                                                                "state": "@items('For_each_ASR_')?['properties']?['state']"
+                                                                            }
+                                                                        },
+                                                                        "method": "PUT",
+                                                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each_Sub_ID_')?['subscriptionId']}/providers/Microsoft.Security/alertsSuppressionRules/@{items('For_each_ASR_')?['name']}?api-version=2019-01-01-preview"
+                                                                    }
+                                                                },
+                                                                "Parse_JSON_Body_from_HTTP_Update_Alert_Suppression_Rule": {
+                                                                    "runAfter": {
+                                                                        "HTTP_Update_Alert_Suppression_Rule_": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "ParseJson",
+                                                                    "inputs": {
+                                                                        "content": "@body('HTTP_Update_Alert_Suppression_Rule_')",
+                                                                        "schema": {
+                                                                            "properties": {
+                                                                                "id": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "name": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "properties": {
+                                                                                    "properties": {
+                                                                                        "alertType": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "comment": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "expirationDateUtc": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "lastModifiedUtc": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "reason": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "state": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "suppressionAlertsScope": {
+                                                                                            "properties": {
+                                                                                                "allOf": {
+                                                                                                    "items": {
+                                                                                                        "properties": {
+                                                                                                            "contains": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "field": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "in": {
+                                                                                                                "items": {
+                                                                                                                    "type": "string"
+                                                                                                                },
+                                                                                                                "type": "array"
+                                                                                                            }
+                                                                                                        },
+                                                                                                        "required": [
+                                                                                                            "field"
+                                                                                                        ],
+                                                                                                        "type": "object"
+                                                                                                    },
+                                                                                                    "type": "array"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    }
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Add_to_time": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "lessOrEquals": [
+                                                                            "@items('For_each_ASR_')?['properties']?['expirationDateUtc']",
+                                                                            "@body('Add_to_time')"
+                                                                        ]
+                                                                    },
+                                                                    {
+                                                                        "equals": [
+                                                                            "@items('For_each_ASR_')?['properties']?['state']",
+                                                                            "Enabled"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_JSON_Body_from_HTTP_GET_Alert_Suppression_Rules": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Foreach"
+                                                },
+                                                "HTTP_GET_Alert_Suppression_Rules": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each_Sub_ID_')?['subscriptionId']}/providers/Microsoft.Security/alertsSuppressionRules?api-version=2019-01-01-preview"
+                                                    }
+                                                },
+                                                "Parse_JSON_Body_from_HTTP_GET_Alert_Suppression_Rules": {
+                                                    "runAfter": {
+                                                        "HTTP_GET_Alert_Suppression_Rules": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson",
+                                                    "inputs": {
+                                                        "content": "@body('HTTP_GET_Alert_Suppression_Rules')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "value": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "alertType": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "comment": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "expirationDateUtc": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "lastModifiedUtc": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "reason": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "state": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "suppressionAlertsScope": {
+                                                                                        "properties": {
+                                                                                            "allOf": {
+                                                                                                "items": {
+                                                                                                    "properties": {
+                                                                                                        "contains": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "field": {
+                                                                                                            "type": "string"
+                                                                                                        },
+                                                                                                        "in": {
+                                                                                                            "items": {
+                                                                                                                "type": "string"
+                                                                                                            },
+                                                                                                            "type": "array"
+                                                                                                        }
+                                                                                                    },
+                                                                                                    "required": [
+                                                                                                        "field"
+                                                                                                    ],
+                                                                                                    "type": "object"
+                                                                                                },
+                                                                                                "type": "array"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "id",
+                                                                            "name",
+                                                                            "type",
+                                                                            "properties"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Parse_JSON_Body_from_HTTP_Get_Subscriptions": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach"
+                                        },
+                                        "HTTP_Get_Subscriptions": {
+                                            "runAfter": {
+                                                "Reinitialize_variable_updateASRs": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                                            }
+                                        },
+                                        "Parse_JSON_Body_from_HTTP_Get_Subscriptions": {
+                                            "runAfter": {
+                                                "HTTP_Get_Subscriptions": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@body('HTTP_Get_Subscriptions')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "count": {
+                                                            "properties": {
+                                                                "type": {
+                                                                    "type": "string"
+                                                                },
+                                                                "value": {
+                                                                    "type": "integer"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "value": {
+                                                            "items": {
+                                                                "properties": {
+                                                                    "authorizationSource": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "displayName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "managedByTenants": {
+                                                                        "type": "array"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "subscriptionId": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "subscriptionPolicies": {
+                                                                        "properties": {
+                                                                            "locationPlacementId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "quotaId": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "spendingLimit": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "tenantId": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "id",
+                                                                    "authorizationSource",
+                                                                    "managedByTenants",
+                                                                    "subscriptionId",
+                                                                    "tenantId",
+                                                                    "displayName",
+                                                                    "state",
+                                                                    "subscriptionPolicies"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "type": "array"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        },
+                                        "Reinitialize_variable_updateASRs": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "updateASRs",
+                                                "value": []
+                                            }
+                                        },
+                                        "Send_an_email_(V2)": {
+                                            "runAfter": {
+                                                "Set_variable_emailBody_for_Confirmation_Email": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "Body": "<p>@{variables('emailBody')}</p>",
+                                                    "Subject": "Alert Suppression Rules Updated!",
+                                                    "To": "[parameters('RecipientAddress')]"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/v2/Mail"
+                                            }
+                                        },
+                                        "Set_variable_emailBody_for_Confirmation_Email": {
+                                            "runAfter": {
+                                                "For_each_Sub_ID_": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "emailBody",
+                                                "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:center; width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n\t\t\t\t\t\t\t\t<h2 style=\"text-align: left;\">Alert Suppression Rules Updated!</h2>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p style=\"text-align: center;\">The expiration date of Alert Suppression Rule(s) listed below, has been extended by <strong> @{variables('extendExpirationTimeBy')} day(s)</strong>.</p>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Alert Suppression Rules Details:</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{variables('updateASRs')}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n        </tr>\n<tr><td>&nbsp;</td></tr>\n        <tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Action items</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p>For more information visit the Alert Suppression Rules blade in <a href=\"https://ms.portal.azure.com/#blade/Microsoft_Azure_Security/AutoDismissRuleManagementBlade\">Security Center</a>.</p>\n\n\t\t\t</td>\n\t\t</tr>\n\t</tbody>\n</table>"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Send_approval_email": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "Terminate_Ignore_Option_Selected": {
+                                                "runAfter": {},
+                                                "type": "Terminate",
+                                                "inputs": {
+                                                    "runStatus": "Cancelled"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@body('Send_approval_email')?['SelectedOption']",
+                                                    "Extend All"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                },
+                                "Send_approval_email": {
+                                    "runAfter": {
+                                        "Set_variable_emailBody_for_Approval_Email": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnectionWebhook",
+                                    "inputs": {
+                                        "body": {
+                                            "Message": {
+                                                "Body": "@variables('emailBody')",
+                                                "HideHTMLMessage": false,
+                                                "Importance": "Normal",
+                                                "Options": "Extend All, Do Nothing",
+                                                "ShowHTMLConfirmationDialog": false,
+                                                "Subject": "Alert Suppression Rules Are Set to Expire Within @{variables('timeUntilExpiration')} Day(s)!",
+                                                "To": "bomagusi@microsoft.com",
+                                                "UseOnlyHTMLMessage": true
+                                            },
+                                            "NotificationUrl": "@{listCallbackUrl()}"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                            }
+                                        },
+                                        "path": "/approvalmail/$subscriptions"
+                                    }
+                                },
+                                "Set_variable_emailBody_for_Approval_Email": {
+                                    "runAfter": {},
+                                    "type": "SetVariable",
+                                    "inputs": {
+                                        "name": "emailBody",
+                                        "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:center; width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n\t\t\t\t\t\t\t\t<h2 style=\"text-align: left;\">Alert Suppression Rules Set to Expire!</h2>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p style=\"text-align: center;\">The Alert Suppression Rule(s) listed below are set to expire in <strong> @{variables('timeUntilExpiration')} day(s) </strong>.</p>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Alert Suppression Rules Details:</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{variables('updateASRs')}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n        </tr>\n<tr><td>&nbsp;</td></tr>\n        <tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Action items</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<ol>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>Selecting <strong>Extend All</strong> will extend the expiration date of <strong>ALL</strong> of the above rules by <strong>@{variables('extendExpirationTimeBy')} day(s)</strong>. </p>\n\t\t\t\t\t</li>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>Once the expiration date of all Alert Suppression Rules have been extended, you will recive a confirmation email.</p>\n\t\t\t\t\t</li>\n\t\t\t\t\t<li>\n\t\t\t\t\t\t<p>For more information visit the Alert Suppression Rules blade in <a href=\"https://ms.portal.azure.com/#blade/Microsoft_Azure_Security/AutoDismissRuleManagementBlade\">Security Center</a>.\n\t\t\t\t\t\t</p>\n\t\t\t\t\t</li>\n\t\t\t\t</ol>\n\t\t\t</td>\n\t\t</tr>\n\t</tbody>\n</table>"
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "For_each_Subscription_ID": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {
+                                    "Terminate_No_ASRs_to_Update": {
+                                        "runAfter": {},
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runStatus": "Cancelled"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greater": [
+                                            "@length(variables('updateASRs'))",
+                                            0
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "For_each_Subscription_ID": {
+                            "foreach": "@body('Parse_JSON_Body_from_HTTP_Get_Subscriptions_List')?['value']",
+                            "actions": {
+                                "For_each_Alert_Suppression_Rule": {
+                                    "foreach": "@body('Parse_JSON_Body_from_HTTP_Get_Alert_Suppression_Rules_-_List')?['value']",
+                                    "actions": {
+                                        "Add_timeUntilExpiration_to_Current_Time": {
+                                            "runAfter": {},
+                                            "type": "Expression",
+                                            "kind": "AddToTime",
+                                            "inputs": {
+                                                "baseTime": "@body('Get_Current_time')",
+                                                "interval": "@variables('timeUntilExpiration')",
+                                                "timeUnit": "Day"
+                                            }
+                                        },
+                                        "Condition_ASR_Check_Expiration_Date": {
+                                            "actions": {
+                                                "Append_to_array_variable_updateASRs": {
+                                                    "runAfter": {},
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "updateASRs",
+                                                        "value": "@items('For_each_Alert_Suppression_Rule')?['name']"
+                                                    }
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Add_timeUntilExpiration_to_Current_Time": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@items('For_each_Alert_Suppression_Rule')?['properties']?['state']",
+                                                            "Enabled"
+                                                        ]
+                                                    },
+                                                    {
+                                                        "lessOrEquals": [
+                                                            "@items('For_each_Alert_Suppression_Rule')?['properties']?['expirationDateUtc']",
+                                                            "@body('Add_timeUntilExpiration_to_Current_Time')"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "Parse_JSON_Body_from_HTTP_Get_Alert_Suppression_Rules_-_List": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach"
+                                },
+                                "HTTP_Get_Alert_Suppression_Rules_-_List": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{items('For_each_Subscription_ID')?['subscriptionId']}/providers/Microsoft.Security/alertsSuppressionRules?api-version=2019-01-01-preview"
+                                    }
+                                },
+                                "Parse_JSON_Body_from_HTTP_Get_Alert_Suppression_Rules_-_List": {
+                                    "runAfter": {
+                                        "HTTP_Get_Alert_Suppression_Rules_-_List": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@body('HTTP_Get_Alert_Suppression_Rules_-_List')",
+                                        "schema": {
+                                            "properties": {
+                                                "value": {
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "alertType": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "comment": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "expirationDateUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "lastModifiedUtc": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "reason": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "state": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "suppressionAlertsScope": {
+                                                                        "properties": {
+                                                                            "allOf": {
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "contains": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "field": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "in": {
+                                                                                            "items": {
+                                                                                                "type": "string"
+                                                                                            },
+                                                                                            "type": "array"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "field"
+                                                                                    ],
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": "array"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "id",
+                                                            "name",
+                                                            "type",
+                                                            "properties"
+                                                        ],
+                                                        "type": "object"
+                                                    },
+                                                    "type": "array"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Get_Current_time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_Current_time": {
+                            "runAfter": {
+                                "Parse_JSON_Body_from_HTTP_Get_Subscriptions_List": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Expression",
+                            "kind": "CurrentTime",
+                            "inputs": {}
+                        },
+                        "HTTP_Get_Subscriptions_-_List": {
+                            "runAfter": {
+                                "Initialize_variable_emailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                            }
+                        },
+                        "Initialize_variable_emailBody": {
+                            "runAfter": {
+                                "Initialize_variable_updateASRs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "emailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_extendExpirationTimeBy": {
+                            "runAfter": {
+                                "Initialize_variable_timeUntilExpiration": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "extendExpirationTimeBy",
+                                        "type": "integer",
+                                        "value": "[parameters('ExtendExpirationTimeBy')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_timeUntilExpiration": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "timeUntilExpiration",
+                                        "type": "integer",
+                                        "value": "[parameters('TimeUntilExpiration')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_updateASRs": {
+                            "runAfter": {
+                                "Initialize_variable_extendExpirationTimeBy": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "updateASRs",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON_Body_from_HTTP_Get_Subscriptions_List": {
+                            "runAfter": {
+                                "HTTP_Get_Subscriptions_-_List": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_Get_Subscriptions_-_List')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "properties": {
+                                                "type": {
+                                                    "type": "string"
+                                                },
+                                                "value": {
+                                                    "type": "integer"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "managedByTenants": {
+                                                        "type": "array"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "tenantId": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "authorizationSource",
+                                                    "managedByTenants",
+                                                    "subscriptionId",
+                                                    "tenantId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
