@@ -1,33 +1,33 @@
-# Microsoft Defender for Cloud
+# Azure Security Center
 
-![GitHub](https://img.shields.io/github/license/azure/Microsoft-Defender-for-Cloud?label=License&style=plastic)
-![GitHub contributors](https://img.shields.io/github/contributors/azure/Microsoft-Defender-for-Cloud?label=Contributors&style=plastic)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/Microsoft-Defender-for-Cloud/main?label=Last%20commit&style=plastic)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/Microsoft-Defender-for-Cloud?label=Commit%20activity&style=plastic)
-![GitHub issues](https://img.shields.io/github/issues/azure/Microsoft-Defender-for-Cloud?label=Issues&style=plastic)
+![GitHub](https://img.shields.io/github/license/azure/azure-security-center?label=License&style=plastic)
+![GitHub contributors](https://img.shields.io/github/contributors/azure/azure-security-center?label=Contributors&style=plastic)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/azure-security-center/main?label=Last%20commit&style=plastic)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/azure-security-center?label=Commit%20activity&style=plastic)
+![GitHub issues](https://img.shields.io/github/issues/azure/azure-security-center?label=Issues&style=plastic)
 
-Welcome to the Microsoft Defender for Cloud community repository. This repository contains:
+Welcome to the Azure Security Center community repository. This repository contains:
 
 - Security recommendations that are in private preview
 - Programmatic remediation tools for security recommendations
 - PowerShell scripts for programmatic management
-- Azure Policy custom definitions for at-scale management of Microsoft Defender for Cloud
+- Azure Policy custom definitions for at-scale management of Azure Security Center
 - Logic App templates that work with Security Center's Logic App connectors (to automate response to Security alerts and recommendations)
-- Logic App templates that help you run regular tasks or reports within the scope of Microsoft Defender for Cloud
-- Custom workbooks to visualize Microsoft Defender for Cloud data
+- Logic App templates that help you run regular tasks or reports within the scope of Azure Security Center
+- Custom workbooks to visualize Azure Security Center data
 
-All of the above will help you work programmatically at scale with Microsoft Defender for Cloud and provide you additional value to secure your environment, some of which has not yet been embedded into the product (yet). You can submit any questions or requests [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/issues).
+All of the above will help you work programmatically at scale with Azure Security Center and provide you additional value to secure your environment, some of which has not yet been embedded into the product (yet). You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues).
 
 ## What's new?
-Please find the latest and greatest automations on our [What's New Page](https://github.com/Azure/Microsoft-Defender-for-Cloud/wiki/What's-New).
+Please find the latest and greatest automations on our [What's New Page](https://github.com/Azure/Azure-Security-Center/wiki/What's-New).
 
 ## Support
 
-All automations within this repository are provided as is, without SLA or official support. However, if you have an issue please fill out a [bug report](https://github.com/Azure/Microsoft-Defender-for-Cloud/issues/new?assignees=&labels=&template=bug_report.md&title=) and reference the automation artifact, so the community can try to solve it.
+All automations within this repository are provided as is, without SLA or official support. However, if you have an issue please fill out a [bug report](https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=bug_report.md&title=) and reference the automation artifact, so the community can try to solve it.
 
 ## Wiki
 
-This project has its own [Wiki](https://github.com/Azure/Microsoft-Defender-for-Cloud/wiki) which will provide you with further information about the Azure Security Center community, how to contribute, templates to use, and further resources.
+This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/wiki) which will provide you with further information about the Azure Security Center community, how to contribute, templates to use, and further resources.
 
 ## Additional resources
 
@@ -50,7 +50,7 @@ To make sure your contribution aligns with our [Contribution Guideline](./Contri
 ### Pull Request
 
 - After you push your changes, you will need to submit the [Pull Request (PR)](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/about-pull-requests).
-- After submission, check the [Pull Request](https://github.com/Azure/Microsoft-Defender-for-Cloud/pulls) for comments.
+- After submission, check the [Pull Request](https://github.com/Azure/Azure-Security-Center/pulls) for comments.
 - Make changes as suggested and update your branch or explain why no change is needed. Resolve the comment when done.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
