@@ -49,12 +49,9 @@
             "multiSelect": true,
             "quote": "'",
             "delimiter": ",",
-            "query": "where type =~ 'microsoft.operationalinsights/workspaces'\r\n| summarize by id, name\r\n| project id",
+            "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| where name !contains \"DefaultWorkspace\"\r\n| limit 100\r\n| summarize by id, name\r\n| project id, selected=true",
             "crossComponentResources": [
               "{Subscriptions}"
-            ],
-            "value": [
-              "value::all"
             ],
             "typeSettings": {
               "additionalResourceOptions": [
@@ -85,7 +82,7 @@
     {
       "type": 1,
       "content": {
-        "json": "This workbook relies on tags being  to all resources, which you can set in the Tag parameter above. If resources are untagged, their score will not be considered in the Posture by Team section of this workbook.",
+        "json": "This workbook relies on tags being  to all resources, which you can set in the Tag parameter above. If resources are untagged, their score will not be considered in the Security Hygiene by Team section of this workbook.\r\n\r\nThere is a limit to the number of Workspaces that you can include in a single query (see [Azure Monitor Service Limits](https://docs.microsoft.com/en-us/azure/azure-monitor/service-limits#general-query-limits)). By default, this is 100. For this reason, the workspaces returned in the Workspace selection will be limited to 100.",
         "style": "info"
       },
       "name": "abouttext"
@@ -176,11 +173,11 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "SecureScore_CL \r\n| where DisplayName_s == \"ASC score\"\r\n| extend CurrentScore = round(todouble(CurrentScore_s))\r\n| extend MaxScore = round(todouble(MaxScore_s))\r\n| extend sScoreT = round((CurrentScore/MaxScore)*100)\r\n| summarize AggregatedValue = avg(sScoreT) by bin(TimeGenerated, 4h)",
+                    "query": "SecureScores\r\n| where DisplayName == \"ASC score\"\r\n| extend CurrentScore = round(todouble(CurrentScore))\r\n| extend MaxScore = round(todouble(MaxScore))\r\n| extend sScoreT = round((CurrentScore/MaxScore)*100)\r\n| summarize AggregatedValue = avg(sScoreT) by bin(TimeGenerated, 4h)",
                     "size": 0,
                     "aggregation": 3,
                     "title": "Overall Secure Score Trend for the last 7 days",
-                    "noDataMessage": "No trend data available. Please ensure you have implemented the automation to collect the secure score data per subscription into the associated Azure Monitor Logs workspace.",
+                    "noDataMessage": "No trend data available. Please ensure you have implemented the continuous export to collect the secure score data per subscription into the associated Azure Monitor Logs workspace.",
                     "noDataMessageStyle": 2,
                     "timeContext": {
                       "durationMs": 604800000
@@ -475,7 +472,7 @@
           {
             "type": 1,
             "content": {
-              "json": "**Note**\r\n* Click on the name of the team/department to view the full assessment detail.\r\n\r\n**Additional Resources**\r\n* To learn more about secure score, [watch this video](https://www.youtube.com/watch?reload=9&v=yxP2sue5qSI&feature=youtu.be)\r\n* To monitor your secure score overtime, use the [Secure Score PowerBI dashboard](https://techcommunity.microsoft.com/t5/azure-security-center/secure-score-over-time-power-bi-dashboard/ba-p/1799954)\r\n* To learn more how to calculate the secure score, [read this post](https://techcommunity.microsoft.com/t5/azure-security-center/querying-your-secure-score-across-multiple-subscriptions-in/ba-p/1749193)\r\n"
+              "json": "**Note**\r\n* Click on the name of the team/department to view the full assessment detail.\r\n\r\n**Additional Resources**\r\n* To learn more about secure score, [watch this video](https://www.youtube.com/watch?reload=9&v=yxP2sue5qSI&feature=youtu.be)\r\n* To monitor your secure score over time, use the [Secure Score PowerBI dashboard](https://techcommunity.microsoft.com/t5/azure-security-center/secure-score-over-time-power-bi-dashboard/ba-p/1799954)\r\n* To learn more how to calculate the secure score, [read this post](https://techcommunity.microsoft.com/t5/azure-security-center/querying-your-secure-score-across-multiple-subscriptions-in/ba-p/1749193)\r\n"
             },
             "customWidth": "20",
             "name": "infotext"
