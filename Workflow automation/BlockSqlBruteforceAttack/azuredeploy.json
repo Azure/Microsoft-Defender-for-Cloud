@@ -1,0 +1,1381 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "resourceGroupName": {
+            "defaultValue": "BlockSqlBruteForce",
+            "type": "String"
+        },
+        "resourceGroupLocation": {
+            "defaultValue": "Central US",
+            "type": "String"
+        }
+    },
+    "variables": {
+        "roleAssignmentId": "[guid(concat(subscription().subscriptionId, parameters('resourceGroupName'), 'blockSqlBruteForce', 'contributor'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/resourceGroups",
+            "apiVersion": "2018-05-01",
+            "name": "[parameters('resourceGroupName')]",
+            "location": "[parameters('resourceGroupLocation')]",
+            "properties": {}
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2017-05-10",
+            "name": "waDeployment",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/resourceGroups', parameters('resourceGroupName'))]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "variables": {
+                        "ascalertConnectionName": "ascalert",
+                        "automationName": "WABlockSqlBruteForceAttack",
+                        "alertType": "SQL.VM_BruteForce",
+                        "alertSeverities": [
+                            "High",
+                            "Medium",
+                            "Low"
+                        ],
+                        "logicAppResourceId": "[resourceId('Microsoft.Logic/workflows', 'SqlBruteForceBlocking')]",
+                        "logicAppTrigger": "When an Azure Security Center Alert is created or triggered",
+                        "scopeDescription": "scope for subscription {0}",
+                        "alertSeveritiesLength": "[length(variables('alertSeverities'))]",
+                        "alertSeveritiesLengthIfEmpty": "[if(equals(variables('alertSeveritiesLength'), 0), 1, variables('alertSeveritiesLength'))]",
+                        "severityMap": {
+                            "High": "high",
+                            "Medium": "medium",
+                            "Low": "low"
+                        },
+                        "triggerMap": {
+                            "Manual (Incoming HTTP request)": "manual",
+                            "When an Azure Security Center Alert is created or triggered": "When_an_Azure_Security_Center_Alert_is_created_or_triggered"
+                        }
+                    },
+                    "resources": [
+                        {
+                            "type": "Microsoft.Web/connections",
+                            "apiVersion": "2016-06-01",
+                            "name": "[variables('ascalertConnectionName')]",
+                            "location": "[resourceGroup().location]",
+                            "properties": {
+                                "displayName": "ascalertforbbf",
+                                "customParameterValues": {},
+                                "api": {
+                                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Logic/workflows",
+                            "apiVersion": "2017-07-01",
+                            "name": "SqlBruteForceBlocking",
+                            "location": "[resourceGroup().location]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]"
+                            ],
+                            "tags": {
+                                "LogicAppsCategory": "security"
+                            },
+                            "identity": {
+                                "type": "SystemAssigned"
+                            },
+                            "properties": {
+                                "state": "Enabled",
+                                "definition": {
+                                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                                    "actions": {
+                                        "Condition_3": {
+                                            "actions": {
+                                                "HTTP_-_Get_NSG": {
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com@{variables('NSG')}/securityRules?api-version=2020-05-01"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "Http"
+                                                },
+                                                "Set_NSG_of_subnet": {
+                                                    "inputs": {
+                                                        "name": "NSG",
+                                                        "value": "@{body('HTTP_-_Get_NSG')?['properties']?['networkSecurityGrop']?['id]']}"
+                                                    },
+                                                    "runAfter": {
+                                                        "HTTP_-_Get_NSG": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable"
+                                                }
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "HTTP_-_Get_subnet": {
+                                                        "inputs": {
+                                                            "authentication": {
+                                                                "type": "ManagedServiceIdentity"
+                                                            },
+                                                            "method": "GET",
+                                                            "uri": "https://management.azure.com/@{variables('subnet')}?api-version=2019-11-01"
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "Http"
+                                                    },
+                                                    "Set_NSG_of_network_interface": {
+                                                        "inputs": {
+                                                            "name": "NSG",
+                                                            "value": "@{body('HTTP_-_Get_subnet')?['properties']?['networkSecurityGroup']?['id']}"
+                                                        },
+                                                        "runAfter": {
+                                                            "HTTP_-_Get_subnet": [
+                                                                "Succeeded"
+                                                            ]
+                                                        },
+                                                        "type": "SetVariable"
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@variables('subnet')",
+                                                            ""
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_NSG": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "If"
+                                        },
+                                        "For_each": {
+                                            "actions": {
+                                                "Condition": {
+                                                    "actions": {
+                                                        "Append_to_array_variable": {
+                                                            "inputs": {
+                                                                "name": "attackerIPs",
+                                                                "value": "@body('Parse_entities')?['address']"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "AppendToArrayVariable"
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('Parse_entities')?['address']",
+                                                                        null
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_entities": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Condition_2": {
+                                                    "actions": {
+                                                        "Set_variable": {
+                                                            "inputs": {
+                                                                "name": "resourceID",
+                                                                "value": "@body('Parse_resource_ID')?['azureID']"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "SetVariable"
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('Parse_resource_ID')?['azureID']",
+                                                                        null
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Parse_resource_ID": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                },
+                                                "Parse_entities": {
+                                                    "inputs": {
+                                                        "content": "@items('For_each')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "$id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "address": {
+                                                                    "type": "string"
+                                                                },
+                                                                "location": {
+                                                                    "properties": {
+                                                                        "asn": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "city": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "countryCode": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "countryName": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "latitude": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "longitude": {
+                                                                            "type": "number"
+                                                                        },
+                                                                        "state": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "ParseJson"
+                                                },
+                                                "Parse_resource_ID": {
+                                                    "inputs": {
+                                                        "content": "@items('For_each')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "$id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "azureID": {
+                                                                    "type": "string"
+                                                                },
+                                                                "hostName": {
+                                                                    "type": "string"
+                                                                },
+                                                                "omsAgentID": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "Condition": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson"
+                                                }
+                                            },
+                                            "foreach": "@body('Parse_alert_body')?['entities']",
+                                            "runAfter": {
+                                                "Parse_alert_body": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach"
+                                        },
+                                        "HTTP-_Get_SQL_VM": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/@{variables('sqlVm')}?$expand=serverConfigurationsManagementSettings&api-version=2017-03-01-preview"
+                                            },
+                                            "runAfter": {
+                                                "Initialize_sqlVm": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "HTTP_-_Add_new_rule": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "properties": {
+                                                        "access": "Deny",
+                                                        "destinationAddressPrefix": "*",
+                                                        "destinationPortRange": "@{variables('sqlPort')}",
+                                                        "direction": "Inbound",
+                                                        "priority": "@variables('rulePriority')",
+                                                        "protocol": "*",
+                                                        "sourceAddressPrefixes": "@variables('attackerIPs')",
+                                                        "sourcePortRange": "*"
+                                                    }
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com@{variables('NSG')}/securityRules/BlockSqlBruteForce-@{variables('rulePriority')}?api-version=2020-05-01"
+                                            },
+                                            "runAfter": {
+                                                "Set_sqlPort": [
+                                                    "Succeeded",
+                                                    "Skipped",
+                                                    "Failed",
+                                                    "TimedOut"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "HTTP_-_Get_Azure_VM": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/@{variables('resourceID')}/?api-version=2019-12-01"
+                                            },
+                                            "runAfter": {
+                                                "Initialize_subscription_ID": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "HTTP_-_Get_NSG_rules": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com@{variables('NSG')}/securityRules?api-version=2020-05-01"
+                                            },
+                                            "runAfter": {
+                                                "Initialize_private_IP_address": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "HTTP_-_Get_network_interface": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com/@{variables('NIC')}?api-version=2020-05-01"
+                                            },
+                                            "runAfter": {
+                                                "Initialize_network_interface": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "Initialize_NSG": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "NSG",
+                                                        "type": "string"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_subnet": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_NSG_rule_priority": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "rulePriority",
+                                                        "type": "integer",
+                                                        "value": 100
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_attackerIPs": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_attackerIPs": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "attackerIPs",
+                                                        "type": "array"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {},
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_counter": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "counter",
+                                                        "type": "integer",
+                                                        "value": "@variables('rulePriority')"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_existing_rule_priorities": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_existing_rule_priorities": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "existingRulePriorities",
+                                                        "type": "array"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Parse_NSG_rules": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_network_interface": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "NIC",
+                                                        "type": "string",
+                                                        "value": "@{body('HTTP_-_Get_Azure_VM')?['properties']?['networkProfile']?['networkInterfaces']?[0]?['id']}"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Parse_Azure_VM": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_private_IP_address": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "privateIP",
+                                                        "type": "string",
+                                                        "value": "@{body('HTTP_-_Get_network_interface')?['properties']?['ipConfigurations']?[0]?['properties']?['privateIPAddress']}"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Condition_3": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_resource_ID": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "resourceID",
+                                                        "type": "string"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_NSG_rule_priority": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_sqlVm": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "sqlVm",
+                                                        "type": "string",
+                                                        "value": "@{replace(variables('resourceID'), 'Microsoft.Compute/virtualMachines', 'Microsoft.SqlVirtualMachine/SqlVirtualMachines')}"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Initialize_sql_port": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_sql_port": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "sqlPort",
+                                                        "type": "integer",
+                                                        "value": 1433
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Until": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_subnet": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "subnet",
+                                                        "type": "string",
+                                                        "value": "@{body('HTTP_-_Get_network_interface')?['properties']?['ipConfigurations'][0]?['properties']?['subnet']?['id']}"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Get_network_interface": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Initialize_subscription_ID": {
+                                            "inputs": {
+                                                "variables": [
+                                                    {
+                                                        "name": "SubID",
+                                                        "type": "string",
+                                                        "value": "@{substring(variables('resourceID'),15,36)}"
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "For_each": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "InitializeVariable"
+                                        },
+                                        "Parse_Azure_VM": {
+                                            "inputs": {
+                                                "content": "@body('HTTP_-_Get_Azure_VM')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "body": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "identity": {
+                                                                    "properties": {
+                                                                        "principalId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "tenantId": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "type": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "location": {
+                                                                    "type": "string"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string"
+                                                                },
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "diagnosticsProfile": {
+                                                                            "properties": {
+                                                                                "bootDiagnostics": {
+                                                                                    "properties": {
+                                                                                        "enabled": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "storageUri": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "hardwareProfile": {
+                                                                            "properties": {
+                                                                                "vmSize": {
+                                                                                    "type": "string"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "networkProfile": {
+                                                                            "properties": {
+                                                                                "networkInterfaces": {
+                                                                                    "items": {
+                                                                                        "properties": {
+                                                                                            "id": {
+                                                                                                "type": "string"
+                                                                                            }
+                                                                                        },
+                                                                                        "required": [
+                                                                                            "id"
+                                                                                        ],
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": "array"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "osProfile": {
+                                                                            "properties": {
+                                                                                "adminUsername": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "allowExtensionOperations": {
+                                                                                    "type": "boolean"
+                                                                                },
+                                                                                "computerName": {
+                                                                                    "type": "string"
+                                                                                },
+                                                                                "linuxConfiguration": {
+                                                                                    "properties": {
+                                                                                        "disablePasswordAuthentication": {
+                                                                                            "type": "boolean"
+                                                                                        },
+                                                                                        "provisionVMAgent": {
+                                                                                            "type": "boolean"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "secrets": {
+                                                                                    "type": "array"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "provisioningState": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "storageProfile": {
+                                                                            "properties": {
+                                                                                "dataDisks": {
+                                                                                    "type": "array"
+                                                                                },
+                                                                                "imageReference": {
+                                                                                    "properties": {
+                                                                                        "exactVersion": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "offer": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "publisher": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "sku": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "version": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "osDisk": {
+                                                                                    "properties": {
+                                                                                        "caching": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "createOption": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "diskSizeGB": {
+                                                                                            "type": "integer"
+                                                                                        },
+                                                                                        "managedDisk": {
+                                                                                            "properties": {
+                                                                                                "id": {
+                                                                                                    "type": "string"
+                                                                                                },
+                                                                                                "storageAccountType": {
+                                                                                                    "type": "string"
+                                                                                                }
+                                                                                            },
+                                                                                            "type": "object"
+                                                                                        },
+                                                                                        "name": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "osType": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "vmId": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "resources": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "location": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "properties": {
+                                                                                "properties": {
+                                                                                    "autoUpgradeMinorVersion": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "provisioningState": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "publisher": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "settings": {
+                                                                                        "properties": {},
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "type": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "typeHandlerVersion": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "name",
+                                                                            "id",
+                                                                            "type",
+                                                                            "location",
+                                                                            "properties"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "tags": {
+                                                                    "properties": {},
+                                                                    "type": "object"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "headers": {
+                                                            "properties": {
+                                                                "Cache-Control": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Content-Length": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Content-Type": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Date": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Expires": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Pragma": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Server": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Strict-Transport-Security": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Transfer-Encoding": {
+                                                                    "type": "string"
+                                                                },
+                                                                "Vary": {
+                                                                    "type": "string"
+                                                                },
+                                                                "X-Content-Type-Options": {
+                                                                    "type": "string"
+                                                                },
+                                                                "x-ms-correlation-request-id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "x-ms-ratelimit-remaining-resource": {
+                                                                    "type": "string"
+                                                                },
+                                                                "x-ms-ratelimit-remaining-subscription-reads": {
+                                                                    "type": "string"
+                                                                },
+                                                                "x-ms-request-id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "x-ms-routing-request-id": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "statusCode": {
+                                                            "type": "integer"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Get_Azure_VM": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson"
+                                        },
+                                        "Parse_NSG_rules": {
+                                            "inputs": {
+                                                "content": "@body('HTTP_-_Get_NSG_rules')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "value": {
+                                                            "items": {
+                                                                "properties": {
+                                                                    "etag": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "access": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "description": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "destinationAddressPrefix": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "destinationAddressPrefixes": {
+                                                                                "type": "array"
+                                                                            },
+                                                                            "destinationPortRange": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "destinationPortRanges": {
+                                                                                "type": "array"
+                                                                            },
+                                                                            "direction": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "priority": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "protocol": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "provisioningState": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "sourceAddressPrefix": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "sourceAddressPrefixes": {
+                                                                                "type": "array"
+                                                                            },
+                                                                            "sourcePortRange": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "sourcePortRanges": {
+                                                                                "type": "array"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "name",
+                                                                    "id",
+                                                                    "etag",
+                                                                    "type",
+                                                                    "properties"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "type": "array"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "HTTP_-_Get_NSG_rules": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson"
+                                        },
+                                        "Parse_SQL_port": {
+                                            "inputs": {
+                                                "content": "@body('HTTP-_Get_SQL_VM')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "body": {
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "properties": {
+                                                                        "serverConfigurationsManagementSettings": {
+                                                                            "properties": {
+                                                                                "sqlConnectivityUpdateSettings": {
+                                                                                    "properties": {
+                                                                                        "connectivityType": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "port": {
+                                                                                            "type": "integer"
+                                                                                        }
+                                                                                    },
+                                                                                    "type": "object"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "HTTP-_Get_SQL_VM": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson"
+                                        },
+                                        "Parse_alert_body": {
+                                            "inputs": {
+                                                "content": "@triggerBody()",
+                                                "schema": {
+                                                    "properties": {
+                                                        "alertDisplayName": {
+                                                            "type": "string"
+                                                        },
+                                                        "alertUri": {
+                                                            "type": "string"
+                                                        },
+                                                        "compromisedEntity": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        },
+                                                        "endTimeUtc": {
+                                                            "type": "string"
+                                                        },
+                                                        "entities": {
+                                                            "items": {
+                                                                "properties": {
+                                                                    "$id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "address": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "azureID": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "host": {
+                                                                        "properties": {
+                                                                            "$ref": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "hostName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "isDomainJoined": {
+                                                                        "type": "boolean"
+                                                                    },
+                                                                    "location": {
+                                                                        "properties": {
+                                                                            "asn": {
+                                                                                "type": "integer"
+                                                                            },
+                                                                            "city": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "countryCode": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "countryName": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "latitude": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "longitude": {
+                                                                                "type": "number"
+                                                                            },
+                                                                            "state": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "ntDomain": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "omsAgentID": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "sourceAddress": {
+                                                                        "properties": {
+                                                                            "$ref": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "$id",
+                                                                    "type"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "type": "array"
+                                                        },
+                                                        "extendedProperties": {
+                                                            "properties": {
+                                                                "accounts used on failed sign in to host attempts": {
+                                                                    "type": "string"
+                                                                },
+                                                                "end Time UTC": {
+                                                                    "type": "string"
+                                                                },
+                                                                "killChainIntent": {
+                                                                    "type": "string"
+                                                                },
+                                                                "number of failed authentication attempts to host": {
+                                                                    "type": "string"
+                                                                },
+                                                                "resourceType": {
+                                                                    "type": "string"
+                                                                },
+                                                                "was SSH session initiated": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "isIncident": {
+                                                            "type": "boolean"
+                                                        },
+                                                        "remediationSteps": {
+                                                            "type": "string"
+                                                        },
+                                                        "resourceIdentifiers": {},
+                                                        "severity": {
+                                                            "type": "string"
+                                                        },
+                                                        "startTimeUtc": {
+                                                            "type": "string"
+                                                        },
+                                                        "status": {
+                                                            "type": "string"
+                                                        },
+                                                        "systemAlertId": {
+                                                            "type": "string"
+                                                        },
+                                                        "timeGenerated": {
+                                                            "type": "string"
+                                                        },
+                                                        "vendorName": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "Initialize_resource_ID": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson"
+                                        },
+                                        "Set_sqlPort": {
+                                            "inputs": {
+                                                "name": "sqlPort",
+                                                "value": "@body('Parse_SQL_port')?['properties']?['serverConfigurationsManagementSettings']?['sqlConnectivityUpdateSettings']?['port']"
+                                            },
+                                            "runAfter": {
+                                                "Parse_SQL_port": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable"
+                                        },
+                                        "Until": {
+                                            "actions": {
+                                                "For_each_2": {
+                                                    "actions": {
+                                                        "Condition_4": {
+                                                            "actions": {
+                                                                "Increment_NSG_rule_priority": {
+                                                                    "inputs": {
+                                                                        "name": "rulePriority"
+                                                                    },
+                                                                    "runAfter": {},
+                                                                    "type": "IncrementVariable"
+                                                                }
+                                                            },
+                                                            "expression": {
+                                                                "and": [
+                                                                    {
+                                                                        "equals": [
+                                                                            "@items('For_each_2')?['properties']?['priority']",
+                                                                            "@variables('rulePriority')"
+                                                                        ]
+                                                                    }
+                                                                ]
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "If"
+                                                        }
+                                                    },
+                                                    "foreach": "@body('Parse_NSG_rules')?['value']",
+                                                    "runAfter": {
+                                                        "Set_counter": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Foreach"
+                                                },
+                                                "Set_counter": {
+                                                    "inputs": {
+                                                        "name": "counter",
+                                                        "value": "@variables('rulePriority')"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "SetVariable"
+                                                }
+                                            },
+                                            "expression": "@equals(variables('rulePriority'), variables('counter'))",
+                                            "limit": {
+                                                "count": 60,
+                                                "timeout": "PT1H"
+                                            },
+                                            "runAfter": {
+                                                "Initialize_counter": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Until"
+                                        }
+                                    },
+                                    "contentVersion": "1.0.0.0",
+                                    "outputs": {},
+                                    "parameters": {
+                                        "$connections": {
+                                            "defaultValue": {},
+                                            "type": "Object"
+                                        }
+                                    },
+                                    "triggers": {
+                                        "When_an_Azure_Security_Center_Alert_is_created_or_triggered": {
+                                            "inputs": {
+                                                "body": {
+                                                    "callback_url": "@{listCallbackUrl()}"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['ascalert']['connectionId']"
+                                                    }
+                                                },
+                                                "path": "/Microsoft.Security/Alert/subscribe"
+                                            },
+                                            "type": "ApiConnectionWebhook"
+                                        }
+                                    }
+                                },
+                                "parameters": {
+                                    "$connections": {
+                                        "value": {
+                                            "ascalert": {
+                                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]",
+                                                "connectionName": "[variables('ascalertConnectionName')]",
+                                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            "type": "Microsoft.Security/automations",
+                            "apiVersion": "2019-01-01-preview",
+                            "name": "[variables('automationName')]",
+                            "location": "[resourceGroup().location]",
+                            "dependsOn": [
+                                "[resourceId('Microsoft.Logic/workflows', 'SqlBruteForceBlocking')]"
+                            ],
+                            "tags": {},
+                            "properties": {
+                                "description": "Workflow Automation for Azure Security Center alerts via policy",
+                                "isEnabled": true,
+                                "scopes": [
+                                    {
+                                        "description": "[replace(variables('scopeDescription'),'{0}', subscription().subscriptionId)]",
+                                        "scopePath": "[concat('/subscriptions/', subscription().subscriptionId)]"
+                                    }
+                                ],
+                                "sources": [
+                                    {
+                                        "eventSource": "Alerts",
+                                        "copy": [
+                                            {
+                                                "name": "ruleSets",
+                                                "count": "[variables('alertSeveritiesLengthIfEmpty')]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "[if(equals(variables('alertType'), ''), 'Version', 'AlertType')]",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[if(equals(variables('alertType'), ''), '3.', variables('alertType'))]",
+                                                            "operator": "Contains"
+                                                        },
+                                                        {
+                                                            "propertyJPath": "Severity",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[variables('severityMap')[variables('alertSeverities')[mod(copyIndex('ruleSets'), variables('alertSeveritiesLengthIfEmpty'))]]]",
+                                                            "operator": "Equals"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    }
+                                ],
+                                "actions": [
+                                    {
+                                        "actionType": "LogicApp",
+                                        "logicAppResourceId": "[variables('LogicAppResourceId')]",
+                                        "uri": "[listCallbackUrl(concat(variables('LogicAppResourceId'), '/triggers/', variables('triggerMap')[variables('logicAppTrigger')]),'2016-06-01').value]"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    "outputs": {
+                        "waPrincipalId": {
+                            "type": "string",
+                            "value": "[reference(resourceId(subscription().subscriptionId, resourceGroup().name, 'Microsoft.Logic/workflows', 'SqlBruteForceBlocking'), '2017-07-01', 'full').identity.principalId]"
+                        }
+                    }
+                }
+            },
+            "resourceGroup": "[parameters('resourceGroupName')]"
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2020-04-01-preview",
+            "name": "[variables('roleAssignmentId')]",
+            "dependsOn": [
+                "['Microsoft.Resources/deployments/waDeployment']"
+            ],
+            "properties": {
+                "roleDefinitionId": "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c",
+                "principalId": "[reference('waDeployment').outputs.waPrincipalId.value]",
+                "principalType": "ServicePrincipal",
+                "scope": "[concat('/subscriptions/', subscription().subscriptionId)]"
+            }
+        }
+    ]
+}
