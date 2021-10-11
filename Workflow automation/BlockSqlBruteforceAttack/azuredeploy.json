@@ -5,10 +5,6 @@
         "resourceGroupName": {
             "defaultValue": "BlockSqlBruteForce",
             "type": "String"
-        },
-        "resourceGroupLocation": {
-            "defaultValue": "Central US",
-            "type": "String"
         }
     },
     "variables": {
@@ -19,7 +15,7 @@
             "type": "Microsoft.Resources/resourceGroups",
             "apiVersion": "2018-05-01",
             "name": "[parameters('resourceGroupName')]",
-            "location": "[parameters('resourceGroupLocation')]",
+            "location": "[deployment().location]",
             "properties": {}
         },
         {
