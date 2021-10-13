@@ -1,0 +1,1534 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Azure Defender Active Alerts"
+      },
+      "name": "text - 0"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "5167a8ae-c7a0-4ac8-9c1f-11cd025f0261",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "/subscriptions/1c61ccbf-70b3-45a3-a1fb-848ce46d70a6"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          },
+          {
+            "id": "8724f927-b766-4814-a895-8c55565fb7f8",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "type": 5,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n| where type contains \"solution\"\r\n| where name contains \"security\"\r\n| project id = tostring(properties.workspaceResourceId)\r\n| distinct id",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": [
+              "/subscriptions/1c61ccbf-70b3-45a3-a1fb-848ce46d70a6/resourcegroups/admin/providers/Microsoft.OperationalInsights/workspaces/adminsoc"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "acc2c6fd-cd94-47a6-8a0d-b8d23bb506f2",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "type": 4,
+            "value": {
+              "durationMs": 7776000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 300000
+                },
+                {
+                  "durationMs": 900000
+                },
+                {
+                  "durationMs": 1800000
+                },
+                {
+                  "durationMs": 3600000
+                },
+                {
+                  "durationMs": 14400000
+                },
+                {
+                  "durationMs": 43200000
+                },
+                {
+                  "durationMs": 86400000
+                },
+                {
+                  "durationMs": 172800000
+                },
+                {
+                  "durationMs": 259200000
+                },
+                {
+                  "durationMs": 604800000
+                },
+                {
+                  "durationMs": 1209600000
+                },
+                {
+                  "durationMs": 2419200000
+                },
+                {
+                  "durationMs": 2592000000
+                },
+                {
+                  "durationMs": 5184000000
+                },
+                {
+                  "durationMs": 7776000000
+                }
+              ],
+              "allowCustom": true
+            }
+          },
+          {
+            "id": "3d6eace0-1cad-4720-a897-5d09bf745b71",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceIdFilter",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "All"
+          },
+          {
+            "id": "a22d990a-e6b0-4883-b082-7e3ab864910e",
+            "version": "KqlParameterItem/1.0",
+            "name": "AlertDisplayNameFilter",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "All"
+          },
+          {
+            "id": "388299ad-8f0b-4738-8969-11baa0fcede8",
+            "version": "KqlParameterItem/1.0",
+            "name": "NewAlertFilter",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "All"
+          }
+        ],
+        "style": "pills",
+        "queryType": 8
+      },
+      "name": "parameters - 15"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | where properties.Status in ('Active')\r\n  | where properties.Severity in ('Low', 'Medium', 'High')\r\n  | extend SeverityRank = case(\r\n    properties.Severity == 'High', 3,\r\n    properties.Severity == 'Medium', 2,\r\n    properties.Severity == 'Low', 1,\r\n    0\r\n   )\r\n  | project-away SeverityRank\r\n  | extend Severity = properties.Severity\r\n  | project Severity = tostring(Severity)\r\n  | summarize Count = count() by Severity",
+        "size": 0,
+        "title": "Severity                                                                                                     ",
+        "exportedParameters": [
+          {
+            "fieldName": "Subscription",
+            "parameterName": "Subscription",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Severity",
+            "parameterName": "SeverityFilter",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "piechart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Severity",
+              "formatter": 1
+            }
+          ]
+        },
+        "chartSettings": {
+          "yAxis": [
+            "Count"
+          ],
+          "seriesLabelSettings": [
+            {
+              "seriesName": "Medium",
+              "color": "orange"
+            },
+            {
+              "seriesName": "High",
+              "color": "redDark"
+            },
+            {
+              "seriesName": "Low",
+              "color": "yellow"
+            }
+          ]
+        }
+      },
+      "customWidth": "30",
+      "name": "Severity"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | summarize Count =count() by resourceGroup",
+        "size": 0,
+        "title": "Resource Group",
+        "exportFieldName": "resourceGroup",
+        "exportParameterName": "resourceGroupFilter",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "piechart"
+      },
+      "customWidth": "30",
+      "name": "query - 9"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n  | project id = tolower(id), tags\r\n  | join kind=inner (securityresources\r\n  | where type =~ \"microsoft.security/locations/alerts\"\r\n  | extend isAzure = tostring(properties.ResourceIdentifiers) matches regex '\"Type\"\\\\s*:\\\\s*\"AzureResource\"'\r\n  | extend affectedResourceId = extract('\"AzureResourceId\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.ResourceIdentifiers))\r\n  | extend hostName = iff(isAzure, \"\", extract('\"HostName\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.Entities)))\r\n  | extend splitAffectedResourceId = split(affectedResourceId, \"/\")\r\n  | extend resourceNameIndex = iff(array_length(splitAffectedResourceId) > 1, array_length(splitAffectedResourceId) - 1, 0)\r\n  | extend affectedResourceName = iff(isAzure, splitAffectedResourceId[resourceNameIndex], iff(isempty(hostName), \"Non-Azure\", hostName))| project-away resourceNameIndex, splitAffectedResourceId, hostName, isAzure\r\n  | project alertId = id, subscriptionId, alertProperties = properties, affectedResourceId = tolower(affectedResourceId)\r\n    ) on $left.id == $right.affectedResourceId\r\n  | extend id = alertId, subscriptionId, properties = alertProperties\r\n  | where properties.Status in ('Active')\r\n  | where properties.Severity in ('Low', 'Medium', 'High')\r\n  | extend SeverityRank = case(\r\n    properties.Severity == 'High', 3,\r\n    properties.Severity == 'Medium', 2,\r\n    properties.Severity == 'Low', 1,\r\n    0\r\n    )\r\n  | sort by  SeverityRank desc, tostring(properties.SystemAlertId) asc\r\n   | extend Tag = parse_json(tags)\r\n  | mv-expand Tag\r\n | parse Tag with * ':\"' TagValue '\"}'\r\n | project TagValue, alertId\r\n | summarize Count = count() by TagValue",
+        "size": 0,
+        "title": "Tag",
+        "exportFieldName": "TagValue",
+        "exportParameterName": "TagValueFilter",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "piechart"
+      },
+      "customWidth": "30",
+      "name": "query - 12"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "datatable(ResourceId: string) [ \"All\"] | union (securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | extend Prop = parse_json(properties)\r\n  | where Prop.Severity == \"High\"\r\n    | extend ResourceIdentifiers = Prop.[\"ResourceIdentifiers\"]\r\n    | project ResourceIdentifiers\r\n  | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  | where isnotempty(ResourceId )\r\n|  summarize Count=count() by tostring(ResourceId)\r\n  | top 5 by Count)",
+        "size": 1,
+        "title": "Top 5 attacked resources (with High Severity)",
+        "noDataMessage": "There are no Top 5 attacked resources found",
+        "exportedParameters": [
+          {
+            "fieldName": "ResourceId",
+            "parameterName": "ResourceIdFilter",
+            "defaultValue": "All"
+          },
+          {
+            "fieldName": "ResourceId",
+            "parameterName": "ShowTable",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ResourceId",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": null,
+                "showIcon": true
+              }
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Count",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Count",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "customWidth": "30",
+      "name": "Top 5 attacked resources (with High Severity)"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "  datatable(AlertDisplayName: string) [ \"All\"] | union(securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n    | extend Prop = parse_json(properties)\r\n  | extend AlertDisplayName = Prop.[\"AlertDisplayName\"]\r\n  | project tostring(AlertDisplayName)\r\n  | summarize Count = count() by AlertDisplayName\r\n  | top 5 by Count)\r\n",
+        "size": 1,
+        "title": "Top alert types       ",
+        "exportedParameters": [
+          {
+            "fieldName": "AlertDisplayName",
+            "parameterName": "AlertDisplayNameFilter",
+            "defaultValue": "All"
+          },
+          {
+            "fieldName": "AlertDisplayName",
+            "parameterName": "ShowTable",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "sortBy": [
+            {
+              "itemKey": "Count",
+              "sortOrder": 2
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Count",
+            "sortOrder": 2
+          }
+        ]
+      },
+      "customWidth": "30",
+      "name": "Top alert types"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "  datatable(AlertDisplayName: string) [ \"All\"] | union(securityresources\r\n| where type =~ 'microsoft.security/locations/alerts'\r\n| extend Prop = parse_json(properties)\r\n| extend TimeGeneratedUtc = Prop.[\"TimeGeneratedUtc\"]\r\n| extend AlertDisplayName = Prop.[\"AlertDisplayName\"]\r\n| where TimeGeneratedUtc > ago(24h)\r\n| summarize AlertCount=count() by tostring(AlertDisplayName))\r\n",
+        "size": 1,
+        "title": "New Alerts (Since last 24hrs)",
+        "noDataMessage": "No new alerts in Last 24 hours",
+        "noDataMessageStyle": 3,
+        "exportedParameters": [
+          {
+            "fieldName": "AlertDisplayName",
+            "parameterName": "NewAlertFilter",
+            "defaultValue": "All"
+          },
+          {
+            "fieldName": "AlertDisplayName",
+            "parameterName": "ShowTable",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ClearOther",
+              "formatter": 5
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "AlertDisplayName",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "AlertDisplayName",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "customWidth": "25",
+      "name": "New Alerts (Since last 24hrs)"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "",
+        "size": 0,
+        "title": "Parameters at this point",
+        "queryType": 2
+      },
+      "conditionalVisibility": {
+        "parameterName": "parameter1",
+        "comparison": "isEqualTo",
+        "value": "1"
+      },
+      "name": "query - 23"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n| where type == \"microsoft.security/locations/alerts\"\r\n| project-rename P= properties\r\n| extend Details = parse_json(P)\r\n| extend IsIncident = Details.[\"IsIncident\"]\r\n| extend AlertDisplayName = Details.[\"AlertDisplayName\"]\r\n| extend SystemAlertId = Details.[\"SystemAlertId\"]\r\n| extend Severity = tostring(Details.[\"Severity\"])\r\n| where Severity == \"High\"\r\n| extend AlertUri = Details.[\"AlertUri\"]\r\n| extend Status = tostring(Details.[\"Status\"])\r\n| extend Tactics = tostring(Details.[\"Intent\"])\r\n| extend ResourceIdentifiers = Details.[\"ResourceIdentifiers\"]\r\n| mv-expand ResourceIdentifiers\r\n| extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n| where (\"{ResourceIdFilter}\"==\"All\" or ResourceId == \"{ResourceIdFilter}\") \r\n// if either alert name or new alert are set, union those 2 together, if neither are set treat as all\r\n  and ((\"{AlertDisplayNameFilter}\"==\"All\" and \"{NewAlertFilter}\" == \"All\") or AlertDisplayName == \"{AlertDisplayNameFilter}\" or AlertDisplayName == \"{NewAlertFilter}\")\r\n | extend SeverityRank = case(\r\n    Severity == 'High', 3,\r\n    Severity == 'Medium', 2,\r\n    Severity == 'Low', 1,\r\n    0\r\n    )\r\n| parse AlertUri with * '/subscriptionId/'  SubscriptionId  '/' *\r\n| parse AlertUri with * '/resourceGroup/'  ResourceGroup  '/' *\r\n| parse AlertUri with * '/location/'  Location  \r\n| project Severity, SystemAlertId, AlertDisplayName,IsIncident = iif(IsIncident==\"true\",\"Incident\",\"Alert\"),AlertUri,Status,Tactics,SeverityRank,SubscriptionId,ResourceGroup,Location,ResourceId\r\n| sort by SeverityRank",
+        "size": 0,
+        "title": "{$rowCount} Active Alerts ",
+        "exportedParameters": [
+          {
+            "fieldName": "ResourceId",
+            "parameterName": "Resource",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "AlertUri",
+            "parameterName": "AlertUri",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "SystemAlertId",
+            "parameterName": "SystemAlertId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "SubscriptionId",
+            "parameterName": "SubscriptionId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "ResourceGroup",
+            "parameterName": "ResourceGroup",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Location",
+            "parameterName": "Location",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Severity",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "High",
+                    "representation": "redBright",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Medium",
+                    "representation": "orange",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Low",
+                    "representation": "yellow",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Informational ",
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "SystemAlertId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertDisplayName",
+              "formatter": 1,
+              "formatOptions": {
+                "linkTarget": "OpenBlade",
+                "bladeOpenContext": {
+                  "bladeName": "AlertBlade",
+                  "extensionName": "Microsoft_Azure_Security",
+                  "bladeParameters": [
+                    {
+                      "name": "alertId",
+                      "source": "column",
+                      "value": "SystemAlertId"
+                    },
+                    {
+                      "name": "subscriptionId",
+                      "source": "column",
+                      "value": "SubscriptionId"
+                    },
+                    {
+                      "name": "resourceGroup",
+                      "source": "column",
+                      "value": "ResourceGroup"
+                    },
+                    {
+                      "name": "referencedFrom",
+                      "source": "static",
+                      "value": "alertDeepLink"
+                    },
+                    {
+                      "name": "location",
+                      "source": "column",
+                      "value": "Location"
+                    }
+                  ]
+                }
+              }
+            },
+            {
+              "columnMatch": "IsIncident",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "AlertUri",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Tactics",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "SubscriptionId",
+              "formatter": 15,
+              "formatOptions": {
+                "linkTarget": "Resource",
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "Location",
+              "formatter": 17
+            },
+            {
+              "columnMatch": "ResourceId",
+              "formatter": 13,
+              "formatOptions": {
+                "linkTarget": "Resource",
+                "showIcon": true
+              }
+            },
+            {
+              "columnMatch": "TenantId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Description",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProviderName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "VendorName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "VendorOriginalId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SourceComputerId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertType",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ConfidenceLevel",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ConfidenceScore",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "StartTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "EndTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProcessingEndTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "RemediationSteps",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ExtendedProperties",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Entities",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SourceSystem",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "WorkspaceSubscriptionId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "WorkspaceResourceGroup",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ExtendedLinks",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProductName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProductComponentName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertLink",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url"
+              }
+            },
+            {
+              "columnMatch": "SystemIncidentId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SystemAlertId1",
+              "formatter": 5
+            }
+          ]
+        },
+        "sortBy": []
+      },
+      "conditionalVisibility": {
+        "parameterName": "ShowTable",
+        "comparison": "isNotEqualTo"
+      },
+      "showPin": true,
+      "name": "SecurityIncidents - FilterbyResourceId",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "list",
+        "links": [
+          {
+            "id": "2f6ff56b-9afb-46f6-968d-a59cb744ea14",
+            "linkTarget": "OpenBlade",
+            "linkLabel": "Open Alert View",
+            "style": "primary",
+            "bladeOpenContext": {
+              "bladeName": "AlertBlade",
+              "extensionName": "Microsoft_Azure_Security",
+              "bladeParameters": [
+                {
+                  "name": "alertId",
+                  "source": "static",
+                  "value": "{SystemAlertId}"
+                },
+                {
+                  "name": "subscriptionId",
+                  "source": "static",
+                  "value": "{SubscriptionId}"
+                },
+                {
+                  "name": "resourceGroup",
+                  "source": "static",
+                  "value": "{ResourceGroup}"
+                },
+                {
+                  "name": "referencedFrom",
+                  "source": "static",
+                  "value": "alertDeepLink"
+                },
+                {
+                  "name": "location",
+                  "source": "static",
+                  "value": "{Location}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SystemAlertId",
+        "comparison": "isNotEqualTo"
+      },
+      "name": "Alerts  "
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### MITRE ATT&CK tactics &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+      },
+      "customWidth": "100",
+      "name": "text - 17"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n| where type == \"microsoft.security/locations/alerts\"\r\n| extend Details = parse_json(properties)\r\n| extend Tactics = Details.[\"Intent\"]\r\n| project Tactics\r\n| extend Tactic = split(Tactics,\",\")\r\n| mv-expand Tactic\r\n| extend Tactic = trim(\" \",tostring(Tactic))\r\n| summarize Count = count() by Tactic\r\n| sort by Count desc\r\n",
+        "size": 0,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "barchart",
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "Tactics",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count_",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "Tactics",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "count_",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "sizeSettings": "count_",
+          "sizeAggregation": "Sum",
+          "legendMetric": "count_",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "type": "heatmap",
+            "colorAggregation": "Sum",
+            "nodeColorField": "count_",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "customWidth": "80",
+      "name": "query - 17",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "bd374a50-b240-4232-ad4a-77725f80bcf5",
+            "cellValue": "View",
+            "linkTarget": "parameter",
+            "linkLabel": "List View",
+            "subTarget": "List",
+            "preText": "",
+            "style": "link"
+          },
+          {
+            "id": "588b7d9f-8ff1-4afa-8d3f-b0085ae6b148",
+            "cellValue": "View",
+            "linkTarget": "parameter",
+            "linkLabel": "Map View",
+            "subTarget": "Map",
+            "preText": "",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 10"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "1ffc8fe9-a919-4c9e-8489-a92f0a7d79e1",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceFilter",
+            "label": "Resource",
+            "type": 5,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | extend Prop = parse_json(properties)\r\n  | extend ResourceIdentifiers = Prop.[\"ResourceIdentifiers\"]\r\n    | project ResourceIdentifiers\r\n  | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  //| where isnotempty(ResourceId )\r\n  | extend Resource = tolower(tostring(ResourceId))\r\n  | summarize count() by Resource\r\n  | project Resource\r\n  //| order by Resource asc\r\n",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "e9522d87-143f-408b-93ea-b8f07223995e",
+            "version": "KqlParameterItem/1.0",
+            "name": "SeverityFilter",
+            "label": "Severity",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "jsonData": "[\r\n\r\n{\"value\": \"High\", \"label\":\"High\"},\r\n{\"value\": \"Medium\", \"label\":\"Medium\"},\r\n{\"value\": \"Low\", \"label\":\"Low\"},\r\n{\"value\": \"Informational\", \"label\":\"Informational\"}\r\n]\r\n    \r\n ",
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all"
+          },
+          {
+            "id": "664365b5-1fc4-4cfa-b99d-a72e3d35ab11",
+            "version": "KqlParameterItem/1.0",
+            "name": "ResourceGroupFilter",
+            "label": "ResourceGroup",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n  | extend resourceGroup = iif(isempty(resourceGroup),\" \",resourceGroup)\r\n| summarize Count =count() by resourceGroup\r\n  | project resourceGroup",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "48a8dd7e-43ab-413e-88f8-a433100d92ce",
+            "version": "KqlParameterItem/1.0",
+            "name": "AlertNameFilter",
+            "label": "AlertName",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "  securityresources\r\n  | where type =~ 'microsoft.security/locations/alerts'\r\n    | extend Prop = parse_json(properties)\r\n  | extend AlertDisplayName = Prop.[\"AlertDisplayName\"]\r\n  | distinct tostring(AlertDisplayName)\r\n  | order by AlertDisplayName asc\r\n ",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "value": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "378aeb0c-9135-43fa-b46a-86f71baa0137",
+            "version": "KqlParameterItem/1.0",
+            "name": "TagFilter",
+            "label": "Tag",
+            "type": 2,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resources\r\n  | project id = tolower(id), tags\r\n  | join kind=inner (securityresources\r\n  | where type =~ \"microsoft.security/locations/alerts\"\r\n  | extend isAzure = tostring(properties.ResourceIdentifiers) matches regex '\"Type\"\\\\s*:\\\\s*\"AzureResource\"'\r\n  | extend affectedResourceId = extract('\"AzureResourceId\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.ResourceIdentifiers))\r\n  | extend hostName = iff(isAzure, \"\", extract('\"HostName\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.Entities)))\r\n  | extend splitAffectedResourceId = split(affectedResourceId, \"/\")\r\n  | extend resourceNameIndex = iff(array_length(splitAffectedResourceId) > 1, array_length(splitAffectedResourceId) - 1, 0)\r\n  | extend affectedResourceName = iff(isAzure, splitAffectedResourceId[resourceNameIndex], iff(isempty(hostName), \"Non-Azure\", hostName))| project-away resourceNameIndex, splitAffectedResourceId, hostName, isAzure\r\n  | project alertId = id, subscriptionId, alertProperties = properties, affectedResourceId = tolower(affectedResourceId)\r\n    ) on $left.id == $right.affectedResourceId\r\n  | extend id = alertId, subscriptionId, properties = alertProperties\r\n  | where properties.Status in ('Active')\r\n  | where properties.Severity in ('Low', 'Medium', 'High')\r\n  | extend SeverityRank = case(\r\n    properties.Severity == 'High', 3,\r\n    properties.Severity == 'Medium', 2,\r\n    properties.Severity == 'Low', 1,\r\n    0\r\n    )\r\n  | sort by  SeverityRank desc, tostring(properties.SystemAlertId) asc\r\n   | extend Tag = parse_json(tags)\r\n  | mv-expand Tag\r\n | parse Tag with * ':\"' TagValue '\"}'\r\n | extend TagValue = iif(isempty(TagValue),\" \",TagValue)\r\n  | project TagValue, alertId\r\n | distinct TagValue",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 23"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n  | where type =~ \"microsoft.security/locations/alerts\"\r\n    | extend isAzure = tostring(properties.ResourceIdentifiers) matches regex '\"Type\"\\\\s*:\\\\s*\"AzureResource\"'\r\n  | extend Details = parse_json(properties)\r\n| extend IsIncident = Details.[\"IsIncident\"]\r\n| extend AlertDisplayName = Details.[\"AlertDisplayName\"]\r\n| extend SystemAlertId = Details.[\"SystemAlertId\"]\r\n| extend Severity = Details.[\"Severity\"]\r\n| extend AlertUri = Details.[\"AlertUri\"]\r\n| extend Status = Details.[\"Status\"]\r\n| extend Tactics = Details.[\"Intent\"]\r\n| parse AlertUri with * '/subscriptionId/'  SubscriptionId  '/' *\r\n| parse AlertUri with * '/resourceGroup/'  ResourceGroup  '/' *\r\n| parse AlertUri with * '/location/'  Location  \r\n  | extend affectedResourceId = extract('\"AzureResourceId\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.ResourceIdentifiers))\r\n  | extend hostName = iff(isAzure, \"\", extract('\"HostName\"\\\\s*:\\\\s*\"([^\"]*)\"', 1, tostring(properties.Entities)))\r\n  | extend splitAffectedResourceId = split(affectedResourceId, \"/\")\r\n  | extend resourceNameIndex = iff(array_length(splitAffectedResourceId) > 1, array_length(splitAffectedResourceId) - 1, 0)\r\n  | extend affectedResourceName = iff(isAzure, splitAffectedResourceId[resourceNameIndex], iff(isempty(hostName), \"Non-Azure\", hostName))| project-away resourceNameIndex, splitAffectedResourceId, hostName\r\n  | extend ResourceIdentifiers = Details.[\"ResourceIdentifiers\"]\r\n    | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  | extend Resource = tolower(tostring(ResourceId))\r\n  | project alertId = id, subscriptionId, alertProperties = properties, affectedResourceId = tolower(affectedResourceId),tostring(Severity), SystemAlertId, AlertDisplayName,IsIncident = iif(IsIncident==\"true\",\"Incident\",\"Alert\"),AlertUri,Status,Tactics,SubscriptionId,ResourceGroup,Location, ResourceIdentifier=Details.[\"ResourceIdentifiers\"],Resource\r\n  | join kind=leftouter (\r\n  resources\r\n  | project id = tolower(id), tags\r\n  ) on $left.affectedResourceId == $right.id\r\n    | extend id = alertId, subscriptionId, properties = alertProperties\r\n    | extend ResourceFilter =\" {ResourceFilter}\"\r\n   | where Resource in~ ({ResourceFilter})\r\n | where Severity in~ ({SeverityFilter})\r\n   | where AlertDisplayName in~ ({AlertNameFilter})\r\n   | extend ResourceGroup = iif(isempty(ResourceGroup), \" \",ResourceGroup)\r\n   | where ResourceGroup in~ ({ResourceGroupFilter})\r\n | extend tag = parse_json(tags)\r\n | mv-expand tag\r\n | parse tag with * ':\"' TagValue '\"}'\r\n | extend TagValue = iif(isempty(TagValue), \" \",TagValue)\r\n | where TagValue in ({TagFilter})\r\n | project (Severity), tostring(SystemAlertId), tostring(AlertDisplayName),IsIncident = iif(IsIncident==\"true\",\"Incident\",\"Alert\"),tostring(AlertUri),tostring(Status),tostring(Tactics),SubscriptionId,ResourceGroup,Location,TagValue,tostring(tags),Resource, tostring(ResourceIdentifier)\r\n | distinct  Severity, SystemAlertId, AlertDisplayName,IsIncident, AlertUri,Status,Tactics,SubscriptionId,ResourceGroup,Location,tags,ResourceIdentifier\r\n| order by Severity asc",
+        "size": 0,
+        "title": "Active Alerts ",
+        "exportedParameters": [
+          {
+            "fieldName": "ResourceId",
+            "parameterName": "Resource",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "AlertUri",
+            "parameterName": "AlertUri",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "SystemAlertId",
+            "parameterName": "SystemAlertId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "SubscriptionId",
+            "parameterName": "SubscriptionId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "ResourceGroup",
+            "parameterName": "ResourceGroup",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Location",
+            "parameterName": "Location",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Severity",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "colors",
+                "thresholdsGrid": [
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "High",
+                    "representation": "redBright",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Medium",
+                    "representation": "orange",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Low",
+                    "representation": "yellow",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "contains",
+                    "thresholdValue": "Informational ",
+                    "representation": "gray",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": null,
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "SystemAlertId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "IsIncident",
+              "formatter": 1
+            },
+            {
+              "columnMatch": "AlertUri",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Status",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Location",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ResourceIdentifier",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "TenantId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Description",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProviderName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "VendorName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "VendorOriginalId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SourceComputerId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertType",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ConfidenceLevel",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ConfidenceScore",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "StartTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "EndTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProcessingEndTime",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "RemediationSteps",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ExtendedProperties",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Entities",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SourceSystem",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "WorkspaceSubscriptionId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "WorkspaceResourceGroup",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ExtendedLinks",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProductName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ProductComponentName",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "AlertLink",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url"
+              }
+            },
+            {
+              "columnMatch": "SystemIncidentId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SystemAlertId1",
+              "formatter": 5
+            }
+          ],
+          "sortBy": [
+            {
+              "itemKey": "Tactics",
+              "sortOrder": 1
+            }
+          ]
+        },
+        "sortBy": [
+          {
+            "itemKey": "Tactics",
+            "sortOrder": 1
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "View",
+        "comparison": "isEqualTo",
+        "value": "List"
+      },
+      "showPin": true,
+      "name": "SecurityIncidents",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "list",
+        "links": [
+          {
+            "id": "8e6f9368-ccbe-4092-b898-8a27c77a06b3",
+            "linkTarget": "OpenBlade",
+            "linkLabel": "Open Alert View",
+            "style": "primary",
+            "bladeOpenContext": {
+              "bladeName": "AlertBlade",
+              "extensionName": "Microsoft_Azure_Security",
+              "bladeParameters": [
+                {
+                  "name": "alertId",
+                  "source": "static",
+                  "value": "{SystemAlertId}"
+                },
+                {
+                  "name": "subscriptionId",
+                  "source": "static",
+                  "value": "{SubscriptionId}"
+                },
+                {
+                  "name": "resourceGroup",
+                  "source": "static",
+                  "value": "{ResourceGroup}"
+                },
+                {
+                  "name": "referencedFrom",
+                  "source": "static",
+                  "value": "alertDeepLink"
+                },
+                {
+                  "name": "location",
+                  "source": "static",
+                  "value": "{Location}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "View",
+          "comparison": "isEqualTo",
+          "value": "List"
+        },
+        {
+          "parameterName": "SystemAlertId",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "name": "links - 19"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n| where type == \"microsoft.security/locations/alerts\"\r\n| project-rename P= properties\r\n| extend Details = parse_json(P)\r\n | extend ResourceIdentifiers = Details.[\"ResourceIdentifiers\"]\r\n| extend IsIncident = Details.[\"IsIncident\"]\r\n| extend AlertDisplayName = Details.[\"AlertDisplayName\"]\r\n| extend SystemAlertId = Details.[\"SystemAlertId\"]\r\n| extend Severity = Details.[\"Severity\"]\r\n| extend AlertLink = Details.[\"AlertUri\"]\r\n| extend Status = Details.[\"Status\"]\r\n| extend Tactics = Details.[\"Intent\"]\r\n| parse AlertLink with * '/subscriptionId/'  SubscriptionId  '/' *\r\n| parse AlertLink with * '/resourceGroup/'  ResourceGroup  '/' *\r\n| parse AlertLink with * '/location/'  Location  \r\n  | mv-expand ResourceIdentifiers\r\n  | extend ResourceId = parse_json(ResourceIdentifiers).[\"AzureResourceId\"]\r\n  | where isnotempty(ResourceId )\r\n| project  Severity, SystemAlertId, tostring(AlertDisplayName),IsIncident = iif(IsIncident==\"true\",\"Incident\",\"Alert\"),tostring(AlertLink),Status,Tactics,tostring(ResourceId),SubscriptionId,ResourceGroup,Location\r\n| distinct tostring(SystemAlertId),tostring(AlertDisplayName),tostring(AlertLink),tostring(ResourceId)\r\n| summarize count() by ResourceId, AlertLink, AlertDisplayName\r\n",
+        "size": 0,
+        "title": "AlertsMapView ",
+        "exportMultipleValues": true,
+        "exportAggregateParts": true,
+        "exportedParameters": [
+          {
+            "fieldName": "ResourceId",
+            "parameterName": "Resource",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "AlertLink",
+            "parameterName": "AlertLink",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "AlertDisplayName",
+            "parameterName": "AlertDisplayName",
+            "parameterType": 1
+          }
+        ],
+        "exportToExcelOptions": "all",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "map",
+        "mapSettings": {
+          "locInfo": "AzureResource",
+          "locInfoColumn": "ResourceId",
+          "sizeSettings": "count_",
+          "sizeAggregation": "Sum",
+          "legendMetric": "count_",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "nodeColorField": "count_",
+            "colorAggregation": "Sum",
+            "type": "heatmap",
+            "heatmapPalette": "coldHot"
+          }
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "View",
+        "comparison": "isEqualTo",
+        "value": "Map"
+      },
+      "customWidth": "50",
+      "name": "AlertsMapView ",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "let T = datatable ( AlertLink:string)\r\n[\r\n{AlertLink}\r\n];\r\nT\r\n| parse AlertLink with * '/alertId/' AlertId '/subscriptionId/' SubscriptionId '/resourceGroup/' ResourceGroup '/referencedFrom/alertDeepLink/location/' Location \r\n| distinct AlertLink, AlertId, ResourceGroup,Location,SubscriptionId\r\n| join kind = inner (SecurityAlert\r\n| where isempty(ResourceId) == false\r\n| where TimeGenerated > ago(90d)\r\n| project SystemAlertId,ResourceId, DisplayName,StartTime) on $left.AlertId == $right.SystemAlertId\r\n| project ResourceId,DisplayName,AlertId, SubscriptionId, ResourceGroup, Location,StartTime\r\n| order by ResourceId,DisplayName, StartTime asc\r\n\r\n\r\n\r\n",
+        "size": 0,
+        "exportedParameters": [
+          {
+            "fieldName": "AlertId",
+            "parameterName": "AlertId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "SubscriptionId",
+            "parameterName": "SubscriptionId",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "Location",
+            "parameterName": "Location",
+            "parameterType": 1
+          },
+          {
+            "fieldName": "ResourceGroup",
+            "parameterName": "ResourceGroup",
+            "parameterType": 1
+          }
+        ],
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces",
+        "crossComponentResources": [
+          "{Workspace}"
+        ],
+        "visualization": "table",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "ResourceId",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "23ch"
+              }
+            },
+            {
+              "columnMatch": "DisplayName",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "45ch"
+              }
+            },
+            {
+              "columnMatch": "AlertId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Location",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "StartTime",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "23ch"
+              }
+            },
+            {
+              "columnMatch": "TimeGenerated",
+              "formatter": 0,
+              "formatOptions": {
+                "customColumnWidthSetting": "22ch"
+              }
+            },
+            {
+              "columnMatch": "AlertLink",
+              "formatter": 5
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "ResourceId"
+            },
+            {
+              "columnId": "DisplayName",
+              "label": "AlertDisplayName"
+            },
+            {
+              "columnId": "AlertId"
+            },
+            {
+              "columnId": "SubscriptionId"
+            },
+            {
+              "columnId": "ResourceGroup"
+            },
+            {
+              "columnId": "Location"
+            },
+            {
+              "columnId": "StartTime"
+            }
+          ]
+        },
+        "sortBy": [],
+        "tileSettings": {
+          "showBorder": false
+        }
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "View",
+          "comparison": "isEqualTo",
+          "value": "Map"
+        },
+        {
+          "parameterName": "AlertLink",
+          "comparison": "isNotEqualTo"
+        }
+      ],
+      "customWidth": "45",
+      "name": "AlertLink-Table"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": ""
+      },
+      "customWidth": "80",
+      "name": "text - 13"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "list",
+        "links": [
+          {
+            "id": "f8540870-bef0-41af-b3c1-848239aceb08",
+            "linkTarget": "OpenBlade",
+            "linkLabel": "Open Alert View",
+            "style": "primary",
+            "bladeOpenContext": {
+              "bladeName": "AlertBlade",
+              "extensionName": "Microsoft_Azure_Security",
+              "bladeParameters": [
+                {
+                  "name": "alertId",
+                  "source": "static",
+                  "value": "{AlertId}"
+                },
+                {
+                  "name": "subscriptionId",
+                  "source": "static",
+                  "value": "{SubscriptionId}"
+                },
+                {
+                  "name": "resourceGroup",
+                  "source": "static",
+                  "value": "{ResourceGroup}"
+                },
+                {
+                  "name": "referencedFrom",
+                  "source": "static",
+                  "value": "alertDeepLink"
+                },
+                {
+                  "name": "location",
+                  "source": "static",
+                  "value": "{Location}"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "conditionalVisibilities": [
+        {
+          "parameterName": "Location",
+          "comparison": "isNotEqualTo"
+        },
+        {
+          "parameterName": "View",
+          "comparison": "isEqualTo",
+          "value": "Map"
+        }
+      ],
+      "customWidth": "20",
+      "name": "links - 12"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Security Center"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

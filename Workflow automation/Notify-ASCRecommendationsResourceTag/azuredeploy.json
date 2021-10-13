@@ -1,0 +1,196 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata":{
+        "comments": "This Logic App for Workflow Automations will notify ASC generated recommendations to Azure Resource TAG Owners including Azure Arc resources.",
+        "author": "João Paulo Ramos / Nathan Swift"
+    },  
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Notify-ASCRecommendationsResourceTag",
+            "type": "String"
+        },
+        "Sender": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "ComplianceEmailAddress": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "ASCAssessmentConnectionName": "[concat('ascassessment-', parameters('LogicAppName'))]",
+        "office365ConnectionName": "[concat('office365-', parameters('LogicAppName'))]" 
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ASCAssessmentConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('Sender')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('Sender')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('ASCAssessmentConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "ComplianceEmailAddress": {
+                            "defaultValue": "[parameters('ComplianceEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "GetTAGs": {
+                            "runAfter": {
+                                "Initialize_variable_IDComponents": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/@{variables('IDComponents')}/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                            },
+                            "description": "GetTAGs get the resource TAGs from the IDComponents variable"
+                        },
+                        "Initialize_OwnerEmail": {
+                            "runAfter": {
+                                "GetTAGs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "OwnerEmail",
+                                        "type": "string",
+                                        "value": "@{body('GetTAGs')?['properties/tags']?['Owner']}"
+                                    }
+                                ]
+                            },
+                            "description": "Read the value of the TAG 'Owner' and create an email"
+                        },
+                        "Initialize_variable_IDComponents": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "IDComponents",
+                                        "type": "string",
+                                        "value": "@{triggerBody()?['properties']?['resourceDetails']?['id']}"
+                                    }
+                                ]
+                            },
+                            "description": "The IDComponents variable gets the Azure resource ID"
+                        },
+                        "Send_an_email_(V2)": {
+                            "runAfter": {
+                                "Initialize_OwnerEmail": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Body": "<p>Azure Security Center has discovered a potential security vulnerability in your environment - Recommendation details below:<br>\n<br>\n<strong>Affected Resource:</strong> @{split(variables('IDComponents'), '/')[8]}<br>\n<br>\n<strong>Recommendation name:</strong> @{triggerBody()?['properties']?['displayName']}<br>\n<br>\n<strong>Status:</strong> @{triggerBody()?['properties']?['status']?['code']}<br>\n<br>\n<strong>Description:</strong> @{triggerBody()?['properties']?['metadata']?['description']}<br>\n<br>\n<strong>Resource type (Azure/Non-Azure):</strong> @{triggerBody()?['properties']?['resourceDetails']?['source']}<br>\n<br>\n<strong>Remediation steps:</strong> @{triggerBody()?['properties']?['metadata']?['remediationDescription']}<br>\n<br>\n<span style=\"font-size: 8px\">Resource ID: </span><span style=\"font-size: 8px\">@{triggerBody()?['properties']?['resourceDetails']?['id']}</span><span style=\"font-size: 8px\"></span><br>\n<span style=\"font-size: 8px\">Link to view the recommendation in Azure Security Center:<br>\n</span><span style=\"font-size: 8px\">@{triggerBody()?['properties']?['links']?['azurePortalUri']}</span><span style=\"font-size: 8px\"></span></p>",
+                                    "Cc": "@parameters('GRC Team')",
+                                    "Importance": "High",
+                                    "Subject": "ASC Recommendation for your resource",
+                                    "To": "@variables('OwnerEmail')"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            },
+                            "description": "Send an ASC Recommendation to resource owner and CC the GRC Team"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "[variables('Office365ConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            },
+                            "ascassessment": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ASCAssessmentConnectionName'))]",
+                                "connectionName": "[variables('ASCAssessmentConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
