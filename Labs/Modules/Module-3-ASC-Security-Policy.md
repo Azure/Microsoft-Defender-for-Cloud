@@ -21,54 +21,34 @@ To get started with Security Center, you must have a subscription to Microsoft A
 
 Note: This is the default policy for Azure Security Center recommendations which is enabled by default on your subscription. This is the default set of policies monitored by Azure Security Center. It was automatically assigned as part of onboarding to Security Center. The default assignment contains only audit policies. For more information please visit https://aka.ms/ascpolicies
 
-4.	To view the effective policy, click on **View effective policy**.
-5.	On the selected scope (Azure subscription 1 with 1 security policy assignments), you can see overall effective policies in Security Center divided into groups. Each group contains some of the policies found in the assigned initiative:
 
-    - Compute and Apps
-    - Network
-    - Data
-    - Identity
-
-6.	As you can see, policies are set to different effects based on the order of evaluation:
-
-Effect | Description
------- | -------- | 
-**Disabled** | This effect is useful for testing situations or for when the policy definition has parameterized the effect. This flexibility makes it possible to disable a single assignment instead of disabling all of that policy's assignments.
-**Audit** | Audit is used to create a warning event in the activity log when evaluating a non-compliant resource, but it doesn't stop the request.
-**AuditIfNotExists** | AuditIfNotExists enables auditing of resources related to the resource that matches the if condition, but don't have the properties specified in the details of the then condition.
-
-*Read more on Azure Policy effects* [*here*](https://docs.microsoft.com/en-us/azure/governance/policy/concepts/effects)
-
-> ❗ Important: <br>
-> You should see a different subscription GUID on your environment
-
-7.	Look for **Subnets should be associated with a Network Security Group** recommendation under the **Network** category. This recommendation is currently set to **Disabled** action.
-8.	Click on the assign assignment: **ASC Default (subscription: dd82589b-444c-45a8-863a-816243ce017d)**. Azure Security Center assess your environment and audit data and do not enforce without your approval.
-9.	On the Edit Initiative Assignment page, click on **Parameters**
-10.	On the Parameters page, you can see the full list of recommendations associated with the **Enable Monitoring in Azure Security Center** initiative which is assigned as **ASC default**.
-11.	On the **Network Security Groups on the subnet level should be enabled**, change the action to AuditIfNotExists to enable monitoring of NSGs on subnets.
-12.	Click on **Review + save**
-13.	On the review tab, you can see your changes under the Parameters section: **networkSecurityGroupsOnSubnetsMonitoringEffect: AuditIfNotExists**
+4.	Click on the assign assignment: **ASC Default (subscription: dd82589b-444c-45a8-863a-816243ce017d)**. Azure Security Center assess your environment and audit data and do not enforce without your approval.
+5.	On the Edit Initiative Assignment page, click on **Parameters**
+6.	On the Parameters page, you can see the full list of recommendations associated with the **Enable Monitoring in Azure Security Center** initiative which is assigned as **ASC default**.Untick the box "Only show parameters that require input".
+![Modifying Security Center default policy assignment](../Images/lab3pl.gif?raw=true)
+7.	On the **Network Security Groups on the subnet level should be enabled**, change the action to AuditIfNotExists to enable monitoring of NSGs on subnets.
+8.	Click on **Review + save**
+9.	On the review tab, you can see your changes under the Parameters section: **networkSecurityGroupsOnSubnetsMonitoringEffect: AuditIfNotExists**
 
 ![Modifying Security Center default policy assignment](../Images/asc-default-policy-nsg-recommendation.gif?raw=true)
 
-14.	Click **Save**. Wait for the policy update until complete successful.
+10.	Click **Save**. Wait for the policy update until complete successful.
 
 ### Exercise 2: Explore Azure Policy
-1.	On Azure Portal, navigate to **Azure Policy blade**. You can use the search box on the upper part or  navigate to: https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade
+1.	On Azure Portal, navigate to **Azure Policy blade**. You can use the search box on the upper part for Policy or navigate to: https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade
 2.	From the left navigation pane, under the **Authoring** section, click on **Definitions** to explore the built-in policy definitions and initiatives.
 3.	From the top menu, use the filter button and set Category as **Security Center** and Definitions Type as Initiative
-4.	You can now see two built-in initiatives used by Azure Security Center:
-    -	*Enable Monitoring in Azure Security Center*
-    -	*[Preview]: Enable Data Protection Suite*
+4.	You can now see two built-in initiatives used by Azure Security Center.
+![Modifying Security Center default policy assignment](../Images/lab3pl2.gif?raw=true)
 5.	Notice the number of policies included in each initiative (policies column)
-6.	Both initiatives are assigned to your subscription automatically. To see current assignments, click on **Assignment** from the left navigation pane. Both policy initiatives have a different name for the assignment, for example:
+6.	Initiatives are assigned to your subscription automatically. To see current assignments, click on **Assignment** from the left navigation pane. Policy initiatives have a different name for the assignment, for example:
 
-    - *ASC Default (subscription: dd82589b-444c-45a8-863a-816243ce017d)*
-    - *ASC DataProtection (subscription: dd82589b-444c-45a8-863a-816243ce017d)*
-
+   
+    - ASC DataProtection 
+    - ASC OpenSourceRelationalDatabasesProtection
+    - ASC Default 
 7.	Click on **ASC Default** to edit assignment details
-8.	As you can see, this is the same assignment page as presented in the previous section. Click **Cancel**.
+8.	As you can see, this is the same assignment page as presented in the previous section. Now exit.
 
 ### Exercise 3: Create resource exemption for a recommendation
 
@@ -86,12 +66,15 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 ![Create exemption](../Images/asc-management-ports-resource-exemption.gif?raw=true)
 
 6.	The create **exemption pane** opens:
-    - Keep the name as **ASC-asclab-win-restrictAccessToManagementPortsMonitorin**.
-    - Switch the **expiration** toggle button **ON** and set datetime for two days ahead on 12:00 AM.
+   *	Keep the default name.
+*	Click the expiration button ON and set datetime for two days ahead on 12:00 AM.
+
     - Select **Waiver** as exemption category.
     - Provide a description: **Testing exemption capability – module 3**.
     - Select **Save**.
-    - 
+  
+  ![Modifying Security Center default policy assignment](../Images/lab3pl6.gif?raw=true)
+  
 > ⭐ Good to know: <br>
 > **Mitigated** - This issue isn't relevant to the resource because it's been handled by a different tool or process than the one being suggested
 > **Waiver** - Accepting the risk for this resource
@@ -123,7 +106,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 
 ![Prevent resource creation](../Images/asc-storage-deny-policy.gif?raw=true)
 
-6.	Go back to the **recommendations view**, and from the search area, type **Auditing**. Click on the recommendation **Auditing on SQL server should be enabled**.
+6.	Go back to the **recommendations view**, and remove the Deny-only filter. From the search area, type **Auditing**. Click on the recommendation **Auditing on SQL server should be enabled**.
 
 ![Auditing on SQL server should be enabled](../Images/asc-auditing-sql.gif?raw=true)
 
@@ -136,7 +119,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 Select **Review + create** to assign the policy on your subscription.
 * Click **Create**
 
-1. On the recommendation page, **select** the SQL Server resource found on the **unheatlhy resources** tab (asclab-sql-xxx) and click **Remediate**. Change the retention days parameter to 180 and then click **Remediate 1 resource**. By doing both operations, you can now be ensure your existing resources and new ones will be enabled for auditing. Auditing on your SQL Server helps you track database activities across all databases on the server and save them in an audit log.
+1. On the recommendation page, **select** the SQL Server resource found on the **unhealthy resources** tab (asclab-sql-xxx) and click **Remediate**. Click **Remediate 1 resource**. By doing both operations, you can now be ensure your existing resources and new ones will be enabled for auditing. Auditing on your SQL Server helps you track database activities across all databases on the server and save them in an audit log.
 
 10.	[Click here](https://docs.microsoft.com/en-us/azure/security-center/prevent-misconfigurations#recommendations-with-denyenforce-options "Recommendations with deny/enforce options") to view a full list of recommendations with deny/enforce options along with detailed explanation of this capability.
 11.	[Click here](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls#security-controls-and-their-recommendations "Security controls and their recommendations") to review a list of security controls and their recommendations.
@@ -163,7 +146,6 @@ Add each policy one by one:
     - *Managed identity should be used in your Function App*
     - *Custom subscription owner roles should not exist*
     - *Public network access on Azure SQL Database should be disabled*
-    - *SSH access from the Internet should be blocked*
     - *Storage accounts should restrict network access*
 
 1. Select **Review + Create**. Click **Create**.

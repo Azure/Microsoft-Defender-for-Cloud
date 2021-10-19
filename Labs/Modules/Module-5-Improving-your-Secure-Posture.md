@@ -10,9 +10,7 @@ This exercise guides you how to use the vulnerability assessment for virtual mac
 
 ### Exercise 1: Vulnerability assessment for VMs
 
-With Azure Defender for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs.
-Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Azure Security Center console.
-When a machine is found that doesn't have vulnerability assessment solution deployed, Azure Security Center generates a recommendation: *A vulnerability assessment solution should be enabled on your virtual machines*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
+With Azure Defender for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs. Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Azure Security Center console. When a machine is found that doesn't have *vulnerability* assessment solution deployed, Azure Security Center generates a recommendation: *A vulnerability assessment solution should be enabled on your virtual machines*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
 
 **Explore vulnerability assessment recommendations:**
 
@@ -21,7 +19,7 @@ When a machine is found that doesn't have vulnerability assessment solution depl
 3.	Make sure you have *A vulnerability assessment solution should be enabled on your virtual machines* recommendation. If you don’t have this recommendation on the list, you will probably need 24 hours to have the recommendation with the assessment.
 4.	Open the **A vulnerability assessment solution should be enabled on your virtual machines” recommendation** – this recommendation is a Quick Fix one which allows you to deploy the VM extension on the desired VMs.
 5.	Expend **Remediation steps** – in addition to the Quick Fix remediation option, you can also use the **view recommendation logic** option to expose an automatic remediation script content (ARM template). **Close this window.**
-6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Remediate**.
+6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Fix**.
 7.	On the **Choose a vulnerability assessment solution** select **Recommended: Deploy ASC integrated vulnerability scanner powered by Qualys (included in Azure Defender for servers)**. Click **Proceed**.
 8.	A window opens, review the list of VMs and click **Remediate 2 resource** button.
 9.	Remediation is now in process. Azure Security Center will deploy the Qualys VM extension on the selected VMs, so you track the status using the notification area or by using Azure activity log. Wait 5-10 minutes for the process to complete.
@@ -83,11 +81,12 @@ az acr build --image sample/hello-world:v1 --registry <your container registry n
 9.	On the recommendation page, notice the following details at the upper section:
     - Unhealthy registries: *1/1*
     - Severity of recommendation: *High*
-    - Total vulnerabilities: *expect to see more than 2 vulnerabilities*
+    - Total vulnerabilities: *expect to see 2 or more vulnerabilities*
 10.	Expend the **Affected resources** section and notice the **Unhealthy registries** count which shows **1 container registry** (asclab-xxx).
 11.	On the **Security Checks** section, notice the number of vulnerabilities.
-12.	Click on the first security check to open the right pane.
-Notice the vulnerability description, general information (containing the Svss 3.0 base score, SVEs, etc.), remediation steps/workaround, additional information, and the affected (vulnerable) image. **Close this window.**
+12.	Click on the first security check to open the right pane. Notice the vulnerability description, general information, remediation, and the affected resources. **Close this window.**
+
+![](../Images/Lab5vul.gif?raw=true)
 
 ### Exercise 3: Automate recommendations with workflow automation
 
@@ -99,9 +98,9 @@ In this lab, you will create a new Logic App and then trigger it automatically u
 1.	On the Azure Portal, type *Logic Apps* on the search field at the top or [click here](https://ms.portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Logic%2Fworkflows).
 2.	Click **Add** to create a new Logic App.
 3.	On the Basics tab, select **Azure subscription 1** and resource group **asclab**.
-4.	On the Logic app name field enter *Send-RecommendationsChanges*.
+4.	On the Logic app name field enter *SendRecommendationsChanges*, and type: *Consumption*.
 5.	Select location, for example: **West Europe** (it’s recommended to use the same region as used in the previous exercises).
-6.	Keep Log Analytics option as **Off**.
+6.	Leave all other options as per the default.
 7.	Select **Review + Creation** and then **Create**.
 8.	The Logic Apps Designer opens, select **Blank Logic App**.
 9.	At the search control, type *Security Center* and select **When an Azure Security Center Recommendation is created or triggered**.
@@ -164,11 +163,11 @@ Once you start to get email notifications, you can disable the automation by sel
 
 6.	Test/trigger your automation manually:
     - On Security Center sidebar, click on **Recommendations**.
-    - Look for any recommendations that has a Quick Fix banner.
+    - Look for any recommendations that has a Quick Fix banner (which is the lightning symbol to the right of the recommendation).
     - Select a resource and then click on **Trigger Logic App** button.
-    - In the Logic App Trigger blade, select the Logic App you created in the previous step (Send-RecommendationsChanges).
+    - In the Logic App Trigger blade, select the Logic App you created in the previous step (SendRecommendationsChanges).
     - You should receive an email containing ...
-7.	From the top menu, click on **Guides & Feedback**.
+7.	From the top menu in Security Center, click on **Guides & Feedback**.
 8.	Here you can learn more about workflow automation, get useful links and explore our community tools from the GitHub repository.
 9.	Click on **Community tools** and then **View all community tools**.
 
