@@ -16,7 +16,7 @@ To get started with Security Center, you must have a subscription to Microsoft A
 
 1.	Navigate to the **Azure Portal** (https://portal.azure.com) using the credentials you created in the previous module.
 2.	From the left navigation pane, click on **Security Center**. You can also navigate to Azure Security Center dashboard by using the top search bar.
-3.	On the **Overview** blade notes that it now provides a unified view into the security posture and includes multiple independent cloud security pillars such as **Azure Secure Score, Regulatory Compliance and Azure Defender**. 
+3.	On the **Overview** blade notes that it now provides a unified view into the security posture and includes multiple independent cloud security pillars such as **Secure Score, Regulatory Compliance, Azure Defender, Firewall Manager and Insights**. Each of these pillars also has its own dedicated dashboard allowing deeper insights and actions around that vertical, providing easy access and better visibility for security professionals.
 Each of these pillars also has its own dedicated dashboard allowing deeper insights and actions around that vertical, providing easy access and better visibility for security professionals.
 
 > ❗ Important: <br>
@@ -24,20 +24,17 @@ Each of these pillars also has its own dedicated dashboard allowing deeper insig
 
 ![Security Center Snapshot](https://user-images.githubusercontent.com/86690212/127543089-5e7ed1a9-09a1-475a-9c83-36fa1647907f.PNG)
 
-4.	The new overview page also includes a new tile for **Firewall Manager**. By clicking the **Assessed Resources** button, this provides a snapshot to make it easy to find and filter individual resources that are healthy and unhealthy.
 
-![Azure Security Center: Asset inventory](../Images/asc-dashboard-inventory.gif?raw=true)
-
-5.	Note the **top menu** bar which allows to view and filter subscriptions by selecting the **subscriptions button**.
+4.	Note the **top menu** bar which allows to view and filter subscriptions by selecting the **subscriptions button**.
 In this lab we will use only one but selecting different/additional subscriptions will adjust the interface to reflect the security posture for the selected subscriptions.
 
-6.	Click on the **What’s new** button – a new tab opens with the latest release notes where you can stay current on the new features, bug fixes and more.
-7.	Note the **high-level numbers** at the top menu; This view allows you to see a summary of your subscriptions, active recommendations, security alerts alongside with connected cloud accounts (AWS account and GCP projects – will be discussed in the next modules).
+5.	Click on the **What’s new** button – a new tab opens with the latest release notes where you can stay current on the new features, bug fixes and more.
+6.	Note the **high-level numbers** at the top menu; This view allows you to see a summary of your subscriptions, active recommendations, security alerts alongside with connected cloud accounts (AWS account and GCP projects – will be discussed in the next modules).
 
 ![Azure Security Center: Top menu](../Images/asc-dashboard-top-menu.gif?raw=true)
 
-8.	From the top menu bar, **click** on **Azure subscriptions**.
-9.	On the **Coverage** page, note that **Azure subscription 1** is fully covered – means that your subscription is covered by Azure Defender. (you should also see a message: *Looking good! The subscriptions below are fully protected*)
+7.	From the top menu bar, **click** on **Azure subscriptions**.
+8.	On the **Coverage** page, note that **Azure subscription 1** is fully covered – means that your subscription is covered by Azure Defender. (you should also see a message: *Looking good! The subscriptions below are fully protected*)
 
 ![Azure Security Center: Coverage](../Images/asc-subscriptions-coverage.gif?raw=true)
 
@@ -53,12 +50,7 @@ In this lab we will use only one but selecting different/additional subscription
 
 11.	On the **Azure Defender** tile, you can see the coverage of your connected resources (for the currently selected subscriptions) and the recent alerts, color-coded by severity. Your current resource coverage should be **100% which means full protection**. Clicking on this tile will redirects you Azure Defender dashboard.
 12.	On the **Regulatory Compliance** tile, you can get insights into your compliance posture based on continuous assessment of your both Azure and hybrid cloud environments. This tile shows only 4 standards which are SOC TSP, ISO 27001, PCI DSS 3.2.1 and Azure CIS 1.1.0. Clicking on this tile will redirects you to Regulatory Compliance dashboard – where you can add additional standards and explore the current ones.
-13.	The last tile on the overview page is the **Inventory** – it shows the number of unmonitored VMs alongside with the total covered resources - **you should expect to have zero unmonitored VMs**.
-Resources are divided by their health status. Clicking on this tile will redirects you to the asset inventory dashboard where you can explore your resource and their security posture – see a dedicated exercise below.
-
-> ❗ Important: <br>
-> Unmonitored VMs are considered to as virtual machines that have Log Analytics agent deployed, but the agent isn't sending data or has other health issues.
-
+13.	On the **Firewall Manager** tile, you are provided with unified infrastructure and network security management. Azure Firewall Manager is a security management service that provides central security policy and route management for cloud-based security perimeters.
 14.	On the right pane, you can find the **Insights** section which offers tailored items for your environments: 
 
 - Most prevalent recommendations by resources
@@ -113,16 +105,19 @@ Exploring secure score
 
 7.	On the top section, notice the following:
 
-* Title of the recommendation: **Secure transfer to storage accounts should be enabled**
-* Top menu controls: (Enforce and Deny buttons on supported recommendations): **Deny**
+*	**Deny** (the options are Enforce and Deny buttons on supported recommendations)
+*	**Exempt** (which allows you to exempt resources/subscriptions/management groups from being applicable to this recommendation)
+*	**View Policy Definition** (which opens the Azure Policy definition for this recommendation)
+*	**Open Query** (in Azure Resource Graph)
+
 * Severity indicator: **High**
 * Refreshens interval on supported recommendations: **30 Min**
 
 ![Recommendation top menu](../Images/asc-storage-top-menu.gif?raw=true)
 
-8. The next important part is the **Remediation Steps** which contains the remediation logic. As you can see, you can remediate the select resource/s either by following the step-by-step instructions, use the provided ARM template or REST API to automate the process by yourself or use the Quick Fix button which triggers the ARM call for you.
+1. The next important part is the **Remediation Steps** which contains the remediation logic. As you can see, you can remediate the select resource/s either by following the step-by-step instructions, use the provided ARM template or REST API to automate the process by yourself or use the Quick Fix button which triggers the ARM call for you.
 
-* Click on the **view remediation logic*
+* Click on the **Quick Fix Logic**
 * Notice the automatic remediation script content (ARM Template):
 
 ```json
@@ -133,23 +128,25 @@ Exploring secure score
 }
 ```
 
-9.	On the bottom part, **select a resource** (the single storage account on the unhealthy tab) and **click Remediate**.
+9.	On the bottom part, **select a resource** (the single storage account on the unhealthy tab) and **click Fix**.
 
-10. On the right pane, review the implications for this remediation and press **Remediate 1 resource**.
+10. On the right pane, review the implications for this remediation and press **Fix 1 resource**.
 
 ![Remediate a resource](../Images/asc-storage-remediate-resource.gif?raw=true)
 
-11. Wait for a notification: ✅ **Remediation successful** - Successfully remediated the issues on the selected 
+11. Wait for a notification: ✅ **Fix successful** - Successfully remediated the issues on the selected 
 resources. Note: It can take several minutes after remediation completes to see the resources in the 'healthy resources' tab.
 
-12.	Return to recommendations list. Expend the "Manage access and permissions" security control, you can now see recommendations flagged as `Preview`. Those aren’t included in the calculation of your score. They should be still remediated, so that when the preview period ends, they will contribute towards your score.
+12.	Return to recommendations list. Expend the "Manage access and permissions" security control, you can now see preview recommendations which have the flag symbol to their left. Those aren’t included in the calculation of your score. They should be still remediated, so that when the preview period ends, they will contribute towards your score.
+![Remediate a resource](../Images/Lab2rec.gif?raw=true)
+
 
 ### Exercise 3: Exploring the Inventory capability
 
 Asset inventory dashboard allows you to get a single pane of glass view to all your resources covered by Azure Security Center. It also provides per-resource visibility to all Security Center’s information and additional resource details including security posture and protection status. Since this dashboard is based on Azure Resource Graph (ARG), you can run queries across subscriptions at scale quickly and easily.
 
 1.	From Security Center’s sidebar, select **Inventory**
-2.	Hover to the **Summaries strip** at the top of the page.
+2.	Hover to the top of the page.
 3.	Notice the total number of resources: **15**
 
 > ⭐ Notice: <br>
@@ -157,11 +154,11 @@ Asset inventory dashboard allows you to get a single pane of glass view to all y
 
 4.	Notice the number of **unhealthy resources: 11** (resources with active recommendations based on the selected filter)
 5.	Notice the **unmonitored resources: 0** (indicates if there are resources with Log Analytics agent deployed but with health issues). Since we enabled the auto-provisioning in the previous module, all existing VMs are covered and connected = monitored.
-6.	Use the **Filter by name** box to search for **linux**. You should now see a filtered view containing your desired resource: *asclab-linux*
-7.	Hover on the **recommendations** column to see a tooltip with the active recommendations. You should expect to see **8 active out of 16** recommendations – these are the recommendations you must attend.
-8.	Open the resource health pane by selecting the resource. Click on **asclab-linux**. You can also right click on any resource and select **view resource**.
-9.	On the resource health pane for **asclab-linux**, review the virtual machine information alongside with a recommendation list.
-10.	From the filter menu, select the **Resource Group** filter and then **asclab-asc**. Using this filter, you can see all resources related to the predefined Kubernetes resources which are monitored with no active recommendations. Clear the filter by selecting **Resource Group** and then **Select all**.
+6.	Use the **Filter by name** box to search for **linux**. You should now see a filtered view of the disks in your environments.  Clear the filter.
+7.	Open the resource health pane by selecting the resource. Click on **asclab-linux**. 
+8.	On the resource health pane for **asclab-linux**, review the virtual machine information alongside with a recommendation list.
+![Remediate a resource](../Images/Lab2rh.gif?raw=true)
+9.	From the filter menu, select the **Resource Group** filter and then **asclab-aks**. Using this filter, you can see all resources related to the predefined Kubernetes resources which are monitored with no active recommendations. Clear the filter by selecting **Resource Group** and then **Select all**.
 
 > Notice! The entire grid can be filtered and sorted
 

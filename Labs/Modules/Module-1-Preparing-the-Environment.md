@@ -6,7 +6,7 @@
 #### ⌛ Estimated time to complete this lab: 30 minutes
 
 ## Objectives
-Create a new Microsoft Account enable with Azure Trial Subscription
+Create a new Microsoft Account enable with Azure Trial Subscription 
 This section is intended to deploy Azure resources in an automated way to get you started quickly or in case you need to re-provision your environment.
 
 #### Prerequisites
@@ -14,7 +14,7 @@ Before you start this lab, make sure you have the following prerequisites:
 - **Supported web browser** (Microsoft Edge, Google Chrome, Safari, Firefox Mozilla)
     - For using these labs, **we recommend to open an incognito/in-private browser session** on your machine and login to Azure Portal to avoid conflicts with existing Azure Subscriptions/environments if already being used.
  - **Microsoft Account** - If you do not have an existing account Sign-up to create a free account: https://signup.live.com
- - 
+  
 
 ### Exercise 1: Creating an Azure Trial Subscription
 
@@ -100,7 +100,10 @@ When the deployment is complete, you should see the following:
 #### Subscription upgrade and agents installation
 1. Open **Azure Portal** and navigate to **Security Center** blade.
 2. Click on **Getting started** page from the left pane, On the **Upgrade** Tab, select subscription (Azure subscription 1) and press **Upgrade**.
+   >Note: You may need to wait for a few minutes for the upgrade to complete.
 3. Click on **Install agents**, if the button has been grayed out, then it's already set to **On**.
+   ![Template deployment completed](../Images/test.gif?raw=true)
+
 4. Return to Azure security Center blade and Click on **Pricing & settings**.
 5. Your subscription (Azure subscription 1) should be listed and Azure Defender plan should be **On (partial)** (if it does not, close your browser session and open a new one).
 
@@ -111,7 +114,7 @@ When the deployment is complete, you should see the following:
 
 ![Template deployment completed](../Images/asc-workspace-pricing-settings.gif?raw=true)
 
-2. On the Azure Defender Plans page, select **Azure Defender on** and press **Save**. Now both subscription and Log Analytics workspace should be set to **On** for Azure Defender plan.
+2. On the Azure Defender Plans page, select **Azure Defender on** (if it’s not already on) and press **Save**. Now both subscription and Log Analytics workspace should be set to **On** for Azure Defender plan.
 
 ![Enable Azure Defender on the workspace level](../Images/asc-enable-defender-workspace.gif?raw=true)
 
