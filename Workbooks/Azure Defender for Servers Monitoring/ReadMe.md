@@ -1,5 +1,7 @@
 # Azure Defender for Servers monitoring dashboard
 
+**Author: Tom Janetscheck**
+
 The new Azure Defender for Servers monitoring dashboard is a presentation of all machines, Azure VMs and non-Azure machines (connected through Azure Arc), that are covered by Azure Security Center. Besides Azure Defender coverage, and Log Analytics agent installation status, this custom workbook also considers if a machine is currently reporting (i.e. if it is connected and sending logs to its workspace).
 
 ## Try it on the Azure Portal
