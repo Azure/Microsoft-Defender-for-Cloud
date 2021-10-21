@@ -1,0 +1,1389 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Azure Defender for Servers Monitoring Dashboard",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "Azure Security Center",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "variables": {
+    "workbookContent": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Introduction",
+            "items": [
+              {
+                "type": 1,
+                "content": {
+                  "json": "# Azure Defender for Servers Monitoring Dashboard\nAzure Defender for Servers relies on several aspects for a machine to be considered as being *monitored*, which means that Azure Defender will always be able to gather threat evidence to create security alerts:\n1. A Log Analytics agent needs to be installed on a machine (Azure VM or non-Azure machine connected through Azure Arc). \n2. The Log Analytics agent needs to be reporting to its Log Analytics workspace.\n3. The machine (Azure VM or non-Azure machine connected through Azure Arc) needs to be protected by *Azure Defender for Servers*, which means that the plan has been enabled on both, the machine's Azure subscription and the Log Analytics workspace the agent is reporting to.\n\nThis workbook will help you visualize machines which are protected by Azure Defender and have an agent installed, but which do not properly report to their workspace. It will leverage data from both, Log Analytics workspaces you select, and Azure Resource Graph information from all subscriptions you have access to."
+                },
+                "name": "text - 1"
+              },
+              {
+                "type": 1,
+                "content": {
+                  "json": "Please select one, several, or all Log Analytics workspaces in your environment in the drop down below, so the workbook can access relevant data to visualize.",
+                  "style": "info"
+                },
+                "conditionalVisibility": {
+                  "parameterName": "workspace",
+                  "comparison": "isEqualTo"
+                },
+                "name": "text - 2"
+              },
+              {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "parameters": [
+                    {
+                      "id": "3d6a9f93-f352-4ed1-b361-fd784a784fff",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "workspace",
+                      "label": "Log Analytics Workspace",
+                      "type": 5,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "resources\n| where type =~ 'microsoft.operationalinsights/workspaces'\n| project id",
+                      "crossComponentResources": [
+                        "value::all"
+                      ],
+                      "value": [],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources"
+                    }
+                  ],
+                  "style": "pills",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                "name": "parameters - 0"
+              }
+            ],
+            "exportParameters": true
+          },
+          "name": "group - 0"
+        },
+        {
+          "type": 11,
+          "content": {
+            "version": "LinkItem/1.0",
+            "style": "tabs",
+            "links": [
+              {
+                "id": "8666e136-a028-4ed7-9d57-c2f9120e9227",
+                "cellValue": "SelectedTab",
+                "linkTarget": "parameter",
+                "linkLabel": "Overview",
+                "subTarget": "OverviewTab",
+                "style": "link"
+              },
+              {
+                "id": "1d91d475-88d6-47ab-b8ec-7c1be397a31d",
+                "cellValue": "SelectedTab",
+                "linkTarget": "parameter",
+                "linkLabel": "Machines not reporting to LA workspace",
+                "subTarget": "NotReportingTab",
+                "style": "link"
+              },
+              {
+                "id": "491d0551-fb7d-4c2d-8ca2-dc4fb99e128d",
+                "cellValue": "SelectedTab",
+                "linkTarget": "parameter",
+                "linkLabel": "Security status",
+                "subTarget": "SecurityTab",
+                "style": "link"
+              }
+            ]
+          },
+          "name": "links - 4"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "items": [
+              {
+                "type": 1,
+                "content": {
+                  "json": "## Overview\nIn this section, you see the current status of all Azure VMs and Azure Arc machines connected to your subscriptions and Log Analytics workspaces as selected.\n\nThe first chart shows the Log Analytics Agent installation status as reported by Azure Security Center.\nIn the second chart, you see the current Log Analytics Agent reporting status of your machines. Machines that are sending current heartbeat information within the last 15 minutes are considered as *currently reporting*.\nThe third chart shows the status of Azure Defender for Servers across all servers that are protected by Azure Security Center."
+                },
+                "name": "text - 5"
+              },
+              {
+                "type": 1,
+                "content": {
+                  "json": "The total number of machines in the dashboards below may vary as the Log Analytics Agent reporting status dashboard will only show machines that have been reporting within the last 30 days, whereas the other two dashboards will consider machines that are covered by Azure Defender and have an agent installed. This will include machines that have been powered off for more than 30 days but which have not been deleted.",
+                  "style": "info"
+                },
+                "name": "text - 5"
+              },
+              {
+                "type": 1,
+                "content": {
+                  "json": "To see more details, please select **one** value at a time from each of the charts below.",
+                  "style": "info"
+                },
+                "name": "text - 4"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n| where type =~ \"microsoft.security/pricings\"\n| project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n| extend bundlesPricing = pack(bundleName, pricingTier)\n| summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId)\n| summarize dcount(resourceId) by agentMonitoring",
+                  "size": 3,
+                  "title": "Log Analytics Agent installation status",
+                  "exportFieldName": "",
+                  "exportParameterName": "agentInstallStatus",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "visualization": "piechart",
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "installed",
+                        "color": "green"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "33",
+                "name": "query - 5",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "\nHeartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute')\n| summarize arg_max(TimeGenerated, SubscriptionId) by tolower(ResourceId)\n| extend LastSeen = case(TimeGenerated > now(-15m), \"currently reporting\",\n                        TimeGenerated < now(-15m) and TimeGenerated > now(-24h), \"not reporting for > 15 min\",\n                        TimeGenerated < now(-24h) and TimeGenerated > now(-48h), \"not reporting for > 24 hours\",\n                        TimeGenerated < now(-48h) and TimeGenerated > now(-3d), \"not reporting for > 48 hours\",\n                        TimeGenerated < now(-3d) and TimeGenerated > now(-7d), \"not reporting for > 3 days\",\n                        TimeGenerated < now(-7d) and TimeGenerated > now(-30d), \"not reporting for > 7 days\",\n                        \"failed\")\n| order by TimeGenerated\n| summarize NotReportingSince = count() by LastSeen",
+                  "size": 3,
+                  "title": "Log Analytics Agent reporting status",
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "exportFieldName": "",
+                  "exportParameterName": "lastSeen",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ],
+                  "visualization": "piechart",
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "not reporting for > 7 days",
+                        "color": "red"
+                      },
+                      {
+                        "seriesName": "currently reporting",
+                        "color": "green"
+                      },
+                      {
+                        "seriesName": "not reporting for > 15 min",
+                        "color": "yellow"
+                      },
+                      {
+                        "seriesName": "not reporting for > 24 hours",
+                        "color": "orange"
+                      },
+                      {
+                        "seriesName": "not reporting for > 48 hours",
+                        "color": "redBright"
+                      },
+                      {
+                        "seriesName": "not reporting for > 3 days",
+                        "color": "red"
+                      }
+                    ],
+                    "ySettings": {
+                      "numberFormatSettings": {
+                        "unit": 0,
+                        "options": {
+                          "style": "decimal",
+                          "useGrouping": true
+                        }
+                      }
+                    }
+                  }
+                },
+                "customWidth": "33",
+                "name": "query - 3",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n| where type =~ \"microsoft.security/pricings\"\n| project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n| extend bundlesPricing = pack(bundleName, pricingTier)\n| summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId)\n| summarize dcount(resourceId) by AzureDefender = pricing",
+                  "size": 3,
+                  "title": "Azure Defender coverage",
+                  "exportParameterName": "defenderStatus",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "visualization": "piechart",
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "on",
+                        "color": "green"
+                      },
+                      {
+                        "seriesName": "of",
+                        "color": "redBright"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "33",
+                "name": "query - 3",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              }
+            ],
+            "exportParameters": true
+          },
+          "conditionalVisibilities": [
+            {
+              "parameterName": "workspace",
+              "comparison": "isNotEqualTo"
+            },
+            {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            }
+          ],
+          "name": "summary - group",
+          "styleSettings": {
+            "showBorder": true
+          }
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Log Analytics Agent installation status details",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n| where type =~ \"microsoft.security/pricings\"\n| project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n| extend bundlesPricing = pack(bundleName, pricingTier)\n| summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId) and agentMonitoring == parse_json('{agentInstallStatus}').series",
+                  "size": 3,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "resourceType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "exemptionType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "typeFullPath",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceName",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "agentMonitoring",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "installed",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notInstalled",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Unhealthy",
+                              "representation": "2",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notApplicable",
+                              "representation": "cancelled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "Disable",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "assessmentsIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "assessmentsSummary",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "subscriptionPricing",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "unhealthyAssessmentsCount",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "min": 0,
+                          "max": 15,
+                          "palette": "greenRed"
+                        }
+                      },
+                      {
+                        "columnMatch": "pricing",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "on",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "off",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "softwareNamesIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "selectedSoftware",
+                        "formatter": 5
+                      }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "resourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "resourceName",
+                        "label": "Resource Name"
+                      },
+                      {
+                        "columnId": "subscriptionId",
+                        "label": "Subscription ID"
+                      },
+                      {
+                        "columnId": "environment",
+                        "label": "Environment"
+                      },
+                      {
+                        "columnId": "osType",
+                        "label": "OS Type"
+                      },
+                      {
+                        "columnId": "workspaceName",
+                        "label": "Workspace Name"
+                      },
+                      {
+                        "columnId": "agentMonitoring",
+                        "label": "Agent Status"
+                      },
+                      {
+                        "columnId": "unhealthyAssessmentsCount",
+                        "label": "Open Recommendations"
+                      },
+                      {
+                        "columnId": "pricing",
+                        "label": "Azure Defender Coverage"
+                      },
+                      {
+                        "columnId": "resourceGroup",
+                        "label": "Resource Group"
+                      }
+                    ]
+                  }
+                },
+                "conditionalVisibility": {
+                  "parameterName": "agentInstallStatus",
+                  "comparison": "isNotEqualTo"
+                },
+                "name": "query - 0"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "agentInstallStatus",
+            "comparison": "isNotEqualTo"
+          },
+          "name": "Log Analytics Agent installation status details",
+          "styleSettings": {
+            "showBorder": true
+          }
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Log Analytics Agent reporting status details",
+            "loadType": "always",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "let lastStamp = parse_json('{lastSeen}').series;\nlet period1 = case(lastStamp =~ \"currently reporting\", -15m,\n    lastStamp == \"not reporting for > 15 min\", -24h,\n    lastStamp == \"not reporting for > 24 hours\", -48h,\n    lastStamp == \"not reporting for > 48 hours\", -3d,\n    lastStamp == \"not reporting for > 3 days\", -7d,\n    lastStamp == \"not reporting for > 7 days\", -30d,\n -31d);\n let period2 = case( lastStamp == \"currently reporting\", -0m,\n    lastStamp == \"not reporting for > 15 min\", -15m,\n    lastStamp == \"not reporting for > 24 hours\", -24h,\n    lastStamp == \"not reporting for > 48 hours\", -48h,\n    lastStamp == \"not reporting for > 3 days\", -3d,\n    lastStamp == \"not reporting for > 7 days\", -7d,\n -31d);\nHeartbeat\n| where TimeGenerated > now(period1)\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(period2)\n) on ResourceId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "size": 4,
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ]
+                },
+                "customWidth": "1",
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "lastSeen",
+                    "comparison": "isNotEqualTo"
+                  },
+                  {
+                    "parameterName": "workspace",
+                    "comparison": "isEqualTo"
+                  }
+                ],
+                "name": "heartbeat_table",
+                "styleSettings": {
+                  "maxWidth": "50"
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n| where type =~ \"microsoft.security/pricings\"\n| project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n| extend bundlesPricing = pack(bundleName, pricingTier)\n| summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId)",
+                  "size": 4,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ]
+                },
+                "customWidth": "1",
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "lastSeen",
+                    "comparison": "isNotEqualTo"
+                  },
+                  {
+                    "parameterName": "workspace",
+                    "comparison": "isEqualTo"
+                  }
+                ],
+                "name": "protectionstatus_table"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"dbbd53d4-d183-472a-a12f-5256ba415132\",\"mergeType\":\"innerunique\",\"leftTable\":\"heartbeat_table\",\"rightTable\":\"protectionstatus_table\",\"leftColumn\":\"ResourceId\",\"rightColumn\":\"resourceId\"}],\"projectRename\":[{\"originalName\":\"[heartbeat_table].ResourceId\",\"mergedName\":\"ResourceId\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[heartbeat_table].LatestTimestamp\",\"mergedName\":\"LatestTimestamp\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[heartbeat_table].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].resourceType\",\"mergedName\":\"resourceType\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].exemptionType\",\"mergedName\":\"exemptionType\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].typeFullPath\",\"mergedName\":\"typeFullPath\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].resourceId\",\"mergedName\":\"resourceId\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].resourceName\",\"mergedName\":\"resourceName\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].environment\",\"mergedName\":\"environment\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].osType\",\"mergedName\":\"osType\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].workspaceName\",\"mergedName\":\"workspaceName\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].agentMonitoring\",\"mergedName\":\"agentMonitoring\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].assessmentsIdentifier\",\"mergedName\":\"assessmentsIdentifier\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].assessmentsSummary\",\"mergedName\":\"assessmentsSummary\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].subscriptionPricing\",\"mergedName\":\"subscriptionPricing\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].unhealthyAssessmentsCount\",\"mergedName\":\"unhealthyAssessmentsCount\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].pricing\",\"mergedName\":\"pricing\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].softwareNamesIdentifier\",\"mergedName\":\"softwareNamesIdentifier\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].selectedSoftware\",\"mergedName\":\"selectedSoftware\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"},{\"originalName\":\"[protectionstatus_table].resourceGroup\",\"mergedName\":\"resourceGroup\",\"fromId\":\"dbbd53d4-d183-472a-a12f-5256ba415132\"}]}",
+                  "size": 3,
+                  "queryType": 7,
+                  "visualization": "table",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "LatestTimestamp",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "30ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "SubscriptionId",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "41ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceType",
+                        "formatter": 5,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "19ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "exemptionType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "typeFullPath",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceName",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "subscriptionId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "agentMonitoring",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "installed",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notInstalled",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "failed",
+                              "representation": "3",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notApplicable",
+                              "representation": "cancelled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "2",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "assessmentsIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "assessmentsSummary",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "subscriptionPricing",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "unhealthyAssessmentsCount",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "min": 0,
+                          "max": 15,
+                          "palette": "greenRed",
+                          "customColumnWidthSetting": "200px"
+                        }
+                      },
+                      {
+                        "columnMatch": "pricing",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "on",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "softwareNamesIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "selectedSoftware",
+                        "formatter": 5
+                      }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "ResourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "LatestTimestamp",
+                        "label": "Latest Heartbeat"
+                      },
+                      {
+                        "columnId": "SubscriptionId",
+                        "label": "Subscription ID"
+                      },
+                      {
+                        "columnId": "environment",
+                        "label": "Environment"
+                      },
+                      {
+                        "columnId": "osType",
+                        "label": "OS Type"
+                      },
+                      {
+                        "columnId": "workspaceName",
+                        "label": "Workspace Name"
+                      },
+                      {
+                        "columnId": "agentMonitoring",
+                        "label": "Log Analytics agent installation status"
+                      },
+                      {
+                        "columnId": "unhealthyAssessmentsCount",
+                        "label": "Open recommendations"
+                      },
+                      {
+                        "columnId": "pricing",
+                        "label": "Azure Defender coverage"
+                      },
+                      {
+                        "columnId": "resourceGroup",
+                        "label": "Resource Group"
+                      }
+                    ]
+                  }
+                },
+                "conditionalVisibility": {
+                  "parameterName": "lastSeen",
+                  "comparison": "isNotEqualTo"
+                },
+                "showPin": false,
+                "name": "query - 2"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "lastSeen",
+            "comparison": "isNotEqualTo"
+          },
+          "name": "group - 5",
+          "styleSettings": {
+            "showBorder": true
+          }
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Azure Defender coverage details",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n| where type =~ \"microsoft.security/pricings\"\n| project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n| extend bundlesPricing = pack(bundleName, pricingTier)\n| summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId) and pricing == parse_json('{defenderStatus}').series",
+                  "size": 3,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "resourceType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "exemptionType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "typeFullPath",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceName",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "agentMonitoring",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "installed",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notInstalled",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Unhealthy",
+                              "representation": "2",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notApplicable",
+                              "representation": "cancelled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "Disable",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "assessmentsIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "assessmentsSummary",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "subscriptionPricing",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "unhealthyAssessmentsCount",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "min": 0,
+                          "max": 15,
+                          "palette": "greenRed"
+                        }
+                      },
+                      {
+                        "columnMatch": "pricing",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "on",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "off",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "softwareNamesIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "selectedSoftware",
+                        "formatter": 5
+                      }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "resourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "resourceName",
+                        "label": "Resource Name"
+                      },
+                      {
+                        "columnId": "subscriptionId",
+                        "label": "Subscription ID"
+                      },
+                      {
+                        "columnId": "environment",
+                        "label": "Environment"
+                      },
+                      {
+                        "columnId": "osType",
+                        "label": "OS Type"
+                      },
+                      {
+                        "columnId": "workspaceName",
+                        "label": "Workspace Name"
+                      },
+                      {
+                        "columnId": "agentMonitoring",
+                        "label": "Agent Status"
+                      },
+                      {
+                        "columnId": "unhealthyAssessmentsCount",
+                        "label": "Open Recommendations"
+                      },
+                      {
+                        "columnId": "pricing",
+                        "label": "Azure Defender Coverage"
+                      },
+                      {
+                        "columnId": "resourceGroup",
+                        "label": "Resource Group"
+                      }
+                    ]
+                  }
+                },
+                "name": "query - 0 - Copy"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "defenderStatus",
+            "comparison": "isNotEqualTo"
+          },
+          "name": "Azure Defender coverage details",
+          "styleSettings": {
+            "showBorder": true
+          }
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Machines not sending current heartbeats",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-15m)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "size": 3,
+                  "showAnalytics": true,
+                  "title": "Agent not reporting for more than 15 minutes",
+                  "noDataMessage": "No machines found not reporting for more than 15 minutes.",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ],
+                  "gridSettings": {
+                    "labelSettings": [
+                      {
+                        "columnId": "ResourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "LatestTimestamp",
+                        "label": "Latest Heartbeat"
+                      },
+                      {
+                        "columnId": "SubscriptionId",
+                        "label": "Subscription ID"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "query - 0",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-24h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "size": 3,
+                  "showAnalytics": true,
+                  "title": "Agent not reporting for more than 24 hours",
+                  "noDataMessage": "No machines found not reporting for more than 24 hours.",
+                  "timeContext": {
+                    "durationMs": 172800000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ],
+                  "gridSettings": {
+                    "labelSettings": [
+                      {
+                        "columnId": "ResourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "LatestTimestamp",
+                        "label": "Latest Heartbeat"
+                      },
+                      {
+                        "columnId": "SubscriptionId",
+                        "label": "Subscription ID"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "query - 1",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-48h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "size": 3,
+                  "showAnalytics": true,
+                  "title": "Agent not reporting for more than 48 hours",
+                  "noDataMessage": "No machines found not reporting for more than 48 hours.",
+                  "timeContext": {
+                    "durationMs": 604800000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ],
+                  "gridSettings": {
+                    "labelSettings": [
+                      {
+                        "columnId": "ResourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "LatestTimestamp",
+                        "label": "Latest Heartbeat"
+                      },
+                      {
+                        "columnId": "SubscriptionId",
+                        "label": "Subscription ID"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "query - 2",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-7d)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "size": 3,
+                  "showAnalytics": true,
+                  "title": "Agent not reporting for more than 7 days",
+                  "noDataMessage": "No machines found not reporting for more than 7 days.",
+                  "timeContext": {
+                    "durationMs": 2592000000
+                  },
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces",
+                  "crossComponentResources": [
+                    "{workspace}"
+                  ],
+                  "gridSettings": {
+                    "labelSettings": [
+                      {
+                        "columnId": "ResourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "LatestTimestamp",
+                        "label": "Latest Heartbeat"
+                      },
+                      {
+                        "columnId": "SubscriptionId",
+                        "label": "Subscription ID"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "query - 3",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              }
+            ]
+          },
+          "conditionalVisibilities": [
+            {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "NotReportingTab"
+            },
+            {
+              "parameterName": "workspace",
+              "comparison": "isNotEqualTo"
+            }
+          ],
+          "name": "MachinesNotReporting",
+          "styleSettings": {
+            "showBorder": true
+          }
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Protection Status",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "securityresources\n| where type =~ \"microsoft.security/assessments\" or type =~ \"microsoft.security/softwareInventories\"\n| extend assessmentStatusCode = case(type =~ \"microsoft.security/assessments\", tostring(properties.status.code), \"\")\n| extend severity = case(assessmentStatusCode =~ \"unhealthy\", tolower(tostring(properties.metadata.severity)), tolower(assessmentStatusCode))\n| extend exemptionType = case(tolower(type) != \"microsoft.security/assessments\",\"N/A\", case(properties.status.cause =~ \"exempt\", \"Yes\", \"No\"))\n| extend source = case(type =~ \"microsoft.security/assessments\", tostring(properties.resourceDetails.Source), \"\")\n| extend stringUntilWorkspaces = extract(\"^(.+)/(.+)/onPremiseMachines/(.+)/providers/Microsoft.Security/assessments/.+$\",1,id)\n| extend resourceId = trim(\" \", tolower(tostring(case(source =~ \"azure\", properties.resourceDetails.Id,\n                                                                            source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,\n                                                                            source =~ \"aws\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"gcp\", properties.resourceDetails.AzureResourceId,\n                                                                            source =~ \"onpremise\", strcat(stringUntilWorkspaces,\"/workspaceNamePlaceholder/onPremiseMachines/\",properties.resourceDetails.MachineName,\"_\",properties.resourceDetails.VMUUID),\n                                                                            type =~ \"microsoft.security/assessments\", extract(\"^(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),extract(\"^(.+)/providers/Microsoft.Security/softwareInventories/.+$\",1,id)))))\n| extend resourceName = iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tostring(properties.additionalData.ResourceName), extract(@\"(.+)/(.+)\", 2, resourceId))\n| extend regexResourceId = extract_all(@\"/providers/([^/]+)(?:/([^/]+)/[^/]+(?:/([^/]+)/[^/]+)?)?/([^/]+)/[^/]+$\", resourceId)\n| extend RegexResourceType = regexResourceId[0]\n| extend mainType = RegexResourceType[1], extendedType = RegexResourceType[2], resourceType = RegexResourceType[3]\n| extend providerName = RegexResourceType[0],\n                        mainType = case(mainType !~ \"\", strcat(\"/\",mainType), \"\"),\n                        extendedType = case(extendedType!~ \"\", strcat(\"/\",extendedType), \"\"),\n                        resourceType = case(resourceType!~ \"\", strcat(\"/\",resourceType), \"\")\n| extend array = split(resourceId, '/')\n| extend typeFullPath = case(\n                    array_length(array) == 3, 'subscription',\n                    array_length(array) == 5, 'resourcegroups',\n                    source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), tolower(strcat(providerName, mainType, \"/\", tostring(properties.additionalData.ResourceProvider), tostring(properties.additionalData.ResourceType))),\n                    strcat(providerName, mainType, extendedType, resourceType))\n| extend resourceType = case(typeFullPath =~ 'resourcegroups' or typeFullPath =~ 'subscription', typeFullPath, tolower(trim(\"/\", resourceType)))\n| extend assessmentKey = case(type =~ \"microsoft.security/assessments\", tostring(name), \"\")\n| extend softwareVendorName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.vendor), \"\")\n| extend softwareName = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.softwareName), \"\")\n| extend softwareVersion = case(type =~ \"microsoft.security/softwareInventories\", tostring(properties.version), \"\")\n| extend softwareNameIdentifier = case(type =~ \"microsoft.security/softwareInventories\", strcat(softwareVendorName, \",\", softwareName, \",\", softwareVersion), \"\")\n| extend environment = case(type =~ \"microsoft.security/assessments\", properties.resourceDetails[\"Source\"], \"\")\n| extend environment = case(environment =~ \"onpremise\", tolower(\"Non-Azure\"), tolower(environment))\n| extend osTypeProperty = properties.additionalData[\"OS Type\"]\n| extend osType = case(isnotempty(osTypeProperty), osTypeProperty, \"\")\n| extend hasAgent = case(assessmentKey == \"d1db3318-01ff-16de-29eb-28b344515626\" or assessmentKey == \"45cfe080-ceb1-a91e-9743-71551ed24e94\" or assessmentKey == \"720a3e77-0b9a-4fa9-98b6-ddf0fd7e32c1\" or assessmentKey == \"27ac71b1-75c5-41c2-adc2-858f5db45b08\", assessmentStatusCode, \"\")\n| extend hasAgent = case(((assessmentKey == \"4ab6e3c5-74dd-8b35-9ab9-f61b30875b27\" or assessmentKey == \"181ac480-f7c4-544b-9865-11b8ffe87f47\" or assessmentKey == \"4fb67663-9ab9-475d-b026-8c544cced439\") and (typeFullPath in ('microsoft.hybridcompute/machines', 'microsoft.kubernetes/connectedclusters'))) , \"healthy\", hasAgent)\n| extend workspaceAzureResourceId = case(hasAgent !~ \"\", properties.additionalData[\"Reporting workspace azure id\"], \"\")\n| extend workspaceName = case(workspaceAzureResourceId !~ \"\", extract(@\"(.+)/(.+)\", 2, workspaceAzureResourceId), \"\")\n| extend assessmentDisplayName = case(type =~ \"microsoft.security/assessments\", case(isnotempty(properties.displayName), properties.displayName, properties.metadata.displayName), \"\")\n| extend assessmentIdentifier = case(type =~ \"microsoft.security/assessments\", strcat(assessmentKey, \",\" , assessmentDisplayName, \",\", severity), \"\")\n| summarize assessmentsCount = count() , assessmentsIdentifier = make_list(assessmentIdentifier), softwareNamesIdentifier = make_list(softwareNameIdentifier), hasAgent = max(hasAgent), workspaceName = max(workspaceName), environment = max(environment), osType = max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath, severity\n| extend packAssessments = pack(severity, assessmentsCount)\n| summarize assessmentsSummary = make_bag(packAssessments), assessmentsIdentifier = make_set(assessmentsIdentifier), softwareNamesIdentifier = make_set(softwareNamesIdentifier), hasAgent = max(hasAgent), workspaceName= max(workspaceName), environment = max(environment), osType= max(osType), exemptionType = max(exemptionType)  by resourceId, subscriptionId, resourceName, resourceType, typeFullPath\n| extend agentMonitoring = case(hasAgent =~ \"NotApplicable\" or hasAgent =~ \"\", '',\n                                                hasAgent =~ \"Unhealthy\", \"notInstalled\",\n                                                \"installed\")\n| join kind=leftouter (\n                    securityresources\n                    | where type =~ \"microsoft.security/pricings\"\n                    | project subscriptionId, bundleName = tolower(name), freeTrialRemainingTime = properties.freeTrialRemainingTime, pricingTier = tolower(properties.pricingTier)\n                    | extend bundlesPricing = pack(bundleName, pricingTier)\n                    | summarize subscriptionPricing = make_bag(bundlesPricing) by subscriptionId\n                ) on subscriptionId\n| extend hasNoSoftwareData = case(array_length(softwareNamesIdentifier) == 1, case(set_has_element(softwareNamesIdentifier, \"\"), true, false), false)\n| extend softwareNamesIdentifier = case(hasNoSoftwareData, softwareNamesIdentifier, set_difference(softwareNamesIdentifier, pack_array(\"\")))\n| extend AssessmentsHigh = case(isnull(assessmentsSummary.high), 0 , toint(assessmentsSummary.high))\n| extend AssessmentsMedium = case(isnull(assessmentsSummary.medium), 0 , toint(assessmentsSummary.medium))\n| extend AssessmentsLow = case(isnull(assessmentsSummary.low), 0 , toint(assessmentsSummary.low))\n| extend unhealthyAssessmentsCount = AssessmentsHigh + AssessmentsMedium + AssessmentsLow\n| extend virtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.virtualmachines)\n| extend virtualmachines = case(virtualmachines == 'free', 'off', 'on')\n| extend sqlservers = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservers)\n| extend sqlservers = case(sqlservers == 'free', 'off', 'on')\n| extend kubernetesservice = case(isnull(subscriptionPricing), '' , subscriptionPricing.kubernetesservice)\n| extend kubernetesservice = case(kubernetesservice == 'free', 'off', 'on')\n| extend containerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.containerregistry)\n| extend containerregistry = case(containerregistry == 'free', 'off', 'on')\n| extend connectedcontainerregistry = case(isnull(subscriptionPricing), '' , subscriptionPricing.connectedcontainerregistry)\n| extend connectedcontainerregistry = case(connectedcontainerregistry == 'free', 'off', 'on')\n| extend sqlservervirtualmachines = case(isnull(subscriptionPricing), '' , subscriptionPricing.sqlservervirtualmachines)\n| extend sqlservervirtualmachines = case(sqlservervirtualmachines == 'free', 'off', 'on')\n| extend appservices = case(isnull(subscriptionPricing), '' , subscriptionPricing.appservices)\n| extend appservices = case(appservices == 'free', 'off', 'on')\n| extend storageaccounts = case(isnull(subscriptionPricing), '' , subscriptionPricing.storageaccounts)\n| extend storageaccounts = case(storageaccounts == 'free', 'off', 'on')\n| extend keyvaults = case(isnull(subscriptionPricing), '' , subscriptionPricing.keyvaults)\n| extend keyvaults = case(keyvaults == 'free', 'off', 'on')\n| extend opensourcerelationaldatabases = case(isnull(subscriptionPricing), '' , subscriptionPricing.opensourcerelationaldatabases)\n| extend opensourcerelationaldatabases = case(opensourcerelationaldatabases == 'free', 'off', 'on')\n| extend calculatedSubscriptionPricing = case(resourceType =~ \"subscription\" and isempty(subscriptionPricing) == false , iff(subscriptionPricing has \"free\" and subscriptionPricing has \"standard\", \"partial\", iff(subscriptionPricing has \"free\", \"off\", \"on\")), \"\")\n| extend resourcePricing = case(typeFullPath =~ \"microsoft.classiccompute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.compute/virtualmachines\", virtualmachines, typeFullPath =~ \"microsoft.hybridcompute/machines\", virtualmachines, typeFullPath =~ \"microsoft.sql/servers\", sqlservers, typeFullPath =~ \"microsoft.containerservice/managedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.kubernetes/connectedclusters\", kubernetesservice, typeFullPath =~ \"microsoft.containerregistry/registries\", containerregistry, typeFullPath =~ \"microsoft.security/connectedcontainerregistries\", connectedcontainerregistry, typeFullPath =~ \"microsoft.sqlvirtualmachine/sqlvirtualmachines\", sqlservervirtualmachines, typeFullPath =~ \"microsoft.web/sites\", appservices, typeFullPath =~ \"microsoft.storage/storageaccounts\", storageaccounts, typeFullPath =~ \"microsoft.compute/virtualmachinescalesets\", virtualmachines, typeFullPath =~ \"microsoft.keyvault/vaults\", keyvaults, typeFullPath =~ \"microsoft.dbforpostgresql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformysql/servers\", opensourcerelationaldatabases, typeFullPath =~ \"microsoft.dbformariadb/servers\", opensourcerelationaldatabases, calculatedSubscriptionPricing)\n| extend pricing = case(resourceType =~ \"subscription\" , calculatedSubscriptionPricing , resourcePricing)\n| extend selectedSoftware = \"\"\n| project resourceType, exemptionType, typeFullPath, resourceId, resourceName, subscriptionId, environment, osType, workspaceName, agentMonitoring, assessmentsIdentifier, assessmentsSummary, subscriptionPricing, unhealthyAssessmentsCount, pricing, softwareNamesIdentifier, selectedSoftware\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\n| order by unhealthyAssessmentsCount, subscriptionId, resourceType, resourceId\n| where typeFullPath in ('microsoft.compute/virtualmachines', 'microsoft.hybridcompute/machines')\n| where isnotempty(resourceId)",
+                  "size": 3,
+                  "showAnalytics": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "visualization": "table",
+                  "showExpandCollapseGrid": true,
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "resourceType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "exemptionType",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "typeFullPath",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceName",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "agentMonitoring",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "installed",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Unhealthy",
+                              "representation": "2",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "NotApplicable",
+                              "representation": "cancelled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "notInstalled",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "Disable",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "assessmentsIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "assessmentsSummary",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "subscriptionPricing",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "unhealthyAssessmentsCount",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "min": 0,
+                          "max": 15,
+                          "palette": "greenRed"
+                        }
+                      },
+                      {
+                        "columnMatch": "pricing",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "on",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "off",
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "disabled",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "softwareNamesIdentifier",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "selectedSoftware",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 5
+                      }
+                    ],
+                    "rowLimit": 1000,
+                    "filter": true,
+                    "labelSettings": [
+                      {
+                        "columnId": "exemptionType",
+                        "label": "Resource Exemption exists"
+                      },
+                      {
+                        "columnId": "resourceId",
+                        "label": "Resource ID"
+                      },
+                      {
+                        "columnId": "subscriptionId",
+                        "label": "Subscription ID"
+                      },
+                      {
+                        "columnId": "environment",
+                        "label": "Environment"
+                      },
+                      {
+                        "columnId": "osType",
+                        "label": "OS Type"
+                      },
+                      {
+                        "columnId": "workspaceName",
+                        "label": "Workspace Name"
+                      },
+                      {
+                        "columnId": "agentMonitoring",
+                        "label": "Log Analytics agent status"
+                      },
+                      {
+                        "columnId": "unhealthyAssessmentsCount",
+                        "label": "Open Recommendations"
+                      },
+                      {
+                        "columnId": "pricing",
+                        "label": "Azure Defender status"
+                      }
+                    ]
+                  }
+                },
+                "name": "query - 0",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedTab",
+            "comparison": "isEqualTo",
+            "value": "SecurityTab"
+          },
+          "name": "protectionStatus",
+          "styleSettings": {
+            "showBorder": true
+          }
+        }
+      ],
+      "isLocked": false,
+      "fallbackResourceIds": [
+        "Azure Security Center"
+      ]
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-06-17-preview",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[string(variables('workbookContent'))]",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
