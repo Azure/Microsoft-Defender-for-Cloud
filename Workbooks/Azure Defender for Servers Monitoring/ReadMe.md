@@ -13,3 +13,6 @@ During the deployment, you must select a subscription and resource group to stor
 <a href="https://aka.ms/AAe4g57" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ![Dashboard demo](defmon.gif)
+
+## Acknowledgements
+Special thanks to **Lior Aviv**, **Ortal Parpara**, and **Shay Amar** for reviewing the artifact and providing feedback during the deployment process.
