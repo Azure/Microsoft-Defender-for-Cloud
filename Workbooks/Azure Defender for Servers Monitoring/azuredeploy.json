@@ -1385,5 +1385,6 @@
       "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
     }
   },
+  "fromTemplateId": "asc-ServersMonitoringDashboard",
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
 }
