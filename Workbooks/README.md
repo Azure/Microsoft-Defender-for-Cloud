@@ -49,7 +49,7 @@ There are three ways of creating a template:
 6. Use the download button, or copy contents and create a file like `your custom template name.workbook`.
    Make sure the file name ends with `.workbook` and avoid using any special characters (like `/\&?`) in your file name.
 
-### Create from an saved workbook
+### Create from a saved workbook
 
 1. Go to http://portal.azure.com 
 2. Select Azure Security Center from the navigation bar.
