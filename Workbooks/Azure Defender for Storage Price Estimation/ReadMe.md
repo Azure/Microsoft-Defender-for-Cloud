@@ -21,8 +21,8 @@ Columns:
 - **Storage Account**
 - **File Transactions:** metric retrieved from the latest 7 day period
 - **Blob Transactions:** metric retrieved from the latest 7 day period
-- **Estimated Price (7 days):** total of Blob Transactions of the latest 7 day period plus total File Transactions of the latest 7 day period, divided by 1K and multiplied by 0.02. This doesn't consider discounts. [Price reference](https://azure.microsoft.com/en-us/pricing/details/azure-defender/)
-- **Estimated Monthly Price:** total of Blob Transactions of the latest 7 day period plus total File Transactions of the latest 7 day period, divided by the TimeRange, multiplied by 30. The result is divided by 1K and multiplied by 0.02. This doesn't consider discounts. [Price reference](https://azure.microsoft.com/en-us/pricing/details/azure-defender/)
+- **Estimated Price (7 days):** total of Blob Transactions of the latest 7 day period plus total File Transactions of the latest 7 day period, divided by 10K and multiplied by 0.02. This doesn't consider discounts. [Price reference](https://azure.microsoft.com/en-us/pricing/details/azure-defender/)
+- **Estimated Monthly Price:** total of Blob Transactions of the latest 7 day period plus total File Transactions of the latest 7 day period, divided by the TimeRange, multiplied by 30. The result is divided by 10K and multiplied by 0.02. This doesn't consider discounts. [Price reference](https://azure.microsoft.com/en-us/pricing/details/azure-defender/)
 
 ## Known Issues
 - Azure Monitor Metrics data backends have limits and probably the number of requests to fetch data across Storage Accounts might time out. To solve this you will need to narrow the scope (reduce the selected Storage Accounts). 
