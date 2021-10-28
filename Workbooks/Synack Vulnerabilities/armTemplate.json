@@ -28,7 +28,7 @@
     "parsedData": "[json(variables('serializedData'))]",
     "synackApiUrl": "[parameters('synackApiUrl')]",
     "synackApiToken": "[parameters('synackApiToken')]",
-    "endpointUrl": "https://platform.synack.com/api/azure_security_center/vulnerabilities",
+    "endpointUrl": "https://client.synack.com/api/azure_security_center/vulnerabilities",
     "originalQuery": "[concat('{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"url\":\"', variables('endpointUrl'), '\",\"contentType\":\"text/plain\",\"urlParams\":[{\"key\":\"url\",\"value\":\"SYNACK_API_URL\"},{\"key\":\"token\",\"value\":\"SYNACK_API_TOKEN\"}],\"transformers\":[{\"type\":\"jsonpath\"}]}')]",
     "updatedQuery": "[replace(variables('originalQuery'), 'SYNACK_API_URL', variables('synackApiUrl'))]",
     "finalQuery": "[replace(variables('updatedQuery'), 'SYNACK_API_TOKEN', variables('synackApiToken'))]",
