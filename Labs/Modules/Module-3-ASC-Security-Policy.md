@@ -6,40 +6,40 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-This exercise guides you through the current Security Center policies, based on Azure Policy, and shows you where to enable or disable Security Center polices.
+This exercise guides you through the current Microsoft Defender for Cloud policies, based on Azure Policy, and shows you where to enable or disable Microsoft Defender for Cloud polices.
 
 #### Prerequisites
-To get started with Security Center, you must have a subscription to Microsoft Azure. If you do not have a subscription, you can sign up for a free account. Click here.
+To get started with Microsoft Defender for Cloud, you must have a subscription to Microsoft Azure. If you do not have a subscription, you can sign up for a free account. Click here.
 
 ### Exercise 1: Overview of the ASC policy
 
-1.	On Security Center blade, from the left navigation pave, click on **Security policy**.
+1.	On Microsoft Defender for Cloud blade, from the left navigation pave, click on **Security policy**.
 2.	On Policy Management page, select **Azure subscription 1**.
-3.	As you can see on the top part, there is 1 assignment at the **Security center default policy** which is ASC default.
+3.	As you can see on the top part, there is 1 assignment at the **Microsoft Defender for Cloud default policy** which is ASC default.
 
-![Security center default policy](../Images/asc-default-policy-subscription.gif?raw=true)
+![Microsoft Defender for Cloud default policy](../Images/asc-default-policy-subscription.gif?raw=true)
 
-Note: This is the default policy for Azure Security Center recommendations which is enabled by default on your subscription. This is the default set of policies monitored by Azure Security Center. It was automatically assigned as part of onboarding to Security Center. The default assignment contains only audit policies. For more information please visit https://aka.ms/ascpolicies
+Note: This is the default policy for Microsoft Defender for Cloud recommendations which is enabled by default on your subscription. This is the default set of policies monitored by Microsoft Defender for Cloud. It was automatically assigned as part of onboarding to Microsoft Defender for Cloud. The default assignment contains only audit policies. For more information please visit https://aka.ms/ascpolicies
 
 
-4.	Click on the assign assignment: **ASC Default (subscription: dd82589b-444c-45a8-863a-816243ce017d)**. Azure Security Center assess your environment and audit data and do not enforce without your approval.
+4.	Click on the assign assignment: **ASC Default (subscription: dd82589b-444c-45a8-863a-816243ce017d)**. Microsoft Defender for Cloud assess your environment and audit data and do not enforce without your approval.
 5.	On the Edit Initiative Assignment page, click on **Parameters**
-6.	On the Parameters page, you can see the full list of recommendations associated with the **Enable Monitoring in Azure Security Center** initiative which is assigned as **ASC default**.Untick the box "Only show parameters that require input".
-![Modifying Security Center default policy assignment](../Images/lab3pl.gif?raw=true)
+6.	On the Parameters page, you can see the full list of recommendations associated with the **Enable Monitoring in Microsoft Defender for Cloud** initiative which is assigned as **ASC default**.Untick the box "Only show parameters that require input".
+![Modifying Microsoft Defender for Cloud default policy assignment](../Images/lab3pl.gif?raw=true)
 7.	On the **Network Security Groups on the subnet level should be enabled**, change the action to AuditIfNotExists to enable monitoring of NSGs on subnets.
 8.	Click on **Review + save**
 9.	On the review tab, you can see your changes under the Parameters section: **networkSecurityGroupsOnSubnetsMonitoringEffect: AuditIfNotExists**
 
-![Modifying Security Center default policy assignment](../Images/asc-default-policy-nsg-recommendation.gif?raw=true)
+![Modifying Microsoft Defender for Cloud default policy assignment](../Images/asc-default-policy-nsg-recommendation.gif?raw=true)
 
 10.	Click **Save**. Wait for the policy update until complete successful.
 
 ### Exercise 2: Explore Azure Policy
 1.	On Azure Portal, navigate to **Azure Policy blade**. You can use the search box on the upper part for Policy or navigate to: https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade
 2.	From the left navigation pane, under the **Authoring** section, click on **Definitions** to explore the built-in policy definitions and initiatives.
-3.	From the top menu, use the filter button and set Category as **Security Center** and Definitions Type as Initiative
-4.	You can now see two built-in initiatives used by Azure Security Center.
-![Modifying Security Center default policy assignment](../Images/lab3pl2.gif?raw=true)
+3.	From the top menu, use the filter button and set Category as **Microsoft Defender for Cloud** and Definitions Type as Initiative
+4.	You can now see two built-in initiatives used by Microsoft Defender for Cloud.
+![Modifying Microsoft Defender for Cloud default policy assignment](../Images/lab3pl2.gif?raw=true)
 5.	Notice the number of policies included in each initiative (policies column)
 6.	Initiatives are assigned to your subscription automatically. To see current assignments, click on **Assignment** from the left navigation pane. Policy initiatives have a different name for the assignment, for example:
 
@@ -55,9 +55,9 @@ Note: This is the default policy for Azure Security Center recommendations which
 Resource exemption will allow increased granularity for you to fine-tune recommendations by providing the ability to exempt certain resources from evaluation.
 When working with a recommendation, you can create an exemption by clicking the ellipsis menu on the right side and then select create exemption.
 
-Note: Exemptions is a premium Azure policy capability that's offered for Azure Defender customers with no additional cost. For other users, charges may apply in the future.
+Note: Exemptions is a premium Azure policy capability that's offered for Microsoft Defender for Cloud customers with no additional cost. For other users, charges may apply in the future.
 
-1.	Open **Security Center blade** and from the left navigation pane and select **Recommendations**.
+1.	Open **Microsoft Defender for Cloud blade** and from the left navigation pane and select **Recommendations**.
 2.	Expand **Secure management ports** security control.
 3.	Select the **Management ports should be closed on your virtual machines** recommendation.
 4.	On the list of **unhealthy resources**, see the current resources: *asclab-win* and *asclab-linux*.
@@ -73,7 +73,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
     - Provide a description: **Testing exemption capability – module 3**.
     - Select **Save**.
   
-  ![Modifying Security Center default policy assignment](../Images/lab3pl6.gif?raw=true)
+  ![Modifying Microsoft Defender for Cloud default policy assignment](../Images/lab3pl6.gif?raw=true)
   
 > ⭐ Good to know: <br>
 > **Mitigated** - This issue isn't relevant to the resource because it's been handled by a different tool or process than the one being suggested
@@ -90,7 +90,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Azure D
 
 ### Exercise 4: Create a policy enforcement and deny
 
-1.	From **Security Center sidebar**, select **Recommendations**.
+1.	From **Microsoft Defender for Cloud sidebar**, select **Recommendations**.
 2.	On recommendations filters, set the **Response action** as **Deny**.
 
 ![Auditing on SQL server should be enabled](../Images/asc-recommendations-filters-deny.gif?raw=true)
@@ -152,10 +152,10 @@ Add each policy one by one:
 
 ***Add a custom initiative to your subscription***
 
-1.	Navigate to Security Center, and the Security policy page from the sidebar.
+1.	Navigate to Microsoft Defender for Cloud, and the Security policy page from the sidebar.
 2.	Select **Azure subscription 1** as a scope for your custom initiative.
 
-> Note: You must add custom standards at the subscription level (or higher) for them to be evaluated and displayed in Security Center.
+> Note: You must add custom standards at the subscription level (or higher) for them to be evaluated and displayed in Microsoft Defender for Cloud.
 
 3.	In the Security policy page, under Your custom initiatives, click **Add a custom initiative**.
 4.	Your newly created initiative is listed: *Contoso Security Benchmark*. Select **Add***.
