@@ -1,22 +1,22 @@
-# Azure Security Center
+# Microsoft Defender for Cloud
 
-![GitHub](https://img.shields.io/github/license/azure/azure-security-center?label=License&style=plastic)
-![GitHub contributors](https://img.shields.io/github/contributors/azure/azure-security-center?label=Contributors&style=plastic)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/azure-security-center/main?label=Last%20commit&style=plastic)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/azure-security-center?label=Commit%20activity&style=plastic)
-![GitHub issues](https://img.shields.io/github/issues/azure/azure-security-center?label=Issues&style=plastic)
+![GitHub](https://img.shields.io/github/license/azure/Microsoft-Defender-for-Cloud?label=License&style=plastic)
+![GitHub contributors](https://img.shields.io/github/contributors/azure/Microsoft-Defender-for-Cloud?label=Contributors&style=plastic)
+![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/Microsoft-Defender-for-Cloud/main?label=Last%20commit&style=plastic)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/Microsoft-Defender-for-Cloud?label=Commit%20activity&style=plastic)
+![GitHub issues](https://img.shields.io/github/issues/azure/Microsoft-Defender-for-Cloud?label=Issues&style=plastic)
 
-Welcome to the Azure Security Center community repository. This repository contains:
+Welcome to the Microsoft Defender for Cloud (formerly known as Azure Security Center) community repository. This repository contains:
 
 - Security recommendations that are in private preview
 - Programmatic remediation tools for security recommendations
 - PowerShell scripts for programmatic management
-- Azure Policy custom definitions for at-scale management of Azure Security Center
-- Logic App templates that work with Security Center's Logic App connectors (to automate response to Security alerts and recommendations)
-- Logic App templates that help you run regular tasks or reports within the scope of Azure Security Center
-- Custom workbooks to visualize Azure Security Center data
+- Azure Policy custom definitions for at-scale management of Microsoft Defender for Cloud
+- Logic App templates that work with Defender for Cloud's Logic App connectors (to automate response to Security alerts and recommendations)
+- Logic App templates that help you run regular tasks or reports within the scope of Microsoft Defender for Cloud
+- Custom workbooks to visualize Defender for Cloud data
 
-All of the above will help you work programmatically at scale with Azure Security Center and provide you additional value to secure your environment, some of which has not yet been embedded into the product (yet). You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues).
+All of the above will help you work programmatically at scale with Microsoft Defender for Cloud and provide you additional value to secure your environment, some of which has not yet been embedded into the product (yet). You can submit any questions or requests [here](https://github.com/Azure/Azure-Security-Center/issues).
 
 ## What's new?
 Please find the latest and greatest automations on our [What's New Page](https://github.com/Azure/Azure-Security-Center/wiki/What's-New).
@@ -27,17 +27,17 @@ All automations within this repository are provided as is, without SLA or offici
 
 ## Wiki
 
-This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/wiki) which will provide you with further information about the Azure Security Center community, how to contribute, templates to use, and further resources.
+This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/wiki) which will provide you with further information about the Microsoft Defender for Cloud community, how to contribute, templates to use, and further resources.
 
 ## Additional resources
 
-Please visit the following additional resources to learn more about Azure Security and participate in discussions:
+Please visit the following additional resources to learn more about Microsoft Defender for Cloud and participate in discussions:
 
-- [Azure Security Center Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
-- [Azure Security Center Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
-- [Azure Security Center Feature suggestion](https://feedback.azure.com/forums/347535-azure-security-center)
-- [Azure Security Center documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
-- [Azure Security Center API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
+- [Microsoft Defender for Cloud Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
+- [Microsoft Defender for Cloud Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
+- [Microsoft Defender for Cloud Feature suggestion](https://feedback.azure.com/forums/347535-azure-security-center)
+- [Microsoft Defender for Cloud documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
+- [Microsoft Defender for Cloud API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
 
 ## Contributing
 

@@ -1,8 +1,8 @@
-# Azure  Workbooks for Azure Security Center
+# Azure  Workbooks for Microsoft Defender for Cloud
 
-![GitHub](https://img.shields.io/github/license/azure/azure-security-center?label=License&style=plastic)
+![GitHub](https://img.shields.io/github/license/azure/Microsoft-Defender-for-Cloud?label=License&style=plastic)
 
-This project contains **Azure Workbook templates** you can use to create custom dashboards within Azure Security Center. The workbooks can be deployed as ARM templates to your Azure Security Center environment.
+This project contains **Azure Workbook templates** you can use to create custom dashboards within Microsoft Defender for Cloud. The workbooks can be deployed as ARM templates to your Defender for Cloud environment.
 
 ## Contributing
 
@@ -29,7 +29,7 @@ There are three ways of creating a template:
 ### Create from an empty workbook
 
 1. Go to http://portal.azure.com 
-2. Select Azure Security Center from the navigation menu
+2. Select Microsoft Defender for Cloud from the navigation menu
 3. Select "Workbooks"
 4. Select the Empty workbook in the Quick Start section.
     ![Image of default template](./Images//emptyTemplate.png)
@@ -42,7 +42,7 @@ There are three ways of creating a template:
 ### Create from an existing template
 
 1. Go to http://portal.azure.com 
-2. Select Azure Security Center from the navigation bar.
+2. Select Microsoft Defender for Cloud from the navigation bar.
 3. Select "Workbooks"
 4. Select a template you are interested in editing.
 5. Modify as you wish and click "Advanced Editor" button from the menu.
@@ -52,7 +52,7 @@ There are three ways of creating a template:
 ### Create from a saved workbook
 
 1. Go to http://portal.azure.com 
-2. Select Azure Security Center from the navigation bar.
+2. Select Microsoft Defender for Cloud from the navigation bar.
 3. Select "Workbooks"
 4. Click on the Open icon from the menu.
    ![Image of the toolbar](./Images/openWorkbook.png)
