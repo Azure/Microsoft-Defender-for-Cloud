@@ -1,0 +1,69 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Synack Vulnerabilities",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "synackApiUrl": {
+      "type": "string",
+      "defaultValue": "https://api.synack.com",
+      "metadata": {
+        "description": "Synack API Url. Set this to https://api.synack.com"
+      }
+    },
+    "synackApiToken": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Synack API Token. Follow the instructions in the documentation to generate the token."
+      }
+    }
+  },
+  "variables": {
+    "serializedData": "{\"version\":\"Notebook\\/1.0\",\"items\":[{\"type\":3,\"content\":{\"version\":\"KqlItem\\/1.0\",\"query\":\"\",\"size\":3,\"title\":\"Vulnerabilities\",\"queryType\":10,\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"count\",\"formatter\":5},{\"columnMatch\":\"Link\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"Url\"}},{\"columnMatch\":\"Assessment\",\"formatter\":5}],\"hierarchySettings\":{\"treeType\":1,\"groupBy\":[\"Assessment\",\"Status\"]}}},\"name\":\"query - vulnerabilities\"},{\"type\":3,\"content\":{\"version\":\"KqlItem\\/1.0\",\"query\":\"\",\"size\":4,\"title\":\"Vulnerabilities by Status\",\"queryType\":10,\"visualization\":\"piechart\",\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"count\",\"formatter\":5},{\"columnMatch\":\"Link\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"Url\"}},{\"columnMatch\":\"Assessment\",\"formatter\":5}],\"hierarchySettings\":{\"treeType\":1,\"groupBy\":[\"Assessment\",\"Status\"]}},\"tileSettings\":{\"showBorder\":false,\"titleContent\":{\"columnMatch\":\"Synack Id\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"graphSettings\":{\"type\":0,\"topContent\":{\"columnMatch\":\"Synack Id\",\"formatter\":1},\"centerContent\":{\"columnMatch\":\"count\",\"formatter\":1,\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"chartSettings\":{\"yAxis\":[\"count\"],\"group\":\"Status\",\"createOtherGroup\":10},\"mapSettings\":{\"locInfo\":\"LatLong\",\"sizeSettings\":\"count\",\"sizeAggregation\":\"Sum\",\"legendMetric\":\"count\",\"legendAggregation\":\"Sum\",\"itemColorSettings\":{\"type\":\"heatmap\",\"colorAggregation\":\"Sum\",\"nodeColorField\":\"count\",\"heatmapPalette\":\"greenRed\"}}},\"name\":\"query - status\"},{\"type\":3,\"content\":{\"version\":\"KqlItem\\/1.0\",\"query\":\"\",\"size\":4,\"title\":\"Vulnerabilities by Assessment\",\"queryType\":10,\"visualization\":\"piechart\",\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"count\",\"formatter\":5},{\"columnMatch\":\"Link\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"Url\"}},{\"columnMatch\":\"Assessment\",\"formatter\":5}],\"hierarchySettings\":{\"treeType\":1,\"groupBy\":[\"Assessment\",\"Status\"]}},\"tileSettings\":{\"showBorder\":false,\"titleContent\":{\"columnMatch\":\"Synack Id\",\"formatter\":1},\"leftContent\":{\"columnMatch\":\"count\",\"formatter\":12,\"formatOptions\":{\"palette\":\"auto\"},\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"graphSettings\":{\"type\":0,\"topContent\":{\"columnMatch\":\"Synack Id\",\"formatter\":1},\"centerContent\":{\"columnMatch\":\"count\",\"formatter\":1,\"numberFormat\":{\"unit\":17,\"options\":{\"maximumSignificantDigits\":3,\"maximumFractionDigits\":2}}}},\"chartSettings\":{\"yAxis\":[\"count\"],\"group\":\"Assessment\",\"createOtherGroup\":10},\"mapSettings\":{\"locInfo\":\"LatLong\",\"sizeSettings\":\"count\",\"sizeAggregation\":\"Sum\",\"legendMetric\":\"count\",\"legendAggregation\":\"Sum\",\"itemColorSettings\":{\"type\":\"heatmap\",\"colorAggregation\":\"Sum\",\"nodeColorField\":\"count\",\"heatmapPalette\":\"greenRed\"}}},\"name\":\"query - assessment\"}],\"$schema\":\"https:\\/\\/github.com\\/Microsoft\\/Application-Insights-Workbooks\\/blob\\/master\\/schema\\/workbook.json\"}",
+    "parsedData": "[json(variables('serializedData'))]",
+    "synackApiUrl": "[parameters('synackApiUrl')]",
+    "synackApiToken": "[parameters('synackApiToken')]",
+    "endpointUrl": "https://client.synack.com/api/azure_security_center/vulnerabilities",
+    "originalQuery": "[concat('{\"version\":\"CustomEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"url\":\"', variables('endpointUrl'), '\",\"contentType\":\"text/plain\",\"urlParams\":[{\"key\":\"url\",\"value\":\"SYNACK_API_URL\"},{\"key\":\"token\",\"value\":\"SYNACK_API_TOKEN\"}],\"transformers\":[{\"type\":\"jsonpath\"}]}')]",
+    "updatedQuery": "[replace(variables('originalQuery'), 'SYNACK_API_URL', variables('synackApiUrl'))]",
+    "finalQuery": "[replace(variables('updatedQuery'), 'SYNACK_API_TOKEN', variables('synackApiToken'))]",
+    "updatedQueryJson": {
+      "content": {
+        "query": "[variables('finalQuery')]"
+      }
+    },
+    "updatedItems": [
+      "[union(variables('parsedData')['items'][0], variables('updatedQueryJson'))]",
+      "[union(variables('parsedData')['items'][1], variables('updatedQueryJson'))]",
+      "[union(variables('parsedData')['items'][2], variables('updatedQueryJson'))]"
+    ],
+    "updatedWorkbookData": {
+      "version": "[variables('parsedData')['version']]",
+      "items": "[variables('updatedItems')]"
+    },
+    "reserializedData": "[string(variables('updatedWorkbookData'))]"
+  },
+  "resources": [
+    {
+      "name": "[guid(resourceGroup().id, deployment().name)]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-06-17-preview",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[variables('reserializedData')]",
+        "version": "1.0",
+        "sourceId": "Azure Security Center",
+        "category": "workbook"
+      }
+    }
+  ],
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
