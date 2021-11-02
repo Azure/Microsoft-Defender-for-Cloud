@@ -7,7 +7,7 @@
 
 ### Exercise 1: Using JIT to reduce attack surface
 
-1.	From Security Center sidebar, click on **Azure Defender**.
+1.	From Microsoft Defender for Cloud sidebar, click on **Workload Protections**.
 2.	On the Advanced protection part at the bottom, click on **Just-in-time VM access** (You should see 2 unprotected status).
 
 ![Advanced protection options](../Images/asc-defender-advanced-protection-jit.gif?raw=true)
@@ -42,20 +42,20 @@
 
 Application control helps you deal with malicious and/or unauthorized software, by allowing only specific applications to run on your machines.
 
-1.	From Security Center sidebar, click on **Azure Defender**.
+1.	From Microsoft Defender for Cloud sidebar, click on **Workload Protections**.
 2.	On the Advanced protection part at the bottom, click on **Adaptive application control**.
 
 ![](../Images/lab8aac.gif?raw=true)
 3.	The Adaptive application controls page opens with your VMs grouped into the following tabs: Configured, Recommended and No recommendations.
 4.	Click on the **Recommended** tab.
-5.	If this tab does not contain any group yet, it means that Security Center needs at least two weeks of data to define the unique recommendations per group of machines.
+5.	If this tab does not contain any group yet, it means that Microsoft Defender for Cloud needs at least two weeks of data to define the unique recommendations per group of machines.
 
 ### Exercise 3: File Integrity Monitoring
 
 File integrity monitoring (FIM), also known as change monitoring, examines operating system files, Windows registries, application software, Linux system files, and more, for changes that might indicate an attack.
 It maps the current state of these items with the state during the previous scan and alerts you if suspicious modifications have been made. To enable FIM, follow the instructions below:
 
-1.	From Security Center sidebar, click on **Azure Defender**.
+1.	From Microsoft Defender for Cloud sidebar, click on **Workload Protections**.
 2.	On the Advanced protection part at the bottom, click on **File Integrity Monitoring** tile.
 3.	On the FIM configuration page, select the **Log Analytics workspace listed** `asclab-la-xxx` (or just by clicking on the Upgrade icon - it indicates that FIM is not enabled for the selected workspace).
 4.	On the Enable FIM, **review the default recommended settings** for Windows files, Registry and Linux files.
