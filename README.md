@@ -35,7 +35,7 @@ Please visit the following additional resources to learn more about Microsoft De
 
 - [Microsoft Defender for Cloud Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
 - [Microsoft Defender for Cloud Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
-- [Microsoft Defender for Cloud Feature suggestion](https://feedback.azure.com/forums/347535-azure-security-center)
+- [Microsoft Defender for Cloud Feature suggestion](https://feedback.azure.com/d365community/forum/0f853254-0425-ec11-b6e6-000d3a4f07b8)
 - [Microsoft Defender for Cloud documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
 - [Microsoft Defender for Cloud API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
 
