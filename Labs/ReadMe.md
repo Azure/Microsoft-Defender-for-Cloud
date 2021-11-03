@@ -30,12 +30,12 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Enabling Microsoft Defender for Cloud](./Modules/Module-1-Preparing-the-Environment.md#exercise-3-enabling-azure-defender)
  
 [**Module 2 – Exploring Microsoft Defender for Cloud (L100)**](./Modules/Module-2-Exploring-Azure-Security-Center.md)
-- [Understanding ASC dashboard](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-1-understanding-azure-security-center-dashboard)
+- [Understanding Microsoft Defender for Cloud dashboard](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-1-understanding-azure-security-center-dashboard)
 - [Exploring Secure Score and Recommendations](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-2-exploring-secure-score-and-recommendations)
 - [Exploring the Inventory capability](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-3-exploring-the-inventory-capability)
  
 [**Module 3 – Security Policy (L200)**](./Modules/Module-3-ASC-Security-Policy.md)
-- [Overview of the ASC policy](./Modules/Module-3-ASC-Security-Policy.md#exercise-1-overview-of-the-asc-policy)
+- [Overview of the security policy](./Modules/Module-3-ASC-Security-Policy.md#exercise-1-overview-of-the-asc-policy)
 - [Explore Azure Policy](./Modules/Module-3-ASC-Security-Policy.md#exercise-2-explore-azure-policy)
 - [Create resource exemption for a recommendation](./Modules/Module-3-ASC-Security-Policy.md#exercise-3-create-resource-exemption-for-a-recommendation)
 - [Create a policy enforcement and deny](./Modules/Module-3-ASC-Security-Policy.md#exercise-4-create-a-policy-enforcement-and-deny)
