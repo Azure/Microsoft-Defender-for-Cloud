@@ -2,7 +2,7 @@
 
 ## Step #0 – Ensure the basic environment setup and knowledge are in place
 
-To follow the implementation steps in this document, it is necessary that customers have a solid understanding of Azure Security Center (ASC) and its basic functionality and features. They should also be familiar with the governance and automation options in Azure to successfully deploy ASC in their organization. We therefore assume that customers are familiar with the following concepts:
+To follow the implementation steps in this document, it is necessary that customers have a solid understanding of Microsoft Defender for Cloud (MDC) and its basic functionality and features. They should also be familiar with the governance and automation options in Azure to successfully deploy MDC in their organization. We therefore assume that customers are familiar with the following concepts:
 
 * The customer understands the shared responsibility model and the threat landscape in the cloud.
     * [Shared responsibility in the cloud](https://docs.microsoft.com/en-us/azure/security/fundamentals/shared-responsibility)
@@ -14,21 +14,21 @@ To follow the implementation steps in this document, it is necessary that custom
     *	[Management group and subscription organization](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/enterprise-scale/management-group-and-subscription-organization)
     *	[Governance guide for complex enterprises](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/govern/guides/complex/)
     *	[Organize and manage multiple Azure subscriptions](https://docs.microsoft.com/en-us/azure/cloud-adoption-framework/ready/azure-best-practices/organize-subscriptions)
-*	The customer has a basic understanding of Azure Security Center and its functionalities.
-    *	[What is Azure Security Center?](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction)
-    *	[Azure Security Center’s overview page](https://docs.microsoft.com/en-us/azure/security-center/overview-page)
+*	The customer has a basic understanding of Microsoft Defender for Cloud and its functionalities.
+    *	[What is Microsoft Defender for Cloud?](https://docs.microsoft.com/en-us/azure/security-center/security-center-introduction)
+    *	[Microsoft Defender for Cloud’s overview page](https://docs.microsoft.com/en-us/azure/security-center/overview-page)
     *	[Security recommendations](https://docs.microsoft.com/en-us/azure/security-center/recommendations-reference)
-    *	[Introduction to Azure Defender](https://docs.microsoft.com/en-us/azure/security-center/azure-defender)
+    *	[Introduction to Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/security-center/defender-for-cloud-introduction)
     *	[Working with security policies](https://docs.microsoft.com/en-us/azure/security-center/tutorial-security-policy)
-*	The organization understands the different roles that are available within Azure Security Center and RBAC (Role-based access control) in general.
-    *	[Permissions in Azure Security Center](https://docs.microsoft.com/en-us/azure/security-center/security-center-permissions)
+*	The organization understands the different roles that are available within Microsoft Defender for Cloud and RBAC (Role-based access control) in general.
+    *	[Permissions in Microsoft Defender for Cloud](https://docs.microsoft.com/en-us/azure/security-center/security-center-permissions)
     *	[What is Azure RBAC?](https://docs.microsoft.com/en-us/azure/role-based-access-control/overview)
     *	[Azure built-in roles](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles)
 *	The customer knows how to use a Log Analytics workspace and has decided on a Log Analytics workspace design (centralized or distributed).
-    *	[Best practices for designing an Azure Sentinel or Azure Security Center Log Analytics workspace](https://techcommunity.microsoft.com/t5/azure-sentinel/best-practices-for-designing-an-azure-sentinel-or-azure-security/ba-p/832574)
+    *	[Best practices for designing an Microsoft Sentinel or Microsoft Defender for Cloud Log Analytics workspace](https://techcommunity.microsoft.com/t5/azure-sentinel/best-practices-for-designing-an-azure-sentinel-or-azure-security/ba-p/832574)
     *	[Design a workspace deployment](https://docs.microsoft.com/en-us/azure/azure-monitor/platform/design-logs-deployment#important-considerations-for-an-access-control-strategy)
-*	The customer understands ASC pricing, Azure Monitor pricing, and Azure bandwidth costs.
-    *	[ASC Pricing](https://azure.microsoft.com/en-us/pricing/details/security-center/)
+*	The customer understands MDC pricing, Azure Monitor pricing, and Azure bandwidth costs.
+    *	[MDC Pricing](https://azure.microsoft.com/en-us/pricing/details/azure-defender/)
     *	[Azure Monitor Pricing](https://azure.microsoft.com/en-us/pricing/details/monitor/)
     *	[Azure Bandwidth Pricing](https://azure.microsoft.com/en-us/pricing/details/bandwidth/)
 *	The customer has a solid understanding of Azure Policy and other Azure Governance constructs like Azure Blueprints and Azure Resource Graph.
