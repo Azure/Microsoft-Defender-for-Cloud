@@ -59,7 +59,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 [**Module 7 – Exporting Microsoft Defender for Cloud information to a SIEM (L200)**](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
 - [Using continuous export](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-1-using-continuous-export)
-- [Integration with Azure Sentinel](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-2-integration-with-azure-sentinel)
+- [Integration with Microsoft Sentinel](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-2-integration-with-azure-sentinel)
 
 [**Module 8 – Enhanced Security (L300)**](./Modules/Module-8-Advance-Cloud-Defense.md)
 - [Using JIT to reduce attack surface](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-1-using-jit-to-reduce-attack-surface)
