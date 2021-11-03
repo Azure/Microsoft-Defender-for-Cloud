@@ -9,7 +9,7 @@ The Synack Vulnerabilities workbook provides an overview of the Synack Vulnerabi
 To deploy the new workbook into your Azure Security Center, click on *Deploy to Azure*.
 During the deployment, you must select a subscription and resource group to store the workbook. Once the workbook is successfully deployed, navigate to Security Center -> Workbooks to start using it.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsynack%2FAzure-Security-Center%2Fsynack%2FWorkbooks%2FSynack%2520Vulnerabilities%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2FSynack%2520Vulnerabilities%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 ![Workbook demo](WorkbookSample.png)
 
