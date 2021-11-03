@@ -24,7 +24,7 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 ### Related repositories
 
-This is the repository for Azure Security Center. Please ensure that you are opening issues in the right repository. Other repos you might be looking for:
+This is the repository for Microsoft Defender for Cloud. Please ensure that you are opening issues in the right repository. Other repos you might be looking for:
 
 - [Azure Monitor Community](https://github.com/microsoft/AzureMonitorCommunity#azure-monitor-community) repo, with query, alerts, workbook samples.
 - [Azure Monitor Workbook Templates](https://github.com/microsoft/Application-Insights-Workbooks) repo - contains workbook templates shown in the workbook galleries for Azure Monitor workbooks
@@ -48,7 +48,7 @@ When creating commits, always try to create useful commit messages explaining wh
 When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change. Make sure to provide a [readme](https://github.com/Azure/Azure-Security-Center/wiki/Readme.md-Template) file so people will know what your artifact will do. Once your pull request is submitted, we will automatically verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
 
 [code-of-conduct]: https://opensource.microsoft.com/codeofconduct/
-[new-issue]: https://github.com/Azure/Azure-Security-Center/issues/new
-[bug-report]: https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=bug_report.md&title=
-[feature-request]: https://github.com/Azure/Azure-Security-Center/issues/new?assignees=&labels=&template=feature_request.md&title=%5BFeature%20Request%5D%20%3Center%20your%20request%20title%3E
-[issue-search]: https://github.com/Azure/Azure-Security-Center/issues
+[new-issue]: https://github.com/Azure/Microsoft-Defender-for-Cloud/issues/new
+[bug-report]: https://github.com/Azure/Microsoft-Defender-for-Cloud/issues/new?assignees=&labels=&template=bug_report.md&title=
+[feature-request]: https://github.com/Azure/Microsoft-Defender-for-Cloud/issues/new?assignees=&labels=&template=feature_request.md&title=%5BFeature%20Request%5D%20%3Center%20your%20request%20title%3E
+[issue-search]: https://github.com/Azure/Microsoft-Defender-for-Cloud/issues

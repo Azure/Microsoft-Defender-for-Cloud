@@ -1,11 +1,11 @@
-# Welcome to Azure Security Center Labs!
+# Welcome to Microsoft Defender for Cloud Labs!
 
 <p align="center">
 <img src="./Images/asc-labs-logo.png?raw=true">
 </p>
 
 ## Introduction
-Our labs project help you get ramped up with Azure Security Center and provide hands-on practical experience for product features, capabilities, and scenarios. The labs are divided into 3 main tracks, a beginner (level 100/200) and an advanced (level 300+) track. The labs contain several modules cover different pillars such as Cloud Security Posture Management (CSPM) to Cloud Workload Protection  (CWP). To start using our labs, you will need to create Azure Trial Subscription which provides you all capabilities for 30 days – so you have to finish this lab at this point to take advantage of the free trial. We continually update the content to include the latest capabilities – please feel free to [submit issue](https://github.com/Azure/Azure-Security-Center/issues/new/choose) for any changes and suggestions.
+Our labs project help you get ramped up with Microsoft Defender for Cloud and provide hands-on practical experience for product features, capabilities, and scenarios. The labs are divided into 3 main tracks, a beginner (level 100/200) and an advanced (level 300+) track. The labs contain several modules cover different pillars such as Cloud Security Posture Management (CSPM) to Cloud Workload Protection  (CWP). To start using our labs, you will need to create Azure Trial Subscription which provides you all capabilities for 30 days – so you have to finish this lab at this point to take advantage of the free trial. We continually update the content to include the latest capabilities – please feel free to [submit issue](https://github.com/Azure/Azure-Security-Center/issues/new/choose) for any changes and suggestions.
 
 <p align="center">
 <img src="./Images/asc-labs-levels.png?raw=true">
@@ -13,22 +13,23 @@ Our labs project help you get ramped up with Azure Security Center and provide h
 
 Skill | Level | Description
 ----- | ----- | -----------
-Beginner | 100 | You're starting out and want to learn the fundamentals of Azure Security Center
+Beginner | 100 | You're starting out and want to learn the fundamentals of Microsoft Defender for Cloud
 Intermediate | 200 | You have some experience with the product but want to learn more in-depth
 Advanced | 300+ | You have lots of experience and are looking to learn about advanced capabilities
 
 ## Last release notes
 
-* Version 1.0 - General availability of Azure Security Center labs
+* Version 1.0 - General availability of Microsoft Defender for Cloud labs
+* Version 2.0 - General availability of Microsoft Defender for Cloud labs version 2 (November 2021)
 
 ## Modules
 
 [**Module 1 – Preparing the Environment (L100)**](./Modules/Module-1-Preparing-the-Environment.md)
 - [Creating an Azure Trial Subscription](./Modules/Module-1-Preparing-the-Environment.md#exercise-1-creating-an-azure-trial-subscription)
 - [Provisioning resources (automation)](./Modules/Module-1-Preparing-the-Environment.md#exercise-2-provisioning-resources)
-- [Enabling Azure Defender](./Modules/Module-1-Preparing-the-Environment.md#exercise-3-enabling-azure-defender)
+- [Enabling Microsoft Defender for Cloud](./Modules/Module-1-Preparing-the-Environment.md#exercise-3-enabling-azure-defender)
  
-[**Module 2 – Exploring Azure Security Center (L100)**](./Modules/Module-2-Exploring-Azure-Security-Center.md)
+[**Module 2 – Exploring Microsoft Defender for Cloud (L100)**](./Modules/Module-2-Exploring-Azure-Security-Center.md)
 - [Understanding ASC dashboard](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-1-understanding-azure-security-center-dashboard)
 - [Exploring Secure Score and Recommendations](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-2-exploring-secure-score-and-recommendations)
 - [Exploring the Inventory capability](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-3-exploring-the-inventory-capability)
@@ -69,9 +70,9 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 Acronym | Meaning | Description
 ------- | --- | -----------
-ASC | Azure Security Center | Built-in free service which offer limited security for your Azure resources only
-CSPM | Cloud Security Posture Management | Automates the identification and remediation of risks across cloud infrastructures. CSPM is Security Center is available for free to all Azure users. The free experience includes CSPM features such as secure score, detection of security misconfigurations in your Azure machines, asset inventory, and more.
-CWP | Cloud Workload Protection | Provides workload-centric security protection solutions such as servers, app service, storage, database and more. All CWP capabilities are covered under Azure Defender.
+MDC | Microsoft Defender for Cloud | Built-in free service which offer limited security for your Azure resources only
+CSPM | Cloud Security Posture Management | Automates the identification and remediation of risks across cloud infrastructures. CSPM in Microsoft Defender for Cloud is available for free to all Azure users. The free experience includes CSPM features such as secure score, detection of security misconfigurations in your Azure machines, asset inventory, and more.
+CWP | Cloud Workload Protection | Provides workload-centric security protection solutions such as servers, app service, storage, database and more. All CWP capabilities are covered under Microsoft Defender for Cloud.
 JIT | Just-in-time | Feature to reduce exposure to attacks while providing easy access when you need to connect to a VM
 ARM | Azure Resource Manager | Deployment and management layer that enables you to create, update, and delete resources in your Azure account.
 RBAC | Role-based access control | Authorization system built on Azure Resource Manager that provides fine-grained access management of Azure resources.

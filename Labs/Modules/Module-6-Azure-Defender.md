@@ -1,4 +1,4 @@
-# Module 6 - Azure Defender
+# Module 6 - Workload Protections
 
 <p align="left"><img src="../Images/asc-labs-advanced.gif?raw=true"></p>
 
@@ -12,11 +12,11 @@ This exercise guides you how
 
 Here let’s cover the new Alert Simulation, which should be out in the first week of December
 
-1.	1.	Go to Security Center, and click the Security Alerts in the sidebar.
+1.	1.	Go to Microsoft Defender for Cloud, and click the Security Alerts in the sidebar.
 2.	Create an alert simulation for VM:
     - On Security alerts page, click on **Sample alerts** button.
     - Select **Azure subscription 1**.
-    - On the Azure Defender plans, keep only **Virtual Machines** selected.
+    - On the Workload Protections plans, keep only **Virtual Machines** selected.
     - Click on the **Create sample alerts** button to trigger the alert simulation for VMs.
 
 ![Create sample virtual machine security alerts](../Images/asc-create-sample-security-alerts-vm.gif?raw=true)
@@ -32,7 +32,7 @@ Here let’s cover the new Alert Simulation, which should be out in the first we
 8.	Create an alert simulation for Key Vaults:
     - On Security alerts page, click on **Create sample alerts** button.
     - Select **Azure subscription 1**.
-    - On the Azure Defender plans, keep only **Key Vaults** selected.
+    - On the Workload Protections plans, keep only **Key Vaults** selected.
     - Click **Create sample alerts** button to trigger the alert simulation for Key Vaults.
 9.	Sample alerts creating in progress, wait for the process to complete. You can track the progress by opening the notification center or on activity log (this process usually takes 2 minutes to complete)
 10.	On the alerts page, you should now see 5 different sample events for a resource named `Sample-KV`. Each alert has the `Sample alert` banner next to it.
@@ -40,14 +40,14 @@ Here let’s cover the new Alert Simulation, which should be out in the first we
 12.	Click on the **View full details** to see additional information related to the event.
 13.	At the top menu, dismiss the alert by changing the status from Active to **Dismiss**.
 
-> Note: You can choose to trigger sample alerts for additional Azure Defender plans.
+> Note: You can choose to trigger sample alerts for additional Workload Protections plans.
 
 ### Exercise 2: Alert suppression
 
 When a single alert isn't interesting or relevant, you can manually dismiss it.
 In the previous step, we used the dismiss option to manually dismiss a single alert. However, you can use the suppression rules feature to automatically dismiss similar alerts in the future.
 
-1.	From Security Center sidebar, select **Security alerts**.
+1.	From Microsoft Defender for Cloud sidebar, select **Security alerts**.
 2.	Select **High volume of operations in a Key Vault** alert and then click on **Take action**.
 3.	Expend the Suppress similar alerts section and click on **Create Suppression Rule**.
 4.	The new suppression rule pane opens, provide a rule name: *Testing-AutoDismiss-KV*.
@@ -62,7 +62,7 @@ In the previous step, we used the dismiss option to manually dismiss a single al
 ![](../Images/lab6suprule.gif?raw=true)
 
 
-> Note, you can create suppression rules on a management group level by using a built-in policy definition named Deploy - Configure suppression rules for Azure Security Center alerts in Azure Policy. To suppress alerts at the subscription level, you can use the Azure portal or REST APIs.
+> Note, you can create suppression rules on a management group level by using a built-in policy definition named Deploy - Configure suppression rules for Microsoft Defender for Cloud alerts in Azure Policy. To suppress alerts at the subscription level, you can use the Azure portal or REST APIs.
 
 1. You can change your existing suppression rules or create new ones: from the top menu, select **Suppression rules**. 
 2. Click on the rule you have recently created: `Testing-AutoDismiss-KV`.
@@ -72,22 +72,22 @@ In the previous step, we used the dismiss option to manually dismiss a single al
 
 ### Exercise 3: Enable the integration with Microsoft Defender for Endpoint for Windows
 
-[Azure Defender for servers](https://docs.microsoft.com/en-gb/azure/security-center/defender-for-servers-introduction) includes an integrated license for [Microsoft Defender for Endpoint](https://www.microsoft.com/microsoft-365/security/endpoint-defender). Together, they provide comprehensive endpoint detection and response (EDR) capabilities.
-When Defender for Endpoint detects a threat, it triggers an alert. The alert is shown in Security Center. From Security Center, you can also pivot to the Defender for Endpoint console, and perform a detailed investigation to uncover the scope of the attack.
+[Workload Protections for servers](https://docs.microsoft.com/en-gb/azure/security-center/defender-for-servers-introduction) includes an integrated license for [Microsoft Defender for Endpoint](https://www.microsoft.com/microsoft-365/security/endpoint-defender). Together, they provide comprehensive endpoint detection and response (EDR) capabilities.
+When Defender for Endpoint detects a threat, it triggers an alert. The alert is shown in Microsoft Defender for Cloud. From Microsoft Defender for Cloud, you can also pivot to the Defender for Endpoint console, and perform a detailed investigation to uncover the scope of the attack.
  
  
-If you've never enabled the integration for Windows, the Allow Microsoft Defender for Endpoint to access my data option will enable Security Center to deploy Defender for Endpoint to both your Windows and Linux machines.
-1.	From Security Center's menu, select **Pricing & settings** and select the subscription with the Linux machines that you want to receive Defender for Endpoint.
+If you've never enabled the integration for Windows, the Allow Microsoft Defender for Endpoint to access my data option will enable Microsoft Defender for Cloud to deploy Defender for Endpoint to both your Windows and Linux machines.
+1.	From Microsoft Defender for Cloud's menu, select **Pricing & settings** and select the subscription with the Linux machines that you want to receive Defender for Endpoint.
 2.	Select **Integrations**.
 
 ![](../Images/lab6mde.gif?raw=true)
 
 3.	Select **Allow Microsoft Defender for Endpoint** to access my data (if it's not already on), and select **Save**.
 
-Azure Security Center will:
+Microsoft Defender for Cloud will:
 1.	Automatically onboard your Windows and Linux machines to Defender for Endpoint
 2.	Ignore any Linux machines that are running other fanotify-based solutions (see details of the fanotify kernel option required in [Linux system requirements](https://docs.microsoft.com/en-us/microsoft-365/security/defender-endpoint/microsoft-defender-endpoint-linux#system-requirements))
-3.	Detect any previous installations of Defender for Endpoint and reconfigure them to integrate with Security Center.
+3.	Detect any previous installations of Defender for Endpoint and reconfigure them to integrate with Microsoft Defender for Cloud.
 Onboarding might take up to 24 hours.
 
 ### Continue with the next lab: [Module 7 - Exporting ASC information to a SIEM](../Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)

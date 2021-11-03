@@ -6,11 +6,11 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-This exercise guides you through the current Security Center policies, based on Azure Policy, and shows you where to enable or disable Security Center polices.
+This exercise guides you through the current Microsoft Defender for Cloud policies, based on Azure Policy, and shows you where to enable or disable Microsoft Defender for Cloud polices.
 
 ### Exercise 1: Understanding Regulatory Compliance dashboard
 
-1.	From **Security Center main dashboard**, select **Regulatory Compliance** tile (this pilar is also available from the sidebar).
+1.	From **Microsoft Defender for Cloud main dashboard**, select **Regulatory Compliance** tile (this pilar is also available from the sidebar).
 2.	Regulatory Compliance dashboard opens. On this page, you can see the compliance standards currently assigned to your subscription.
 3.	On the top strip, notice the number of **passed controls** across standards.
 4.	On the main page, select **show all 4** (in the lowest compliance regulatory standards pane). Then select **PCI DSS 3.2.1.** Notice the different compliance controls mapped to assessments.
@@ -60,7 +60,7 @@ Navigate to Azure Policy blade. You can also select this [link](https://portal.a
 3.	On the Basics tab, select a **scope as a location for the new definition**. The recommended approach is to select management groups if they have been assigned but in our scenario select your subscription "Azure subscription 1" as the scope.
 4.	Select a name, for example: **Custom Benchmark**.
 5.	Provide an informative description so others can be clear on what is the purpose of this new security policy.
-6.	Select **Category**. You can decide to use existing one (for example: Security Center) or to create your own one. *The recommended approach is to use a custom one so you can quickly filter policy definitions and initiatives when needed (for example: Contoso)*.
+6.	Select **Category**. You can decide to use existing one (for example: Microsoft Defender for Cloud) or to create your own one. *The recommended approach is to use a custom one so you can quickly filter policy definitions and initiatives when needed (for example: Contoso)*.
 7.	Select **Version** number. Each policy definition and initiative contain a version in its metadata section. You can decide to have major versions (1.0), minor version (1.1) and so.  Click **Next**.
 8.	Click **Groups**, to define your groups and subgroups to be used in your initiative. To add a new group, click **Create Group**.
 9.	Create a new group, for this example we will call **Group 1**, select a subgroup, **Sub-group1** and provide a description. Please aware to the additional metadata which can be used as well. The location of the policyMetadata object that has additional details about the control and compliance domain. Click **Save** to create the new group.
@@ -74,7 +74,7 @@ Navigate to Azure Policy blade. You can also select this [link](https://portal.a
 15.	You can assign policy and initiative parameters to be used during the assignment process. Skip this section and click on Review + Create to validate your settings. Then, click on Create.
 16.	You should now see your new initiative listed – **Custom Benchmark** along with the additional metadata (scope, category, etc.)
 ![Regulatory compliance assessment and standards](../Images/lab4rc5.gif?raw=true)
-17.	To assign your new security policy, open **Security Center blade**.
+17.	To assign your new security policy, open **Microsoft Defender for Cloud blade**.
 18.	From the left navigation pane, under Management section, click on **Security policy**.
 19.	Select a **desired scope** to assign your new security policy (it could be either Management Group or Subscription).
 20.	On **Security policy** page, hover to Your custom initiatives and select **Add a custom initiative**. 
@@ -84,8 +84,8 @@ Navigate to Azure Policy blade. You can also select this [link](https://portal.a
 
 ### Exercise 4 Azure Audit Reports
 
-Now in Azure Security Center, you can easily create & download Audit reports for Regulatory Compliance Standards.
-1.	From Azure Security Center, select Regulatory Compliance from the sidebar
+Now in Microsoft Defender for Cloud, you can easily create & download Audit reports for Regulatory Compliance Standards.
+1.	From Microsoft Defender for Cloud, select Regulatory Compliance from the sidebar
 2.	Then click on Audit Reports found at the top of the page
 ![Regulatory compliance assessment and standards](../Images/lab4rc6.gif?raw=true)
 3.	Select PCI from the tabs, and download 2021 - Azure PCI 3DS 1.0 Package, and click download
@@ -96,10 +96,10 @@ You now have the audit report downloaded.
 
 ### Exercise 5 Continuous Export & Compliance over time workbook
 
-Compliance dashboard over time is a Workbook in Azure Security Center dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it.
+Compliance dashboard over time is a Workbook in Microsoft Defender for Cloud dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it.
 
 You'll need to configure continuous export first to export data to a Log Analytics workspace:
-1.	From Security Center's sidebar, select Pricing & settings.
+1.	From Microsoft Defender for Cloud's sidebar, select Pricing & settings.
 2.	Select the specific subscription for which you want to configure the data export.
 3.	From the sidebar of the settings page for that subscription, select Continuous Export.
 4.	Set the export target to Log Analytics workspace.
@@ -114,7 +114,7 @@ You'll need to configure continuous export first to export data to a Log Analyti
 ![Regulatory compliance assessment and standards](../Images/lab4rc10.gif?raw=true)
 
 Compliance dashboard over time 
-1.	Go to Azure Security Center, and from the left navigation pane, under the General section, press on the Workbooks button. 
+1.	Go to Microsoft Defender for Cloud, and from the left navigation pane, under the General section, press on the Workbooks button. 
 2.	Select the Compliance Over Time Workbook
 3.	For the workspace, select **asclab-la-XXXXXXXXXX** 
 4.	For the subscription, select **Subscription 1**
