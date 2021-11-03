@@ -1,4 +1,4 @@
-# Module 8 – Advance Cloud Defense
+# Module 8 – Enhanced Security
 
 <p align="left"><img src="../Images/asc-labs-advanced.gif?raw=true"></p>
 
