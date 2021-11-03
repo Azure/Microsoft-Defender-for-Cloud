@@ -82,7 +82,9 @@
                       "crossComponentResources": [
                         "value::all"
                       ],
-                      "value": [],
+                      "value": [
+                        "value::all"
+                      ],
                       "typeSettings": {
                         "additionalResourceOptions": [
                           "value::all"
@@ -1333,7 +1335,7 @@
                       },
                       {
                         "columnId": "pricing",
-                        "label": "Azure Defender status"
+                        "label": "Defender for Cloud status"
                       }
                     ]
                   }
