@@ -90,4 +90,4 @@ Microsoft Defender for Cloud will:
 3.	Detect any previous installations of Defender for Endpoint and reconfigure them to integrate with Microsoft Defender for Cloud.
 Onboarding might take up to 24 hours.
 
-### Continue with the next lab: [Module 7 - Exporting ASC information to a SIEM](../Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
+### Continue with the next lab: [Module 7 - Exporting Microsoft Defender for Cloud information to a SIEM](../Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
