@@ -33,10 +33,10 @@ This project has its own [Wiki](https://github.com/Azure/Azure-Security-Center/w
 
 Please visit the following additional resources to learn more about Microsoft Defender for Cloud and participate in discussions:
 
-- [Microsoft Defender for Cloud Forum](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bd-p/AzureSecurityCenter)
-- [Microsoft Defender for Cloud Blog](https://techcommunity.microsoft.com/t5/Azure-Security-Center/bg-p/AzureSecurityCenterBlog)
+- [Microsoft Defender for Cloud Forum](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/bd-p/MicrosoftDefenderCloud)
+- [Microsoft Defender for Cloud Blog](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/bg-p/MicrosoftDefenderCloudBlog)
 - [Microsoft Defender for Cloud Feature suggestion](https://feedback.azure.com/d365community/forum/0f853254-0425-ec11-b6e6-000d3a4f07b8)
-- [Microsoft Defender for Cloud documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-intro)
+- [Microsoft Defender for Cloud documentation](https://docs.microsoft.com/en-us/azure/security-center/defender-for-cloud-introduction)
 - [Microsoft Defender for Cloud API documentation](https://docs.microsoft.com/en-us/rest/api/securitycenter/)
 
 ## Contributing
