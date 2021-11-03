@@ -34,7 +34,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exploring Secure Score and Recommendations](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-2-exploring-secure-score-and-recommendations)
 - [Exploring the Inventory capability](./Modules/Module-2-Exploring-Azure-Security-Center.md#exercise-3-exploring-the-inventory-capability)
  
-[**Module 3 – ASC Security Policy (L200)**](./Modules/Module-3-ASC-Security-Policy.md)
+[**Module 3 – Security Policy (L200)**](./Modules/Module-3-ASC-Security-Policy.md)
 - [Overview of the ASC policy](./Modules/Module-3-ASC-Security-Policy.md#exercise-1-overview-of-the-asc-policy)
 - [Explore Azure Policy](./Modules/Module-3-ASC-Security-Policy.md#exercise-2-explore-azure-policy)
 - [Create resource exemption for a recommendation](./Modules/Module-3-ASC-Security-Policy.md#exercise-3-create-resource-exemption-for-a-recommendation)
@@ -52,16 +52,16 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Automate recommendations with workflow automation](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-3-automate-recommendations-with-workflow-automation)
 - [Accessing your secure score via ARG](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-4-accessing-your-secure-score-via-arg)
  
-[**Module 6 – Azure Defender (L300)**](./Modules/Module-6-Azure-Defender.md)
+[**Module 6 – Microsoft Defender Plans (L300)**](./Modules/Module-6-Azure-Defender.md)
 - [Alert validation](./Modules/Module-6-Azure-Defender.md#exercise-1-alert-validation)
 - [Alert suppression](./Modules/Module-6-Azure-Defender.md#exercise-2-alert-suppression)
 - [Accessing Security Alerts using Graph Security API](./Modules/Module-6-Azure-Defender.md#exercise-3-accessing-security-alerts-using-graph-security-api)
 
-[**Module 7 – Exporting ASC information to a SIEM (L200)**](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
+[**Module 7 – Exporting Microsoft Defender for Cloud information to a SIEM (L200)**](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
 - [Using continuous export](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-1-using-continuous-export)
 - [Integration with Azure Sentinel](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-2-integration-with-azure-sentinel)
 
-[**Module 8 – Advance Cloud Defense (L300)**](./Modules/Module-8-Advance-Cloud-Defense.md)
+[**Module 8 – Enhanced Security (L300)**](./Modules/Module-8-Advance-Cloud-Defense.md)
 - [Using JIT to reduce attack surface](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-1-using-jit-to-reduce-attack-surface)
 - [Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-2-adaptive-application-control)
 - [File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-file-integrity-monitoring)
