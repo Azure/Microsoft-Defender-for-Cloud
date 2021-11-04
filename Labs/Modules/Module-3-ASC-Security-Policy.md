@@ -11,7 +11,7 @@ This exercise guides you through the current Microsoft Defender for Cloud polici
 #### Prerequisites
 To get started with Microsoft Defender for Cloud, you must have a subscription to Microsoft Azure. If you do not have a subscription, you can sign up for a free account. Click here.
 
-### Exercise 1: Overview of the ASC policy
+### Exercise 1: Overview of the Microsoft Defender for Cloud policy
 
 1.	On Microsoft Defender for Cloud blade, from the left navigation pave, click on **Security policy**.
 2.	On Policy Management page, select **Azure subscription 1**.

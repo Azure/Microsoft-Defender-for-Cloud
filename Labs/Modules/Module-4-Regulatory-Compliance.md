@@ -49,7 +49,7 @@ You can add additional industry standards (represented as compliance packages) s
 
 ### Exercise 3: Creating your own benchmark
 
-Once you create your custom initiative, ASC allows you to add it as security policy and which provides two main benefits:
+Once you create your custom initiative, Microsoft Defender for Cloud allows you to add it as security policy and which provides two main benefits:
 * Having security requirements represent as custom recommendations under the recommendation list.
 * Having a way to track compliance status using regulatory compliance dashboard.
 
