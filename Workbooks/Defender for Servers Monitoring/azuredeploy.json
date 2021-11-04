@@ -51,7 +51,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "Please select one, several, or all Log Analytics workspaces in your environment in the drop down below, so the workbook can access relevant data to visualize.",
+                  "json": "Please select one, several, or all subscriptions and Log Analytics workspaces in your environment in the drop downs below, so the workbook can access relevant data to visualize.",
                   "style": "info"
                 },
                 "conditionalVisibility": {
@@ -64,12 +64,35 @@
                 "type": 9,
                 "content": {
                   "version": "KqlParameterItem/1.0",
-                  "crossComponentResources": [
-                    "value::all"
-                  ],
                   "parameters": [
                     {
-                      "id": "3d6a9f93-f352-4ed1-b361-fd784a784fff",
+                      "id": "d6f374fd-9c17-41eb-a647-b15cf5b981ba",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "subscriptions",
+                      "label": "Subscription",
+                      "type": 6,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "includeAll": true
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "value": [
+                        "/subscriptions/bf77075a-b7b9-4adc-b199-ee7e0f0de63e",
+                        "/subscriptions/a6627d9f-1e09-4e46-8f37-8d65d41b1842",
+                        "/subscriptions/f909e711-b87a-4f87-a71b-8750635cfba7",
+                        "/subscriptions/50fd84cd-a553-4236-8f8f-0e36f397ac6e"
+                      ]
+                    },
+                    {
+                      "id": "da8690b8-7771-4759-bf1b-a6f29093aaf5",
                       "version": "KqlParameterItem/1.0",
                       "name": "workspace",
                       "label": "Log Analytics Workspace",
@@ -80,10 +103,7 @@
                       "delimiter": ",",
                       "query": "resources\n| where type =~ 'microsoft.operationalinsights/workspaces'\n| project id",
                       "crossComponentResources": [
-                        "value::all"
-                      ],
-                      "value": [
-                        "value::all"
+                        "{subscriptions}"
                       ],
                       "typeSettings": {
                         "additionalResourceOptions": [
@@ -91,18 +111,18 @@
                         ],
                         "showDefault": false
                       },
-                      "timeContext": {
-                        "durationMs": 86400000
-                      },
                       "queryType": 1,
-                      "resourceType": "microsoft.resourcegraph/resources"
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ]
                     }
                   ],
                   "style": "pills",
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 },
-                "name": "parameters - 0"
+                "name": "parameters - 3"
               }
             ],
             "exportParameters": true
@@ -184,7 +204,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ],
                   "visualization": "piechart",
                   "chartSettings": {
@@ -192,6 +212,14 @@
                       {
                         "seriesName": "installed",
                         "color": "green"
+                      },
+                      {
+                        "seriesName": "notInstalled",
+                        "color": "redBright"
+                      },
+                      {
+                        "seriesName": "",
+                        "color": "gray"
                       }
                     ]
                   }
@@ -206,7 +234,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "\nHeartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute')\n| summarize arg_max(TimeGenerated, SubscriptionId) by tolower(ResourceId)\n| extend LastSeen = case(TimeGenerated > now(-15m), \"currently reporting\",\n                        TimeGenerated < now(-15m) and TimeGenerated > now(-24h), \"not reporting for > 15 min\",\n                        TimeGenerated < now(-24h) and TimeGenerated > now(-48h), \"not reporting for > 24 hours\",\n                        TimeGenerated < now(-48h) and TimeGenerated > now(-3d), \"not reporting for > 48 hours\",\n                        TimeGenerated < now(-3d) and TimeGenerated > now(-7d), \"not reporting for > 3 days\",\n                        TimeGenerated < now(-7d) and TimeGenerated > now(-30d), \"not reporting for > 7 days\",\n                        \"failed\")\n| order by TimeGenerated\n| summarize NotReportingSince = count() by LastSeen",
+                  "query": "\nHeartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute') and not(ResourceType =~ 'virtualMachineScaleSets') and tostring('{subscriptions:subscriptionid}') contains SubscriptionId\n| summarize arg_max(TimeGenerated, SubscriptionId) by tolower(ResourceId)\n| extend LastSeen = case(TimeGenerated > now(-15m), \"currently reporting\",\n                        TimeGenerated < now(-15m) and TimeGenerated > now(-24h), \"not reporting for > 15 min\",\n                        TimeGenerated < now(-24h) and TimeGenerated > now(-48h), \"not reporting for > 24 hours\",\n                        TimeGenerated < now(-48h) and TimeGenerated > now(-3d), \"not reporting for > 48 hours\",\n                        TimeGenerated < now(-3d) and TimeGenerated > now(-7d), \"not reporting for > 3 days\",\n                        TimeGenerated < now(-7d) and TimeGenerated > now(-30d), \"not reporting for > 7 days\",\n                        \"failed\")\n| order by TimeGenerated\n| summarize NotReportingSince = count() by LastSeen",
                   "size": 3,
                   "title": "Log Analytics Agent reporting status",
                   "timeContext": {
@@ -275,7 +303,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ],
                   "visualization": "piechart",
                   "chartSettings": {
@@ -332,7 +360,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ],
                   "gridSettings": {
                     "formatters": [
@@ -557,7 +585,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ]
                 },
                 "customWidth": "1",
@@ -793,7 +821,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ],
                   "gridSettings": {
                     "formatters": [
@@ -977,7 +1005,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-15m)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "query": "Heartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute') and not(ResourceType =~ 'virtualMachineScaleSets') and tostring('{subscriptions:subscriptionid}') contains SubscriptionId\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-15m)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
                   "size": 3,
                   "showAnalytics": true,
                   "title": "Agent not reporting for more than 15 minutes",
@@ -1017,7 +1045,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-24h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "query": "Heartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute') and not(ResourceType =~ 'virtualMachineScaleSets') and tostring('{subscriptions:subscriptionid}') contains SubscriptionId\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-24h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
                   "size": 3,
                   "showAnalytics": true,
                   "title": "Agent not reporting for more than 24 hours",
@@ -1057,7 +1085,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-48h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "query": "Heartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute') and not(ResourceType =~ 'virtualMachineScaleSets') and tostring('{subscriptions:subscriptionid}') contains SubscriptionId\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-48h)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
                   "size": 3,
                   "showAnalytics": true,
                   "title": "Agent not reporting for more than 48 hours",
@@ -1097,7 +1125,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Heartbeat\n| where ResourceProvider =~'Microsoft.Compute'\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-7d)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
+                  "query": "Heartbeat\n| where ResourceProvider in ('Microsoft.Compute', 'Microsoft.Hybridcompute') and not(ResourceType =~ 'virtualMachineScaleSets') and tostring('{subscriptions:subscriptionid}') contains SubscriptionId\n| join kind = leftanti (\n    Heartbeat\n    | where TimeGenerated > now(-7d)\n) on SourceComputerId\n| summarize arg_max(LatestTimestamp=TimeGenerated, SubscriptionId) by ResourceId\n| order by LatestTimestamp",
                   "size": 3,
                   "showAnalytics": true,
                   "title": "Agent not reporting for more than 7 days",
@@ -1168,7 +1196,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
-                    "value::all"
+                    "{subscriptions}"
                   ],
                   "visualization": "table",
                   "showExpandCollapseGrid": true,
@@ -1335,7 +1363,7 @@
                       },
                       {
                         "columnId": "pricing",
-                        "label": "Defender for Cloud status"
+                        "label": "Azure Defender status"
                       }
                     ]
                   }
@@ -1361,7 +1389,8 @@
       "isLocked": false,
       "fallbackResourceIds": [
         "Azure Security Center"
-      ]
+      ],
+      "fromTemplateId": "asc-ServersMonitoringDashboard"
     }
   },
   "resources": [
