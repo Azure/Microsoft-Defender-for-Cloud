@@ -1,3 +1,6 @@
 [submodule "azure-storage-av-automation"]
 	path = azure-storage-av-automation
 	url = https://github.com/Azure/azure-storage-av-automation.git
+[submodule "Workbooks/Cost-Estimation-App-Services-Workbooks"]
+	path = Workbooks/Cost-Estimation-App-Services-Workbooks
+	url = https://github.com/sarahwendel/Cost-Estimation-App-Services-Workbooks.git
