@@ -4,3 +4,6 @@
 [submodule "Workbooks/Cost-Estimation-App-Services-Workbooks"]
 	path = Workbooks/Cost-Estimation-App-Services-Workbooks
 	url = https://github.com/sarahwendel/Cost-Estimation-App-Services-Workbooks.git
+[submodule "Workbooks/Microsoft-Defender-for-Key-Vault-Cost-Estimaction-based-on-time-range"]
+	path = Workbooks/Microsoft-Defender-for-Key-Vault-Cost-Estimaction-based-on-time-range
+	url = https://github.com/sarahwendel/Microsoft-Defender-for-Key-Vault-Cost-Estimaction-based-on-time-range.git
