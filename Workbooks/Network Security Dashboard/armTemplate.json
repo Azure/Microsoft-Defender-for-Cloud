@@ -4925,7 +4925,7 @@
                       "id": "2645cabd-8937-46e4-b63c-f13c5584c017",
                       "cellValue": "DBSelectedView",
                       "linkTarget": "parameter",
-                      "linkLabel": "SQL Database",
+                      "linkLabel": "SQL Server",
                       "subTarget": "SQLDatabaseOverview",
                       "style": "link"
                     },
@@ -5112,7 +5112,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.sql/servers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend privateEndpointConnections = tostring(properties.privateEndpointConnections)\r\n| project-away kind, managedBy, sku, plan, identity, properties, tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "SQL Database - Overview",
+                  "title": "All SQL Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -5179,7 +5179,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[]",
+                              "thresholdValue": "[[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -5268,7 +5268,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2018-06-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"},{\"path\":\"$.id\",\"columnid\":\"id\"}]}}]}",
                   "size": 4,
-                  "title": "SQL Database - FirewallRules",
+                  "title": "FirewallRules of Selected SQL Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12
                 },
@@ -5291,7 +5291,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/virtualNetworkRules?api-version=2021-02-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$..value\",\"columns\":[{\"path\":\"$.name\",\"columnid\":\"name\"},{\"path\":\"$.type\",\"columnid\":\"type\"},{\"path\":\"$..virtualNetworkSubnetId\",\"columnid\":\"virtualNetworkSubnetId\"},{\"path\":\"$..ignoreMissingVnetServiceEndpoint\",\"columnid\":\"ignoreMissingVnetServiceEndpoint\"},{\"path\":\"$..state\",\"columnid\":\"state\"}]}}]}",
                   "size": 4,
-                  "title": "SQL Database - VNetRules",
+                  "title": "VNetRules of Selected SQL Server",
                   "noDataMessage": "No VNetRules configured.",
                   "queryType": 12,
                   "gridSettings": {
@@ -5344,7 +5344,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend privateEndpointConnections = properties.privateEndpointConnections\r\n| mv-expand privateEndpointConnections\r\n| extend provisioningState = privateEndpointConnections.properties.provisioningState\r\n| extend description = privateEndpointConnections.properties.privateLinkServiceConnectionState.description\r\n| extend status = privateEndpointConnections.properties.privateLinkServiceConnectionState.status\r\n| extend actionRequired = privateEndpointConnections.properties.privateLinkServiceConnectionState.actionRequired\r\n| extend privateEndpointId = privateEndpointConnections.properties.privateEndpoint.id\r\n| project privateEndpointId, tostring(provisioningState), tostring(description), tostring(status), tostring(actionRequired)",
                   "size": 4,
-                  "title": "SQL Database - PrivateEndpoints",
+                  "title": "PrivateEndpoints of Selected SQL Server",
                   "noDataMessage": "No PrivateEndpoints configured.",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -5438,7 +5438,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.dbformysql/servers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend sslEnforcement = properties.sslEnforcement\r\n| project-away kind, managedBy, sku, plan, properties, identity,tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "MySQL - Overview",
+                  "title": "All MySQL Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -5580,7 +5580,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2017-12-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"},{\"path\":\"$.id\",\"columnid\":\"id\"}]}}]}",
                   "size": 4,
-                  "title": "MySQL - FirewallRules",
+                  "title": "FirewallRules of Selected MySQL Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12,
                   "gridSettings": {
@@ -5658,7 +5658,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.dbformysql/flexibleservers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend Subnet = properties.delegatedSubnetArguments.subnetArmResourceId\r\n| project-away kind, managedBy, sku, plan, properties, identity,tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "MySQL (flexible server) - Overview",
+                  "title": "All MySQL Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -5812,7 +5812,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2021-05-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"}]}}]}",
                   "size": 4,
-                  "title": "MySQL (flexible server) - FirewallRules",
+                  "title": "FirewallRules of Selected MySQL Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12
                 },
@@ -5860,7 +5860,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.dbforpostgresql/servers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend sslEnforcement = properties.sslEnforcement\r\n| project-away kind, managedBy, sku, plan, properties, identity,tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "PostgreSQL - Overview",
+                  "title": "All PostgreSQL Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -6002,7 +6002,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2017-12-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"},{\"path\":\"$.id\",\"columnid\":\"id\"}]}}]}",
                   "size": 4,
-                  "title": "PostgreSQL - FirewallRules",
+                  "title": "FirewallRules of Selected PostgreSQL Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12
                 },
@@ -6050,7 +6050,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.dbforpostgresql/flexibleservers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend Subnet = properties.delegatedSubnetArguments.subnetArmResourceId\r\n| project-away kind, managedBy, sku, plan, properties, identity,tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "PostgreSQL (flexible server) - Overview",
+                  "title": "All PostgreSQL Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -6204,7 +6204,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2021-06-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"}]}}]}",
                   "size": 4,
-                  "title": "PostgreSQL (flexible server) - FirewallRules",
+                  "title": "FirewallRules of Selected PostgreSQL Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12
                 },
@@ -6252,7 +6252,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where ['type'] == \"microsoft.dbformariadb/servers\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend publicNetworkAccess = properties.publicNetworkAccess\r\n| extend sslEnforcement = properties.sslEnforcement\r\n| project-away kind, managedBy, sku, plan, properties, identity,tenantId, tags, zones, extendedLocation, resourceGroup",
                   "size": 1,
-                  "title": "MariaDB - Overview",
+                  "title": "All MariaDB Servers",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -6394,7 +6394,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/firewallRules?api-version=2018-06-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$.properties.startIpAddress\",\"columnid\":\"startIpAddress\"},{\"path\":\"$.properties.endIpAddress\",\"columnid\":\"endIpAddress\"},{\"path\":\"$.name\",\"columnid\":\"name\"},{\"path\":\"$.id\",\"columnid\":\"id\"}]}}]}",
                   "size": 4,
-                  "title": "MariaDB - FirewallRules",
+                  "title": "FirewallRules of Selected MariaDB Server",
                   "noDataMessage": "No FirewallRules configured.",
                   "queryType": 12
                 },
@@ -6442,7 +6442,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where type == \"microsoft.storage/storageaccounts\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend supportsHttpsTrafficOnly = properties.supportsHttpsTrafficOnly\r\n| extend allowBlobPublicAccess = properties.allowBlobPublicAccess\r\n| extend networkAcls = tostring(properties.networkAcls.virtualNetworkRules)\r\n| extend privateEndpointConnections = tostring(properties.privateEndpointConnections)\r\n| extend defaultAction = properties.networkAcls.defaultAction\r\n| extend ipRules = tostring(properties.networkAcls.ipRules)\r\n| project-away kind, name, managedBy, sku, plan, identity, properties, tenantId, tags, zones, extendedLocation, apiVersion, resourceGroup",
                   "size": 0,
-                  "title": "Storage Accounts - Overview",
+                  "title": "All Storage Accounts",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -6533,7 +6533,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[]",
+                              "thresholdValue": "[[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6555,7 +6555,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[]",
+                              "thresholdValue": "[[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6603,7 +6603,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[]",
+                              "thresholdValue": "[[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6707,7 +6707,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend ipRules = properties.networkAcls.ipRules\r\n| mv-expand ipRules\r\n| extend RuleValue = ipRules.value\r\n| extend RuleAction = ipRules.action\r\n| project tostring(RuleValue), tostring(RuleAction)",
                   "size": 4,
-                  "title": "Storage Accounts - IPRules",
+                  "title": "IPRules of Selected Storage Account",
                   "noDataMessage": "No ipRules configured.",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -6739,7 +6739,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend virtualNetworkRules = properties.networkAcls.virtualNetworkRules\r\n| mv-expand virtualNetworkRules\r\n| extend virtualNetworkRulesid = virtualNetworkRules.id\r\n| extend virtualNetworkRulesstate = virtualNetworkRules.state\r\n| extend virtualNetworkRulesaction = virtualNetworkRules.action\r\n| project virtualNetworkRulesid, tostring(virtualNetworkRulesstate), tostring(virtualNetworkRulesaction)",
                   "size": 4,
-                  "title": "Storage Accounts - NetworkRules",
+                  "title": "NetworkRules of Selected Storage Account",
                   "noDataMessage": "No networkAcls configured.",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -6799,7 +6799,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend privateEndpointConnections = properties.privateEndpointConnections\r\n| mv-expand privateEndpointConnections\r\n| extend provisioningState = privateEndpointConnections.properties.provisioningState\r\n| extend description = privateEndpointConnections.properties.privateLinkServiceConnectionState.description\r\n| extend status = privateEndpointConnections.properties.privateLinkServiceConnectionState.status\r\n| extend actionRequired = privateEndpointConnections.properties.privateLinkServiceConnectionState.actionRequired\r\n| extend privateEndpointId = privateEndpointConnections.properties.privateEndpoint.id\r\n| project privateEndpointId, tostring(provisioningState), tostring(description), tostring(status), tostring(actionRequired)",
                   "size": 4,
-                  "title": "Storage Accounts - Private Endpoints",
+                  "title": "Private Endpoints of Selected Storage Account",
                   "noDataMessage": "No privateEndpointConnections configured..",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -6886,7 +6886,7 @@
                   "version": "KqlItem/1.0",
                   "query": "resources\r\n| where type == \"microsoft.web/sites\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend privateEndpointConnections = tostring(properties.privateEndpointConnections)\r\n| extend virtualNetworkSubnetId = tostring(properties.virtualNetworkSubnetId)\r\n| extend httpsOnly = tostring(properties.httpsOnly)\r\n| project-away name, properties, managedBy, sku, plan, identity, tenantId, tags, zones, extendedLocation, apiVersion, resourceGroup",
                   "size": 0,
-                  "title": "Overview",
+                  "title": "All App Services",
                   "exportFieldName": "id",
                   "exportParameterName": "ResourceID",
                   "queryType": 1,
@@ -6942,7 +6942,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[]",
+                              "thresholdValue": "[[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -7071,7 +7071,7 @@
                   "version": "KqlItem/1.0",
                   "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{ResourceID}/config/web?api-version=2021-02-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"\",\"columns\":[{\"path\":\"$.properties.vnetRouteAllEnabled\",\"columnid\":\"vnetRouteAllEnabled\"},{\"path\":\"$.properties.publicNetworkAccess\",\"columnid\":\"publicNetworkAccess\"},{\"path\":\"$.properties.http20Enabled\",\"columnid\":\"http20Enabled\"},{\"path\":\"$.properties.minTlsVersion\",\"columnid\":\"minTlsVersion\"},{\"path\":\"$.properties.ftpsState\",\"columnid\":\"ftpsState\"}]}}]}",
                   "size": 4,
-                  "title": "Additional Properties of Selected App Services",
+                  "title": "Additional Properties of Selected App Service",
                   "queryType": 12,
                   "gridSettings": {
                     "formatters": [
