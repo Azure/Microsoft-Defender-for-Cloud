@@ -17,7 +17,7 @@
     },
     "workbookSourceId": {
       "type": "string",
-      "defaultValue": "Azure Monitor",
+      "defaultValue": "Azure Security Center",
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }
@@ -345,7 +345,7 @@
       ],
       "isLocked": false,
       "fallbackResourceIds": [
-        "Azure Monitor"
+        "Azure Security Center"
       ]
     }
   },
