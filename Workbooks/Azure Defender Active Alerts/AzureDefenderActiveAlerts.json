@@ -47,6 +47,8 @@
       }
     }
   ],
+  "fromTemplateId": "asc-AzureDefenderActiveAltersDashboard",
+  "$scheme": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
   "outputs": {
     "workbookId": {
       "type": "string",
