@@ -1,4 +1,4 @@
-# Azure Defender Active Alerts Workbook
+# Microsoft Defender Active Alerts Workbook
 **Author: Safeena Begum**
 
 ## Playbook Description: 
