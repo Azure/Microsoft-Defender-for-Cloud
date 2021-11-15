@@ -5179,7 +5179,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[[]",
+                              "thresholdValue": "[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6533,7 +6533,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[[]",
+                              "thresholdValue": "[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6555,7 +6555,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[[]",
+                              "thresholdValue": "[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6603,7 +6603,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[[]",
+                              "thresholdValue": "[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
@@ -6942,7 +6942,7 @@
                           "thresholdsGrid": [
                             {
                               "operator": "==",
-                              "thresholdValue": "[[[]",
+                              "thresholdValue": "[[]",
                               "representation": "more",
                               "text": "Not Configured"
                             },
