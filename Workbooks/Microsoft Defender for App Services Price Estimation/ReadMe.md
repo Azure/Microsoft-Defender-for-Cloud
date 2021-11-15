@@ -7,7 +7,7 @@ This workbook considers all App Services with and without Microsoft Defender for
 ## Try it on the Azure Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAppServiceCost7Days%2FMicrosoft%20Defender%20for%20App%20Service%20-%20Price%20Estimation.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FMicrosoft%20Defender%20for%20App%20Services%20Price%20Estimation%2FMicrosoft%20Defender%20for%20App%20Service%20-%20Price%20Estimation.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 ## Overview Tab
 ![Image of OverviewTab](OverviewofWorkbook.png)
