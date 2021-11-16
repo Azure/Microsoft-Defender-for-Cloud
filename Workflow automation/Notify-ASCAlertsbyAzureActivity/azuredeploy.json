@@ -12,7 +12,6 @@
         },
         "SecurityOperationsEmail": {
             "defaultValue": "socemailaddress@company.com",
-            "description": "This is your security teams email address that needs notification of defender alert",
             "type": "String"
         }        
     },
