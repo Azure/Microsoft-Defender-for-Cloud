@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "Workbook 1",
+      "defaultValue": "Microsoft Defender for Cloud Server Monitoring Dashboard",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -84,9 +84,7 @@
                       "timeContext": {
                         "durationMs": 86400000
                       },
-                      "value": [
-                        "value::all"
-                      ]
+                      "value": []
                     },
                     {
                       "id": "da8690b8-7771-4759-bf1b-a6f29093aaf5",
@@ -1482,6 +1480,7 @@
                               }
                             }
                           ],
+                          "rowLimit": 1000,
                           "labelSettings": [
                             {
                               "columnId": "ResourceId",
