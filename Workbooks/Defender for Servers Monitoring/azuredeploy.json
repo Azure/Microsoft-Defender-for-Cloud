@@ -108,9 +108,7 @@
                       },
                       "queryType": 1,
                       "resourceType": "microsoft.resourcegraph/resources",
-                      "value": [
-                        "value::all"
-                      ]
+                      "value": []
                     }
                   ],
                   "style": "pills",
@@ -174,7 +172,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "The total number of machines in the pir charts below may vary as the *Machine reporting status* dashboard will only show machines that have been reporting within the last 30 days, whereas the other two dashboards will show all machines that are covered by Microsoft Defender for Cloud and have an agent installed. This will include machines that have been powered off for more than 30 days but which have not been deleted.\n\nTo see more details, please select **one** value at a time from each of the charts below.",
+                  "json": "The total number of machines in the pie charts below may vary as the *Machine reporting status* dashboard will only show machines that have been reporting within the last 30 days, whereas the other two dashboards will show all machines that are covered by Microsoft Defender for Cloud and have an agent installed. This will include machines that have been powered off for more than 30 days but which have not been deleted.\n\nTo see more details, please select **one** value at a time from each of the charts below.",
                   "style": "info"
                 },
                 "name": "text - 5"
@@ -1196,7 +1194,7 @@
                           ]
                         }
                       },
-                      "customWidth": "25",
+                      "customWidth": "30",
                       "name": "workspacesPie",
                       "styleSettings": {
                         "showBorder": true
@@ -1331,7 +1329,7 @@
                           "filter": true,
                           "sortBy": [
                             {
-                              "itemKey": "$gen_link_Workspace name_0",
+                              "itemKey": "Number of machines reporting",
                               "sortOrder": 2
                             }
                           ],
@@ -1348,12 +1346,12 @@
                         },
                         "sortBy": [
                           {
-                            "itemKey": "$gen_link_Workspace name_0",
+                            "itemKey": "Number of machines reporting",
                             "sortOrder": 2
                           }
                         ]
                       },
-                      "customWidth": "50",
+                      "customWidth": "70",
                       "showPin": false,
                       "name": "workspaceByDefenderSolution",
                       "styleSettings": {
