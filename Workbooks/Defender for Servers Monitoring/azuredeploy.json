@@ -1378,7 +1378,7 @@
                     {
                       "type": 1,
                       "content": {
-                        "json": "Microsoft Defender for Servers and Microsoft Defender for SQL rely on the Log Analytics agent to gather evidence for malicious behavior occurring on your machines. In case an agent is not properly reporting to its Log Analytics workspace, there might be a communication issue that prevents Microsoft Defender for Cloud from reporting threats.\nThe table below shows machines that have not been reporting to their workspaces for more than 15 minutes, with the less recent timestamps on top of the table. Machines that have not been reporting for more than 30 days are not shown.",
+                        "json": "Microsoft Defender for Servers and Microsoft Defender for SQL rely on the Log Analytics agent to gather evidence for malicious behavior occurring on your machines. In case an agent is not properly reporting to its Log Analytics workspace, there might be a communication issue that prevents Microsoft Defender for Cloud from reporting threats.\nThe table below shows machines that have not been reporting to their workspaces for more than 15 minutes, with the least recent timestamp on top of the table. Machines that have not been reporting for more than 30 days are not shown.",
                         "style": "info"
                       },
                       "name": "text - 2"
