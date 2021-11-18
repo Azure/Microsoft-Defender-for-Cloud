@@ -84,7 +84,9 @@
                       "timeContext": {
                         "durationMs": 86400000
                       },
-                      "value": []
+                      "value": [
+                        "value::all"
+                      ]
                     },
                     {
                       "id": "da8690b8-7771-4759-bf1b-a6f29093aaf5",
@@ -108,7 +110,9 @@
                       },
                       "queryType": 1,
                       "resourceType": "microsoft.resourcegraph/resources",
-                      "value": []
+                      "value": [
+                        "value::all"
+                      ]
                     }
                   ],
                   "style": "pills",
@@ -1242,7 +1246,7 @@
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\",\"mergeType\":\"outer\",\"leftTable\":\"defenderForServers\",\"rightTable\":\"defenderForSQL\",\"leftColumn\":\"resourceId\",\"rightColumn\":\"resourceId\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Workspace name\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"resourceId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"resourceId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"resourceId1\"}}]},{\"originalName\":\"[defenderForServers].resourceId\",\"mergedName\":\"resourceId\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForServers].ServerSolution\",\"mergedName\":\"ServerSolution\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForServers].machines\",\"mergedName\":\"machines\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].resourceId\",\"mergedName\":\"resourceId1\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].SQLSolution\",\"mergedName\":\"SQLSolution\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].machines\",\"mergedName\":\"machines1\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Number of machines reporting\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"machines\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"machines\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"machines1\"}}]}]}",
+                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\",\"mergeType\":\"outer\",\"leftTable\":\"defenderForServers\",\"rightTable\":\"defenderForSQL\",\"leftColumn\":\"resourceId\",\"rightColumn\":\"resourceId\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Workspace name\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"resourceId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"resourceId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"resourceId1\"}}]},{\"originalName\":\"[defenderForServers].resourceId\",\"mergedName\":\"resourceId\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForServers].ServerSolution\",\"mergedName\":\"ServerSolution\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForServers].machines\",\"mergedName\":\"machines\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].resourceId\",\"mergedName\":\"resourceId1\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].SQLSolution\",\"mergedName\":\"SQLSolution\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[defenderForSQL].machines\",\"mergedName\":\"machines1\",\"fromId\":\"740011e0-fce7-49cb-84c9-244fd52de0b5\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"reportingMachines\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"machines\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"machines\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"machines1\"}}]}]}",
                         "size": 1,
                         "title": "Workspaces grouped by Defender solution status (used by Defender for Cloud)",
                         "queryType": 7,
@@ -1327,12 +1331,6 @@
                             }
                           ],
                           "filter": true,
-                          "sortBy": [
-                            {
-                              "itemKey": "Number of machines reporting",
-                              "sortOrder": 2
-                            }
-                          ],
                           "labelSettings": [
                             {
                               "columnId": "ServerSolution",
@@ -1341,15 +1339,14 @@
                             {
                               "columnId": "SQLSolution",
                               "label": "Defender for SQL"
+                            },
+                            {
+                              "columnId": "reportingMachines",
+                              "label": "Number of machines reporting"
                             }
                           ]
                         },
-                        "sortBy": [
-                          {
-                            "itemKey": "Number of machines reporting",
-                            "sortOrder": 2
-                          }
-                        ]
+                        "sortBy": []
                       },
                       "customWidth": "70",
                       "showPin": false,
@@ -1752,7 +1749,8 @@
       "isLocked": false,
       "fallbackResourceIds": [
         "Azure Security Center"
-      ]
+      ],
+      "fromTemplateId": "asc-ServersMonitoringDashboard"
     }
   },
   "resources": [
@@ -1778,6 +1776,5 @@
       "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
     }
   },
-  "fromTemplateId": "asc-ServersMonitoringDashboard",
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
 }
