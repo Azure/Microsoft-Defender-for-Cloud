@@ -84,9 +84,7 @@
                       "timeContext": {
                         "durationMs": 86400000
                       },
-                      "value": [
-                        "value::all"
-                      ]
+                      "value": []
                     },
                     {
                       "id": "da8690b8-7771-4759-bf1b-a6f29093aaf5",
@@ -110,9 +108,7 @@
                       },
                       "queryType": 1,
                       "resourceType": "microsoft.resourcegraph/resources",
-                      "value": [
-                        "value::all"
-                      ]
+                      "value": []
                     }
                   ],
                   "style": "pills",
