@@ -204,6 +204,7 @@
                       },
                       {
                         "seriesName": "",
+                        "label": "notApplicable",
                         "color": "gray"
                       }
                     ]
@@ -406,8 +407,8 @@
                             {
                               "operator": "Default",
                               "thresholdValue": null,
-                              "representation": "Disable",
-                              "text": "{0}{1}"
+                              "representation": "cancelled",
+                              "text": "notApplicable"
                             }
                           ]
                         }
@@ -752,8 +753,8 @@
                             {
                               "operator": "Default",
                               "thresholdValue": null,
-                              "representation": "2",
-                              "text": "{0}{1}"
+                              "representation": "cancelled",
+                              "text": "notApplicable"
                             }
                           ]
                         }
@@ -960,8 +961,8 @@
                             {
                               "operator": "Default",
                               "thresholdValue": null,
-                              "representation": "Disable",
-                              "text": "{0}{1}"
+                              "representation": "cancelled",
+                              "text": "notApplicable"
                             }
                           ]
                         }
