@@ -1745,8 +1745,7 @@
       "isLocked": false,
       "fallbackResourceIds": [
         "Azure Security Center"
-      ],
-      "fromTemplateId": "asc-ServersMonitoringDashboard"
+      ]
     }
   },
   "resources": [
