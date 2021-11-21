@@ -77,10 +77,10 @@ When Defender for Endpoint detects a threat, it triggers an alert. The alert is 
  
  
 If you've never enabled the integration for Windows, the Allow Microsoft Defender for Endpoint to access my data option will enable Microsoft Defender for Cloud to deploy Defender for Endpoint to both your Windows and Linux machines.
-1.	From Microsoft Defender for Cloud's menu, select **Pricing & settings** and select the subscription with the Linux machines that you want to receive Defender for Endpoint.
-2.	Select **Integrations**.
+1.	From Microsoft Defender for Cloud's menu, select **Environment settings** and select the subscription (**Azure Subscription 1**) with the Linux machines that you want to receive Defender for Endpoint.
+2.	Then select **Integrations** from the sidebar.
 
-![](../Images/lab6mde.gif?raw=true)
+![](../Images/mdfc-integrations.png?raw=true)
 
 3.	Select **Allow Microsoft Defender for Endpoint** to access my data (if it's not already on), and select **Save**.
 

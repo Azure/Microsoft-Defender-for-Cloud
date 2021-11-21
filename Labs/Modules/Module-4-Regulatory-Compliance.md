@@ -10,23 +10,9 @@ This exercise guides you through the current Microsoft Defender for Cloud polici
 
 ### Exercise 1: Understanding Regulatory Compliance dashboard
 
-1.	From **Microsoft Defender for Cloud main dashboard**, select **Regulatory Compliance** tile (this pilar is also available from the sidebar).
+1.	From **Microsoft Defender for Cloud main dashboard**, select **Regulatory Compliance** tile (this pilar is also available from the sidebar under Cloud Security).
 2.	Regulatory Compliance dashboard opens. On this page, you can see the compliance standards currently assigned to your subscription.
-3.	On the top strip, notice the number of **passed controls** across standards.
-4.	On the main page, select **show all 4** (in the lowest compliance regulatory standards pane). Then select **PCI DSS 3.2.1.** Notice the different compliance controls mapped to assessments.
-
-![Regulatory compliance assessment and standards](../Images/lab4rc1.gif?raw=true)
-
-5.	Click to open up **Encrypt transmission of cardholder data across open, public networks.**
-6.	Click to open **control 4.1**
-![Regulatory compliance assessment and standards](../Images/lab4rc2.gif?raw=true)
-7.	Click to open **Secure transfer to storage accounts should be enabled.**
-8.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
-![Regulatory compliance assessment and standards](../Images/lab4rc3.gif?raw=true)
-9.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
-10.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select Download report.
-11.	On the Report standard dropdown menu, select **PSI DSS 3.2.1** and **PDF**. Click **Download**
-12.	A local PDF file is now stored on your machine. Open the **PCI DSS 3.2.1 Compliance Report** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
+3.	On the top strip, notice the number of **passed controls** for Azure Security Benchmark.
 
 ### Exercise 2: Adding new standards
 
@@ -46,8 +32,34 @@ You can add additional industry standards (represented as compliance packages) s
 > It will take a while until the change takes an effect (2-3 hours).
 
 7.	**Azure CIS 1.1.0 (New)** should now be listed on the standards list.
+   
+### Exercise 3: Exploring a benchmark 
+1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies** which can be found under the Lowest compliance regulatory standards tile.
+2. Then select **Azure Subscription 1** and choose **Security Policy** from the sidebar.
+3.	On the **Industry & regulatory standards** section, notice the out of the box standards under **Industry & regulatory standards**.
+4.	Locate the **PCI DSS 3.2.1** standard and select **Enable**.
+![Regulatory compliance assessment and standards](../Images/mdfc-pci.png?raw=true)
+5. Select **yes** to the pop-up asking you to enable PCI DSS.
+6.	**PCI DSS 3.2.1** should now be listed as enabled.
 
-### Exercise 3: Creating your own benchmark
+Once you have enabled PCI DSS 3.2.1, now we will explore a particular control included in it.
+
+1. From the **regulatory compliance** page, select **PCI DSS 3.2.1.** Notice the different compliance controls mapped to assessments.
+
+![Regulatory compliance assessment and standards](../Images/lab4rc1.gif?raw=true)
+
+2.	Click to open up **Encrypt transmission of cardholder data across open, public networks.**
+3.	Click to open **control 4.1**
+![Regulatory compliance assessment and standards](../Images/lab4rc2.gif?raw=true)
+4.	Click to open **Secure transfer to storage accounts should be enabled.**
+5.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
+![Regulatory compliance assessment and standards](../Images/lab4rc3.jpg?raw=true)
+6.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
+7.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select Download report.
+8.	On the Report standard dropdown menu, select **PSI DSS 3.2.1** and **PDF**. Click **Download**
+9.	A local PDF file is now stored on your machine. Open the **PCI DSS 3.2.1 Compliance Report** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
+
+### Exercise 4: Creating your own benchmark
 
 Once you create your custom initiative, Microsoft Defender for Cloud allows you to add it as security policy and which provides two main benefits:
 * Having security requirements represent as custom recommendations under the recommendation list.
@@ -87,9 +99,9 @@ Navigate to Azure Policy blade. You can also select this [link](https://portal.a
 Now in Microsoft Defender for Cloud, you can easily create & download Audit reports for Regulatory Compliance Standards.
 1.	From Microsoft Defender for Cloud, select Regulatory Compliance from the sidebar
 2.	Then click on Audit Reports found at the top of the page
-![Regulatory compliance assessment and standards](../Images/lab4rc6.gif?raw=true)
+![Regulatory compliance assessment and standards](../Images/lab4rc6.jpg?raw=true)
 3.	Select PCI from the tabs, and download 2021 - Azure PCI 3DS 1.0 Package, and click download
-![Regulatory compliance assessment and standards](../Images/lab4rc7.gif?raw=true)
+![Regulatory compliance assessment and standards](../Images/lab4rc7.jpg?raw=true)
 4.	Press download on the Privacy Notice pop-up that appears.
 You now have the audit report downloaded.
 
@@ -99,19 +111,21 @@ You now have the audit report downloaded.
 Compliance dashboard over time is a Workbook in Microsoft Defender for Cloud dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it.
 
 You'll need to configure continuous export first to export data to a Log Analytics workspace:
-1.	From Microsoft Defender for Cloud's sidebar, select Pricing & settings.
-2.	Select the specific subscription for which you want to configure the data export.
-3.	From the sidebar of the settings page for that subscription, select Continuous Export.
-4.	Set the export target to Log Analytics workspace.
-5.	Select the following data types: Regulatory compliance.
-6.	From the export frequency options, select Streaming and Snapshots (Preview).
-7.	Select target workspace to be asclab-la-XXXXXXXX.
-8.	Select the Resource Group to be asclab 
+1.	From Microsoft Defender for Cloud's sidebar, select **Environment Settings**.
+2.	Select **Azure Subscription 1** for which you want to configure the data export.
+3.	From the sidebar of the settings page for that subscription, select **Continuous Export**.
+4.	Set the export target to **Log Analytics workspace** (which is the tab beside Event hub).
+5.	Select the following data types: **Regulatory compliance**.
+6.	From the export frequency options, select both **Streaming updates** and **Snapshots (Preview)**.
+7.	Select target workspace and the Resource Group to be those you created earlier.
 9.	Select Save.
 10.	Wait for the first snapshot to occur. 
-![Regulatory compliance assessment and standards](../Images/lab4rc8.gif?raw=true)
-![Regulatory compliance assessment and standards](../Images/lab4rc9.gif?raw=true)
-![Regulatory compliance assessment and standards](../Images/lab4rc10.gif?raw=true)
+
+![Regulatory compliance assessment and standards](../Images/lab4rc8.jpg?raw=true)
+
+![Regulatory compliance assessment and standards](../Images/lab4rc9.jpg?raw=true)
+
+![Regulatory compliance assessment and standards](../Images/lab4rc10.jpg?raw=true)
 
 Compliance dashboard over time 
 1.	Go to Microsoft Defender for Cloud, and from the left navigation pane, under the General section, press on the Workbooks button. 
@@ -119,7 +133,7 @@ Compliance dashboard over time
 3.	For the workspace, select **asclab-la-XXXXXXXXXX** 
 4.	For the subscription, select **Subscription 1**
 5.	For the standard name, select **All**, and now you can see the workbook.
-![Regulatory compliance assessment and standards](../Images/lab4rc11.gif?raw=true)
+![Regulatory compliance assessment and standards](../Images/lab4rc11.jpg?raw=true)
 >Note 1: You need to complete the previous exercise of setting up Continuous Export to the Log Analytics workspace for the Compliance Over Time Workbook to work.
 >Note 2: If you see the error below, you will need to wait for a week for this workbook to populate with data through Continuous Export.
 ![Regulatory compliance assessment and standards](../Images/lab4rc12.gif?raw=true)

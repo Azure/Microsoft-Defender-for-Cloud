@@ -86,7 +86,7 @@ az acr build --image sample/hello-world:v1 --registry <your container registry n
 11.	On the **Security Checks** section, notice the number of vulnerabilities.
 12.	Click on the first security check to open the right pane. Notice the vulnerability description, general information, remediation, and the affected resources. **Close this window.**
 
-![](../Images/Lab5vul.gif?raw=true)
+![](../Images/Lab5vul2.gif?raw=true)
 
 ### Exercise 3: Automate recommendations with workflow automation
 
@@ -135,7 +135,7 @@ Link to recommendation: `Properties Links Azure Portal Uri`</br>
 ![Logic App worklfow](../Images/asc-logic-app-workflow.gif?raw=true)
 
 **Create a new workflow automation instance**
-1.	From Microsoft Defender for Cloud's sidebar, select **Workflow automation**.
+1.	From Microsoft Defender for Cloud's sidebar, select **Workflow automation** which is found under the **Management** section.
 2.	Click **Add workflow automation**.
 3.	A pane appears on the right side. Enter the following for each field:
     - General:
