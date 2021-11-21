@@ -70,11 +70,11 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 Acronym | Meaning | Description
 ------- | --- | -----------
-MDC | Microsoft Defender for Cloud | Built-in free service which offer limited security for your Azure resources only
+MDFC | Microsoft Defender for Cloud | Built-in free service which offer limited security for your Azure resources only
 CSPM | Cloud Security Posture Management | Automates the identification and remediation of risks across cloud infrastructures. CSPM in Microsoft Defender for Cloud is available for free to all Azure users. The free experience includes CSPM features such as secure score, detection of security misconfigurations in your Azure machines, asset inventory, and more.
 CWP | Cloud Workload Protection | Provides workload-centric security protection solutions such as servers, app service, storage, database and more. All CWP capabilities are covered under Microsoft Defender for Cloud.
 JIT | Just-in-time | Feature to reduce exposure to attacks while providing easy access when you need to connect to a VM
 ARM | Azure Resource Manager | Deployment and management layer that enables you to create, update, and delete resources in your Azure account.
 RBAC | Role-based access control | Authorization system built on Azure Resource Manager that provides fine-grained access management of Azure resources.
 VA | Vulnerability Assessment | Provides vulnerability scanning for your virtual machines and container registries.
-SIEM | Security information and event management | Tool to provide a central place to collect events and alerts, that aggregates data from multiple systems and analyze that data to catch abnormal behavior or potential cyberattacks. For example, Azure Sentinel.
+SIEM | Security information and event management | Tool to provide a central place to collect events and alerts, that aggregates data from multiple systems and analyze that data to catch abnormal behavior or potential cyberattacks. For example, Microsoft Sentinel.

@@ -15,11 +15,11 @@
 3.	On the Just-in-time VM access page, select the **Not configure** tab. You should see at least two virtual machines listed: `asclab-linux` and `asclab-win`.
 4.	Select **asclab-win** and then click on the **Enable JIT on 1 VM** button.
 
-![Enable JIT on Windows VM](../Images/asc-enable-jit-win-vm.gif?raw=true)
+![Enable JIT on Windows VM](../Images/asc-enable-jit-win-vm.jpg?raw=true)
 
 5.	On the JIT VM access configuration, keep just the **3389 (RDP) port** set to **On**, and set all others to **Off**. 
 
-![](../Images/lab8jit.gif?raw=true)
+![](../Images/lab8jit.jpg?raw=true)
 6.	Click **Save** to apply the VM access configuration.
 
 ![JIT VM access configuration](../Images/asc-jit-vm-access-config.gif?raw=true)
@@ -57,6 +57,13 @@ It maps the current state of these items with the state during the previous scan
 
 1.	From Microsoft Defender for Cloud sidebar, click on **Workload Protections**.
 2.	On the Advanced protection part at the bottom, click on **File Integrity Monitoring** tile.
-3.	On the FIM configuration page, select the **Log Analytics workspace listed** `asclab-la-xxx` (or just by clicking on the Upgrade icon - it indicates that FIM is not enabled for the selected workspace).
+3.	On the FIM configuration page, select the Log Analytics workspace **asclab-la-xxx**.
+![](../Images/mdfc-fim.png?raw=true)
 4.	On the Enable FIM, **review the default recommended settings** for Windows files, Registry and Linux files.
 5.	Click on **Enable File Integrity Monitoring** button.
+
+![](../Images/mdfc-enablefim.png?raw=true)
+
+You'll now be able to track changes to files in resource associated with the log analytics workspace.
+
+![](../Images/mdfc-fimtrack.png?raw=true)
