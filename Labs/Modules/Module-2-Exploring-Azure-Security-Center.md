@@ -21,7 +21,7 @@ To get started with Microsoft Defender for Cloud, you must have a subscription t
 > ❗ Important: <br>
 > It takes few hours for all tiles on the overview page to update.
 
-![Microsoft Defender for Cloud Snapshot](../Images/127543089-5e7ed1a9-09a1-475a-9c83-36fa1647907f.PNG?raw=true)
+![Microsoft Defender for Cloud Snapshot](../Images/127543089-5e7ed1a9-09a1-475a-9c83-36fa1647907f.png?raw=true)
 
 
 4.	Note the **top menu** bar which allows to view and filter subscriptions by selecting the **subscriptions button**.
