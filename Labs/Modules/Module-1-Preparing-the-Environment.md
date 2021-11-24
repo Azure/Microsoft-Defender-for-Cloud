@@ -37,7 +37,7 @@ Important - Make sure you are not logged in with your corporate user.
 ### Exercise 2: Provisioning resources
 
 > ❗ Important: <br>
-> You should also be accessing the ASC labs in the same private window. Otherwise, link from the lab will be open on a non-private window. 
+> You should also be accessing the Microsoft Defender for Cloud labs in the same private window. Otherwise, link from the lab will be open on a non-private window. 
 
 As part of the exercises mentioned in this lab guide, you will create an environment using an automated deployment based on ARM template.
 An ARM template is a JavaScript Object Notation (JSON) file that defines the infrastructure and configuration for your project. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it.
@@ -101,34 +101,47 @@ When the deployment is complete, you should see the following:
 1. Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2. Click on **Getting started** page from the left pane, On the **Upgrade** Tab, select subscription (Azure subscription 1) and press **Upgrade**.
    >Note: You may need to wait for a few minutes for the upgrade to complete.
-3. Click on **Install agents**, if the button has been grayed out, then it's already set to **On**.
-   ![Template deployment completed](../Images/test.gif?raw=true)
+3. Select both **Azure subscription 1**, and also the **workspace name** underneath it. Click on **Upgrade** to upgrade.
+   ![Template deployment completed](../Images/mdfc-gettingstarted.png?raw=true)
 
-4. Return to Microsoft Defender for Cloud blade and Click on **Pricing & settings**.
-5. Your subscription (Azure subscription 1) should be listed and Microsoft Defender for Cloud plan should be **On (partial)** (if it does not, close your browser session and open a new one).
+4. Select the **Azure Subscription 1** and click **Install agents** to install agents to the resources in the subscription.
 
-> Notice that you enabled Azure Defender at a subscription level, but Log Analytics workspace pricing is still set on Free (means Azure Defender is OFF).
+   ![Install Agents](../Images/mdfc-installagents.png?raw=true)
 
-#### Configure the data collection settings in ASC
-1. On **Pricing and Settings** page, press on the Log Analytics workspace named **asc-lab-xxx**
+#### Get the status of the Defender coverage on the subscription and the workspace
+1. Return to Microsoft Defender for Cloud blade and Click on **Environment settings**. Click the down arrow on **Azure** to show the subscription, and then click the down arrow on **Azure Susbcription 1** to show the workspace. Notice the Defender coverage is 11/11 plans for the subscription and 2/2 plans for the workspace, meaning that you are now fully protected using Microsoft Defender for Cloud.
+    ![Environment settings](../Images/mdfc-envsettings.png?raw=true)
 
-![Template deployment completed](../Images/asc-workspace-pricing-settings.gif?raw=true)
+2. Click on **Azure subscription 1**, and notice how all Microsoft Defender for Cloud plans are enabled. 
 
-2. On the Microsoft Defender for Cloud Plans page, select **Microsoft Defender for Cloud on** (if it’s not already on) and press **Save**. Now both subscription and Log Analytics workspace should be set to **On** for Microsoft Defender for Cloud plan.
+> If you need to enable individual plans, first ensure that the Microsoft Defender for Cloud plans blue box on the right hand side is selected, and then you can select the specific Defender plans underneath.
 
-![Enable Microsoft Defender for Cloud on the workspace level](../Images/asc-enable-defender-workspace.gif?raw=true)
+3. Exit that screen, and then select the workspace from the previous screen. 
+   
+    ![Environment settings](../Images/mdfc-envsettings2.png?raw=true)
 
-3. Go back to the **Pricing & Setting** and drill down into your **Azure subscription** (Azure subscription 1).
-4. Navigate to **Auto provisioning**
+4. Ensure that both plans for **Servers** and **SQL servers on machines** are turned **On**.
+
+![Environment settings](../Images/mdfc-workspaceenvsettings.png?raw=true)
+
+
+#### Configure the data collection settings in Microsoft Defender for Cloud
+
+1. Go back to the **Environment settings** in the sidebar and drill down into your **Azure subscription** (Azure subscription 1).
+2. Navigate to **Auto provisioning**
+
+![Auto-provisioning](../Images/mdfc-autoprovisioning.png?raw=true)
+
 5. On the **Auto provisioning - Extensions** page, set **Log Analytics agent for Azure VMs** to **On** (if it's not already set to On)
-6. Click **Edit configuration**.
-7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **asc-lab-xxx** (which has been created by the ARM template).
+6. Click **Edit configuration** under the configuration column.
+7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **xxx-lab-xxx** (which has been created by the ARM template).
 8. Under **Store additional raw data - Windows security events** section, select **All Events** option.
 
 ![Enable Microsoft Defender for Cloud on the workspace level](../Images/asc-extension-deployment-configuration.gif?raw=true)
 
-9. Click on **Apply**.
-10. Click on **Save**.
+9. Select **Existing and new VMs** in the pop-up.
+10. Click on **Apply**.
+11. Click on **Save**.
 
 <br>
 
@@ -138,4 +151,4 @@ When the deployment is complete, you should see the following:
 > * You can enable Microsoft Defender for Cloud trial for 30-days on a subscriptions only if not previously used.
 > * To enable Microsoft Defender for Cloud on a subscription, you must be assigned the role of Subscription Owner, Subscription Contributor, or Security Admin.
 
-### Continue with the next lab: [Module 2 - Exploring Azure Security Center](../Modules/Module-2-Exploring-Azure-Security-Center.md)
+### Continue with the next lab: [Module 2 - Exploring Microsoft Defender for Cloud](../Modules/Module-2-Exploring-Azure-Security-Center.md)

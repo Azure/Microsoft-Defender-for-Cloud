@@ -13,8 +13,8 @@ To get started with Microsoft Defender for Cloud, you must have a subscription t
 
 ### Exercise 1: Overview of the Microsoft Defender for Cloud policy
 
-1.	On Microsoft Defender for Cloud blade, from the left navigation pave, click on **Security policy**.
-2.	On Policy Management page, select **Azure subscription 1**.
+1.	On Microsoft Defender for Cloud blade, from the left navigation pave, click on **Environment Settings**. 
+2. Then select **Subscription 1** and from the left navigation select **Security policy**.
 3.	As you can see on the top part, there is 1 assignment at the **Microsoft Defender for Cloud default policy** which is ASC default.
 
 ![Microsoft Defender for Cloud default policy](../Images/asc-default-policy-subscription.gif?raw=true)
@@ -73,7 +73,7 @@ Note: Exemptions is a premium Azure policy capability that's offered for Microso
     - Provide a description: **Testing exemption capability – module 3**.
     - Select **Save**.
   
-  ![Modifying Microsoft Defender for Cloud default policy assignment](../Images/lab3pl6.gif?raw=true)
+  ![Modifying Microsoft Defender for Cloud default policy assignment](../Images/Inkedlab3pl6.gif?raw=true)
   
 > ⭐ Good to know: <br>
 > **Mitigated** - This issue isn't relevant to the resource because it's been handled by a different tool or process than the one being suggested
