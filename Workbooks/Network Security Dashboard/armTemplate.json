@@ -98,7 +98,7 @@
         {
           "type": 1,
           "content": {
-            "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0| Public availability of network security dashboard| \r\n|v1.1| Modification around Route Tables, Added Network Security Groups, Added PaaS Services| \r\n|v1.2| Added support for PaaS Firewalls and Virtual WAN|\r\n|v1.3| Added support for App Services|\r\n",
+            "json": "### Change Log \r\n\r\n|Version|Description|\r\n|---|---|\r\n|v1.0| Public availability of network security dashboard| \r\n|v1.1| Modification around Route Tables, Added Network Security Groups, Added PaaS Services| \r\n|v1.2| Added support for PaaS Firewalls and Virtual WAN|\r\n|v1.3| Added support for App Services|\r\n|v1.4| Added support for Key Vaults|\r\n",
             "style": "info"
           },
           "conditionalVisibility": {
@@ -4897,6 +4897,14 @@
                       "linkLabel": "App Services",
                       "subTarget": "AppServiceView",
                       "style": "link"
+                    },
+                    {
+                      "id": "7da72949-d6f6-4914-93b5-75ad823090f5",
+                      "cellValue": "SubSelectedView",
+                      "linkTarget": "parameter",
+                      "linkLabel": "Key Vaults",
+                      "subTarget": "KeyVaultView",
+                      "style": "link"
                     }
                   ]
                 },
@@ -6628,7 +6636,7 @@
                     ],
                     "sortBy": [
                       {
-                        "itemKey": "$gen_thresholds_privateEndpointConnections_8",
+                        "itemKey": "$gen_thresholds_networkAcls_7",
                         "sortOrder": 1
                       }
                     ],
@@ -6681,7 +6689,7 @@
                   },
                   "sortBy": [
                     {
-                      "itemKey": "$gen_thresholds_privateEndpointConnections_8",
+                      "itemKey": "$gen_thresholds_networkAcls_7",
                       "sortOrder": 1
                     }
                   ]
@@ -7235,6 +7243,400 @@
                   }
                 ],
                 "name": "App Services - Additional Properties"
+              },
+              {
+                "type": 1,
+                "content": {
+                  "json": "Please select a item to view / see firewall rules & vnet rules & private endpoints\r\n",
+                  "style": "info"
+                },
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "SubSelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "KeyVaultView"
+                  },
+                  {
+                    "parameterName": "SelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "PaaSServicesView"
+                  }
+                ],
+                "name": "Key Vaults - InfoText"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "resources\r\n| where type =~ \"microsoft.keyVault/vaults\"\r\n| extend RG = substring(id, 0, indexof(id, '/providers'))\r\n| extend privateEndpointConnections = tostring(properties.privateEndpointConnections)\r\n| extend virtualNetworkRules = tostring(properties.networkAcls.virtualNetworkRules)\r\n| extend ipRules = tostring(properties.networkAcls.ipRules)\r\n| project-away name, managedBy, sku, plan, identity, tenantId, properties, tags, kind, zones, extendedLocation, apiVersion, resourceGroup",
+                  "size": 0,
+                  "title": "All Key Vaults",
+                  "exportFieldName": "id",
+                  "exportParameterName": "ResourceID",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "type",
+                        "formatter": 16,
+                        "formatOptions": {
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "location",
+                        "formatter": 17,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "130px"
+                        }
+                      },
+                      {
+                        "columnMatch": "subscriptionId",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "RG",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "privateEndpointConnections",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "[[]",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "Configured"
+                            }
+                          ],
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "virtualNetworkRules",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "[[]",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "Configured"
+                            }
+                          ],
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ipRules",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "[[]",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "Configured"
+                            }
+                          ],
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "kind",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "15ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "virtualNetworkSubnetId",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "representation": "more",
+                              "text": "Not Configured"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "Configured"
+                            }
+                          ],
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "httpsOnly",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "success",
+                              "text": "True"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "failed",
+                              "text": "False"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "id",
+                        "label": "Name"
+                      },
+                      {
+                        "columnId": "type",
+                        "label": "Type"
+                      },
+                      {
+                        "columnId": "location",
+                        "label": "Region"
+                      },
+                      {
+                        "columnId": "subscriptionId",
+                        "label": "Subscription"
+                      },
+                      {
+                        "columnId": "RG",
+                        "label": "Resource Group"
+                      },
+                      {
+                        "columnId": "privateEndpointConnections",
+                        "label": "Private Endpoints"
+                      },
+                      {
+                        "columnId": "virtualNetworkRules",
+                        "label": "NetworkRules"
+                      },
+                      {
+                        "columnId": "ipRules",
+                        "label": "IPRules"
+                      }
+                    ]
+                  },
+                  "sortBy": []
+                },
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "SelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "PaaSServicesView"
+                  },
+                  {
+                    "parameterName": "SubSelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "KeyVaultView"
+                  }
+                ],
+                "name": "Key Vaults - Overview"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend ipRules = properties.networkAcls.ipRules\r\n| mv-expand ipRules\r\n| extend RuleValue = ipRules.value\r\n| project-away id, type, name, location, subscriptionId, managedBy, sku, plan, identity, tenantId, properties, tags, kind, zones, extendedLocation, apiVersion, resourceGroup, ipRules",
+                  "size": 4,
+                  "title": "IPRules of Selected Key Vault",
+                  "noDataMessage": "No ipRules configured.",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ]
+                },
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "SelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "PaaSServicesView"
+                  },
+                  {
+                    "parameterName": "SubSelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "KeyVaultView"
+                  },
+                  {
+                    "parameterName": "ResourceID",
+                    "comparison": "isNotEqualTo"
+                  }
+                ],
+                "name": "Key Vaults - IPRules"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend virtualNetworkRules = properties.networkAcls.virtualNetworkRules\r\n| mv-expand virtualNetworkRules\r\n| extend virtualNetworkRulesid = virtualNetworkRules.id\r\n| extend virtualNetworkRulesstate = virtualNetworkRules.state\r\n| extend virtualNetworkRulesaction = virtualNetworkRules.action\r\n| project virtualNetworkRulesid, tostring(virtualNetworkRulesstate), tostring(virtualNetworkRulesaction)",
+                  "size": 4,
+                  "title": "NetworkRules of Selected Key Vault",
+                  "noDataMessage": "No networkAcls configured.",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "virtualNetworkRulesid",
+                        "formatter": 13,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "linkIsContextBlade": true,
+                          "showIcon": true,
+                          "customColumnWidthSetting": "70ch"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "SelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "PaaSServicesView"
+                  },
+                  {
+                    "parameterName": "SubSelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "KeyVaultView"
+                  },
+                  {
+                    "parameterName": "ResourceID",
+                    "comparison": "isNotEqualTo"
+                  }
+                ],
+                "name": "Key Vault - NetworkRules"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "resources\r\n| where id == \"{ResourceID}\"\r\n| extend privateEndpointConnections = properties.privateEndpointConnections\r\n| mv-expand privateEndpointConnections\r\n| extend provisioningState = privateEndpointConnections.properties.provisioningState\r\n| extend description = privateEndpointConnections.properties.privateLinkServiceConnectionState.description\r\n| extend status = privateEndpointConnections.properties.privateLinkServiceConnectionState.status\r\n| extend actionRequired = privateEndpointConnections.properties.privateLinkServiceConnectionState.actionRequired\r\n| extend privateEndpointId = privateEndpointConnections.properties.privateEndpoint.id\r\n| project privateEndpointId, tostring(provisioningState), tostring(description), tostring(status), tostring(actionRequired)",
+                  "size": 4,
+                  "title": "Private Endpoints of Selected Key Vault",
+                  "noDataMessage": "No privateEndpointConnections configured..",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "privateEndpointId",
+                        "formatter": 13,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "linkIsContextBlade": false,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "privateEndpointId",
+                        "label": "Private Endpoint"
+                      },
+                      {
+                        "columnId": "provisioningState",
+                        "label": "Provisioning State"
+                      },
+                      {
+                        "columnId": "description",
+                        "label": "Description"
+                      },
+                      {
+                        "columnId": "status",
+                        "label": "Status"
+                      },
+                      {
+                        "columnId": "actionRequired",
+                        "label": "Action Required"
+                      }
+                    ]
+                  }
+                },
+                "conditionalVisibilities": [
+                  {
+                    "parameterName": "SelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "PaaSServicesView"
+                  },
+                  {
+                    "parameterName": "SubSelectedView",
+                    "comparison": "isEqualTo",
+                    "value": "KeyVaultView"
+                  },
+                  {
+                    "parameterName": "ResourceID",
+                    "comparison": "isNotEqualTo"
+                  }
+                ],
+                "name": "Key Vault - PrivateEndpoints"
               }
             ]
           },
