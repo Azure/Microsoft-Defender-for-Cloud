@@ -19,6 +19,7 @@ During the deployment, you must select a subscription and resource group to stor
 * Tables will now additionally show Defender for Servers and Defender for SQL on machines coverage for Log Analytics workspaces
 * Added additional information and context to all tabs
 * Added a consolidated table showing machines that have not been reporting for more than 15 minutes
+* Added VM power state to tables
 
 ## Acknowledgements
 Special thanks to **Lior Arviv**, **Ortal Parpara**, **Shay Amar**, **Michael Makhlevich** and **Omer Abramovich** for reviewing the artifact and providing feedback during the deployment process.
