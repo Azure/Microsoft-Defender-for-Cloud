@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "Azure Defender for Key Vault - Price Estimation",
+      "defaultValue": "Microsoft Defender for Key Vault - Price Estimation",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -37,7 +37,7 @@
         {
           "type": 1,
           "content": {
-            "json": "## Azure Defender for Key Vault - Price Estimation Dashboard \r\n> This workbook considers all Key Vaultss with/without Azure Defender for Key Vault enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month."
+            "json": "## Microsoft Defender for Key Vault - Price Estimation Dashboard \r\n> This workbook considers all Key Vaultss with/without Microsoft Defender for Key Vault enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month."
           },
           "name": "text - 2"
         },
@@ -346,7 +346,8 @@
       "isLocked": false,
       "fallbackResourceIds": [
         "Azure Security Center"
-      ]
+      ],
+      "fromTemplateId": "DefenderForKeyVaultPriceEstimationDashboard"
     }
   },
   "resources": [
