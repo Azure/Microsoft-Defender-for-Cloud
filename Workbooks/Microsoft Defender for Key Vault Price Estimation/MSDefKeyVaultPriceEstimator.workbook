@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## Azure Defender for Key Vault - Price Estimation Dashboard \r\n> This workbook considers all Key Vaultss with/without Azure Defender for Key Vault enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month."
+        "json": "## Microsoft Defender for Key Vault - Price Estimation Dashboard \r\n> This workbook considers all Key Vaultss with/without Microsoft Defender for Key Vault enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month."
       },
       "name": "text - 2"
     },
@@ -350,5 +350,6 @@
   "fallbackResourceIds": [
     "Azure Security Center"
   ],
+  "fromTemplateId": "DefenderForKeyVaultPriceEstimationDashboard",
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
