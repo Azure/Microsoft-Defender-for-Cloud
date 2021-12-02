@@ -1,7 +1,7 @@
-# Azure Defender for Key Vault - Price Estimation Dashboard 1.0
-Azure Defender for Key Vault currently monitors vault transactions and usage patterns, detecting unusual and potentially harmful attempts to access or exploit Key Vaults. [Learn more here.](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
+# Microsoft Defender for Key Vault - Price Estimation Dashboard 1.0
+Microsoft Defender for Key Vault currently monitors vault transactions and usage patterns, detecting unusual and potentially harmful attempts to access or exploit Key Vaults. [Learn more here.](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
 
-This workbook (shamelessly based on the [Storage counterpart](https://github.com/Azure/Azure-Security-Center/tree/main/Workbooks/Azure%20Defender%20for%20Storage%20Price%20Estimation)) considers all Key Vaults with and without Azure Defender for Key Vault enabled across your selected subscription. The results are from within the last 7 days. 
+This workbook (shamelessly based on the [Storage counterpart](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Azure%20Defender%20for%20Storage%20Price%20Estimation)) considers all Key Vaults with and without Microsoft Defender for Key Vault enabled across your selected subscription. The results are from within the last 7 days. 
 - The **Estimated Price for 7 days** is based on the number of transactions performed within that period
 - The **Estimated Monthly Price** takes those 7 days as sample and calculates it for a month
 
@@ -9,8 +9,8 @@ This workbook (shamelessly based on the [Storage counterpart](https://github.com
 
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Key%20Vault%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Key%20Vault%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2FMicrosoft%20Defender%20for%20Key%20Vault%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2FMicrosoft%20Defender%20for%20Key%20Vault%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ## Overview Tab
 ![Image of OverviewTab](overview.jpg)

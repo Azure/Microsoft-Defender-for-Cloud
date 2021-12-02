@@ -16,7 +16,9 @@ In addition to the overall contribution guideline, please make sure to adhere to
 4. Ensure that parameters id values are **unique**
 5. Ensure that steps names are **unique**
 6. Grep /subscription/ and ensure that your parameters don't have **any hardcoded resourceIds**
-7. Remove **fallbackResourceIds** and **fromTemplateId** fields from your template workbook
+7. Add the fromTemplateId property to the ARM template and include your workbook name. for example: Network Security Dashboard should be: ```"fromTemplateId": "NetworkSecurityDashboard"```.
+
+
 
 ## How to create a .workbook file
 
