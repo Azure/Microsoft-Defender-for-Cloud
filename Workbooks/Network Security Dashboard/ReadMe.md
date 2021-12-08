@@ -11,7 +11,7 @@ Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided t
 -	**Gateway and VPN services:** consolidated view of Bastion hosts, VPN gateways, Virtual Network Gateways and Express Route circuits
 -	**Traffic Manager** details of all your traffic manager profiles
 -	**Virtual WAN (vWAN)** consolidated view of Virtual WANs (inlcuding VPN/ExpressRoute/P2S)
--	**Security Center recommendations:** filtered view of all ASC network related recommendations including resource count, severity, and security control
+-	**Security Center recommendations:** filtered view of all Microsoft Defender for Cloud network related recommendations including resource count, severity, and security control
 -	**PaaS Services:** ipRules, virtualNetworkRules and privateEndpointConnections for Databases & Storage Accounts & Web Apps and Key Vaults
 
 Informational options: using the action bars at the top section, select FAQ button to show the frequently asked questions. You can also see recent changes documented on the change log option.
