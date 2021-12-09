@@ -1,4 +1,4 @@
-## Azure Security Center + Qualys Dashboard
+## Microsoft Defender for Cloud + Qualys Dashboard
 This Workbook provides an unified view on the information collected by the Qualys agent running as part of the integrated vulnerability scanner for virtual machines (Standard tier only). In order to take advantage of this integration, deploy the Qualys built-in vulnerability scanner by following the recommendation "Vulnerabilities in your virtual machines should be remediated" for your unhealthy resources.
 
 ## Try on Portal
