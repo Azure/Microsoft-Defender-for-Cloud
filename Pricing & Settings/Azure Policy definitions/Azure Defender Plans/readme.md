@@ -4,7 +4,7 @@
 ~~These policies help you to automatically activate Azure Defender plans on your subscriptions.~~
 
 ## Deprecation notice
-These custom policy definitions have been removed as in the meantime, Azure Policy comes with built-in definitions to enable Microsoft Defender for Cloud plans on your subscriptions or management groups. For further details, please refer to the [Azure Policy documentation](https://docs.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies#security-center).
+These custom policy definitions are deprecated as in the meantime, Azure Policy comes with built-in definitions to enable Microsoft Defender for Cloud plans on your subscriptions or management groups. For further details, please refer to the [Azure Policy documentation](https://docs.microsoft.com/en-us/azure/governance/policy/samples/built-in-policies#security-center).
 
 ### How to find the right policy definition
 All built-in definitions to enable Microsoft Defender for Cloud plans have a name similar to
