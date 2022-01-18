@@ -1,4 +1,4 @@
-# Workflow automation in Azure Security Center
+# Workflow automation in Microsoft Defender for Cloud
 This folder contains sample security playbooks for security automation, orchestration and response (SOAR)
 
 These playbooks can be easily integrated with Azure Security Center using Workflow Automation feature. [Learn more>](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
