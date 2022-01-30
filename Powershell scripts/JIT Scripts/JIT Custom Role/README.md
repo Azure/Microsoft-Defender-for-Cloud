@@ -1,6 +1,6 @@
-## Creates a least-privileged custom role for Azure Security Center's just-in-time VM access features
+## Creates a least-privileged custom role for Microsoft Defender for Cloud just-in-time VM access features
 
-This script creates a custom role for Azure Security Center's just-in-time virtual machine access for least-privileged users.
+This script creates a custom role for Microsoft Defender for Cloud's just-in-time virtual machine access for least-privileged users.
 
 The goal is to enable users to request JIT access to VMs but give them no other Security Center permissions.
 
