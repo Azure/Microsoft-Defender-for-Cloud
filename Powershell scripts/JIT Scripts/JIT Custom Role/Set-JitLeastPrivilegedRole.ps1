@@ -1,5 +1,5 @@
 ###############################################################################################
-# This script creates custom Role for Azure Security Center Just-in-time access.              #
+# This script creates custom Role for Microsoft Defender for Cloud Just-in-time access.              #
 # Purposed for those wish to have users to be able to request access to VMs                   #
 # but not any other permissions.                                                              #
 # Usage:                                                                                      #
