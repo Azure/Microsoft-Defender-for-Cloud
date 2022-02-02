@@ -457,7 +457,7 @@
       "fallbackResourceIds": [
         "Azure Security Center"
       ],
-      "fromTemplateId": "asc-DefenderForCloudCostEstimation"
+      "fromTemplateId": "asc-DefenderForCloudCoverage"
     }
   },
   "resources": [
