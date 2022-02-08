@@ -1,10 +1,10 @@
-# Starter Kit - ARG Queries for Azure Security Center Recommendations
+# Starter Kit - ARG Queries for  Microsoft Defender for Cloud Recommendations
 Azure Resource Graph (ARG) provides an efficient way to query at scale across a given set of subscriptions for any Azure Resource (for more information please visit https://docs.microsoft.com/en-us/azure/governance/resource-graph/). 
-A useful use case is to use ARG to query, visualize or export Azure Security Center (ASC) recommendations in order to get the information that matters most to you.
+A useful use case is to use ARG to query, visualize or export  Microsoft Defender for Cloud recommendations in order to get the information that matters most to you.
 
 This starter kit consists of a set of basic ARG queries that have been created to help you build on top of them based on your different needs and requirements.
 
-1. **Get ASC recommendations** in a useful format
+1. **Get  Microsoft Defender for Cloud recommendations** in a useful format
 ```
 securityresources
  | where type == "microsoft.security/assessments"
@@ -31,7 +31,7 @@ securityresources
     ['Threats'] = properties.metadata.threats,
     ['Link'] = properties.links.azurePortal
 ```
-2. **Get ASC nested recommendations** in useful format
+2. **Get  Microsoft Defender for Cloud nested recommendations** in useful format
 ```
 securityresources
  | where type == "microsoft.security/assessments/subassessments"
@@ -52,7 +52,7 @@ securityresources
     ['NestedImpact'] = properties.impact,
     ['NestedAdditionalData'] = properties.additionalData
 ```
-3. **Get ASC parent + nested recommendations combined** (best to filter by resource or resource group to get less results)
+3. **Get  Microsoft Defender for Cloud parent + nested recommendations combined** (best to filter by resource or resource group to get less results)
 ```
 securityresources
  | where type == "microsoft.security/assessments"
@@ -97,7 +97,7 @@ securityresources
         ) on ParentAssessmentID
         | project TenantID, SubscriptionID, ParentAssessmentID, NestedAssessmentID, DisplayName, NestedDisplayName, Description, NestedDescription, ResourceType, ResourceName, ResourceGroup, StatusCode, StatusDescription, RecomType, Severity, Threats, RemediationEffort, Remediation, NestedRemediation, UserImpact, NestedImpact, Categories, NestedCategory, TimeGenerated, PolicyDefID, Link
 ```
-4. **Get ASC Current Pricing Tiers**
+4. **Get  Microsoft Defender for Cloud Current Pricing Tiers**
 ```
 securityresources
 | where type == "microsoft.security/pricings"
@@ -117,7 +117,7 @@ Apart from querying and exporting your results, ARG provides the ability to crea
 
 ![Image of ASCRecom-CustomDashboard](https://github.com/carlosfar/public/blob/master/Azure%20Security%20Center/ARG-Queries/ASCRecommendations-ChartCreation.png)
 
-For this particular example, we will focus on all the recommendations that have been classified as **High Severity** and **Low Remediation Effort** by ASC in order to help prioritize work on what’s important and easy to remediate. As a starting point we have used the following ARG query:
+For this particular example, we will focus on all the recommendations that have been classified as **High Severity** and **Low Remediation Effort** by  Microsoft Defender for Cloud in order to help prioritize work on what’s important and easy to remediate. As a starting point we have used the following ARG query:
 
 ```
 securityresources
