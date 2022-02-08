@@ -6,7 +6,7 @@ This starter kit consists of a set of basic ARG queries that have been created t
 
 1. **Get ASC recommendations** in a useful format
 ```
-securityresource
+securityresources
  | where type == "microsoft.security/assessments"
  // Get recommendations in useful format
  | project
