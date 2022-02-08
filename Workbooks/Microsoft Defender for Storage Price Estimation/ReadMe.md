@@ -14,7 +14,7 @@ Learn more about the workbook in [this blog post](https://techcommunity.microsof
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FAzure%20Defender%20for%20Storage%20Price%20Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ## Overview Tab
-![Image of OverviewTab](ovrvw.PNG)
+![Image of OverviewTab](ovrvw.png)
 
 Columns:
 - **Subscription** 
