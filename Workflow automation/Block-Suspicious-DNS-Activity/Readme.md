@@ -1,4 +1,4 @@
-# Block suspicious DNS activity- block outgoing IP addresses in an NSG as response to a suspicious DNS activity in a virtual machine when an ASC alert is triggered/created
+# Block suspicious DNS activity- block outgoing IP addresses in an NSG as response to a suspicious DNS activity in a virtual machine when a Defender for DNS alert is triggered/created
 
 **Author: Liana-Anca Tomescu**
 
