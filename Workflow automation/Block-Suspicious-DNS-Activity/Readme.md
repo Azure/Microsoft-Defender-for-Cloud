@@ -12,7 +12,11 @@ This automation will consider the following settings:
 
 ![Email template](.//emailTemplate.png)
 
-You can deploy the main template by clicking on the buttons below: **COMING SOON**
+You can deploy the main template by clicking on the buttons below: 
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%20automation%2FBlock-Suspicious-DNS-Activity%2Ftemplate.json![image](https://user-images.githubusercontent.com/6423037/154074485-52d74879-7368-4bda-b459-9fecd18125c7.png)" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton"/>
+</a>
 
 The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
