@@ -10,7 +10,7 @@ This automation will consider the following settings:
 3. The NSG rule name will be unique, consisting of _BlockOutgoingTraffic_ and the priority number. For example, if the priority is 106, the name will be _BlockOutgoingTraffic-106_.
 4. After the NSG rule is created, the Logic App will send an informational email to the email address you have configured during the template deployment. The email will contain the following information:
 
-![Email template](.//emailTemplate.png)
+![Email template](.//emailTemplate.png.png)
 
 You can deploy the main template by clicking on the buttons below: 
 
@@ -53,3 +53,6 @@ Once you have deployed and authorized the Logic App, you can create a [new Workf
 4. In the _Alert name contains_ field, enter _brute_.
 5. In the _actions_ area, make sure to select the _Block-Suspicious-DNS-Activity_ Logic App you have deployed and authorized before.
 6. Press _create_.
+
+**Note**
+This Logic App works only for DNS alerts in Microsoft Defender for Cloud that contain destination IP addresses.
