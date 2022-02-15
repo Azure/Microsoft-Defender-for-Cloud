@@ -14,7 +14,7 @@ This automation will consider the following settings:
 
 You can deploy the main template by clicking on the buttons below: 
 
-<a href="https://aka.ms/dnsautomation![image](https://user-images.githubusercontent.com/6423037/154074485-52d74879-7368-4bda-b459-9fecd18125c7.png)" target="_blank">
+<a href="https://aka.ms/dnsautomation" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
