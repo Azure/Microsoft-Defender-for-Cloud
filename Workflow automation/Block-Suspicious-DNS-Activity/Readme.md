@@ -1,4 +1,4 @@
-# Block outgoing IP addresses in an NSG as response to a suspicious DNS activity in a virtual amchine when an ASC alert is triggered/created
+# Block suspicious DNS activity- block outgoing IP addresses in an NSG as response to a suspicious DNS activity in a virtual machine when an ASC alert is triggered/created
 
 **Author: Liana-Anca Tomescu**
 
@@ -12,14 +12,7 @@ This automation will consider the following settings:
 
 ![Email template](.//emailTemplate.png)
 
-You can deploy the main template by clicking on the buttons below:
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FBlockBruteforceAttack%2Fazuredeploy.json" target="_blank">
-    <img src="https://aka.ms/deploytoazurebutton"/>
-</a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FBlockBruteforceAttack%2Fazuredeploy.json" target="_blank">
-<img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
-</a> 
+You can deploy the main template by clicking on the buttons below: **COMING SOON**
 
 The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
