@@ -20,7 +20,7 @@ You can deploy the main template by clicking on the buttons below:
 
 The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
-The Logic App uses a system-assigned Managed Identity. You need to assign [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) permissions or [Security Reader](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security-reader) and [Network Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#network-contributor) permissions to the Logic App's Managed Identity so it is able to create an NSG rule once there is an attack detected. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook.
+The Logic App uses a system-assigned Managed Identity. You need to assign [Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#contributor) permissions, or [Security Reader](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#security-reader) and [Network Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#network-contributor) permissions to the Logic App's Managed Identity so it is able to create an NSG rule once there is an attack detected. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook.
 Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Azure Security Center.
 
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
@@ -28,22 +28,25 @@ In addition to that, you need to authorize the Office 365 API connection so it c
 **To assign Managed Identity to specific scope:**
 
 1. Make sure you have User Access Administrator or Owner permissions for this scope.
-2. Go to the subscription/management group page.
-3. Press _Access Control (IAM)_ on the navigation bar.
+2. Go to the subscription/management group page (by searching for _Subscriptions_ in the searchbar in the Azure portal).
+3. Go to _Access Control (IAM)_ on the navigation bar.
 4. Press _+Add_ and _Add role assignment_.
-5. Select the respective role.
-6. Assign access to Logic App.
-7. Select the subscription where the logic app was deployed.
-8. Select _Block-Suspicious-DNS-Activity_ Logic App.
-9. Press _save_.
+5. In _Check access_, go to _Add role assignment_.
+6. Select the respective role (such as _Contributor_).
+7. Click on the _Assignments_ tab, and seach for the name of your logic app.
+8. Assign access to Logic App.
+9. Select the subscription where the logic app was deployed.
+10. Select _Block-Suspicious-DNS-Activity_ Logic App.
+11. Press _save_.
 
 **To authorize the API connection:**
 
 1. Go to the Resource Group you have used to deployed the template resources.
-2. Select the Office365 API connection and press _Edit API connection_.
-3. Press the _Authorize_ button.
-4. Make sure to authenticate against Azure AD.
-5. Press _save_.
+2. Select the Office365 API connection (which is one of the resources you just deployed) and click on the error that appears of rthe API connection.
+3. Press _Edit API connection_.
+4. Press the _Authorize_ button.
+5. Make sure to authenticate against Azure AD.
+6. Press _save_.
 
 Once you have deployed and authorized the Logic App, you can create a [new Workflow automation](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation) in Azure Security Center:
 
