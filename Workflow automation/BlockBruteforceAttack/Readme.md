@@ -10,7 +10,11 @@ This automation will consider the following settings:
 3. The NSG rule name will be unique, consisting of _BlockBruteForce_ and the priority number. For example, if the priority is 106, the name will be _BlockBruteForce-106_.
 4. After the NSG rule is created, the Logic App will send an informational email to the email address you have configured during the template deployment. The email will contain the following information:
 
+<div style="text-align: center;">
+
 ![Email template](.//emailTemplate.png)
+
+</div>
 
 You can deploy the main template by clicking on the buttons below:
 
