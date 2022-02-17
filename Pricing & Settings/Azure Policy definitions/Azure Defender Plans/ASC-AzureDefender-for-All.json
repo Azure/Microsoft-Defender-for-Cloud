@@ -68,15 +68,7 @@
                   },
                   {
                     "apiVersion": "2018-06-01",
-                    "name": "KubernetesService",
-                    "properties": {
-                      "pricingTier": "Standard"
-                    },
-                    "type": "Microsoft.Security/pricings"
-                  },
-                  {
-                    "apiVersion": "2018-06-01",
-                    "name": "ContainerRegistry",
+                    "name": "Containers",
                     "properties": {
                       "pricingTier": "Standard"
                     },
