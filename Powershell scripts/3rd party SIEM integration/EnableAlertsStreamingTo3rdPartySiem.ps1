@@ -6,7 +6,8 @@
     This script will create the required resources and configurations to stream alerts from Microsoft Defender for Cloud to 3rd party SIEM.
       
   .DESCRIPTION  
-    ASC
+    Streaming Microsoft Defender for Cloud security alerts to external SIEM solutions require setups on both Azure side and the 3rd party SIEM side.
+    This script execute the required steps on Azure side and provide the information required to enable the connector on the SIEM side.
     
   .PARAMETER scope
     [mandatory] 
@@ -199,7 +200,7 @@ $eventHubSendAccessPolicyName = "ContinuousExportSendPolicy"
 
 # Continious Export section
 ## Create event hub
-Write-Output "Creating the continuous export target event hub."
+Write-Output "Creating the continuous export target event hub..."
 
 Write-Debug "Check if resource group '$resourceGroupName' already exists..."
 $resourceGroup = Get-AzResourceGroup -Name $resourceGroupName -ErrorVariable notPresent -ErrorAction SilentlyContinue
@@ -220,7 +221,7 @@ $eventHub = New-AzEventHub -ResourceGroupName $resourceGroupName -NamespaceName 
 Write-Debug "Creating new Event Hub send policy for $eventHubName in $eventHubNamespaceName"
 $SendAuthRule = New-AzEventHubAuthorizationRule -ResourceGroupName $resourceGroupName -NamespaceName $eventHubNamespaceName -EventHubName $eventHubName -AuthorizationRuleName $eventHubSendAccessPolicyName -Rights Send
 
-# Enable continuous export (by policy)
+## Enable continuous export (by policy)
 Write-Output "Creating new continuous export policy"
 $policyDef = Get-AzPolicyDefinition -Name cdfcce10-4578-4ecd-9703-530938e4abcb
 
@@ -233,18 +234,34 @@ $PolicyParameterObject = @{
 }
 
 $policyAssignment = New-AzPolicyAssignment -Name "Continuous export policy" -PolicyDefinition $policyDef -Scope $scope -PolicyParameterObject $PolicyParameterObject -Location $location -AssignIdentity
-
-Start-Sleep -Seconds 10
-
 $roleDefinitionIds = $policyDef.Properties.policyRule.then.details.roleDefinitionIds
-$roleDefinitionIds | ForEach-Object {
-    $roleDefId = $_.Split("/") | Select-Object -Last 1
-    Write-Debug "Going to assign role definition id $roleDefId to service principal $($policyAssignment.Identity.PrincipalId) on scope $scope"
-    New-AzRoleAssignment -Scope $scope -ObjectId $policyAssignment.Identity.PrincipalId -RoleDefinitionId $roleDefId  
+
+$retryCount = 0
+$policyRoleAssignmentSuccess = $true
+do {
+  try {
+    $roleDefinitionIds | ForEach-Object {
+      $roleDefId = $_.Split("/") | Select-Object -Last 1
+      Write-Debug "Going to assign role definition id $roleDefId to service principal $($policyAssignment.Identity.PrincipalId) on scope $scope"
+      New-AzRoleAssignment -Scope $scope -ObjectId $policyAssignment.Identity.PrincipalId -RoleDefinitionId $roleDefId -ErrorAction Stop
+      $policyRoleAssignmentSuccess = $true
+      break
+    }  
+  }
+  catch {
+    if ($retryCount -gt 3) {
+      $policyRoleAssignmentSuccess = $false
+      break
+    }
+    Write-Debug "Failed to assign role difinition, will retry in 5 seconds"
+    $retryCount++
+    Start-Sleep -Seconds 5
+  }
+} while ($retryCount -le 3)
+
+if ($policyRoleAssignmentSuccess) {
+  $remediationJob = Start-AzPolicyRemediation -PolicyAssignmentId $policyAssignment.PolicyAssignmentId -Name "Initial assignment" -AsJob
 }
-
-$remediationJob = Start-AzPolicyRemediation -PolicyAssignmentId $policyAssignment.PolicyAssignmentId -Name "Initial assignment" -AsJob
-
 
 # 3rd party siem region
 
@@ -252,21 +269,31 @@ Write-Debug "Create new consumer group for event hub: $eventHubName"
 $siemConsumerGroupName = "Siem"
 $consumerGroup = New-AzEventHubConsumerGroup -ResourceGroupName $resourceGroupName -NamespaceName $eventHubNamespaceName -EventHubName $eventHubName -ConsumerGroupName $siemConsumerGroupName
 
-#Splunk
+## Splunk
 if ($siem -eq "Splunk") {
     CreateSplunkRelatedResources -eventHubNamespace $eventHubNamespace -eventhub $eventHub -aadAppName $aadAppName
 }
 
-#QRadar
+## QRadar
 else {
     CreateQRadatRelatedResources -resourceGroupName $resourceGroupName -eventHubNamespaceName $eventHubNamespaceName -eventHubName $eventHubName -location $location -storageName $storageName
 }
 
-$remediationJob | Wait-Job
-$remediation = $remediationJob | Receive-Job
-if ($remediation.ProvisioningState -ne "Succeeded")
-{
-    Write-Warning "The policy assignment failed"
+if ($policyRoleAssignmentSuccess) {
+  $remediationJob | Wait-Job
+  $remediation = $remediationJob | Receive-Job
+  if ($remediation.ProvisioningState -ne "Succeeded")
+  {
+      Write-Warning "The policy assignment failed"
+  }
+}
+else {
+  Write-Error "Failed to assign role difinition to the continuous export policy, the policy doesn't have the required permissions to remediate."
+  Write-Error "To fix the role assignment try running the following command(s):"
+  $roleDefinitionIds | ForEach-Object {
+    $roleDefId = $_.Split("/") | Select-Object -Last 1
+    Write-Error "New-AzRoleAssignment -Scope $scope -ObjectId $policyAssignment.Identity.PrincipalId -RoleDefinitionId $roleDefId"
+  }
 }
 
 
