@@ -17,7 +17,7 @@
     },
     "workbookSourceId": {
       "type": "string",
-      "defaultValue": "azure monitor",
+      "defaultValue": "azure security center",
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }
