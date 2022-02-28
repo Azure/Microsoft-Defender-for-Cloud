@@ -4,11 +4,11 @@
 
 This project contains **Azure Workbook templates** you can use to create custom dashboards within Microsoft Defender for Cloud. The workbooks can be deployed as ARM templates to your Defender for Cloud environment.
 
-## Deploy All Workboooks
+### Deploy All Workboooks
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2Fdeploy-all-workbooks.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2Fdeploy-all-workbooks.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
-## Deploy All Price Estimation Workboooks
+### Deploy All Price Estimation Workboooks
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2Fdeploy-all-priceestimation-workbooks.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2Fdeploy-all-priceestimation-workbooks.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
