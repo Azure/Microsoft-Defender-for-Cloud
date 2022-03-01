@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-08-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {},
+    "variables": {},
+    "resources": [
+		{
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "linkedDefenderforContainersCostEstimationDashboard",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Workbooks/Defender%20for%20Containers%20Cost%20Estimation/azuredeploy.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+		{
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "linkedMicrosoftDefenderforAppServicesPriceEstimation",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Workbooks/Microsoft%20Defender%20for%20App%20Services%20Price%20Estimation/Microsoft%20Defender%20for%20App%20Service%20-%20Price%20Estimation.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+		{
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "linkedMicrosoftDefenderforKeyVaultPriceEstimation",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Workbooks/Microsoft%20Defender%20for%20Key%20Vault%20Price%20Estimation/armTemplate.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+		{
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-10-01",
+            "name": "linkedMicrosoftDefenderforStoragePriceEstimation",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Workbooks/Microsoft%20Defender%20for%20Storage%20Price%20Estimation/armTemplate.json",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
