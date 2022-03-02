@@ -20282,6 +20282,6 @@
         "name": "Governance & Strategy Group"
       }
     ],
-    "fromTemplateId": "sentinel-AzureSecurityBenchmarkv3",
+    "fromTemplateId": "asc-Benchmarkv3",
     "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
   }
