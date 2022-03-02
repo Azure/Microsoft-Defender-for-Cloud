@@ -10,7 +10,7 @@
     },
     "workbookType": {
       "type": "string",
-      "defaultValue": "sentinel",
+      "defaultValue": "azure security center",
       "metadata": {
         "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
       }
@@ -182,7 +182,7 @@
             "json": "![Image Name](https://azure.microsoft.com/svghandler/security-center?width=300&height=157) "
           },
           "customWidth": "20",
-          "name": "Microsoft Sentinel Logo"
+          "name": "azure security center logo"
         },
         {
           "type": 3,
@@ -20319,7 +20319,7 @@
       "fallbackResourceIds": [
         "/subscriptions/d1d8779d-38d7-4f06-91db-9cbc8de0176f/resourcegroups/soc/providers/microsoft.operationalinsights/workspaces/cybersecuritysoc"
       ],
-      "fromTemplateId": "sentinel-UserWorkbook"
+      "fromTemplateId": "azure security center-Azure Security Benchmark v3"
     }
   },
   "resources": [
