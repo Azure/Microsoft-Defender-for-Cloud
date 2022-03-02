@@ -20319,7 +20319,7 @@
       "fallbackResourceIds": [
         "/subscriptions/d1d8779d-38d7-4f06-91db-9cbc8de0176f/resourcegroups/soc/providers/microsoft.operationalinsights/workspaces/cybersecuritysoc"
       ],
-      "fromTemplateId": "azure security center-Azure Security Benchmark v3"
+      "fromTemplateId": "asc-Benchmarkv3"
     }
   },
   "resources": [
