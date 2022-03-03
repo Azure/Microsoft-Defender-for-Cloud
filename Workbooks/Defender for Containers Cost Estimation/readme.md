@@ -2,6 +2,19 @@
 
 **Author: Tom Janetscheck**
 
+> ## Important note
+>  
+> We have released another Microsoft Defender for Cloud price estimation workbook that covers all of the following plans:
+>
+> * Microsoft Defender for App Services
+> * Microsoft Defender for Containers
+> * Microsoft Defender for Key Vaults
+> * Microsoft Defender for Servers
+> * Microsoft Defender for Storage
+> * Microsoft Defender for Databases
+>
+> **You can find the new workbook [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20Cloud%20Price%20Estimation)**.
+
 Microsoft Defender for Containers is a new offering that consolidates two existing Microsoft Defender for Cloud meters:
 
 * Microsoft Defender for Kubernetes

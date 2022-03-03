@@ -1,4 +1,17 @@
-# Microsoft Defender for App Service - Price Estimation Dashboard based on 7 days
+# Microsoft Defender for App Service - Price Estimation Dashboard
+
+> ## Important note
+>  
+> We have released another Microsoft Defender for Cloud price estimation workbook that covers all of the following plans:
+>
+> * Microsoft Defender for App Services
+> * Microsoft Defender for Containers
+> * Microsoft Defender for Key Vaults
+> * Microsoft Defender for Servers
+> * Microsoft Defender for Storage
+> * Microsoft Defender for Databases
+>
+> **You can find the new workbook [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20Cloud%20Price%20Estimation)**.
 
 This workbook considers all App Services with and without Microsoft Defender for App Services enabled across your selected subscription. The results are from within the last 7 days. 
 - The **Estimated Price for 7 days** is based on the hours running the App Service within that period.

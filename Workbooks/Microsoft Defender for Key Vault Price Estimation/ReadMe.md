@@ -1,4 +1,18 @@
 # Microsoft Defender for Key Vault - Price Estimation Dashboard 1.0
+
+> ## Important note
+>  
+> We have released another Microsoft Defender for Cloud price estimation workbook that covers all of the following plans:
+>
+> * Microsoft Defender for App Services
+> * Microsoft Defender for Containers
+> * Microsoft Defender for Key Vaults
+> * Microsoft Defender for Servers
+> * Microsoft Defender for Storage
+> * Microsoft Defender for Databases
+>
+> **You can find the new workbook [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20Cloud%20Price%20Estimation)**.
+
 Microsoft Defender for Key Vault currently monitors vault transactions and usage patterns, detecting unusual and potentially harmful attempts to access or exploit Key Vaults. [Learn more here.](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
 
 This workbook (shamelessly based on the [Storage counterpart](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Azure%20Defender%20for%20Storage%20Price%20Estimation)) considers all Key Vaults with and without Microsoft Defender for Key Vault enabled across your selected subscription. The results are from within the last 7 days. 
