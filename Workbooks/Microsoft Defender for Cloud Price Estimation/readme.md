@@ -20,4 +20,4 @@ You can deploy the workbook by clicking on the button below:
 ![Overview](./overview.png)
 
 ## Acknowledgements
-Special thanks to **Fernanda Vela**, **Helder Pinto**, **Lili Davoudian**, **Sarah Kriwet** and **Tom Janetscheck** for contributing their code to this consolidated workbook.
+Special thanks to **Fernanda Vela**, **Helder Pinto**, **Lili Davoudian**, **Sarah Kriwet**, **Safeena Begum Lepakshi** and **Tom Janetscheck** for contributing their code to this consolidated workbook.
