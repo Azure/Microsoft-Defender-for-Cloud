@@ -373,7 +373,7 @@
                         "additionalResourceOptions": [],
                         "showDefault": false
                       },
-                      "jsonData": "[[[\n { \"value\": \"AKS\", \"label\": \"Azure Kubernetes Service\"},\n { \"value\": \"Arc\", \"label\": \"Azure Arc-enabled Kubernetes\"}\n]",
+                      "jsonData": "[[\n { \"value\": \"AKS\", \"label\": \"Azure Kubernetes Service\"},\n { \"value\": \"Arc\", \"label\": \"Azure Arc-enabled Kubernetes\"}\n]",
                       "timeContext": {
                         "durationMs": 86400000
                       }
@@ -2405,6 +2405,16 @@
                         }
                       },
                       {
+                        "columnMatch": "weeklyRuntime",
+                        "formatter": 0,
+                        "numberFormat": {
+                          "unit": 26,
+                          "options": {
+                            "style": "decimal"
+                          }
+                        }
+                      },
+                      {
                         "columnMatch": "Estimated price (7 days)",
                         "formatter": 18,
                         "formatOptions": {
@@ -2486,6 +2496,12 @@
                       ],
                       "expandTopLevel": true
                     },
+                    "sortBy": [
+                      {
+                        "itemKey": "weeklyRuntime",
+                        "sortOrder": 2
+                      }
+                    ],
                     "labelSettings": [
                       {
                         "columnId": "Total estimated Defender cost",
@@ -2500,7 +2516,13 @@
                         "label": "Weekly runtime"
                       }
                     ]
-                  }
+                  },
+                  "sortBy": [
+                    {
+                      "itemKey": "weeklyRuntime",
+                      "sortOrder": 2
+                    }
+                  ]
                 },
                 "showPin": false,
                 "name": "query - 8"
@@ -2859,12 +2881,12 @@
                       "label": "Environment",
                       "type": 10,
                       "isRequired": true,
-                      "value": "OSS",
+                      "value": "Databases",
                       "typeSettings": {
                         "additionalResourceOptions": [],
                         "showDefault": false
                       },
-                      "jsonData": "[[[\r\n { \"value\": \"Databases\", \"label\": \"Defender for SQL on Azure SQL Databases\"},\r\n { \"value\": \"Machines\", \"label\": \"Defender for SQL servers on machines\"},\r\n { \"value\": \"OSS\", \"label\": \"Open source relational databases\"}\r\n]",
+                      "jsonData": "[[\r\n { \"value\": \"Databases\", \"label\": \"Defender for SQL on Azure SQL Databases\"},\r\n { \"value\": \"Machines\", \"label\": \"Defender for SQL servers on machines\"},\r\n { \"value\": \"OSS\", \"label\": \"Open source relational databases\"}\r\n]",
                       "timeContext": {
                         "durationMs": 86400000
                       }
