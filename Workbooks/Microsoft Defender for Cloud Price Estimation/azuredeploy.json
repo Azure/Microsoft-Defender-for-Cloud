@@ -2907,7 +2907,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "This table considers all SQL servers and databases that are on with/without Microsoft Defender for Servers enabled across your selected subscriptions. The results are from the last 7 days. Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\n\nThe table includes estimations for open-source relational databases, SQL servers on machines and Azure SQL databases. "
+                  "json": "This table considers all SQL servers and databases across your selected subscriptions. The results are measured from the last 7 days. Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\nYou can select estimations for open-source relational databases, SQL servers on machines and Azure SQL databases. "
                 },
                 "conditionalVisibility": {
                   "parameterName": "info",
