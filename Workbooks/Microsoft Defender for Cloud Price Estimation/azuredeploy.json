@@ -17,7 +17,7 @@
     },
     "workbookSourceId": {
       "type": "string",
-      "defaultValue": "Azure Security Center",
+      "defaultValue": "azure security center",
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }
@@ -2481,16 +2481,6 @@
                         }
                       },
                       {
-                        "columnMatch": "weeklyRuntime",
-                        "formatter": 0,
-                        "numberFormat": {
-                          "unit": 26,
-                          "options": {
-                            "style": "decimal"
-                          }
-                        }
-                      },
-                      {
                         "columnMatch": "Estimated price (7 days)",
                         "formatter": 18,
                         "formatOptions": {
@@ -2572,12 +2562,6 @@
                       ],
                       "expandTopLevel": true
                     },
-                    "sortBy": [
-                      {
-                        "itemKey": "weeklyRuntime",
-                        "sortOrder": 2
-                      }
-                    ],
                     "labelSettings": [
                       {
                         "columnId": "Total estimated Defender cost",
@@ -2593,12 +2577,7 @@
                       }
                     ]
                   },
-                  "sortBy": [
-                    {
-                      "itemKey": "weeklyRuntime",
-                      "sortOrder": 2
-                    }
-                  ]
+                  "sortBy": []
                 },
                 "showPin": false,
                 "name": "query - 8"
@@ -2957,12 +2936,12 @@
                       "label": "Environment",
                       "type": 10,
                       "isRequired": true,
-                      "value": "Databases",
+                      "value": "OSS",
                       "typeSettings": {
                         "additionalResourceOptions": [],
                         "showDefault": false
                       },
-                      "jsonData": "[[[\r\n { \"value\": \"Databases\", \"label\": \"Defender for SQL on Azure SQL Databases\"},\r\n { \"value\": \"Machines\", \"label\": \"Defender for SQL servers on machines\"},\r\n { \"value\": \"OSS\", \"label\": \"Open source relational databases\"}\r\n]",
+                      "jsonData": "[[\r\n { \"value\": \"Databases\", \"label\": \"Defender for SQL on Azure SQL Databases\"},\r\n { \"value\": \"Machines\", \"label\": \"Defender for SQL servers on machines\"},\r\n { \"value\": \"OSS\", \"label\": \"Open source relational databases\"}\r\n]",
                       "timeContext": {
                         "durationMs": 86400000
                       }
@@ -2983,7 +2962,7 @@
                     {
                       "type": 1,
                       "content": {
-                        "json": "### Price estimation is shown in the table below \r\nThis table takes into account all SQL Servers on Azure Virtual Machines and Arc Enabled SQL Servers to calculate the monthly price based on the retail price of [$15 USD per machine](https://azure.microsoft.com/pricing/calculator/).",
+                        "json": "### Price estimation is shown in the table below \r\nThis table takes into account all SQL Servers on Azure Virtual Machines to calculate the monthly price based on the retail price of [$15 USD per machine](https://azure.microsoft.com/pricing/calculator/).",
                         "style": "info"
                       },
                       "conditionalVisibility": {
@@ -3355,7 +3334,7 @@
       ],
       "isLocked": false,
       "fallbackResourceIds": [
-        "Azure Security Center"
+        "azure security center"
       ],
       "fromTemplateId": "DefenderForCloudPriceEstimation"
     }
