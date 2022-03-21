@@ -8,7 +8,7 @@ or contact demizets@microsoft.com. Private preview details are provided under ND
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FGovernance%20(Preview)%2FGovernance (Preview).json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fpreview%2FWorkbooks%2FGovernance%20%28Preview%29%2FGovernance%20%28Preview%29.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 ##
 
