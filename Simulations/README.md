@@ -1,7 +1,7 @@
 
 # Microsoft Defender for Cloud Simulation Playbook
 
-There are many ways to simulate an alert in Microsoft Defender for Cloud and if you just want a simple validation to get an alert, use the procedures described in [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-alert-validation). For a more scenario-based approach, you have the resources below that you can use to validate different threat detections capabilities available in Azure Security Center.
+There are many ways to simulate an alert in Microsoft Defender for Cloud and if you just want a simple validation to get an alert, use the procedures described in [this article](https://docs.microsoft.com/en-us/azure/security-center/security-center-alert-validation). For a more scenario-based approach, you have the resources below that you can use to validate different threat detections capabilities available in Microsoft Defender for Cloud.
 
 ## Alert Simulation for  Defender for Servers (Azure and Non-Azure VMs - Windows)
 
