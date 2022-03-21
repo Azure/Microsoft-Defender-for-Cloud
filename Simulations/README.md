@@ -41,17 +41,17 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 ## Alert Simulation for Defender for Resource Manager
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-defender-for-resource-manager-alerts/ba-p/2227469) go over the steps to simulate an extension manipulation using Azure Resource Manager.
 
-- [Azure Defender for Resource Manager](https://docs.microsoft.com/en-us/azure/security-center/defender-for-resource-manager-introduction)
+- [Defender for Resource Manager](https://docs.microsoft.com/en-us/azure/security-center/defender-for-resource-manager-introduction)
 
 ## Alert Simulation for Defender for DNS
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-defender-for-dns-alerts/ba-p/2227845) go over the steps to simulate an attack that can be identified by Azure Defender for DNS.
 
-- [Azure Defender for DNS](https://docs.microsoft.com/en-us/azure/security-center/defender-for-dns-introduction)
+- [Defender for DNS](https://docs.microsoft.com/en-us/azure/security-center/defender-for-dns-introduction)
 
 ## Alert Simulation for Defender for App Service
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/azure-defender-poc-series-azure-defender-for-app-service/ba-p/2652443) go over the steps to simulate an attack that can be identified by Defender for App Service.
 
-- [Azure Defender for App Service](https://docs.microsoft.com/en-us/azure/security-center/defender-for-app-service-introduction)
+- [Defender for App Service](https://docs.microsoft.com/en-us/azure/security-center/defender-for-app-service-introduction)
 
 ## Threat Hunting in Microsoft Defender for Cloud and Log Analytics Workspace
 
