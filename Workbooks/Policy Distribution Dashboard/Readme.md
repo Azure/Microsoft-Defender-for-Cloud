@@ -27,6 +27,8 @@ You can deploy the workbook by clicking on the buttons below:
 ***
 ![Overview](./ImagePDD.png)
 
+Checkout the blog here to learn more details about this workbook https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/policy-distribution-dashboard-for-microsoft-defender-for-cloud/ba-p/3264712
+
 # Acknowledgements
 * Special thanks to **Lior Arviv** for the partnership in reviewing and providing feedbacks on the artifact.
 * Many thanks to **Rebecca Halla** & **Yuri Diogenes** in supporting my initiative and suggesting feedbacks.  
