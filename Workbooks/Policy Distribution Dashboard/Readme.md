@@ -17,10 +17,10 @@ The workbook provides different sections like:
 
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud/%2Fmaster%2FWorkbooks%2FPolicy%20Distribution%20Dashboard%2Fazuredeploy.json" target="_blank">
+<a href="https://aka.ms/policydistributiondashboard" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud/%2Fmaster%2FWorkbooks%2FPolicy%20Distribution%20Dashboard%2Fazuredeploy.json" target="_blank">
+<a href="https://aka.ms/policydistributiondashboard" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a> 
 
