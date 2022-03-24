@@ -1,0 +1,423 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "metadata":{
+        "comments": "This Logic App for Workflow Automations. Used to disable AAD Account and revoke all Bearer Tokens in case the account is compromised.",
+        "author": "Giulio Astori"
+    }, 
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "mdc-DisableAADAccount-RevokeTokens",
+            "type": "String"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        },
+        "AlternativeEmail": {
+            "type": "string",
+            "metadata": {
+                "description": "Email used for the notification for AAD Account woth empty Manager Property"
+            }
+        }
+    },
+    "variables": {
+        "ascalertConnectionName": "[concat('ascalert-', parameters('LogicAppName'))]",
+        "office365ConnectionName": "[concat('office365-', parameters('LogicAppName'))]",
+        "azureAADConnectionName": "[concat('azureAAD-', parameters('LogicAppName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ascalertConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "Microsoft Defender for Cloud Alert",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+                {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('azureAADConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('azureAADConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Alert_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascalert']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Alert/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "For_each_related_enitities": {
+                            "foreach": "@triggerBody()?['Entities']",
+                            "actions": {
+                                "Parse_JSON_-_Used_to_extract_Entity_type": {
+                                    "runAfter": {},
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@items('For_each_related_enitities')",
+                                        "schema": {
+                                            "properties": {
+                                                "aadUserId": {},
+                                                "type": {}
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                },
+                                "Switch_-_If_Entiry_is_Account": {
+                                    "runAfter": {
+                                        "Parse_JSON_-_Used_to_extract_Entity_type": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "cases": {
+                                        "Case_-_account_=_true": {
+                                            "case": "account",
+                                            "actions": {
+                                                "Compose_-_if_previous_failed_-_http_404_no_manager_found": {
+                                                    "runAfter": {
+                                                        "HTTP_-_Get_user_manager": [
+                                                            "Failed"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@outputs('HTTP_-_Get_user_manager')['statusCode']"
+                                                },
+                                                "Compose_-_if_previous_succeded_-_http_200_manger_found": {
+                                                    "runAfter": {
+                                                        "HTTP_-_Get_user_manager": [
+                                                            "Succeeded",
+                                                            "Failed"
+                                                        ]
+                                                    },
+                                                    "type": "Compose",
+                                                    "inputs": "@outputs('HTTP_-_Get_user_manager')['statusCode']"
+                                                },
+                                                "HTTP_-_Get_user": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com/",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{body('Parse_JSON_-_Used_to_extract_Entity_type')?['aadUserId']}/"
+                                                    }
+                                                },
+                                                "HTTP_-_Get_user_manager": {
+                                                    "runAfter": {
+                                                        "Update_user_-_Disable_user": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://graph.microsoft.com/",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://graph.microsoft.com/v1.0/users/@{body('Parse_JSON_-_Used_to_extract_Entity_type')?['aadUserId']}/manager"
+                                                    }
+                                                },
+                                                "Parse_JSON_-_Parse_user_data": {
+                                                    "runAfter": {
+                                                        "HTTP_-_Get_user": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ParseJson",
+                                                    "inputs": {
+                                                        "content": "@body('HTTP_-_Get_user')",
+                                                        "schema": {
+                                                            "properties": {
+                                                                "businessPhones": {
+                                                                    "items": {},
+                                                                    "type": "array"
+                                                                },
+                                                                "displayName": {},
+                                                                "givenName": {},
+                                                                "id": {},
+                                                                "jobTitle": {},
+                                                                "mail": {},
+                                                                "mobilePhone": {},
+                                                                "officeLocation": {},
+                                                                "preferredLanguage": {},
+                                                                "surname": {},
+                                                                "userPrincipalName": {}
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "Refresh_tokens_-_Revoke_all_tokens": {
+                                                    "runAfter": {
+                                                        "Parse_JSON_-_Parse_user_data": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['azuread']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "path": "/v1.0/users/@{encodeURIComponent(body('Parse_JSON_-_Used_to_extract_Entity_type')?['aadUserId'])}/revokeSignInSessions"
+                                                    }
+                                                },
+                                                "Send_an_email_(V2)_2": {
+                                                    "runAfter": {
+                                                        "Set_variable_-_Set_notification_email_Body": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "body": {
+                                                            "Body": "<p>@{variables('email-body-user-no-manager')}</p>",
+                                                            "Subject": "@{body('Parse_JSON_-_Parse_user_data')?['displayName']} has been disabled in Azure AD due to the security risk!",
+                                                            "To": "[parameters('AlternativeEmail')]"
+                                                        },
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "post",
+                                                        "path": "/v2/Mail"
+                                                    }
+                                                },
+                                                "Set_variable_-_Set_notification_email_Body": {
+                                                    "runAfter": {
+                                                        "Compose_-_if_previous_failed_-_http_404_no_manager_found": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "SetVariable",
+                                                    "inputs": {
+                                                        "name": "email-body-user-no-manager",
+                                                        "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:center; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 650px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"100\" height=\"100\" /></td>\n\t\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t\t<h1 style=\"text-align: left;\">Microsoft Defender for Cloud</h1>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p style=\"text-align: left;\"> <br><strong>Defender for Cloud has detected a suspicious activity for the account @{body('Parse_JSON_-_Parse_user_data')?['displayName']}</strong><br><br>\n\t\t\t\t\tThe user's account has been disabled in Azure AD due to the security incident. <br> Can you please notify the user and work with him/her to reach our support.\n\t\t\t\t\t<br> <br><strong>STRONGLY suggesting to RESET his/her PASSWORD</strong></p>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>User Account details</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody><br>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>First Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['givenName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Last Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['surname']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Job Title</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['jobTitle']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Office Location</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['officeLocation']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Business Phone</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['businessPhones']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Mobile Phone</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['mobilePhone']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\t\t\t\t\t\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Alert Information</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody><br>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['AlertDisplayName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Description</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['Description']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert Severity</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['Severity']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 1200px;\">\n\t\t\t\t\t\t\t\t<p>Click <a href=\"@{triggerBody()?['AlertUri']}\">here</a> to open the alert&rsquo;s details page in Microsoft Defender for Cloud</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\n\t</tbody>\n</table>"
+                                                    }
+                                                },
+                                                "Switch_-_If_manager_exist": {
+                                                    "runAfter": {
+                                                        "Compose_-_if_previous_succeded_-_http_200_manger_found": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "cases": {
+                                                        "Case": {
+                                                            "case": 200,
+                                                            "actions": {
+                                                                "Parse_JSON_-_Get_manager_principal_name": {
+                                                                    "runAfter": {},
+                                                                    "type": "ParseJson",
+                                                                    "inputs": {
+                                                                        "content": "@body('HTTP_-_Get_user_manager')",
+                                                                        "schema": {
+                                                                            "properties": {
+                                                                                "userPrincipalName": {}
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "Send_an_email_(V2)_3": {
+                                                                    "runAfter": {
+                                                                        "Set_variable_-_Set_manager's_notification_email_Body": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "ApiConnection",
+                                                                    "inputs": {
+                                                                        "body": {
+                                                                            "Body": "<p>@{variables('email-body-user-manager')}</p>",
+                                                                            "Subject": "@{body('Parse_JSON_-_Parse_user_data')?['displayName']} has been disabled in Azure AD due to the security risk!",
+                                                                            "To": "@{body('Parse_JSON_-_Get_manager_principal_name')?['userPrincipalName']}"
+                                                                        },
+                                                                        "host": {
+                                                                            "connection": {
+                                                                                "name": "@parameters('$connections')['office365']['connectionId']"
+                                                                            }
+                                                                        },
+                                                                        "method": "post",
+                                                                        "path": "/v2/Mail"
+                                                                    }
+                                                                },
+                                                                "Set_variable_-_Set_manager's_notification_email_Body": {
+                                                                    "runAfter": {
+                                                                        "Parse_JSON_-_Get_manager_principal_name": [
+                                                                            "Succeeded"
+                                                                        ]
+                                                                    },
+                                                                    "type": "SetVariable",
+                                                                    "inputs": {
+                                                                        "name": "email-body-user-manager",
+                                                                        "value": "<style type=\"text/css\">\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:center; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 650px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"100\" height=\"100\" /></td>\n\t\t\t\t\t\t\t<td>\n\t\t\t\t\t\t\t\t<h1 style=\"text-align: left;\">Microsoft Defender for Cloud</h1>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<p style=\"text-align: left;\"> <br><strong>Defender for Cloud has detected a suspicious activity for the account @{body('Parse_JSON_-_Parse_user_data')?['displayName']}</strong><br><br>\n\t\t\t\t\tYour direct report has been disabled in Azure AD due to the security incident. <br> Can you please notify the user and work with him/her to reach our support.\n\t\t\t\t\t<br> <br><strong>STRONGLY suggesting to RESET his/her PASSWORD</strong></p>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>User Account details</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody><br>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>First Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['givenName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Last Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['surname']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Job Title</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['jobTitle']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Office Location</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['officeLocation']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Business Phone</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['businessPhones']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\t\t\t\t\t\t\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Mobile Phone</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{body('Parse_JSON_-_Parse_user_data')?['mobilePhone']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\t\t\t\t\t\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\t\t<tr>\n\t\t\t<td style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\">\n\t\t\t\t<h3>Alert Information</h3>\n\t\t\t</td>\n\t\t</tr>\n\t\t<tr>\n\t\t\t<td style=\"width:735px\">\n\t\t\t\t<table align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\">\n\t\t\t\t\t<tbody><br>\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert Name</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['AlertDisplayName']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Description</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['Description']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 200px;\">\n\t\t\t\t\t\t\t\t<p><strong>Alert Severity</strong></p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t\t<td style=\"width: 550px;\">\n\t\t\t\t\t\t\t\t<p>@{triggerBody()?['Severity']}</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\n\t\t\t\t\t\t<tr>\n\t\t\t\t\t\t\t<td style=\"width: 1200px;\">\n\t\t\t\t\t\t\t\t<p>Click <a href=\"@{triggerBody()?['AlertUri']}\">here</a> to open the alert&rsquo;s details page in Microsoft Defender for Cloud</p>\n\t\t\t\t\t\t\t</td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t\t\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</td>\n\t\t</tr>\n<tr><td>&nbsp;</td></tr>\n\n\t</tbody>\n</table>"
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    },
+                                                    "default": {
+                                                        "actions": {}
+                                                    },
+                                                    "expression": "@outputs('Compose_-_if_previous_succeded_-_http_200_manger_found')",
+                                                    "type": "Switch"
+                                                },
+                                                "Update_user_-_Disable_user": {
+                                                    "runAfter": {
+                                                        "Refresh_tokens_-_Revoke_all_tokens": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "ApiConnection",
+                                                    "inputs": {
+                                                        "body": {
+                                                            "accountEnabled": false
+                                                        },
+                                                        "host": {
+                                                            "connection": {
+                                                                "name": "@parameters('$connections')['azuread']['connectionId']"
+                                                            }
+                                                        },
+                                                        "method": "patch",
+                                                        "path": "/v1.0/users/@{encodeURIComponent(body('Parse_JSON_-_Used_to_extract_Entity_type')?['aadUserId'])}"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@body('Parse_JSON_-_Used_to_extract_Entity_type')?['type']",
+                                    "type": "Switch"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable_-_email_body_(user_no_manager)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Initialize_variable_-_email_body_(user's_manager)": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "email-body-user-manager",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_email_body_(user_no_manager)": {
+                            "runAfter": {
+                                "Initialize_variable_-_email_body_(user's_manager)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "email-body-user-no-manager",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascalert": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ascalertConnectionName'))]", 
+                                "connectionName": "ascalert",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascalert')]"
+                            },
+                            "azuread": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('azureAADConnectionName'))]",
+                                "connectionName": "azuread",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuread')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
