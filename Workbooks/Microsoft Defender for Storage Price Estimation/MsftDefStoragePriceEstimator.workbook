@@ -48,7 +48,7 @@
               "multiSelect": true,
               "quote": "'",
               "delimiter": ",",
-              "query": "where type =~ 'microsoft.storage/storageaccounts'\r\n| where kind == \"StorageV2\"\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 1000",
+              "query": "where type =~ 'microsoft.storage/storageaccounts'\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id, label = id, selected = Rank <= 1000",
               "crossComponentResources": [
                 "{Subscriptions}"
               ],
