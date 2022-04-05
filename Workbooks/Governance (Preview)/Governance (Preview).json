@@ -55,20 +55,19 @@
                 "multiSelect": true,
                 "quote": "'",
                 "delimiter": ",",
+                "value": [
+                  "value::all"
+                ],
                 "typeSettings": {
                   "additionalResourceOptions": [
                     "value::all"
                   ],
-                  "includeAll": true,
+                  "includeAll": false,
                   "showDefault": false
                 },
                 "timeContext": {
                   "durationMs": 86400000
-                },
-                "defaultValue": "value::all",
-                "value": [
-                  "/subscriptions/212f9889-769e-45ae-ab43-6da33674bd26"
-                ]
+                }
               }
             ],
             "style": "above",
@@ -174,7 +173,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "securityresources\r\n| where type == \"microsoft.security/governancerules\"\r\n| where tostring(properties.isDisabled) == \"false\"\r\n| extend ruleName = todynamic(name)\r\n| extend ownerType = iif(tostring(properties.ownerSource.type) == \"Manually\", \"Email\", \"ByTag\")\r\n| extend description = tostring(properties.description)\r\n| extend displayName = tostring(properties.displayName)\r\n| extend governanceEmailNotification = todynamic(properties.governanceEmailNotification)\r\n| extend isGracePeriod = todynamic(properties.isGracePeriod)\r\n| extend remediationTimeframe = todynamic(properties.remediationTimeframe)\r\n| extend sourceResourceType = todynamic(properties.sourceResourceType)\r\n| extend conditionSets = todynamic(properties.conditionSets)\r\n| extend rulePriority = todynamic(properties.rulePriority)\r\n| extend ownerSource = todynamic(properties.ownerSource)\r\n| extend isDisabled = todynamic(properties.isDisabled)\r\n| extend ruleType = todynamic(properties.ruleType)\r\n| extend  RuleConditionSet = tostring(properties.conditionSets), property =  properties.conditionSets[0].conditions[0].property, operator = properties.conditionSets[0].conditions[0].operator\r\n| project Subscription = subscriptionId, [\"Display name\"] = tostring(properties.displayName), Priority = toint(properties.rulePriority), [\"Remediation timeframe\"] = tostring(properties.remediationTimeframe), [\"owner type\"] = ownerType, [\"Owner details\"] = tostring(properties.ownerSource.value), [\"Grace period enabled\"] = tostring(properties.isGracePeriod), Rule = id, properties\r\n| order by Priority asc",
+                  "query": "securityresources\r\n| where type == \"microsoft.security/governancerules\"\r\n| where tostring(properties.isDisabled) == \"false\"\r\n| extend ruleName = todynamic(name)\r\n| extend ownerType = iif(tostring(properties.ownerSource.type) == \"Manually\", \"Email\", \"ByTag\")\r\n| extend description = tostring(properties.description)\r\n| extend displayName = tostring(properties.displayName)\r\n| extend governanceEmailNotification = todynamic(properties.governanceEmailNotification)\r\n| extend isGracePeriod = todynamic(properties.isGracePeriod)\r\n| extend remediationTimeframe = todynamic(properties.remediationTimeframe)\r\n| extend Days = tolong(totimespan(remediationTimeframe)/1d)\r\n| extend Days = iff(Days > 0, iff(Days == 1, \"1 day\", strcat(Days,\" days\")), \"\")\r\n| extend sourceResourceType = todynamic(properties.sourceResourceType)\r\n| extend conditionSets = todynamic(properties.conditionSets)\r\n| extend rulePriority = todynamic(properties.rulePriority)\r\n| extend ownerSource = todynamic(properties.ownerSource)\r\n| extend isDisabled = todynamic(properties.isDisabled)\r\n| extend ruleType = todynamic(properties.ruleType)\r\n| extend  RuleConditionSet = tostring(properties.conditionSets), property =  properties.conditionSets[0].conditions[0].property, operator = properties.conditionSets[0].conditions[0].operator\r\n| project Subscription = subscriptionId, [\"Display name\"] = tostring(properties.displayName), Priority = toint(properties.rulePriority), [\"Remediation timeframe\"] = Days, [\"owner type\"] = ownerType, Owner = tostring(properties.ownerSource.value), [\"Grace period enabled\"] = tostring(properties.isGracePeriod), Rule = id, properties, RuleConditionSet\r\n| order by Priority asc",
                   "size": 0,
                   "title": "Governance Rules",
                   "noDataMessage": "No Rules found",
@@ -183,6 +182,18 @@
                     {
                       "fieldName": "Rule",
                       "parameterName": "Rule",
+                      "parameterType": 1,
+                      "quote": ""
+                    },
+                    {
+                      "fieldName": "RuleConditionSet",
+                      "parameterName": "RuleConditionSet",
+                      "parameterType": 1,
+                      "quote": ""
+                    },
+                    {
+                      "fieldName": "Owner",
+                      "parameterName": "Owner",
                       "parameterType": 1,
                       "quote": ""
                     }
@@ -304,6 +315,12 @@
                         "itemKey": "Display name",
                         "sortOrder": 1
                       }
+                    ],
+                    "labelSettings": [
+                      {
+                        "columnId": "Owner",
+                        "label": "Owner details"
+                      }
                     ]
                   },
                   "sortBy": [
@@ -388,7 +405,7 @@
           "type": 3,
           "content": {
             "version": "KqlItem/1.0",
-            "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend RuleId = split('{Rule}', \",\")\r\n| mv-expand RuleId\r\n| extend RuleId = tostring(RuleId)\r\n| extend DisplayName = tostring(properties.displayName)\r\n| where isempty(DisplayName) == false\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/governancerules\"\r\n| project RuleId = id, conditionSets = properties.conditionSets) on RuleId\r\n| mv-expand  conditions = conditionSets[0].conditions\r\n| where (conditions.property == \"name\" and strcat_array(conditions.value, \",\") contains name) or (conditions.property == \"properties.metadata.severity\" and strcat_array(conditions.value, \",\") contains properties.metadata.severity)\r\n| summarize arg_max(DisplayName, properties) by id\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, governanceassignmentsProperties = todynamic(properties), remediationDueDate) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| summarize count() by assignmentStatus",
+            "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend DisplayName = tostring(properties.displayName)\r\n| where isempty(DisplayName) == false\r\n| extend RuleConditionSet = '{RuleConditionSet}'\r\n| where RuleConditionSet contains name or RuleConditionSet contains properties.metadata.severity\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, governanceassignmentsProperties = todynamic(properties), remediationDueDate) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| summarize count() by assignmentStatus",
             "size": 3,
             "title": "Status per rule",
             "noDataMessage": "No unhealthy resources found",
@@ -474,7 +491,88 @@
           "type": 3,
           "content": {
             "version": "KqlItem/1.0",
-            "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend RuleId = split('{Rule}', \",\")\r\n| mv-expand RuleId\r\n| extend RuleId = tostring(RuleId)\r\n| extend DisplayName = tostring(properties.displayName)\r\n| where isempty(DisplayName) == false\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/governancerules\"\r\n| project RuleId = id, conditionSets = properties.conditionSets) on RuleId\r\n| mv-expand  conditions = conditionSets[0].conditions\r\n| where (conditions.property == \"name\" and strcat_array(conditions.value, \",\") contains name) or (conditions.property == \"properties.metadata.severity\" and strcat_array(conditions.value, \",\") contains properties.metadata.severity)\r\n| summarize arg_max(DisplayName, properties) by id\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, governanceassignmentsProperties = todynamic(properties), remediationDueDate) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| extend Status = assignmentStatus\r\n| summarize Completed = countif(Status == \"Completed\"), Ontime = countif(Status == \"Ontime\"), Overdue = countif(Status == \"Overdue\"),Unassigned = countif(Status == \"Unassigned\") by DisplayName = tostring(properties.displayName)\r\n| order by Completed, Ontime, Overdue, Unassigned asc",
+            "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend DisplayName = tostring(properties.displayName)\r\n| where isempty(DisplayName) == false\r\n| extend RuleConditionSet = '{RuleConditionSet}'\r\n| extend owners = '{Owner}'\r\n| where RuleConditionSet contains name or RuleConditionSet contains properties.metadata.severity\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, governanceassignmentsProperties = todynamic(properties), remediationDueDate) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| where hasAssignment == true\r\n| extend assignmentStatus = iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\")\r\n| summarize Ontime = countif(assignmentStatus == \"Ontime\"), Overdue = countif(assignmentStatus == \"Overdue\") by selectedOwner = tostring(governanceassignmentsProperties.owner)",
+            "size": 0,
+            "title": "Status per owner",
+            "exportFieldName": "selectedOwner",
+            "exportParameterName": "selectedOwner",
+            "exportDefaultValue": "All",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "gridSettings": {
+              "formatters": [
+                {
+                  "columnMatch": "Ontime",
+                  "formatter": 18,
+                  "formatOptions": {
+                    "thresholdsOptions": "icons",
+                    "thresholdsGrid": [
+                      {
+                        "operator": "!=",
+                        "thresholdValue": "0",
+                        "representation": "info",
+                        "text": "{0}{1}"
+                      },
+                      {
+                        "operator": "Default",
+                        "thresholdValue": null,
+                        "representation": "success",
+                        "text": "{0}{1}"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "columnMatch": "Overdue",
+                  "formatter": 18,
+                  "formatOptions": {
+                    "thresholdsOptions": "icons",
+                    "thresholdsGrid": [
+                      {
+                        "operator": "!=",
+                        "thresholdValue": "0",
+                        "representation": "3",
+                        "text": "{0}{1}"
+                      },
+                      {
+                        "operator": "Default",
+                        "thresholdValue": null,
+                        "representation": "success",
+                        "text": "{0}{1}"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "labelSettings": [
+                {
+                  "columnId": "selectedOwner",
+                  "label": "Owner"
+                }
+              ]
+            }
+          },
+          "customWidth": "20",
+          "conditionalVisibilities": [
+            {
+              "parameterName": "Owner",
+              "comparison": "isNotEqualTo"
+            },
+            {
+              "parameterName": "RuleConditionSet",
+              "comparison": "isNotEqualTo"
+            }
+          ],
+          "name": "Owner status"
+        },
+        {
+          "type": 3,
+          "content": {
+            "version": "KqlItem/1.0",
+            "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend DisplayName = tostring(properties.displayName)\r\n| where isempty(DisplayName) == false\r\n| extend RuleConditionSet = '{RuleConditionSet}'\r\n| where RuleConditionSet contains name or RuleConditionSet contains properties.metadata.severity\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, governanceassignmentsProperties = todynamic(properties), remediationDueDate) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| extend Status = assignmentStatus\r\n| summarize Completed = countif(Status == \"Completed\"), Ontime = countif(Status == \"Ontime\"), Overdue = countif(Status == \"Overdue\"),Unassigned = countif(Status == \"Unassigned\") by DisplayName = tostring(properties.displayName)\r\n| order by Completed, Ontime, Overdue, Unassigned asc",
             "size": 0,
             "title": "Assessments",
             "noDataMessage": "No Assessments found",
@@ -747,7 +845,7 @@
               }
             ]
           },
-          "customWidth": "80",
+          "customWidth": "60",
           "conditionalVisibility": {
             "parameterName": "Rule",
             "comparison": "isNotEqualTo"
@@ -782,7 +880,7 @@
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend displayNameFilter = tostring(\"{DisplayName}\")\r\n| where displayNameFilter == tostring(properties.displayName)\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, owner = properties.owner,governanceassignmentsProperties = todynamic(properties), remediationDueDate, isGrace = properties.isGracePeriod) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| extend source = trim(' ', tolower(tostring(properties.resourceDetails.Source)))\r\n                                          | extend resourceId = iff(source =~ \"azure\", properties.resourceDetails.Id, iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id, iff(source =~ \"gcp\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id, iff(source =~ 'aws', properties.resourceDetails.AzureResourceId, iff(source =~ 'gcp', properties.resourceDetails.AzureResourceId, properties.resourceDetails.Id)))))\r\n| project [\"Resource id\"] = resourceId, Subscription = subscriptionId ,Status = assignmentStatus, Owner = owner, [\"Due date\"] = remediationDueDate, [\"Grace period enabled\"] = isGrace\r\n| order by Status desc",
+                        "query": "securityresources         \r\n| where type == \"microsoft.security/assessments\"\r\n| where isnull(properties.resourceDetails.AwsResourceId) and isnull(properties.resourceDetails.GcpResourceId)\r\n| extend displayNameFilter = tostring(\"{DisplayName}\")\r\n| where displayNameFilter == tostring(properties.displayName)\r\n| join kind=leftouter   (securityresources         \r\n| where type == \"microsoft.security/assessments/governanceassignments\"\r\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\r\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\r\n| project id = assignedResourceId, owner = properties.owner,governanceassignmentsProperties = todynamic(properties), remediationDueDate, isGrace = properties.isGracePeriod) on id\r\n| extend hasAssignment = isempty( governanceassignmentsProperties) == false and isnull( governanceassignmentsProperties) == false\r\n| extend assignmentStatus = iif(tostring(properties.status.code) == \"Unhealthy\",iif(hasAssignment == true, iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \"Overdue\", \"Ontime\"), \"Unassigned\") , \"Completed\")\r\n| extend source = trim(' ', tolower(tostring(properties.resourceDetails.Source)))\r\n                                          | extend resourceId = iff(source =~ \"azure\", properties.resourceDetails.Id, iff(source =~ \"aws\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id, iff(source =~ \"gcp\" and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id, iff(source =~ 'aws', properties.resourceDetails.AzureResourceId, iff(source =~ 'gcp', properties.resourceDetails.AzureResourceId, properties.resourceDetails.Id)))))\r\n| where '{selectedOwner}' == 'All' or '{selectedOwner}' == governanceassignmentsProperties.owner\r\n| project [\"Resource id\"] = resourceId, Subscription = subscriptionId ,Status = assignmentStatus, Owner = owner, [\"Due date\"] = remediationDueDate, [\"Grace period enabled\"] = isGrace\r\n| order by Status desc",
                         "size": 0,
                         "title": "List of resource for: {DisplayName}",
                         "noDataMessage": "No Assessments found",
@@ -1066,7 +1164,7 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "💡 Selected filter for **DisplayName:** {DisplayName}\r\n",
+                  "json": "💡 Selected filter for **DisplayName:** {DisplayName}\r\n💡 Selected filter for **selectedOwner:** {selectedOwner}\r\n",
                   "style": "{selectedTab}"
                 },
                 "conditionalVisibility": {
