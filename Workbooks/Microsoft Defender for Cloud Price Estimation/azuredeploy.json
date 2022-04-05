@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "Microsoft Defender for Cloud Price Estimation",
+      "defaultValue": "Workbook 3",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -17,7 +17,7 @@
     },
     "workbookSourceId": {
       "type": "string",
-      "defaultValue": "azure security center",
+      "defaultValue": "Azure Security Center",
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }
@@ -76,6 +76,14 @@
             "resourceType": "microsoft.operationalinsights/workspaces"
           },
           "name": "K8sParam - Copy"
+        },
+        {
+          "type": 1,
+          "content": {
+            "json": "Due to the limitations of Azure Monitor, you will only be able to see 10,000 rows at a time.",
+            "style": "warning"
+          },
+          "name": "text - 13"
         },
         {
           "type": 9,
@@ -237,7 +245,7 @@
                   "comparison": "isEqualTo",
                   "value": "Containers"
                 },
-                "name": "containersParameters"
+                "name": "Containers parameters"
               },
               {
                 "type": 1,
@@ -249,7 +257,7 @@
                   "comparison": "isEqualTo",
                   "value": "Containers"
                 },
-                "name": "Containers-Intro"
+                "name": "Containers heading"
               },
               {
                 "type": 1,
@@ -261,144 +269,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 8"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions and Kubernetes Clusters as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 7"
-              },
-              {
-                "type": 3,
-                "content": {
-                  "version": "KqlItem/1.0",
-                  "query": "resources\n| where type =~ \"microsoft.containerservice/managedclusters\"\n| extend machineType = tostring(properties.agentPoolProfiles[0].vmSize), \n        nodesCount = toint(properties.agentPoolProfiles[0]['count']),\n        powerState = tostring(properties.agentPoolProfiles[0].powerState.code)\n| extend vCoresPerMachine = toint(extract_all(@\"(\\d+)\", machineType)[0])\n| extend coresTotal = vCoresPerMachine * nodesCount\n| extend estimatedMonthlyCost = coresTotal * 7\n| project id, subscriptionId, machineType, nodesCount, powerState, vCoresPerMachine, coresTotal, estimatedMonthlyCost",
-                  "size": 4,
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources",
-                  "crossComponentResources": [
-                    "{kubernetesCluster}"
-                  ]
-                },
-                "customWidth": "10",
-                "conditionalVisibility": {
-                  "parameterName": "blank",
-                  "comparison": "isNotEqualTo"
-                },
-                "name": "containersQuery"
-              },
-              {
-                "type": 10,
-                "content": {
-                  "chartId": "workbooke5bc5546-74e4-4749-a0fb-3202517457fd",
-                  "version": "MetricsItem/2.0",
-                  "size": 4,
-                  "chartType": 0,
-                  "resourceType": "microsoft.containerservice/managedclusters",
-                  "metricScope": 0,
-                  "resourceParameter": "kubernetesCluster",
-                  "resourceIds": [
-                    "{kubernetesCluster}"
-                  ],
-                  "timeContext": {
-                    "durationMs": 2592000000
-                  },
-                  "metrics": [
-                    {
-                      "namespace": "insights.container/nodes",
-                      "metric": "insights.container/nodes--nodesCount",
-                      "aggregation": 4
-                    },
-                    {
-                      "namespace": "microsoft.containerservice/managedclusters",
-                      "metric": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
-                      "aggregation": 4
-                    }
-                  ],
-                  "gridSettings": {
-                    "formatters": [
-                      {
-                        "columnMatch": "Subscription",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "Name",
-                        "formatter": 13,
-                        "formatOptions": {
-                          "linkTarget": "Resource"
-                        }
-                      },
-                      {
-                        "columnMatch": "insights.container/nodes--nodesCount Timeline",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "insights.container/nodes--nodesCount",
-                        "formatter": 1,
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": null
-                        }
-                      },
-                      {
-                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition Timeline",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition",
-                        "formatter": 1,
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": null
-                        }
-                      },
-                      {
-                        "columnMatch": ".*\\/Statuses for various node conditions$",
-                        "formatter": 1
-                      },
-                      {
-                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
-                        "formatter": 1,
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": null
-                        }
-                      }
-                    ],
-                    "rowLimit": 10000,
-                    "labelSettings": [
-                      {
-                        "columnId": "insights.container/nodes--nodesCount",
-                        "label": "nodesCount (Average)"
-                      },
-                      {
-                        "columnId": "insights.container/nodes--nodesCount Timeline",
-                        "label": "nodesCount Timeline"
-                      },
-                      {
-                        "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
-                        "label": "Total number of available cpu cores in a managed cluster (Average)"
-                      },
-                      {
-                        "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline",
-                        "label": "Total number of available cpu cores in a managed cluster Timeline"
-                      }
-                    ]
-                  }
-                },
-                "customWidth": "10",
-                "conditionalVisibility": {
-                  "parameterName": "blank",
-                  "comparison": "isNotEqualTo"
-                },
-                "name": "containersMetric"
+                "name": "Containers text"
               },
               {
                 "type": 9,
@@ -431,7 +302,7 @@
                   "parameterName": "kubernetesCluster",
                   "comparison": "isNotEqualTo"
                 },
-                "name": "K8sParam"
+                "name": "Containers environment"
               },
               {
                 "type": 12,
@@ -440,11 +311,140 @@
                   "groupType": "editable",
                   "items": [
                     {
+                      "type": 10,
+                      "content": {
+                        "chartId": "workbooke5bc5546-74e4-4749-a0fb-3202517457fd",
+                        "version": "MetricsItem/2.0",
+                        "size": 4,
+                        "chartType": 0,
+                        "resourceType": "microsoft.containerservice/managedclusters",
+                        "metricScope": 0,
+                        "resourceParameter": "kubernetesCluster",
+                        "resourceIds": [
+                          "{kubernetesCluster}"
+                        ],
+                        "timeContext": {
+                          "durationMs": 2592000000
+                        },
+                        "metrics": [
+                          {
+                            "namespace": "insights.container/nodes",
+                            "metric": "insights.container/nodes--nodesCount",
+                            "aggregation": 4
+                          },
+                          {
+                            "namespace": "microsoft.containerservice/managedclusters",
+                            "metric": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
+                            "aggregation": 4
+                          }
+                        ],
+                        "gridSettings": {
+                          "formatters": [
+                            {
+                              "columnMatch": "Subscription",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "Name",
+                              "formatter": 13,
+                              "formatOptions": {
+                                "linkTarget": "Resource"
+                              }
+                            },
+                            {
+                              "columnMatch": "insights.container/nodes--nodesCount Timeline",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "insights.container/nodes--nodesCount",
+                              "formatter": 1,
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": null
+                              }
+                            },
+                            {
+                              "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition Timeline",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition",
+                              "formatter": 1,
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": null
+                              }
+                            },
+                            {
+                              "columnMatch": ".*\\/Statuses for various node conditions$",
+                              "formatter": 1
+                            },
+                            {
+                              "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
+                              "formatter": 1,
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": null
+                              }
+                            }
+                          ],
+                          "rowLimit": 10000,
+                          "labelSettings": [
+                            {
+                              "columnId": "insights.container/nodes--nodesCount",
+                              "label": "nodesCount (Average)"
+                            },
+                            {
+                              "columnId": "insights.container/nodes--nodesCount Timeline",
+                              "label": "nodesCount Timeline"
+                            },
+                            {
+                              "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
+                              "label": "Total number of available cpu cores in a managed cluster (Average)"
+                            },
+                            {
+                              "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline",
+                              "label": "Total number of available cpu cores in a managed cluster Timeline"
+                            }
+                          ]
+                        }
+                      },
+                      "customWidth": "10",
+                      "conditionalVisibility": {
+                        "parameterName": "blank",
+                        "comparison": "isNotEqualTo"
+                      },
+                      "name": "containersMetric"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": "resources\n| where type =~ \"microsoft.containerservice/managedclusters\"\n| extend machineType = tostring(properties.agentPoolProfiles[0].vmSize), \n        nodesCount = toint(properties.agentPoolProfiles[0]['count']),\n        powerState = tostring(properties.agentPoolProfiles[0].powerState.code)\n| extend vCoresPerMachine = toint(extract_all(@\"(\\d+)\", machineType)[0])\n| extend coresTotal = vCoresPerMachine * nodesCount\n| extend estimatedMonthlyCost = coresTotal * 7\n| project id, subscriptionId, machineType, nodesCount, powerState, vCoresPerMachine, coresTotal, estimatedMonthlyCost",
+                        "size": 4,
+                        "queryType": 1,
+                        "resourceType": "microsoft.resourcegraph/resources",
+                        "crossComponentResources": [
+                          "{kubernetesCluster}"
+                        ]
+                      },
+                      "customWidth": "10",
+                      "conditionalVisibility": {
+                        "parameterName": "blank",
+                        "comparison": "isNotEqualTo"
+                      },
+                      "name": "containersQuery"
+                    },
+                    {
                       "type": 1,
                       "content": {
                         "json": "## Azure Kubernetes Service (AKS) clusters\n\nThis table provides an estimation for Microsoft Defender for Containers cost depending on the number CPU cores on worker nodes used in average during the last 30 days. If no average telemetry is available, estimation is calculated based on the number of nodes currently running in a cluster."
                       },
-                      "name": "text - 1"
+                      "name": "AKS text"
                     },
                     {
                       "type": 3,
@@ -552,17 +552,9 @@
                             },
                             {
                               "columnMatch": "freeScans",
-                              "formatter": 18,
+                              "formatter": 3,
                               "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "lightBlue",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
+                                "palette": "blue",
                                 "aggregation": "Sum"
                               },
                               "numberFormat": {
@@ -579,17 +571,9 @@
                             },
                             {
                               "columnMatch": "Estimated monthly price",
-                              "formatter": 18,
+                              "formatter": 3,
                               "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "yellow",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
+                                "palette": "yellow",
                                 "aggregation": "Sum"
                               },
                               "numberFormat": {
@@ -620,6 +604,8 @@
                               "formatter": 5
                             }
                           ],
+                          "rowLimit": 10000,
+                          "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
                             "groupBy": [
@@ -668,7 +654,7 @@
                           ]
                         }
                       },
-                      "name": "query - 4"
+                      "name": "AKS result"
                     }
                   ]
                 },
@@ -699,7 +685,7 @@
                       "content": {
                         "json": "## Azure Arc-enabled Kubernetes clusters\nThe table below shows a cost estimation for Microsoft Defender for Containers based on the number of cores that are configured in a non-AKS Kubernetes cluster, connected through Azure Arc."
                       },
-                      "name": "text - 0"
+                      "name": "ArcK8s text"
                     },
                     {
                       "type": 3,
@@ -718,7 +704,7 @@
                         "parameterName": "blank",
                         "comparison": "isNotEqualTo"
                       },
-                      "name": "arcQuery"
+                      "name": "ArcK8s query"
                     },
                     {
                       "type": 3,
@@ -751,33 +737,17 @@
                             },
                             {
                               "columnMatch": "freeScans",
-                              "formatter": 18,
+                              "formatter": 3,
                               "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "lightBlue",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
+                                "palette": "blue",
                                 "aggregation": "Sum"
                               }
                             },
                             {
                               "columnMatch": "estimatedMonthlyCost",
-                              "formatter": 18,
+                              "formatter": 3,
                               "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "yellow",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
+                                "palette": "yellow",
                                 "aggregation": "Sum"
                               },
                               "numberFormat": {
@@ -796,6 +766,8 @@
                               }
                             }
                           ],
+                          "rowLimit": 10000,
+                          "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
                             "groupBy": [
@@ -830,7 +802,7 @@
                         }
                       },
                       "showPin": false,
-                      "name": "query - 2"
+                      "name": "ArcK8s result"
                     }
                   ]
                 },
@@ -1678,14 +1650,14 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources"
                 },
-                "name": "parameters - 4"
+                "name": "AppService parameters"
               },
               {
                 "type": 1,
                 "content": {
                   "json": "## Microsoft Defender for App Service"
                 },
-                "name": "text - 0"
+                "name": "AppService heading"
               },
               {
                 "type": 1,
@@ -1697,7 +1669,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 6"
+                "name": "AppService text"
               },
               {
                 "type": 1,
@@ -1710,15 +1682,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 2"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions and App Services as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 6"
+                "name": "AppService banner"
               },
               {
                 "type": 10,
@@ -1735,7 +1699,7 @@
                   ],
                   "timeContextFromParameter": "TimeRange",
                   "timeContext": {
-                    "durationMs": 604800000
+                    "durationMs": 0
                   },
                   "metrics": [
                     {
@@ -1812,7 +1776,7 @@
                   "comparison": "isEqualTo",
                   "value": "0"
                 },
-                "name": "metric - 3"
+                "name": "AppService metric"
               },
               {
                 "type": 3,
@@ -1867,17 +1831,9 @@
                       },
                       {
                         "columnMatch": "Estimated Price (7 days)",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "lightBlue",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "blue",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -1897,17 +1853,9 @@
                       },
                       {
                         "columnMatch": "Estimated Monthly Price",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "yellow",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "yellow",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -1921,6 +1869,8 @@
                         }
                       }
                     ],
+                    "rowLimit": 10000,
+                    "filter": true,
                     "hierarchySettings": {
                       "treeType": 1,
                       "groupBy": [
@@ -1949,7 +1899,7 @@
                   "parameterName": "AppService",
                   "comparison": "isNotEqualTo"
                 },
-                "name": "query - 4"
+                "name": "AppService result"
               }
             ]
           },
@@ -1984,7 +1934,7 @@
                       "multiSelect": true,
                       "quote": "'",
                       "delimiter": ",",
-                      "query": "where type =~ 'microsoft.storage/storageaccounts'\r\n| where kind == \"StorageV2\"\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id",
+                      "query": "where type =~ 'microsoft.storage/storageaccounts'\r\n| order by name asc\r\n| extend Rank = row_number()\r\n| project value = id",
                       "crossComponentResources": [
                         "{Subscriptions}"
                       ],
@@ -2029,26 +1979,26 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources"
                 },
-                "name": "parameters - 3"
+                "name": "Storage parameters"
               },
               {
                 "type": 1,
                 "content": {
                   "json": "## Microsoft Defender for Storage"
                 },
-                "name": "text - 0"
+                "name": "Storage heading"
               },
               {
                 "type": 1,
                 "content": {
-                  "json": "This table considers all storage accounts with/without Defender for Storage enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed; Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\n\nTo pull the Blob and File transactions metric from each storage account in larger subcriptions or across a tenant use [Read Azure Storage Transaction Metrics](https://github.com/Azure/Azure-Security-Center/tree/main/Powershell%20scripts/Read%20Azure%20Storage%20Transaction%20Metrics)"
+                  "json": "This table considers all storage accounts with/without Defender for Storage enabled across your selected subscriptions. The results are from the last 7 days. The Estimated Price for 7 days is based on the number of transactions performed. Estimated Monthly Price takes those 7 days as sample and calculates it for a month. Learn more about this workbook [here](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/microsoft-defender-for-storage-price-estimation-dashboard/ba-p/2429724).\n\nTo pull the Blob and File transactions metric from each storage account in larger subcriptions or across a tenant use [Read Azure Storage Transaction Metrics](https://github.com/Azure/Azure-Security-Center/tree/main/Powershell%20scripts/Read%20Azure%20Storage%20Transaction%20Metrics)"
                 },
                 "conditionalVisibility": {
                   "parameterName": "info",
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 6"
+                "name": "Storage text"
               },
               {
                 "type": 1,
@@ -2061,15 +2011,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 1"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions and Storage accounts as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 6"
+                "name": "Storage banner"
               },
               {
                 "type": 10,
@@ -2163,7 +2105,7 @@
                   "comparison": "isEqualTo",
                   "value": "0"
                 },
-                "name": "metric - 2"
+                "name": "Storage metric"
               },
               {
                 "type": 3,
@@ -2223,17 +2165,9 @@
                       },
                       {
                         "columnMatch": "Estimated Price (7 days)",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "lightBlue",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "blue",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -2253,17 +2187,9 @@
                       },
                       {
                         "columnMatch": "Estimated Monthly Cost",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "yellow",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "yellow",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -2278,6 +2204,8 @@
                         }
                       }
                     ],
+                    "rowLimit": 10000,
+                    "filter": true,
                     "hierarchySettings": {
                       "treeType": 1,
                       "groupBy": [
@@ -2305,7 +2233,7 @@
                   "parameterName": "Storage",
                   "comparison": "isNotEqualTo"
                 },
-                "name": "query - 4"
+                "name": "Storage query"
               }
             ]
           },
@@ -2314,7 +2242,7 @@
             "comparison": "isEqualTo",
             "value": "Storage"
           },
-          "name": "group - 9"
+          "name": "Defender for Storage"
         },
         {
           "type": 12,
@@ -2364,14 +2292,14 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources"
                 },
-                "name": "parameters - 1"
+                "name": "Servers parameters"
               },
               {
                 "type": 1,
                 "content": {
                   "json": "## Microsoft Defender for Servers"
                 },
-                "name": "text - 0"
+                "name": "Servers heading"
               },
               {
                 "type": 1,
@@ -2383,204 +2311,426 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 7"
+                "name": "Servers text"
               },
               {
-                "type": 1,
+                "type": 9,
                 "content": {
-                  "json": "### Price estimation is shown in the table below\r\nThe price estimation is based on the retail price of [$0.02 per server/hour](https://azure.microsoft.com/en-us/pricing/calculator/). As mentioned above, the calculation looks at machines connected to a Log Analytics workspace to get historical data for the total number of hour over the past 7 days. If that data is not available, the calculation assumes the machine is running 24/7. The column titled \"Weekly Runtime\" is looking at the total weekly running hours of the virtual machine. ",
-                  "style": "info"
-                },
-                "conditionalVisibility": {
-                  "parameterName": "info",
-                  "comparison": "isEqualTo",
-                  "value": "On"
-                },
-                "name": "text - 5"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions and Workspaces as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 6"
-              },
-              {
-                "type": 3,
-                "content": {
-                  "version": "KqlItem/1.0",
-                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type == 'microsoft.hybridcompute/machines' or type == \"microsoft.compute/virtualmachinescalesets\"\r\n| summarize by subscriptionId, name, type\r\n",
-                  "size": 0,
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources",
-                  "crossComponentResources": [
-                    "{Subscriptions}"
+                  "version": "KqlParameterItem/1.0",
+                  "parameters": [
+                    {
+                      "id": "8a6df655-393e-4ea8-a704-d8183d0a7720",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "ServersPlan",
+                      "label": "Servers Plan",
+                      "type": 10,
+                      "isRequired": true,
+                      "value": "P1",
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"P1\", \"label\": \"Defender for Servers Plan 1\"},\r\n { \"value\": \"P2\", \"label\": \"Defender for Servers Plan 2\"}\r\n]",
+                      "timeContext": {
+                        "durationMs": 86400000
+                      }
+                    }
                   ],
-                  "visualization": "table"
+                  "style": "above",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 },
-                "conditionalVisibility": {
-                  "parameterName": "{blank}",
-                  "comparison": "isEqualTo",
-                  "value": "0"
-                },
-                "name": "query - 2"
+                "name": "Servers plans"
               },
               {
-                "type": 3,
+                "type": 12,
                 "content": {
-                  "version": "KqlItem/1.0",
-                  "query": " Heartbeat\r\n| where TimeGenerated > ago(7d) and ResourceProvider in ('Microsoft.Compute', 'Microsoft.HybridCompute') and ResourceType in ('virtualMachines', 'machines') and Computer !contains \".\"\r\n| summarize heartbeats_per_hour=count() by bin(TimeGenerated, 1h), Computer, SubscriptionId//, ResourceType,ResourceProvider\r\n| extend state_per_hour=iff(heartbeats_per_hour>0, true, false)\r\n| summarize total_running_hours=countif(state_per_hour==true) by Computer, SubscriptionId//, ResourceType, ResourceProvider\r\n| where total_running_hours > 0 and isnotempty (SubscriptionId)",
-                  "size": 0,
-                  "queryType": 0,
-                  "resourceType": "microsoft.operationalinsights/workspaces",
-                  "crossComponentResources": [
-                    "{Workspace}"
+                  "version": "NotebookGroup/1.0",
+                  "groupType": "editable",
+                  "items": [
+                    {
+                      "type": 1,
+                      "content": {
+                        "json": "### Price estimation is shown in the table below\r\nThe price estimation is based on the retail price of [$0.02 per server/hour](https://azure.microsoft.com/en-us/pricing/calculator/). As mentioned above, the calculation looks at machines connected to a Log Analytics workspace to get historical data for the total number of hour over the past 7 days. If that data is not available, the calculation assumes the machine is running 24/7. The column titled \"Weekly Runtime\" is looking at the total weekly running hours of the virtual machine. ",
+                        "style": "info"
+                      },
+                      "conditionalVisibility": {
+                        "parameterName": "info",
+                        "comparison": "isEqualTo",
+                        "value": "On"
+                      },
+                      "name": "ServersP2 banner"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type == 'microsoft.hybridcompute/machines' or type == \"microsoft.compute/virtualmachinescalesets\"\r\n| summarize by subscriptionId, name, type\r\n",
+                        "size": 0,
+                        "queryType": 1,
+                        "resourceType": "microsoft.resourcegraph/resources",
+                        "crossComponentResources": [
+                          "{Subscriptions}"
+                        ],
+                        "visualization": "table",
+                        "gridSettings": {
+                          "rowLimit": 10000
+                        }
+                      },
+                      "conditionalVisibility": {
+                        "parameterName": "{blank}",
+                        "comparison": "isEqualTo",
+                        "value": "0"
+                      },
+                      "name": "ServersP2 query"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": " Heartbeat\r\n| where TimeGenerated > ago(7d) and ResourceProvider in ('Microsoft.Compute', 'Microsoft.HybridCompute') and Computer !contains \".\"\r\n| summarize heartbeats_per_hour=count() by bin(TimeGenerated, 1h), Computer, SubscriptionId\r\n| extend state_per_hour=iff(heartbeats_per_hour>0, true, false)\r\n| summarize total_running_hours=countif(state_per_hour==true) by Computer, SubscriptionId\r\n| where total_running_hours > 0 and isnotempty (SubscriptionId)",
+                        "size": 0,
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces",
+                        "crossComponentResources": [
+                          "{Workspace}"
+                        ],
+                        "gridSettings": {
+                          "rowLimit": 10000
+                        }
+                      },
+                      "conditionalVisibility": {
+                        "parameterName": "{blank}",
+                        "comparison": "isEqualTo",
+                        "value": "0"
+                      },
+                      "name": "ServersP2 query 2"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\",\"mergeType\":\"outer\",\"leftTable\":\"query - 2\",\"rightTable\":\"query - 3\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Total estimated Defender cost\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"SubId\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"subscriptionId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"subscriptionId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"SubscriptionId\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"machineName\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"name\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"name\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"Computer\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"weeklyRuntime\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\">\",\"rightValType\":\"static\",\"rightVal\":\"168\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}},{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"total_running_hours\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"weeklyRuntime\\\"] * 0.02\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated monthly price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated price (7 days)\\\"]*4.345\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\"}}]},{\"originalName\":\"[query - 2].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].name\",\"mergedName\":\"name\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].type\",\"mergedName\":\"type\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].Computer\",\"mergedName\":\"Computer\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].total_running_hours\",\"mergedName\":\"total_running_hours\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].TimeGenerated\",\"mergedName\":\"TimeGenerated\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 3].heartbeats_per_hour\",\"mergedName\":\"heartbeats_per_hour\",\"fromId\":\"unknown\"}]}",
+                        "size": 0,
+                        "queryType": 7,
+                        "gridSettings": {
+                          "formatters": [
+                            {
+                              "columnMatch": "$gen_group",
+                              "formatter": 15,
+                              "formatOptions": {
+                                "linkTarget": "Resource",
+                                "linkIsContextBlade": true,
+                                "showIcon": true,
+                                "customColumnWidthSetting": "51ch"
+                              }
+                            },
+                            {
+                              "columnMatch": "Total estimated Defender cost",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "SubId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "machineName",
+                              "formatter": 13,
+                              "formatOptions": {
+                                "linkTarget": "Resource",
+                                "showIcon": true
+                              }
+                            },
+                            {
+                              "columnMatch": "Estimated price (7 days)",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "blue",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency",
+                                  "maximumFractionDigits": 2
+                                }
+                              }
+                            },
+                            {
+                              "columnMatch": "Estimated monthly price",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "yellow",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency",
+                                  "maximumFractionDigits": 2
+                                }
+                              }
+                            },
+                            {
+                              "columnMatch": "subscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "name",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "type",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "Computer",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "SubscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "total_running_hours",
+                              "formatter": 5
+                            }
+                          ],
+                          "rowLimit": 10000,
+                          "filter": true,
+                          "hierarchySettings": {
+                            "treeType": 1,
+                            "groupBy": [
+                              "Total estimated Defender cost",
+                              "SubId"
+                            ],
+                            "expandTopLevel": true
+                          },
+                          "labelSettings": [
+                            {
+                              "columnId": "Total estimated Defender cost",
+                              "label": "Subscription"
+                            },
+                            {
+                              "columnId": "machineName",
+                              "label": "Machine name"
+                            },
+                            {
+                              "columnId": "weeklyRuntime",
+                              "label": "Weekly runtime"
+                            }
+                          ]
+                        },
+                        "sortBy": []
+                      },
+                      "showPin": false,
+                      "name": "ServersP2 result"
+                    }
                   ]
                 },
                 "conditionalVisibility": {
-                  "parameterName": "{blank}",
+                  "parameterName": "ServersPlan",
                   "comparison": "isEqualTo",
-                  "value": "0"
+                  "value": "P2"
                 },
-                "name": "query - 3"
+                "name": "Plan2"
               },
               {
-                "type": 3,
+                "type": 12,
                 "content": {
-                  "version": "KqlItem/1.0",
-                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\",\"mergeType\":\"outer\",\"leftTable\":\"query - 2\",\"rightTable\":\"query - 3\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Total estimated Defender cost\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"SubId\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"subscriptionId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"subscriptionId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"SubscriptionId\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"machineName\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"name\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"name\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"Computer\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"weeklyRuntime\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\">\",\"rightValType\":\"static\",\"rightVal\":\"168\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}},{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"total_running_hours\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"weeklyRuntime\\\"] * 0.02\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated monthly price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated price (7 days)\\\"]*4.345\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\"}}]},{\"originalName\":\"[query - 2].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].name\",\"mergedName\":\"name\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].type\",\"mergedName\":\"type\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].Computer\",\"mergedName\":\"Computer\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].total_running_hours\",\"mergedName\":\"total_running_hours\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"}]}",
-                  "size": 0,
-                  "queryType": 7,
-                  "gridSettings": {
-                    "formatters": [
-                      {
-                        "columnMatch": "$gen_group",
-                        "formatter": 15,
-                        "formatOptions": {
-                          "linkTarget": "Resource",
-                          "linkIsContextBlade": true,
-                          "showIcon": true,
-                          "customColumnWidthSetting": "51ch"
-                        }
+                  "version": "NotebookGroup/1.0",
+                  "groupType": "editable",
+                  "items": [
+                    {
+                      "type": 1,
+                      "content": {
+                        "json": "### Price estimation is shown in the table below\r\nThe price estimation is based on the retail price of [$0.007 per server/hour](https://azure.microsoft.com/en-us/pricing/calculator/). As mentioned above, the calculation looks at machines connected to a Log Analytics workspace to get historical data for the total number of hour over the past 7 days. If that data is not available, the calculation assumes the machine is running 24/7. The column titled \"Weekly Runtime\" is looking at the total weekly running hours of the virtual machine. ",
+                        "style": "info"
                       },
-                      {
-                        "columnMatch": "Total estimated Defender cost",
-                        "formatter": 5
+                      "conditionalVisibility": {
+                        "parameterName": "info",
+                        "comparison": "isEqualTo",
+                        "value": "On"
                       },
-                      {
-                        "columnMatch": "SubId",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "machineName",
-                        "formatter": 13,
-                        "formatOptions": {
-                          "linkTarget": "Resource",
-                          "showIcon": true
-                        }
-                      },
-                      {
-                        "columnMatch": "Estimated price (7 days)",
-                        "formatter": 18,
-                        "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "lightBlue",
-                              "text": "{0}{1}"
-                            }
-                          ],
-                          "aggregation": "Sum"
-                        },
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": {
-                            "currency": "USD",
-                            "style": "currency",
-                            "maximumFractionDigits": 2
-                          }
-                        }
-                      },
-                      {
-                        "columnMatch": "Estimated monthly price",
-                        "formatter": 18,
-                        "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "yellow",
-                              "text": "{0}{1}"
-                            }
-                          ],
-                          "aggregation": "Sum"
-                        },
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": {
-                            "currency": "USD",
-                            "style": "currency",
-                            "maximumFractionDigits": 2
-                          }
-                        }
-                      },
-                      {
-                        "columnMatch": "subscriptionId",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "name",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "type",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "Computer",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "SubscriptionId",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "total_running_hours",
-                        "formatter": 5
-                      }
-                    ],
-                    "filter": true,
-                    "hierarchySettings": {
-                      "treeType": 1,
-                      "groupBy": [
-                        "Total estimated Defender cost",
-                        "SubId"
-                      ],
-                      "expandTopLevel": true
+                      "name": "ServersP1 banner"
                     },
-                    "labelSettings": [
-                      {
-                        "columnId": "Total estimated Defender cost",
-                        "label": "Subscription"
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type == 'microsoft.hybridcompute/machines' or type == \"microsoft.compute/virtualmachinescalesets\"\r\n| summarize by subscriptionId, name, type\r\n",
+                        "size": 0,
+                        "queryType": 1,
+                        "resourceType": "microsoft.resourcegraph/resources",
+                        "crossComponentResources": [
+                          "{Subscriptions}"
+                        ],
+                        "visualization": "table",
+                        "gridSettings": {
+                          "rowLimit": 10000
+                        }
                       },
-                      {
-                        "columnId": "machineName",
-                        "label": "Machine name"
+                      "conditionalVisibility": {
+                        "parameterName": "{blank}",
+                        "comparison": "isEqualTo",
+                        "value": "0"
                       },
-                      {
-                        "columnId": "weeklyRuntime",
-                        "label": "Weekly runtime"
-                      }
-                    ]
-                  },
-                  "sortBy": []
+                      "name": "Servers query"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": " Heartbeat\r\n| where TimeGenerated > ago(7d) and ResourceProvider in ('Microsoft.Compute', 'Microsoft.HybridCompute') and Computer !contains \".\"\r\n| summarize heartbeats_per_hour=count() by bin(TimeGenerated, 1h), Computer, SubscriptionId\r\n| extend state_per_hour=iff(heartbeats_per_hour>0, true, false)\r\n| summarize total_running_hours=countif(state_per_hour==true) by Computer, SubscriptionId\r\n| where total_running_hours > 0 and isnotempty (SubscriptionId)",
+                        "size": 0,
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces",
+                        "crossComponentResources": [
+                          "{Workspace}"
+                        ],
+                        "gridSettings": {
+                          "rowLimit": 10000
+                        }
+                      },
+                      "conditionalVisibility": {
+                        "parameterName": "{blank}",
+                        "comparison": "isEqualTo",
+                        "value": "0"
+                      },
+                      "name": "Servers query 2"
+                    },
+                    {
+                      "type": 3,
+                      "content": {
+                        "version": "KqlItem/1.0",
+                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\",\"mergeType\":\"outer\",\"leftTable\":\"query - 2\",\"rightTable\":\"query - 3\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Total estimated Defender cost\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"SubId\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"subscriptionId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"subscriptionId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"SubscriptionId\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"machineName\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"name\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"name\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"Computer\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"weeklyRuntime\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\">\",\"rightValType\":\"static\",\"rightVal\":\"168\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}},{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"total_running_hours\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"weeklyRuntime\\\"] * 0.00672\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated monthly price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated price (7 days)\\\"]*4.345\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\"}}]},{\"originalName\":\"[query - 2].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].name\",\"mergedName\":\"name\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].type\",\"mergedName\":\"type\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].Computer\",\"mergedName\":\"Computer\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].total_running_hours\",\"mergedName\":\"total_running_hours\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].TimeGenerated\",\"mergedName\":\"TimeGenerated\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 3].heartbeats_per_hour\",\"mergedName\":\"heartbeats_per_hour\",\"fromId\":\"unknown\"}]}",
+                        "size": 0,
+                        "queryType": 7,
+                        "gridSettings": {
+                          "formatters": [
+                            {
+                              "columnMatch": "$gen_group",
+                              "formatter": 15,
+                              "formatOptions": {
+                                "linkTarget": "Resource",
+                                "linkIsContextBlade": true,
+                                "showIcon": true,
+                                "customColumnWidthSetting": "51ch"
+                              }
+                            },
+                            {
+                              "columnMatch": "Total estimated Defender cost",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "SubId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "machineName",
+                              "formatter": 13,
+                              "formatOptions": {
+                                "linkTarget": "Resource",
+                                "showIcon": true
+                              }
+                            },
+                            {
+                              "columnMatch": "Estimated price (7 days)",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "blue",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency",
+                                  "maximumFractionDigits": 2
+                                }
+                              }
+                            },
+                            {
+                              "columnMatch": "Estimated monthly price",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "yellow",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency",
+                                  "maximumFractionDigits": 2
+                                }
+                              }
+                            },
+                            {
+                              "columnMatch": "subscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "name",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "type",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "Computer",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "SubscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "total_running_hours",
+                              "formatter": 5
+                            }
+                          ],
+                          "rowLimit": 10000,
+                          "filter": true,
+                          "hierarchySettings": {
+                            "treeType": 1,
+                            "groupBy": [
+                              "Total estimated Defender cost",
+                              "SubId"
+                            ],
+                            "expandTopLevel": true
+                          },
+                          "labelSettings": [
+                            {
+                              "columnId": "Total estimated Defender cost",
+                              "label": "Subscription"
+                            },
+                            {
+                              "columnId": "machineName",
+                              "label": "Machine name"
+                            },
+                            {
+                              "columnId": "weeklyRuntime",
+                              "label": "Weekly runtime"
+                            }
+                          ]
+                        },
+                        "sortBy": []
+                      },
+                      "showPin": false,
+                      "name": "ServersP1 result"
+                    }
+                  ]
                 },
-                "showPin": false,
-                "name": "query - 8"
+                "conditionalVisibility": {
+                  "parameterName": "ServersPlan",
+                  "comparison": "isEqualTo",
+                  "value": "P1"
+                },
+                "name": "Plan 1"
               }
             ]
           },
@@ -2589,7 +2739,7 @@
             "comparison": "isEqualTo",
             "value": "Servers"
           },
-          "name": "group - 9"
+          "name": "Defender for Servers"
         },
         {
           "type": 12,
@@ -2657,14 +2807,14 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources"
                 },
-                "name": "parameters - 1"
+                "name": "KeyVault parameters"
               },
               {
                 "type": 1,
                 "content": {
                   "json": "## Microsoft Defender for Key Vault"
                 },
-                "name": "text - 11"
+                "name": "KeyVault heading"
               },
               {
                 "type": 1,
@@ -2676,7 +2826,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 6"
+                "name": "KeyVault text"
               },
               {
                 "type": 1,
@@ -2689,15 +2839,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 12"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions and Key Vaults as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 5"
+                "name": "KeyVault banner"
               },
               {
                 "type": 10,
@@ -2714,7 +2856,7 @@
                   ],
                   "timeContextFromParameter": "TimeRange",
                   "timeContext": {
-                    "durationMs": 604800000
+                    "durationMs": 0
                   },
                   "metrics": [
                     {
@@ -2767,7 +2909,7 @@
                   "comparison": "isEqualTo",
                   "value": "0"
                 },
-                "name": "metric - 3"
+                "name": "KeyVault metric"
               },
               {
                 "type": 3,
@@ -2810,17 +2952,9 @@
                       },
                       {
                         "columnMatch": "Estimated Price (7 days)",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "lightBlue",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "blue",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -2835,17 +2969,9 @@
                       },
                       {
                         "columnMatch": "Estimated Monthly Price",
-                        "formatter": 18,
+                        "formatter": 3,
                         "formatOptions": {
-                          "thresholdsOptions": "colors",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "yellow",
-                              "text": "{0}{1}"
-                            }
-                          ],
+                          "palette": "yellow",
                           "aggregation": "Sum"
                         },
                         "numberFormat": {
@@ -2859,6 +2985,8 @@
                         }
                       }
                     ],
+                    "rowLimit": 10000,
+                    "filter": true,
                     "hierarchySettings": {
                       "treeType": 1,
                       "groupBy": [
@@ -2880,7 +3008,7 @@
                   }
                 },
                 "showPin": false,
-                "name": "query - 4"
+                "name": "KeyVault query"
               }
             ]
           },
@@ -2900,29 +3028,21 @@
               {
                 "type": 1,
                 "content": {
-                  "json": "## Microsoft Defender for SQL"
+                  "json": "## Microsoft Defender for Databases"
                 },
-                "name": "text - 0"
+                "name": "Databases heading"
               },
               {
                 "type": 1,
                 "content": {
-                  "json": "This table considers all SQL servers and databases across your selected subscriptions. The results are measured from the last 7 days. Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\nYou can select estimations for open-source relational databases, SQL servers on machines and Azure SQL databases. "
+                  "json": "This section considers all SQL servers and databases across your selected subscriptions. The results are measured from the last 7 days. Estimated Monthly Price takes those 7 days as sample and calculates it for a month.\nYou can select estimations for open-source relational databases, SQL servers on machines and Azure SQL databases. "
                 },
                 "conditionalVisibility": {
                   "parameterName": "info",
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 6"
-              },
-              {
-                "type": 1,
-                "content": {
-                  "json": "Due to the limitations of Azure Monitor, please limit your selection of Subscriptions as you will only be able to see 250 rows at a time.",
-                  "style": "warning"
-                },
-                "name": "text - 5"
+                "name": "Databases text"
               },
               {
                 "type": 9,
@@ -2936,7 +3056,7 @@
                       "label": "Environment",
                       "type": 10,
                       "isRequired": true,
-                      "value": "OSS",
+                      "value": "Databases",
                       "typeSettings": {
                         "additionalResourceOptions": [],
                         "showDefault": false
@@ -2951,7 +3071,7 @@
                   "queryType": 0,
                   "resourceType": "microsoft.operationalinsights/workspaces"
                 },
-                "name": "parameters - 1"
+                "name": "Databases parameters"
               },
               {
                 "type": 12,
@@ -2970,13 +3090,13 @@
                         "comparison": "isEqualTo",
                         "value": "On"
                       },
-                      "name": "text - 4"
+                      "name": "SQLServer banner"
                     },
                     {
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "resources\r\n| where type == \"microsoft.sqlvirtualmachine/sqlvirtualmachines\" or type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n|summarize by name, subscriptionId\r\n|extend monthlyCost = 1 * 15\r\n|extend TotalEstimatedCost = \"Total Estimated Cost\"",
+                        "query": "resources\r\n| where type == \"microsoft.sqlvirtualmachine/sqlvirtualmachines\" or type == \"microsoft.azurearcdata/sqlserverinstances\"\r\n|summarize by id, subscriptionId\r\n|extend monthlyCost = 1 * 15\r\n|extend TotalEstimatedCost = \"Total Estimated Cost\"",
                         "size": 3,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
@@ -3000,17 +3120,9 @@
                             },
                             {
                               "columnMatch": "monthlyCost",
-                              "formatter": 18,
+                              "formatter": 3,
                               "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "yellow",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
+                                "palette": "yellow",
                                 "aggregation": "Sum"
                               },
                               "numberFormat": {
@@ -3031,6 +3143,8 @@
                               }
                             }
                           ],
+                          "rowLimit": 10000,
+                          "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
                             "groupBy": [
@@ -3040,7 +3154,7 @@
                           },
                           "labelSettings": [
                             {
-                              "columnId": "name",
+                              "columnId": "id",
                               "label": "Server"
                             },
                             {
@@ -3058,7 +3172,7 @@
                           ]
                         }
                       },
-                      "name": "query - 0"
+                      "name": "SQLServer query"
                     }
                   ]
                 },
@@ -3067,7 +3181,7 @@
                   "comparison": "isEqualTo",
                   "value": "Machines"
                 },
-                "name": "group - 3"
+                "name": "SQLServer "
               },
               {
                 "type": 12,
@@ -3086,13 +3200,13 @@
                         "comparison": "isEqualTo",
                         "value": "On"
                       },
-                      "name": "text - 3"
+                      "name": "OSRDB text"
                     },
                     {
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "resources\r\n| where type == \"microsoft.dbformysql/servers\"  or type == \"microsoft.dbforpostgresql/servers\" or type == \"microsoft.dbformariadb/servers\"\r\n|summarize by name, type, subscriptionId\r\n|extend TotalEstimatedCost= \"Total Estimated Cost\"\r\n|extend EstimatedMonthlyPrice = 1 *15",
+                        "query": "resources\r\n| where type == \"microsoft.dbformysql/servers\"  or type == \"microsoft.dbforpostgresql/servers\" or type == \"microsoft.dbformariadb/servers\"\r\n|summarize by id, subscriptionId\r\n|extend TotalEstimatedCost= \"Total Estimated Cost\"\r\n|extend EstimatedMonthlyPrice = 1 *15",
                         "size": 3,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
@@ -3108,6 +3222,30 @@
                                 "linkTarget": "Resource",
                                 "showIcon": true,
                                 "customColumnWidthSetting": "51ch"
+                              }
+                            },
+                            {
+                              "columnMatch": "subscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "TotalEstimatedCost",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "EstimatedMonthlyPrice",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "yellow",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency",
+                                  "maximumFractionDigits": 2
+                                }
                               }
                             },
                             {
@@ -3124,40 +3262,10 @@
                               "formatOptions": {
                                 "showIcon": true
                               }
-                            },
-                            {
-                              "columnMatch": "subscriptionId",
-                              "formatter": 5
-                            },
-                            {
-                              "columnMatch": "TotalEstimatedCost",
-                              "formatter": 5
-                            },
-                            {
-                              "columnMatch": "EstimatedMonthlyPrice",
-                              "formatter": 18,
-                              "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "yellow",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
-                                "aggregation": "Sum"
-                              },
-                              "numberFormat": {
-                                "unit": 0,
-                                "options": {
-                                  "currency": "USD",
-                                  "style": "currency",
-                                  "maximumFractionDigits": 2
-                                }
-                              }
                             }
                           ],
+                          "rowLimit": 10000,
+                          "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
                             "groupBy": [
@@ -3167,12 +3275,8 @@
                           },
                           "labelSettings": [
                             {
-                              "columnId": "name",
-                              "label": "Resource Name"
-                            },
-                            {
-                              "columnId": "type",
-                              "label": "Resource Type"
+                              "columnId": "id",
+                              "label": "Server"
                             },
                             {
                               "columnId": "TotalEstimatedCost",
@@ -3185,7 +3289,7 @@
                           ]
                         }
                       },
-                      "name": "query - 4"
+                      "name": "OSRDB query"
                     }
                   ]
                 },
@@ -3194,7 +3298,7 @@
                   "comparison": "isEqualTo",
                   "value": "OSS"
                 },
-                "name": "group - 2"
+                "name": "OSRDB"
               },
               {
                 "type": 12,
@@ -3205,7 +3309,7 @@
                     {
                       "type": 1,
                       "content": {
-                        "json": "### Price estimation is shown in the table below \r\nPrice estimation is based on the retail price of [$15 USD per server](https://azure.microsoft.com/pricing/calculator/). This calculation includes Azure SQL Database's Single databases and Elastic pools, Azure SQL Managed Instances and Azure Synapse (formerly SQL DW).",
+                        "json": "### Price estimation is shown in the table below \r\nPrice estimation is based on the retail price of [$15 USD per server](https://azure.microsoft.com/pricing/calculator/). This calculation includes Azure SQL Servers.",
                         "style": "info"
                       },
                       "conditionalVisibility": {
@@ -3213,13 +3317,13 @@
                         "comparison": "isEqualTo",
                         "value": "On"
                       },
-                      "name": "text - 1"
+                      "name": "SQLDB banner"
                     },
                     {
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "resources\r\n| where type == \"microsoft.sql/managedinstances\" or type == \"microsoft.sql/servers/databases\" or type == \"microsoft.sql/servers/elasticpools\" or type == \"microsoft.synapse/workspaces\"\r\n|summarize by name, type, subscriptionId\r\n|extend TotalEstimatedCost= \"Total Estimated Cost\"\r\n|extend EstimatedMonthlyPrice = 1 *15",
+                        "query": "resources\r\n| where type == \"microsoft.sql/servers\"\r\n|summarize by subscriptionId, id\r\n|extend TotalEstimatedCost= \"Total Estimated Cost\"\r\n|extend EstimatedMonthlyPrice = 1 *15",
                         "size": 3,
                         "queryType": 1,
                         "resourceType": "microsoft.resourcegraph/resources",
@@ -3235,6 +3339,29 @@
                                 "linkTarget": "Resource",
                                 "showIcon": true,
                                 "customColumnWidthSetting": "51ch"
+                              }
+                            },
+                            {
+                              "columnMatch": "subscriptionId",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "TotalEstimatedCost",
+                              "formatter": 5
+                            },
+                            {
+                              "columnMatch": "EstimatedMonthlyPrice",
+                              "formatter": 3,
+                              "formatOptions": {
+                                "palette": "yellow",
+                                "aggregation": "Sum"
+                              },
+                              "numberFormat": {
+                                "unit": 0,
+                                "options": {
+                                  "currency": "USD",
+                                  "style": "currency"
+                                }
                               }
                             },
                             {
@@ -3247,43 +3374,15 @@
                             },
                             {
                               "columnMatch": "type",
-                              "formatter": 16,
+                              "formatter": 13,
                               "formatOptions": {
+                                "linkTarget": null,
                                 "showIcon": true
-                              }
-                            },
-                            {
-                              "columnMatch": "subscriptionId",
-                              "formatter": 5
-                            },
-                            {
-                              "columnMatch": "TotalEstimatedCost",
-                              "formatter": 5
-                            },
-                            {
-                              "columnMatch": "EstimatedMonthlyPrice",
-                              "formatter": 18,
-                              "formatOptions": {
-                                "thresholdsOptions": "colors",
-                                "thresholdsGrid": [
-                                  {
-                                    "operator": "Default",
-                                    "thresholdValue": null,
-                                    "representation": "yellow",
-                                    "text": "{0}{1}"
-                                  }
-                                ],
-                                "aggregation": "Sum"
-                              },
-                              "numberFormat": {
-                                "unit": 0,
-                                "options": {
-                                  "currency": "USD",
-                                  "style": "currency"
-                                }
                               }
                             }
                           ],
+                          "rowLimit": 10000,
+                          "filter": true,
                           "hierarchySettings": {
                             "treeType": 1,
                             "groupBy": [
@@ -3293,12 +3392,8 @@
                           },
                           "labelSettings": [
                             {
-                              "columnId": "name",
+                              "columnId": "id",
                               "label": "Resource Name"
-                            },
-                            {
-                              "columnId": "type",
-                              "label": "Resource Type"
                             },
                             {
                               "columnId": "TotalEstimatedCost",
@@ -3311,7 +3406,7 @@
                           ]
                         }
                       },
-                      "name": "query - 2"
+                      "name": "SQLDB query"
                     }
                   ]
                 },
@@ -3320,7 +3415,7 @@
                   "comparison": "isEqualTo",
                   "value": "Databases"
                 },
-                "name": "group - 4"
+                "name": "SQLDB"
               }
             ]
           },
@@ -3329,12 +3424,12 @@
             "comparison": "isEqualTo",
             "value": "SQL"
           },
-          "name": "group - 11"
+          "name": "Databases"
         }
       ],
       "isLocked": false,
       "fallbackResourceIds": [
-        "azure security center"
+        "Azure Security Center"
       ],
       "fromTemplateId": "DefenderForCloudPriceEstimation"
     }
