@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "Workbook 3",
+      "defaultValue": "Defender for Cloud Price Estimation",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -39,7 +39,7 @@
           "content": {
             "json": "## Defender for Cloud Pricing Estimation Dashboard\nThis workbook has been created to provide a consolidated price estimation for Microsoft Defender for Cloud plans based on the resource telemetry in your own environment. Please note that these numbers can only be estimates based on retail prices and do not provide actual billing data."
           },
-          "name": "text - 3"
+          "name": "main text"
         },
         {
           "type": 1,
@@ -83,7 +83,12 @@
             "json": "Due to the limitations of Azure Monitor, you will only be able to see 10,000 rows at a time.",
             "style": "warning"
           },
-          "name": "text - 13"
+          "conditionalVisibility": {
+            "parameterName": "info",
+            "comparison": "isNotEqualTo",
+            "value": "Off"
+          },
+          "name": "main banner"
         },
         {
           "type": 9,
@@ -710,7 +715,7 @@
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
-                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\",\"mergeType\":\"table\",\"leftTable\":\"arcQuery\"}],\"projectRename\":[{\"originalName\":\"[arcQuery].clusterName\",\"mergedName\":\"clusterName\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[arcQuery].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[arcQuery].physicalCoresCount\",\"mergedName\":\"physicalCoresCount\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"freeScans\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"physicalCoresCount\\\"] * 20\"}}]},{\"originalName\":\"[arcQuery].estimatedMonthlyCost\",\"mergedName\":\"estimatedMonthlyCost\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'Total estimated Defender cost'\"}}]}]}",
+                        "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\",\"mergeType\":\"table\",\"leftTable\":\"ArcK8s query\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"freeScans\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"physicalCoresCount\\\"] * 20\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'Total estimated Defender cost'\"}}]},{\"originalName\":\"[ArcK8s query].clusterName\",\"mergedName\":\"clusterName\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[ArcK8s query].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[ArcK8s query].physicalCoresCount\",\"mergedName\":\"physicalCoresCount\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"},{\"originalName\":\"[ArcK8s query].estimatedMonthlyCost\",\"mergedName\":\"estimatedMonthlyCost\",\"fromId\":\"14a965f5-e5c5-42b2-b0bd-382f9dc3a0ca\"}]}",
                         "size": 3,
                         "queryType": 7,
                         "gridSettings": {
@@ -778,6 +783,15 @@
                           },
                           "labelSettings": [
                             {
+                              "columnId": "freeScans",
+                              "label": "Container image scans included",
+                              "comment": "Number of images included to be scanned at no additional cost"
+                            },
+                            {
+                              "columnId": "Total estimated Defender cost",
+                              "label": "Subscription"
+                            },
+                            {
                               "columnId": "clusterName",
                               "label": "Cluster name"
                             },
@@ -786,17 +800,8 @@
                               "label": "Number of vCores"
                             },
                             {
-                              "columnId": "freeScans",
-                              "label": "Container image scans included",
-                              "comment": "Number of images included to be scanned at no additional cost"
-                            },
-                            {
                               "columnId": "estimatedMonthlyCost",
                               "label": "Estimated monthly price"
-                            },
-                            {
-                              "columnId": "Total estimated Defender cost",
-                              "label": "Subscription"
                             }
                           ]
                         }
@@ -848,7 +853,7 @@
                 "content": {
                   "json": "## Microsoft Defender for Cloud coverage by subscriptions"
                 },
-                "name": "text - 1"
+                "name": "Overview heading"
               },
               {
                 "type": 1,
@@ -860,7 +865,7 @@
                   "comparison": "isEqualTo",
                   "value": "On"
                 },
-                "name": "text - 2"
+                "name": "Overview text"
               },
               {
                 "type": 3,
@@ -1373,7 +1378,7 @@
                   "comparison": "isEqualTo",
                   "value": "Overview"
                 },
-                "name": "query - 4"
+                "name": "Overview query"
               }
             ]
           },
@@ -1782,7 +1787,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\",\"mergeType\":\"table\",\"leftTable\":\"metric - 3\"}],\"projectRename\":[{\"originalName\":\"[metric - 3].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[metric - 3].Name\",\"mergedName\":\"Name\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[metric - 3].microsoft.web/sites--CpuTime\",\"mergedName\":\"CPU Time (Sum)\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[metric - 3].microsoft.web/sites--CpuTime Timeline\",\"mergedName\":\"CPU Time Timeline\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"CPU Time\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"CPU Time (Sum)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"CPU Time (Sum)\\\"])/3600\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"CPU Time\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"CPU Time\\\"]*0.02\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Cost\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Monthly Price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated Price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated Price (7 days)\\\"]*4.35\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]}]}",
+                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\",\"mergeType\":\"table\",\"leftTable\":\"AppService metric\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"CPU Time\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"CPU Time (Sum)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"CPU Time (Sum)\\\"])/3600\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"CPU Time\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"CPU Time\\\"]*0.02\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Cost\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Monthly Price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated Price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated Price (7 days)\\\"]*4.35\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[AppService metric].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[AppService metric].Name\",\"mergedName\":\"Name\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[AppService metric].microsoft.web/sites--CpuTime\",\"mergedName\":\"CPU Time (Sum)\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"},{\"originalName\":\"[AppService metric].microsoft.web/sites--CpuTime Timeline\",\"mergedName\":\"CPU Time Timeline\",\"fromId\":\"5d53c9ab-e18d-4145-83f5-e0f549c18313\"}]}",
                   "size": 3,
                   "queryType": 7,
                   "gridSettings": {
@@ -1881,16 +1886,16 @@
                     },
                     "labelSettings": [
                       {
-                        "columnId": "Name",
-                        "label": "App Service"
-                      },
-                      {
                         "columnId": "CPU Time",
                         "label": "Weekly Runtime"
                       },
                       {
                         "columnId": "Total Estimated Cost",
                         "label": "Subscription"
+                      },
+                      {
+                        "columnId": "Name",
+                        "label": "App Service"
                       }
                     ]
                   }
@@ -2105,7 +2110,7 @@
                   "comparison": "isEqualTo",
                   "value": "0"
                 },
-                "name": "Storage metric"
+                "name": "metric - 2"
               },
               {
                 "type": 3,
@@ -2382,7 +2387,7 @@
                         "comparison": "isEqualTo",
                         "value": "0"
                       },
-                      "name": "ServersP2 query"
+                      "name": "query - 2"
                     },
                     {
                       "type": 3,
@@ -2404,14 +2409,14 @@
                         "comparison": "isEqualTo",
                         "value": "0"
                       },
-                      "name": "ServersP2 query 2"
+                      "name": "query - 3"
                     },
                     {
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
                         "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\",\"mergeType\":\"outer\",\"leftTable\":\"query - 2\",\"rightTable\":\"query - 3\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Total estimated Defender cost\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"SubId\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"subscriptionId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"subscriptionId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"SubscriptionId\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"machineName\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"name\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"name\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"Computer\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"weeklyRuntime\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\">\",\"rightValType\":\"static\",\"rightVal\":\"168\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}},{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"total_running_hours\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"weeklyRuntime\\\"] * 0.02\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated monthly price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated price (7 days)\\\"]*4.345\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\"}}]},{\"originalName\":\"[query - 2].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].name\",\"mergedName\":\"name\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].type\",\"mergedName\":\"type\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].Computer\",\"mergedName\":\"Computer\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].total_running_hours\",\"mergedName\":\"total_running_hours\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].TimeGenerated\",\"mergedName\":\"TimeGenerated\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 3].heartbeats_per_hour\",\"mergedName\":\"heartbeats_per_hour\",\"fromId\":\"unknown\"}]}",
-                        "size": 0,
+                        "size": 3,
                         "queryType": 7,
                         "gridSettings": {
                           "formatters": [
@@ -2577,7 +2582,7 @@
                         "comparison": "isEqualTo",
                         "value": "0"
                       },
-                      "name": "Servers query"
+                      "name": "query - 2"
                     },
                     {
                       "type": 3,
@@ -2599,14 +2604,14 @@
                         "comparison": "isEqualTo",
                         "value": "0"
                       },
-                      "name": "Servers query 2"
+                      "name": "query - 3"
                     },
                     {
                       "type": 3,
                       "content": {
                         "version": "KqlItem/1.0",
                         "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\",\"mergeType\":\"outer\",\"leftTable\":\"query - 2\",\"rightTable\":\"query - 3\",\"leftColumn\":\"name\",\"rightColumn\":\"Computer\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"\\\"Total estimated Defender cost\\\"\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"SubId\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"subscriptionId\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"subscriptionId\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"SubscriptionId\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"machineName\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"name\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"name\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"Computer\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"weeklyRuntime\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\">\",\"rightValType\":\"static\",\"rightVal\":\"168\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}},{\"criteriaContext\":{\"leftOperand\":\"total_running_hours\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"total_running_hours\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"24*7\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated price (7 days)\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"weeklyRuntime\\\"] * 0.00672\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated monthly price\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"Estimated price (7 days)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"Estimated price (7 days)\\\"]*4.345\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"column\"}}]},{\"originalName\":\"[query - 2].subscriptionId\",\"mergedName\":\"subscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].name\",\"mergedName\":\"name\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 2].type\",\"mergedName\":\"type\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].Computer\",\"mergedName\":\"Computer\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].SubscriptionId\",\"mergedName\":\"SubscriptionId\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].total_running_hours\",\"mergedName\":\"total_running_hours\",\"fromId\":\"70774d0c-4d25-4bae-9d9b-bcbcf8a39057\"},{\"originalName\":\"[query - 3].TimeGenerated\",\"mergedName\":\"TimeGenerated\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 3].heartbeats_per_hour\",\"mergedName\":\"heartbeats_per_hour\",\"fromId\":\"unknown\"}]}",
-                        "size": 0,
+                        "size": 3,
                         "queryType": 7,
                         "gridSettings": {
                           "formatters": [
@@ -2909,7 +2914,7 @@
                   "comparison": "isEqualTo",
                   "value": "0"
                 },
-                "name": "KeyVault metric"
+                "name": "metric - 3"
               },
               {
                 "type": 3,
@@ -3007,7 +3012,6 @@
                     ]
                   }
                 },
-                "showPin": false,
                 "name": "KeyVault query"
               }
             ]
