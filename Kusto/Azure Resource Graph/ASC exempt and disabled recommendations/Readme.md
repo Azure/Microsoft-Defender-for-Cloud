@@ -1,4 +1,4 @@
-# ASC exempt and disabled recommendations
+# Microsoft Defender for Cloud exempt and disabled recommendations
 Azure Resource Graph (ARG) provides an efficient way to query at scale across a given set of subscriptions for any Azure Resource (for more information please visit https://docs.microsoft.com/en-us/azure/governance/resource-graph/). This query returns a list of the Azure Resources that have recommendations that are Exempt due to Waiver or Mitigation and also Policy being disabled. Can be used as a quick report for auditors or tracking down exemptions and disabled policies for review.
 
 
