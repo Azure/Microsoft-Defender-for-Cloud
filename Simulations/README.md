@@ -53,6 +53,11 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 - [Defender for App Service](https://docs.microsoft.com/en-us/azure/security-center/defender-for-app-service-introduction)
 
+## Alert Simulation for Defender for SQL on Machines
+- [This article](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/validating-alerts-on-microsoft-defender-for-sql-on-machines/ba-p/3070714) go over the steps to simulate an attack that can be identified by Defender for SQL on Machines.
+
+- [Defender for SQL on Machine](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage)
+
 ## Threat Hunting in Microsoft Defender for Cloud and Log Analytics Workspace
 
 - This simulation playbook go over a threat hunting scenario using Microsoft Defender for Cloud and searching for evidences of attack in Log Analtyics workspace.
