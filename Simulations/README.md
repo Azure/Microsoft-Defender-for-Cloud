@@ -5,7 +5,7 @@ There are many ways to simulate an alert in Microsoft Defender for Cloud and if 
 
 ## Alert Simulation for  Defender for Servers (Azure and Non-Azure VMs - Windows)
 
-- Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Security%20Alerts%20Playbook_v2.pdf) and follow the steps to configure a lab environment to test Windows VM-based threat detection.
+- Download this [PDF](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Simulations/Microsoft%20Defender%20for%20Cloud%20Security%20Alerts%20Playbook_v3.pdf) and follow the steps to configure a lab environment to test Windows VM-based threat detection.
 
 - [Defender for Servers - Windows documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#windows-)
 
