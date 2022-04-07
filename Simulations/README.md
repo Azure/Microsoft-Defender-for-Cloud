@@ -15,7 +15,7 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 ## Alert Simulation for  Defender for Servers (Azure and Non-Azure VMs - Linux)
 
-- Download this [PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Linux%20Detections_v2.pdf) and follow the steps to configure a lab environment to test Linux VM-based threat detection.
+- Download this [PDF](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Simulations/Microsoft%20Defender%20for%20cloud%20Linux%20Detections%20V3.pdf) and follow the steps to configure a lab environment to test Linux VM-based threat detection.
 
 - [Defender for Server - Linux documentation](https://docs.microsoft.com/en-us/azure/security-center/security-center-alerts-iaas#linux-)
 
