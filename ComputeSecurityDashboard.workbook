@@ -1,0 +1,459 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "45d227d9-af00-4423-a2aa-ddb57c99cece",
+            "version": "KqlParameterItem/1.0",
+            "name": "SubscriptionName",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "/subscriptions/4609c440-1433-4cc4-82e1-1618f7e4389f"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [],
+              "includeAll": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            }
+          }
+        ],
+        "style": "pills",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 0"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "0b98a623-1697-45bd-87d3-9caf7c264e74",
+            "cellValue": "vmtab",
+            "linkTarget": "parameter",
+            "linkLabel": " Virtual Machine inventory",
+            "subTarget": "vmlist",
+            "preText": "Orphaned Assets",
+            "style": "link"
+          },
+          {
+            "id": "9f098434-47b4-4d8e-8163-799ff94e6a7b",
+            "cellValue": "vmtab",
+            "linkTarget": "parameter",
+            "linkLabel": "Orphaned  Assets",
+            "subTarget": "orphanedasset",
+            "style": "link"
+          },
+          {
+            "id": "1bac5252-8da9-447a-adb3-6d58adb599c7",
+            "cellValue": "vmtab",
+            "linkTarget": "parameter",
+            "linkLabel": "Virtual Machine Status",
+            "subTarget": "vmstatus",
+            "style": "link"
+          },
+          {
+            "id": "8fd42c76-d68a-4219-831b-1b17d2da580b",
+            "cellValue": "vmtab",
+            "linkTarget": "parameter",
+            "linkLabel": "Security Recommendations",
+            "subTarget": "vmrecom",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 6"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' \r\n| where isnull(properties.storageProfile.osDisk.managedDisk)",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "List of VMs not having Managed Disks ",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmstatus"
+      },
+      "customWidth": "50",
+      "name": "query - 1",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "GuestConfigurationResources\r\n| where name in ('WindowsPendingReboot')\r\n| project id, name, resources = properties.latestAssignmentReport.resources, vmid = split(properties.targetResourceId,'/'), status = tostring(properties.complianceStatus)\r\n| extend resources = iff(isnull(resources[0]), dynamic([{}]), resources)\r\n| mvexpand resources\r\n| extend reasons = resources.reasons\r\n| extend reasons = iff(isnull(reasons[0]), dynamic([{}]), reasons)\r\n| mvexpand reasons\r\n| project id, vmid, name, status, resource = resources.resourceId, reason = reasons.phrase\r\n| summarize name = any(name), status = any(status), vmid = any(vmid), resources = make_list_if(resource, isnotnull(resource)), reasons = make_list_if(reason, isnotnull(reason)) by id = tolower(id)\r\n| project id, machine = tostring(vmid[(-1)]), type = tostring(vmid[(-3)]), name, status, reasons",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "List of VMs with pending reboot status",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmstatus"
+      },
+      "customWidth": "50",
+      "name": "query - 2",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.extended.instanceView.powerState.code != 'PowerState/running'\r\n| project vmName = name, power = properties.extended.instanceView.powerState.code\r\n| join kind = leftouter (GuestConfigurationResources\r\n\t| extend vmName = tostring(split(properties.targetResourceId,'/')[(-1)])\r\n\t| project vmName, name, compliance = properties.complianceStatus) on vmName | project-away vmName1",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "List of VMs shut down with their compliance state",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmstatus"
+      },
+      "customWidth": "50",
+      "name": "query - 3",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources \r\n| where type == 'microsoft.compute/virtualmachines' \r\n| extend JoinID = toupper(id), VMName = tostring(properties.osProfile.computerName), OSType = tostring(properties.storageProfile.osDisk.osType), VMSize = tostring(properties.hardwareProfile.vmSize)\r\n| join kind=leftouter( Resources \r\n| where type == 'microsoft.compute/virtualmachines/extensions' \r\n| extend VMId = toupper(substring(id, 0, indexof(id, '/extensions'))), ExtensionName = name ) on $left.JoinID == $right.VMId \r\n| summarize Extensions = make_list(ExtensionName) by id, VMName, OSType, VMSize \r\n| order by tolower(VMName) asc",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "List of extensions in VMs",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmstatus"
+      },
+      "customWidth": "50",
+      "name": "query - 4",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "securityresources\r\n| where type =~ \"microsoft.security/assessments\"\r\n| where properties.status.code == \"Unhealthy\"\r\n| extend ResourceId = tolower(tostring(properties.resourceDetails.Id))\r\n| project DisplayName = tostring(properties.displayName),\r\nResourceId = tolower(properties.resourceDetails.Id),\r\nname,\r\nSeverity = tostring(properties.metadata.severity),\r\nSeverityRank = case(\r\n    properties.metadata.severity == 'High', 3,\r\n    properties.metadata.severity == 'Medium', 2,\r\n    properties.metadata.severity == 'Low', 1,\r\n    0\r\n    ),\r\nResourceType = tostring(split(id, \"/\")[6])\r\n| join kind=inner (securityresources\r\n| where type == 'microsoft.security/securescores/securescorecontrols'\r\n| extend AssessmentDefinitions = parse_json(properties.definition.properties.assessmentDefinitions)\r\n| mvexpand AssessmentDefinitions\r\n| extend name = tostring(split(AssessmentDefinitions.id, \"/\")[4])) on name\r\n| where ResourceType in ('microsoft.compute')\r\n| summarize ResourceCount = count() by DisplayName, name, ControlName = tostring(properties.displayName), SeverityRank, Severity\r\n| sort by SeverityRank, ResourceCount desc",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Compute Security Recommendations",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ],
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "DisplayName",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "OpenBlade",
+                "bladeOpenContext": {
+                  "bladeName": "RecommendationsBlade",
+                  "extensionName": "Microsoft_Azure_Security",
+                  "bladeParameters": [
+                    {
+                      "name": "assessmentKey",
+                      "source": "column",
+                      "value": "name"
+                    }
+                  ]
+                },
+                "customColumnWidthSetting": "80ch"
+              }
+            },
+            {
+              "columnMatch": "name",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "SeverityRank",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Severity",
+              "formatter": 18,
+              "formatOptions": {
+                "thresholdsOptions": "icons",
+                "thresholdsGrid": [
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Medium",
+                    "representation": "2",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "High",
+                    "representation": "4",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "==",
+                    "thresholdValue": "Low",
+                    "representation": "1",
+                    "text": "{0}{1}"
+                  },
+                  {
+                    "operator": "Default",
+                    "thresholdValue": null,
+                    "representation": "success",
+                    "text": "{0}{1}"
+                  }
+                ]
+              }
+            },
+            {
+              "columnMatch": "ResourceCount",
+              "formatter": 3,
+              "formatOptions": {
+                "palette": "red"
+              }
+            }
+          ],
+          "labelSettings": [
+            {
+              "columnId": "DisplayName",
+              "label": "Recommendation name"
+            },
+            {
+              "columnId": "ControlName",
+              "label": "Control name"
+            },
+            {
+              "columnId": "ResourceCount",
+              "label": "Resource count"
+            }
+          ]
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmrecom"
+      },
+      "name": "query - 5",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project name, OS, location, resourceGroup\r\n| order by name desc",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "List of Virtual Machines",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmlist"
+      },
+      "name": "query - 7",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| summarize count() by location\r\n//| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n//| project name, OS, location, resourceGroup\r\n",
+        "size": 0,
+        "title": "VM Location",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ],
+        "visualization": "map",
+        "mapSettings": {
+          "locInfo": "AzureLoc",
+          "locInfoColumn": "location",
+          "sizeAggregation": "Sum",
+          "labelSettings": "location",
+          "legendAggregation": "Sum",
+          "itemColorSettings": null
+        }
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "vmlist"
+      },
+      "name": "query - 8",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources    \r\n| where type has \"microsoft.compute/disks\"   \r\n| extend diskState = tostring(properties.diskState)  \r\n| where managedBy == \"\" and diskState != 'ActiveSAS'  \r\nor diskState == 'Unattached' and diskState != 'ActiveSAS'   \r\n| project id, diskState, resourceGroup, location, subscriptionId",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Orphaned Disks",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "orphanedasset"
+      },
+      "customWidth": "50",
+      "name": "query - 9",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources  \r\n| where type =~ \"microsoft.network/networkinterfaces\"  \r\n| join kind=leftouter (resources  \r\n| where type =~ 'microsoft.network/privateendpoints'  \r\n| extend nic = todynamic(properties.networkInterfaces)  \r\n| mv-expand nic  \r\n| project id=tostring(nic.id) ) on id  \r\n| where isempty(id1)  \r\n| where properties !has 'virtualmachine'    \r\n| project id, resourceGroup, location, subscriptionId ",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Orphaned Network Interface Cards",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "orphanedasset"
+      },
+      "customWidth": "50",
+      "name": "query - 10",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources  \r\n| where type =~ 'microsoft.compute/availabilitysets'  \r\n| extend VirtualMachines = array_length(properties.virtualMachines)  \r\n| where VirtualMachines == 0  ",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Orphaned Availability Sets",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "orphanedasset"
+      },
+      "customWidth": "50",
+      "name": "query - 11",
+      "styleSettings": {
+        "showBorder": true
+      }
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "resources  \r\n| where type =~ 'microsoft.network/publicipaddresses'  \r\n| extend IpConfig = properties.ipConfiguration.id  \r\n| where isempty(IpConfig)",
+        "size": 0,
+        "showAnalytics": true,
+        "title": "Orphaned Public IPs",
+        "showExportToExcel": true,
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{SubscriptionName}"
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "vmtab",
+        "comparison": "isEqualTo",
+        "value": "orphanedasset"
+      },
+      "customWidth": "50",
+      "name": "query - 12",
+      "styleSettings": {
+        "showBorder": true
+      }
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Security Center"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
