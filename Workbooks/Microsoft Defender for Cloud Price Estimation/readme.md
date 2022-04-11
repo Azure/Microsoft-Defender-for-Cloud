@@ -9,15 +9,13 @@ This workbook provides price estimations for various Microsoft Defender for Clou
 * Microsoft Defender for Key Vaults
 * Microsoft Defender for Servers
 * Microsoft Defender for Storage
-* Microsoft Defender for Databases (including SQL PaaS, SQL on machines, open-source relational databases)
+* Microsoft Defender for Databases
 
-## Try it on the Azure Portal
+## Deprecation notice
 
-You can deploy the workbook by clicking on the button below:
+This workbook template has been removed from the repository as it has been natively integrated into Microsoft Defender for Cloud's workbook gallery. To open this workbook, in Microsoft Defender for Cloud, just click the *Workbooks* option in the left navigation pane.
 
-<a href="https://aka.ms/AAg29zc" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-
-![Overview](./overview.png)
+![Dashboard](./dashboard.gif)
 
 ## Acknowledgements
 Special thanks to **Fernanda Vela**, **Helder Pinto**, **Lili Davoudian**, **Sarah Kriwet**, **Safeena Begum Lepakshi** and **Tom Janetscheck** for contributing their code to this consolidated workbook.

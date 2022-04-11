@@ -8,4 +8,4 @@ Microsoft Defender for Cloud plans are enabled per subscription and per cloud co
 
 ## Deprecation notice
 
-This workbook tempplate has been removed from the repository as it has been natively integrated into Microsoft Defender for Cloud's workbook gallery. To open this workbook, in Microsoft Defender for Cloud, just click the *Workbooks* option in the left navigation pane.
+This workbook template has been removed from the repository as it has been natively integrated into Microsoft Defender for Cloud's workbook gallery. To open this workbook, in Microsoft Defender for Cloud, just click the *Workbooks* option in the left navigation pane.
