@@ -62,4 +62,4 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 - This simulation playbook go over a threat hunting scenario using Microsoft Defender for Cloud and searching for evidences of attack in Log Analtyics workspace.
 
-- Download [this PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Hunting%20Playbook_V2.pdf) and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.
+- Download [this PDF](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Simulations/Microsoft%20Defender%20for%20Cloud%20Hunting%20Playbook_V3.pdf) and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.
