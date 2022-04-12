@@ -31,7 +31,7 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 ## Alert Simulation for Defender for Storage
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-atp-for-azure-storage-detections-in-azure-security/ba-p/1068131) go over the steps to simulate an upload of a test malware (EICAR) to an Azure Storage account that has Defender for Storage enabled.
 
-- [Azure Defender Storage](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
+- [Defender Storage](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
 
 ## Alert Simulation for Defender for Key Vault
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-key-vault-threat-detection-in-azure-security/ba-p/1220336) go over the steps to simulate an anonymizer access to the Key Vault using a TOR browser.
