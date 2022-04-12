@@ -23,7 +23,7 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 
 ## Alert Simulation for  Defender for Containers
-- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/how-to-demonstrate-the-new-containers-features-in-azure-security/ba-p/1011270) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
+- [This article](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/how-to-demonstrate-the-new-containers-features-in-microsoft/ba-p/3281172) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
 
 - [Azure Defender for ACR](https://docs.microsoft.com/en-us/azure/security-center/defender-for-container-registries-introduction)
 
