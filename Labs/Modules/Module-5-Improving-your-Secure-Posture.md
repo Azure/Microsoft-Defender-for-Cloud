@@ -10,21 +10,19 @@ This exercise guides you how to use the vulnerability assessment for virtual mac
 
 ### Exercise 1: Vulnerability assessment for VMs
 
-With Azure Defender for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs.
-Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Azure Security Center console.
-When a machine is found that doesn't have vulnerability assessment solution deployed, Azure Security Center generates a recommendation: *A vulnerability assessment solution should be enabled on your virtual machines*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
+With Microsoft Defender for Cloud for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs. Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Microsoft Defender for Cloud console. When a machine is found that doesn't have *vulnerability* assessment solution deployed, Microsoft Defender for Cloud generates a recommendation: *A vulnerability assessment solution should be enabled on your virtual machines*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
 
 **Explore vulnerability assessment recommendations:**
 
-1.	From Security Center sidebar, click on **Recommendations**.
+1.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
 2.	Expend **Remediate vulnerabilities** security control (which contains all recommendations related to security vulnerabilities).
 3.	Make sure you have *A vulnerability assessment solution should be enabled on your virtual machines* recommendation. If you don’t have this recommendation on the list, you will probably need 24 hours to have the recommendation with the assessment.
 4.	Open the **A vulnerability assessment solution should be enabled on your virtual machines” recommendation** – this recommendation is a Quick Fix one which allows you to deploy the VM extension on the desired VMs.
 5.	Expend **Remediation steps** – in addition to the Quick Fix remediation option, you can also use the **view recommendation logic** option to expose an automatic remediation script content (ARM template). **Close this window.**
-6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Remediate**.
-7.	On the **Choose a vulnerability assessment solution** select **Recommended: Deploy ASC integrated vulnerability scanner powered by Qualys (included in Azure Defender for servers)**. Click **Proceed**.
+6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Fix**.
+7.	On the **Choose a vulnerability assessment solution** select **Recommended: Deploy ASC integrated vulnerability scanner powered by Qualys (included in Microsoft Defender for Cloud for servers)**. Click **Proceed**.
 8.	A window opens, review the list of VMs and click **Remediate 2 resource** button.
-9.	Remediation is now in process. Azure Security Center will deploy the Qualys VM extension on the selected VMs, so you track the status using the notification area or by using Azure activity log. Wait 5-10 minutes for the process to complete.
+9.	Remediation is now in process. Microsoft Defender for Cloud will deploy the Qualys VM extension on the selected VMs, so you track the status using the notification area or by using Azure activity log. Wait 5-10 minutes for the process to complete.
 
 > Note: You can find a list of supported operating systems [here](https://docs.microsoft.com/en-us/azure/security-center/deploy-vulnerability-assessment-vm#deploy-the-integrated-scanner-to-your-azure-and-hybrid-machines).
 
@@ -41,7 +39,7 @@ When a machine is found that doesn't have vulnerability assessment solution depl
 
 **View and remediate vulnerability assessment findings:**
 
-1.	From Security Center sidebar, click on **Recommendations**.
+1.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
 2.	Expend **Remediate vulnerabilities** security control (which contains all recommendations related to security vulnerabilities).
 3.	Search for **Vulnerabilities in your virtual machines should be remediated**.
 4.	On the Security Checks, you should see a list of vulnerabilities found on the affected resources.
@@ -52,7 +50,7 @@ When a machine is found that doesn't have vulnerability assessment solution depl
 
 ### Exercise 2: Vulnerability assessment for Containers
 
-Azure Security Center scans images in your ACR (Azure Container Registry) that are pushed to the registry, imported into the registry, or any images pulled within the last 30 day.
+Microsoft Defender for Cloud scans images in your ACR (Azure Container Registry) that are pushed to the registry, imported into the registry, or any images pulled within the last 30 day.
 Then, it exposes detailed findings per image. All vulnerabilities can be found in the following recommendation: Vulnerabilities in Azure Container Registry images should be remediated (powered by Qualys).
 
 To simulate a container registry image with vulnerabilities, we will use ACR tasks commands and sample image:
@@ -78,33 +76,34 @@ az acr build --image sample/hello-world:v1 --registry <your container registry n
 
 5. Wait for a successful execution message to appear. For example: Run ID: cb1 was successful after 23s
 6.	The scan completes typically within few minutes, but it might take up to 15 minutes for the vulnerabilities/security findings to appear on the recommendation.
-7.	From Security Center sidebar, click on **Recommendations**.
+7.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
 8.	Expend **Remediate vulnerabilities** security control and select **Vulnerabilities in Azure Container Registry images should be remediated (powered by Qualys)**.
 9.	On the recommendation page, notice the following details at the upper section:
     - Unhealthy registries: *1/1*
     - Severity of recommendation: *High*
-    - Total vulnerabilities: *expect to see more than 2 vulnerabilities*
+    - Total vulnerabilities: *expect to see 2 or more vulnerabilities*
 10.	Expend the **Affected resources** section and notice the **Unhealthy registries** count which shows **1 container registry** (asclab-xxx).
 11.	On the **Security Checks** section, notice the number of vulnerabilities.
-12.	Click on the first security check to open the right pane.
-Notice the vulnerability description, general information (containing the Svss 3.0 base score, SVEs, etc.), remediation steps/workaround, additional information, and the affected (vulnerable) image. **Close this window.**
+12.	Click on the first security check to open the right pane. Notice the vulnerability description, general information, remediation, and the affected resources. **Close this window.**
+
+![](../Images/Lab5vul2.gif?raw=true)
 
 ### Exercise 3: Automate recommendations with workflow automation
 
 Every security program includes multiple workflows for incident response. These processes might include notifying relevant stakeholders, launching a change management process, and applying specific remediation steps.
-Using workflow automation, you can trigger logic apps to automate processes in real-time with Security Center events (security alerts or recommendations).
+Using workflow automation, you can trigger logic apps to automate processes in real-time with Microsoft Defender for Cloud events (security alerts or recommendations).
 In this lab, you will create a new Logic App and then trigger it automatically using workflow automation feature when there is a change with a specific recommendation.
 
 **Create a new Logic App:**
 1.	On the Azure Portal, type *Logic Apps* on the search field at the top or [click here](https://ms.portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Logic%2Fworkflows).
 2.	Click **Add** to create a new Logic App.
 3.	On the Basics tab, select **Azure subscription 1** and resource group **asclab**.
-4.	On the Logic app name field enter *Send-RecommendationsChanges*.
+4.	On the Logic app name field enter *SendRecommendationsChanges*, and type: *Consumption*.
 5.	Select location, for example: **West Europe** (it’s recommended to use the same region as used in the previous exercises).
-6.	Keep Log Analytics option as **Off**.
+6.	Leave all other options as per the default.
 7.	Select **Review + Creation** and then **Create**.
 8.	The Logic Apps Designer opens, select **Blank Logic App**.
-9.	At the search control, type *Security Center* and select **When an Azure Security Center Recommendation is created or triggered**.
+9.	At the search control, type *Microsoft Defender for Cloud* and select **When an Microsoft Defender for Cloud Recommendation is created or triggered**.
 10.	Click on new step and type *Outlook.com*.
 11. Scroll down the list, and click **Send an email (V2)** action to add it to the Designer.
 
@@ -136,7 +135,7 @@ Link to recommendation: `Properties Links Azure Portal Uri`</br>
 ![Logic App worklfow](../Images/asc-logic-app-workflow.gif?raw=true)
 
 **Create a new workflow automation instance**
-1.	From Security Center's sidebar, select **Workflow automation**.
+1.	From Microsoft Defender for Cloud's sidebar, select **Workflow automation** which is found under the **Management** section.
 2.	Click **Add workflow automation**.
 3.	A pane appears on the right side. Enter the following for each field:
     - General:
@@ -145,7 +144,7 @@ Link to recommendation: `Properties Links Azure Portal Uri`</br>
         - Subscription: *Azure subscription 1*
         - Resource group: *asclab*
     - Trigger conditions:
-        - Select Security Center data types: *Security Center recommendations*
+        - Select Microsoft Defender for Cloud data types: *Microsoft Defender for Cloud recommendations*
         - Recommendations name: *All recommendations selected*
         - Recommendation severity: *All severities selected*
         - Recommendation state: *All states selected*
@@ -163,12 +162,12 @@ Once you start to get email notifications, you can disable the automation by sel
 ![Workflow automation generated email message](../Images/asc-workflow-automation-automated-email.gif?raw=true)
 
 6.	Test/trigger your automation manually:
-    - On Security Center sidebar, click on **Recommendations**.
-    - Look for any recommendations that has a Quick Fix banner.
+    - On Microsoft Defender for Cloud sidebar, click on **Recommendations**.
+    - Look for any recommendations that has a Quick Fix banner (which is the lightning symbol to the right of the recommendation).
     - Select a resource and then click on **Trigger Logic App** button.
-    - In the Logic App Trigger blade, select the Logic App you created in the previous step (Send-RecommendationsChanges).
+    - In the Logic App Trigger blade, select the Logic App you created in the previous step (SendRecommendationsChanges).
     - You should receive an email containing ...
-7.	From the top menu, click on **Guides & Feedback**.
+7.	From the top menu in Microsoft Defender for Cloud, click on **Guides & Feedback**.
 8.	Here you can learn more about workflow automation, get useful links and explore our community tools from the GitHub repository.
 9.	Click on **Community tools** and then **View all community tools**.
 
@@ -201,4 +200,4 @@ SecurityResources
 
 More details on the [official article](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls) or on the [blog post](https://techcommunity.microsoft.com/t5/azure-security-center/querying-your-secure-score-across-multiple-subscriptions-in/ba-p/1749193)
 
-### Continue with the next lab: [Module 6 - Azure Defender](../Modules/Module-6-Azure-Defender.md)
+### Continue with the next lab: [Module 6 - Workload Protections](../Modules/Module-6-Azure-Defender.md)

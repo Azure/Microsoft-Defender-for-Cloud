@@ -6,7 +6,7 @@
 #### ⌛ Estimated time to complete this lab: 30 minutes
 
 ## Objectives
-Create a new Microsoft Account enable with Azure Trial Subscription
+Create a new Microsoft Account enable with Azure Trial Subscription 
 This section is intended to deploy Azure resources in an automated way to get you started quickly or in case you need to re-provision your environment.
 
 #### Prerequisites
@@ -14,7 +14,7 @@ Before you start this lab, make sure you have the following prerequisites:
 - **Supported web browser** (Microsoft Edge, Google Chrome, Safari, Firefox Mozilla)
     - For using these labs, **we recommend to open an incognito/in-private browser session** on your machine and login to Azure Portal to avoid conflicts with existing Azure Subscriptions/environments if already being used.
  - **Microsoft Account** - If you do not have an existing account Sign-up to create a free account: https://signup.live.com
- - 
+  
 
 ### Exercise 1: Creating an Azure Trial Subscription
 
@@ -37,7 +37,7 @@ Important - Make sure you are not logged in with your corporate user.
 ### Exercise 2: Provisioning resources
 
 > ❗ Important: <br>
-> You should also be accessing the ASC labs in the same private window. Otherwise, link from the lab will be open on a non-private window. 
+> You should also be accessing the Microsoft Defender for Cloud labs in the same private window. Otherwise, link from the lab will be open on a non-private window. 
 
 As part of the exercises mentioned in this lab guide, you will create an environment using an automated deployment based on ARM template.
 An ARM template is a JavaScript Object Notation (JSON) file that defines the infrastructure and configuration for your project. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it.
@@ -60,7 +60,7 @@ asclab-splan | App Service plan | Demonstrating related security recommendations
 asclab-vnet | Virtual network | Default virtual network for both Azure VM and for network related recommendations
 asclabcr[uniqestring] | Container registry | Demonstrating related security recommendations
 asclabsa[uniqestring] | Storage account | Demonstrating related security recommendations
-SecurityCenterFree | Solution | Default workspace solution used for Security Center free tier
+SecurityCenterFree | Solution | Default workspace solution used for Microsoft Defender for Cloud free tier
 
 After the deployment of the template, you can check the progress of your deployment if you click on your created resource group details, then click on Deployments (1 deploying).
 Continue with the exercise below until the deployment has completed.
@@ -95,44 +95,60 @@ When the deployment is complete, you should see the following:
 
 ![Template deployment completed](../Images/asc-deployment-completed.gif?raw=true)
 
-### Exercise 3: Enabling Azure Defender
+### Exercise 3: Enabling Microsoft Defender for Cloud
 
 #### Subscription upgrade and agents installation
-1. Open **Azure Portal** and navigate to **Security Center** blade.
+1. Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2. Click on **Getting started** page from the left pane, On the **Upgrade** Tab, select subscription (Azure subscription 1) and press **Upgrade**.
-3. Click on **Install agents**, if the button has been grayed out, then it's already set to **On**.
-4. Return to Azure security Center blade and Click on **Pricing & settings**.
-5. Your subscription (Azure subscription 1) should be listed and Azure Defender plan should be **On (partial)** (if it does not, close your browser session and open a new one).
+   >Note: You may need to wait for a few minutes for the upgrade to complete.
+3. Select both **Azure subscription 1**, and also the **workspace name** underneath it. Click on **Upgrade** to upgrade.
+   ![Template deployment completed](../Images/mdfc-gettingstarted.png?raw=true)
 
-> Notice that you enabled Azure Defender at a subscription level, but Log Analytics workspace pricing is still set on Free (means Azure Defender is OFF).
+4. Select the **Azure Subscription 1** and click **Install agents** to install agents to the resources in the subscription.
 
-#### Configure the data collection settings in ASC
-1. On **Pricing and Settings** page, press on the Log Analytics workspace named **asc-lab-xxx**
+   ![Install Agents](../Images/mdfc-installagents.png?raw=true)
 
-![Template deployment completed](../Images/asc-workspace-pricing-settings.gif?raw=true)
+#### Get the status of the Defender coverage on the subscription and the workspace
+1. Return to Microsoft Defender for Cloud blade and Click on **Environment settings**. Click the down arrow on **Azure** to show the subscription, and then click the down arrow on **Azure Susbcription 1** to show the workspace. Notice the Defender coverage is 11/11 plans for the subscription and 2/2 plans for the workspace, meaning that you are now fully protected using Microsoft Defender for Cloud.
+    ![Environment settings](../Images/mdfc-envsettings.png?raw=true)
 
-2. On the Azure Defender Plans page, select **Azure Defender on** and press **Save**. Now both subscription and Log Analytics workspace should be set to **On** for Azure Defender plan.
+2. Click on **Azure subscription 1**, and notice how all Microsoft Defender for Cloud plans are enabled. 
 
-![Enable Azure Defender on the workspace level](../Images/asc-enable-defender-workspace.gif?raw=true)
+> If you need to enable individual plans, first ensure that the Microsoft Defender for Cloud plans blue box on the right hand side is selected, and then you can select the specific Defender plans underneath.
 
-3. Go back to the **Pricing & Setting** and drill down into your **Azure subscription** (Azure subscription 1).
-4. Navigate to **Data Collection**
+3. Exit that screen, and then select the workspace from the previous screen. 
+   
+    ![Environment settings](../Images/mdfc-envsettings2.png?raw=true)
+
+4. Ensure that both plans for **Servers** and **SQL servers on machines** are turned **On**.
+
+![Environment settings](../Images/mdfc-workspaceenvsettings.png?raw=true)
+
+
+#### Configure the data collection settings in Microsoft Defender for Cloud
+
+1. Go back to the **Environment settings** in the sidebar and drill down into your **Azure subscription** (Azure subscription 1).
+2. Navigate to **Auto provisioning**
+
+![Auto-provisioning](../Images/mdfc-autoprovisioning.png?raw=true)
+
 5. On the **Auto provisioning - Extensions** page, set **Log Analytics agent for Azure VMs** to **On** (if it's not already set to On)
-6. Click **Edit configuration**.
-7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **asc-lab-xxx** (which has been created by the ARM template).
+6. Click **Edit configuration** under the configuration column.
+7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **xxx-lab-xxx** (which has been created by the ARM template).
 8. Under **Store additional raw data - Windows security events** section, select **All Events** option.
 
-![Enable Azure Defender on the workspace level](../Images/asc-extension-deployment-configuration.gif?raw=true)
+![Enable Microsoft Defender for Cloud on the workspace level](../Images/asc-extension-deployment-configuration.gif?raw=true)
 
-9. Click on **Apply**.
-10. Click on **Save**.
+9. Select **Existing and new VMs** in the pop-up.
+10. Click on **Apply**.
+11. Click on **Save**.
 
 <br>
 
 > Please notice:
-> * To get the full functionality of Azure Security Center and Azure Defender, both subscription and Log Analytics workspace should be enabled for Defender. Once you enable it, under the hood the required Log Analytics solutions will be added to the workspace.
-> * Before clicking on the Upgrade button, you can review the total number of resources you are going to enable Azure Defender on.
-> * You can enable Azure Defender trial for 30-days on a subscriptions only if not previously used.
-> * To enable Azure Defender on a subscription, you must be assigned the role of Subscription Owner, Subscription Contributor, or Security Admin.
+> * To get the full functionality of Microsoft Defender for Cloud, both subscription and Log Analytics workspace should be enabled for Microsoft Defender for Cloud, Once you enable it, under the hood the required Log Analytics solutions will be added to the workspace.
+> * Before clicking on the Upgrade button, you can review the total number of resources you are going to enable Microsoft Defender for Cloud on.
+> * You can enable Microsoft Defender for Cloud trial for 30-days on a subscriptions only if not previously used.
+> * To enable Microsoft Defender for Cloud on a subscription, you must be assigned the role of Subscription Owner, Subscription Contributor, or Security Admin.
 
-### Continue with the next lab: [Module 2 - Exploring Azure Security Center](../Modules/Module-2-Exploring-Azure-Security-Center.md)
+### Continue with the next lab: [Module 2 - Exploring Microsoft Defender for Cloud](../Modules/Module-2-Exploring-Azure-Security-Center.md)

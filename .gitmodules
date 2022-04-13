@@ -1,0 +1,3 @@
+[submodule "azure-storage-av-automation"]
+	path = azure-storage-av-automation
+	url = https://github.com/Azure/azure-storage-av-automation.git

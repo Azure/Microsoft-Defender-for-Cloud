@@ -1,0 +1,132 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-08-01/subscriptionDeploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+  },
+  "variables": {
+    "policyDefName": "DeployAdvDataSecSQL",
+    "displayName": "Deploy Advanced Data Security on SQL servers"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Authorization/policyDefinitions",
+      "name": "[variables('policyDefName')]",
+      "apiVersion": "2019-09-01",
+      "properties": {
+        "displayName": "[variables('displayName')]",
+        "mode": "Indexed",
+        "description": "[variables('displayName')]",
+        "metadata": {
+          "category": "Security Center"
+        },
+        "parameters": {
+          "effect": {
+            "type": "string",
+            "defaultValue": "DeployIfNotExists",
+            "allowedValues": [
+              "DeployIfNotExists",
+              "Disabled"
+            ],
+            "metadata": {
+              "displayName": "Effect",
+              "description": "Enable or disable the execution of the policy"
+            }
+          }
+        },
+          "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Sql/servers"
+      },
+      "then": {
+        "effect": "[[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Sql/servers/securityAlertPolicies",
+          "name": "Default",
+          "existenceCondition": {
+            "field": "Microsoft.Sql/securityAlertPolicies.state",
+            "equals": "Enabled"
+          },
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/056cd41c-7e88-42e1-933e-88ba6a50c9c3",
+            "/providers/microsoft.authorization/roleDefinitions/17d1049b-9a84-46fb-8f53-869881c3d3ab"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "serverName": {
+                    "type": "string"
+                  },
+                  "location": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "serverResourceGroupName": "[[resourceGroup().name]",
+                  "subscriptionId": "[[subscription().subscriptionId]",
+                  "uniqueStorage": "[[uniqueString(variables('subscriptionId'), variables('serverResourceGroupName'), parameters('location'))]",
+                  "storageName": "[[tolower(concat('sqlva', variables('uniqueStorage')))]"
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Storage/storageAccounts",
+                    "name": "[[variables('storageName')]",
+                    "apiVersion": "2019-04-01",
+                    "location": "[[parameters('location')]",
+                    "sku": {
+                      "name": "Standard_LRS"
+                    },
+                    "kind": "StorageV2",
+                    "properties": {}
+                  },
+                  {
+                    "name": "[[concat(parameters('serverName'), '/Default')]",
+                    "type": "Microsoft.Sql/servers/securityAlertPolicies",
+                    "apiVersion": "2017-03-01-preview",
+                    "properties": {
+                      "state": "Enabled",
+                      "emailAccountAdmins": true
+                    }
+                  },
+                  {
+                    "name": "[[concat(parameters('serverName'), '/Default')]",
+                    "type": "Microsoft.Sql/servers/vulnerabilityAssessments",
+                    "apiVersion": "2018-06-01-preview",
+                    "properties": {
+                      "storageContainerPath": "[[concat(reference(resourceId('Microsoft.Storage/storageAccounts', variables('storageName'))).primaryEndpoints.blob, 'vulnerability-assessment')]",
+                      "storageAccountAccessKey": "[[listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storageName')), '2018-02-01').keys[0].value]",
+                      "recurringScans": {
+                        "isEnabled": true,
+                        "emailSubscriptionAdmins": true,
+                        "emails": []
+                      }
+                    },
+                    "dependsOn": [
+                      "[[concat('Microsoft.Storage/storageAccounts/', variables('storageName'))]",
+                      "[[concat('Microsoft.Sql/servers/', parameters('serverName'), '/securityAlertPolicies/Default')]"
+                    ]
+                  }
+                ]
+              },
+              "parameters": {
+                "serverName": {
+                  "value": "[[field('name')]"
+                },
+                "location": {
+                  "value": "[[field('location')]"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+      }
+
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "SecureScoreOverTimeReport",
+            "type": "String"
+        },
+        "LogAnalyticsWorkspaceSubscriptionID": {
+            "type": "string",
+             "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-SubscriptionID.",
+                "description": "Enter your LogAnalyticsWorkspace-SubscriptionID."
+                }
+        },
+        "LogAnalyticsWorkspaceResourceGroupName": {
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-ResourceGroupName.",
+                "description": "Enter your LogAnalyticsWorkspace-ResourceGroupName."
+                }
+        },
+        "LogAnalyticsWorkspaceName": {
+            "defaultValue": "YourLogAnalyticsWorkspace-WorkspaceName",
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter your LogAnalyticsWorkspace-WorkspaceName.",
+                "description": "Enter your LogAnalyticsWorkspace-WorkspaceName."
+                }
+        },
+        "NotificationEmailAddress": {
+            "type": "string"
+        }
+    },
+    "variables": {
+        "azuremonitorlogsConnectionName": "[concat('azuremonitorlogs-', parameters('PlaybookName'))]",
+        "o365ConnectionName": "[concat('office365-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('azuremonitorlogsConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('azuremonitorlogsConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('o365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('o365ConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId  ,'/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('azuremonitorlogsConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "emailtosend": {
+                            "defaultValue": "[parameters('NotificationEmailAddress')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Week",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Build_EmailBody": {
+                            "runAfter": {
+                                "EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                                "name": "EmailBody",
+                                "value": "<style type=\"text/css\">\n       h1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n</style>\n<table align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\">\n\t<tbody>\n\t\t<tr>\n\t\t\t<th style=\"text-align:left; width:735px\">\n\t\t\t\t<table align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 550px;\">\n\t\t\t\t\t<tbody>\n\t\t\t\t\t\t<tr>\n\t\t<td><img src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"125\" height=\"125\" /></td>\n\t\t<td>\n\t\t<h1 style=\"text-align: left;\">Azure Security Center</h1>\n                                                          \n                  </td>\n\t\t\t\t\t\t</tr>\n\t\t\t\t\t</tbody>\n\t\t\t\t</table>\n\t\t\t</th>\n\t\t</tr>\n            </tbody>\n            <tr>\n\t\t<td style=\"width:900px\">\n\t\t<p style=\"text-align: left;\"><strong>Secure Score Weekly Report</strong><br><br>\n\t\t</td>\n\t\t</tr>\n<br>\n<strong>Current Secure Score</strong>\n@{base64ToString(body('CurrentScore')?['body'])}\n<br>\n<p><strong>Your secure score since the last report</strong></p>\n<p>Please refer below graph representing the weekly Secure Score history:</p>\n@{variables('ChartString')}\n<br>\n<p><strong>Security controls that need to be prioritized</strong></p>\n<p>Currently the following security controls have resources that were not remediated yet:</p>\n@{base64ToString(body('UnhealthyResources')?['body'])}\n<br>\n<p><strong>Top 5 recommendations that are currently open</strong></p>\n@{base64ToString(body('List_Top_5_Security_Controls')?['body'])}\n"
+                            }
+                        },
+                        "Comparison_Chart": {
+                            "runAfter": {
+                                "UnhealthyResources": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ChartString",
+                                        "type": "string",
+                                        "value": "<img src=\"cid:@{body('Comparisonscore')?['attachmentName']}\"/>"
+                                    }
+                                ]
+                            }
+                        },
+                        "Comparisonscore": {
+                            "runAfter": {},
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "SecureScores\n| extend SubscriptionId = tostring(split(AssessedResourceId, \"/\", 2)[0])\n| where MaxScore != 0 and TimeGenerated > ago(31d)\n| project  SubscriptionId, TimeGenerated, PercentageScore\n| summarize by bin(TimeGenerated,1d), PercentageScore*100",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Set in query",
+                                    "visType": "Time Chart"
+                                }
+                            }
+                        },
+                        "CurrentScore": {
+                            "runAfter": {
+                                "Comparisonscore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "SecureScores\n| where TimeGenerated > ago(31d)\n| top 1 by TimeGenerated\n| project  SubscriptionId=SecureScoresSubscriptionId, Currentscore=PercentageScore*100 ",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Set in query",
+                                    "visType": "Html Table"
+                                }
+                            }
+                        },
+                        "EmailBody": {
+                            "runAfter": {
+                                "List_Top_5_Security_Controls": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "List_Top_5_Security_Controls": {
+                            "runAfter": {
+                                "Comparison_Chart": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "SecureScoreControls\n| extend potentialScoreIncrease=MaxScore-CurrentScore\n| join kind =inner (\n SecureScoreControls\n | summarize latestTimestamp=max(TimeGenerated) by ControlName\n) on ControlName\n| where latestTimestamp == TimeGenerated\n| project ControlName, latestTimestamp, potentialScoreIncrease\n| top 5 by potentialScoreIncrease",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Set in query",
+                                    "visType": "Html Table"
+                                }
+                            }
+                        },
+                        "Send_an_email_(V2)": {
+                            "runAfter": {
+                                "Build_EmailBody": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Attachments": [
+                                        {
+                                            "ContentBytes": "@{body('Comparisonscore')?['attachmentContent']}",
+                                            "Name": "@body('Comparisonscore')?['attachmentName']"
+                                        }
+                                    ],
+                                    "Body": "<p>@{variables('EmailBody')}</p>",
+                                    "Subject": "Weekly Secure Score Progress Report",
+                                    "To": "@parameters('emailtosend')"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/v2/Mail"
+                            }
+                        },
+                        "UnhealthyResources": {
+                            "runAfter": {
+                                "CurrentScore": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": "SecureScoreControls\n| extend SubscriptionId=SecureScoresSubscriptionId\n| mv-expand RecommendationResourceIds\n| extend id_ = tostring(parse_json(RecommendationResourceIds).id)\n| extend RecommendationId = extract(@\"(.+)/(.+)\", 2, id_)\n| join kind=inner(SecurityRecommendation\n| extend SubscriptionId=(extract(@\"/subscriptions/(.+)/resourceGroups\", 1, AssessedResourceId))) on SubscriptionId, RecommendationId\n| where RecommendationState == \"Unhealthy\"   or RecommendationState == \"Removed\"\n| summarize UnhealthyResources=dcount(AssessedResourceId) by ControlName, RecommendationDisplayName, SubscriptionId",
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['azuremonitorlogs']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "/visualizeQuery",
+                                "queries": {
+                                    "resourcegroups": "[parameters('LogAnalyticsWorkspaceResourceGroupName')]",
+                                    "resourcename": "[parameters('LogAnalyticsWorkspaceName')]",
+                                    "resourcetype": "Log Analytics Workspace",
+                                    "subscriptions": "[parameters('LogAnalyticsWorkspaceSubscriptionID')]",
+                                    "timerange": "Last 7 days",
+                                    "visType": "Html Table"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "azuremonitorlogs": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('azuremonitorlogsConnectionName'))]",
+                                "connectionName": "azuremonitorlogs",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/azuremonitorlogs')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('o365ConnectionName'))]",
+                                "connectionName": "office365",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

@@ -94,7 +94,7 @@
                                     "type": "SetVariable",
                                     "inputs": {
                                         "name": "Type",
-                                        "value": "@{concat(variables('ResourceProvider'), '/virtualmachines')}"
+                                        "value": "@{concat(variables('ResourceProvider'), '/virtualMachines')}"
                                     }
                                 }
                             },

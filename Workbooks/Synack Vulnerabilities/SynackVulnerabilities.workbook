@@ -1,0 +1,237 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "",
+        "size": 3,
+        "title": "Vulnerabilities",
+        "queryType": 10,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "count",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Link",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url"
+              }
+            },
+            {
+              "columnMatch": "Assessment",
+              "formatter": 5
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Assessment",
+              "Status"
+            ]
+          }
+        }
+      },
+      "name": "query - vulnerabilities"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "",
+        "size": 4,
+        "title": "Vulnerabilities by Status",
+        "queryType": 10,
+        "visualization": "piechart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "count",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Link",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url"
+              }
+            },
+            {
+              "columnMatch": "Assessment",
+              "formatter": 5
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Assessment",
+              "Status"
+            ]
+          }
+        },
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "Synack Id",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "Synack Id",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "count",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "chartSettings": {
+          "yAxis": [
+            "count"
+          ],
+          "group": "Status",
+          "createOtherGroup": 10
+        },
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "sizeSettings": "count",
+          "sizeAggregation": "Sum",
+          "legendMetric": "count",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "type": "heatmap",
+            "colorAggregation": "Sum",
+            "nodeColorField": "count",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "name": "query - status"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "",
+        "size": 4,
+        "title": "Vulnerabilities by Assessment",
+        "queryType": 10,
+        "visualization": "piechart",
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "count",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Link",
+              "formatter": 7,
+              "formatOptions": {
+                "linkTarget": "Url"
+              }
+            },
+            {
+              "columnMatch": "Assessment",
+              "formatter": 5
+            }
+          ],
+          "hierarchySettings": {
+            "treeType": 1,
+            "groupBy": [
+              "Assessment",
+              "Status"
+            ]
+          }
+        },
+        "tileSettings": {
+          "showBorder": false,
+          "titleContent": {
+            "columnMatch": "Synack Id",
+            "formatter": 1
+          },
+          "leftContent": {
+            "columnMatch": "count",
+            "formatter": 12,
+            "formatOptions": {
+              "palette": "auto"
+            },
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "graphSettings": {
+          "type": 0,
+          "topContent": {
+            "columnMatch": "Synack Id",
+            "formatter": 1
+          },
+          "centerContent": {
+            "columnMatch": "count",
+            "formatter": 1,
+            "numberFormat": {
+              "unit": 17,
+              "options": {
+                "maximumSignificantDigits": 3,
+                "maximumFractionDigits": 2
+              }
+            }
+          }
+        },
+        "chartSettings": {
+          "yAxis": [
+            "count"
+          ],
+          "group": "Assessment",
+          "createOtherGroup": 10
+        },
+        "mapSettings": {
+          "locInfo": "LatLong",
+          "sizeSettings": "count",
+          "sizeAggregation": "Sum",
+          "legendMetric": "count",
+          "legendAggregation": "Sum",
+          "itemColorSettings": {
+            "type": "heatmap",
+            "colorAggregation": "Sum",
+            "nodeColorField": "count",
+            "heatmapPalette": "greenRed"
+          }
+        }
+      },
+      "name": "query - assessment"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

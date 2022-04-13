@@ -1,4 +1,4 @@
-# Workflow automation in Azure Security Center
+# Workflow automation in Microsoft Defender for Cloud
 This folder contains sample security playbooks for security automation, orchestration and response (SOAR)
 
 These playbooks can be easily integrated with Azure Security Center using Workflow Automation feature. [Learn more>](https://docs.microsoft.com/en-us/azure/security-center/workflow-automation)
@@ -7,7 +7,7 @@ These playbooks can be easily integrated with Azure Security Center using Workfl
 After selecting a playbook, in the Azure portal:
 1. Search for deploy a custom template
 2. Click build your own template in the editor
-3. Paste the conents from the GitHub playbook 
+3. Paste the contents from the GitHub playbook 
 4. Click Save
 5. Fill in needed data and click purchase
 
@@ -22,7 +22,31 @@ Once deployment is complete, you will need to authorize each connection.
 You can now edit the playbook in Logic apps.
 
 # Contribute Logic App Playbooks
-## Instructions for templatizing a playbook
+## Instructions for templatizing a playbook  
+
+## Option 1: Azure Logic App/Playbook ARM Template Generator  
+
+1. Download tool and run the PowerShell script  
+   [![Download](./images/Download.png)](https://aka.ms/Playbook-ARM-Template-Generator)  
+   
+2. Extract the folder and open "Playbook_ARM_Template_Generator.ps1" either in Visual Studio Code/Windows PowerShell/PowerShell Core
+
+   **Note**  
+   The script runs from the user's machine. You must allow PowerShell script execution. To do so, run the following command:
+   
+   ```PowerShell
+   Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass  
+   ```  
+3. Script prompts you to enter your Azure Tenant Id
+
+4. You are prompted to authenticate with credentials, once the user is authenticated, you will be prompted to choose 
+	- Subscription	
+	- Playbooks
+
+5.	After selecting playbooks, script prompts to select location on your local drive to save ARM Template. ARM Template gets generated under `<<PlaybookName>>` folder
+
+## Option 2: Manual  
+
 Once you have created a playbook that you want to export to share, go to the Logic App resource in Azure.
 > Note: this is the generic instructions there may be other steps depending how complex or what connectors are used for the playbook.
 1. Click Export Template from the resource menu
@@ -51,7 +75,7 @@ Once you have created a playbook that you want to export to share, go to the Log
     },
 ```
 * The variables will be the connection names.  Here we are creating a connection name using the connection (AzureAD) and "-" and the playbook name.
-7. Next,, you will need to add resources to be created for each connection.
+7. Next, you will need to add resources to be created for each connection.
 ```json
    "resources": [
         {
