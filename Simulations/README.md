@@ -23,20 +23,20 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 
 ## Alert Simulation for  Defender for Containers
-- [This article](https://techcommunity.microsoft.com/t5/azure-security-center/how-to-demonstrate-the-new-containers-features-in-azure-security/ba-p/1011270) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
+- [This article](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/how-to-demonstrate-the-new-containers-features-in-microsoft/ba-p/3281172) go over the steps to simulate alerts in Azure Kubernetes Services and Azure Container Registry.
 
-- [Azure Defender for ACR](https://docs.microsoft.com/en-us/azure/security-center/defender-for-container-registries-introduction)
+- [Defender for Containers](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-containers-introduction?tabs=defender-for-container-arch-aks)
 
 
 ## Alert Simulation for Defender for Storage
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-atp-for-azure-storage-detections-in-azure-security/ba-p/1068131) go over the steps to simulate an upload of a test malware (EICAR) to an Azure Storage account that has Defender for Storage enabled.
 
-- [Azure Defender Storage](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
+- [Defender Storage](https://docs.microsoft.com/en-us/azure/security-center/defender-for-storage-introduction)
 
 ## Alert Simulation for Defender for Key Vault
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-key-vault-threat-detection-in-azure-security/ba-p/1220336) go over the steps to simulate an anonymizer access to the Key Vault using a TOR browser.
 
-- [Azure Defender for Key Vault](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
+- [Defender for Key Vault](https://docs.microsoft.com/en-us/azure/security-center/defender-for-key-vault-introduction)
 
 ## Alert Simulation for Defender for Resource Manager
 - [This article](https://techcommunity.microsoft.com/t5/azure-security-center/validating-azure-defender-for-resource-manager-alerts/ba-p/2227469) go over the steps to simulate an extension manipulation using Azure Resource Manager.
@@ -62,4 +62,4 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 - This simulation playbook go over a threat hunting scenario using Microsoft Defender for Cloud and searching for evidences of attack in Log Analtyics workspace.
 
-- Download [this PDF](https://github.com/Azure/Azure-Security-Center/blob/master/Simulations/Azure%20Security%20Center%20Hunting%20Playbook_V2.pdf) and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.
+- Download [this PDF](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Simulations/Microsoft%20Defender%20for%20Cloud%20Hunting%20Playbook_V3.pdf) and follow the steps to configure a lab environment, simulate alerts in Windows and query data using KQL in Log Analytics workspace.
