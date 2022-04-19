@@ -10,7 +10,7 @@ Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided t
 -	**Security Center recommendations:** filtered view of all Microsoft Defender for Cloud compute related recommendations including resource count, severity, and security control
 -	**System Updates:** VMs missing system updates and filtered view of missing update details for selected VM
 -	**System Baseline:** VMs missing security baseline configurations and filtered view of missing configuration details for selected VM
--	
+
 Informational options: using the action bars at the top section, select FAQ button to show the frequently asked questions. You can also see recent changes documented on the change log option.
 
 ## Try it on the Azure Portal
