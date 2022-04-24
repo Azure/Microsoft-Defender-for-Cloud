@@ -10,7 +10,7 @@ Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided t
 -	**Security Center recommendations:** filtered view of all Microsoft Defender for Cloud compute related recommendations including resource count, severity, and security control
 -	**System Updates:** VMs missing system updates and filtered view of missing update details for selected VM
 -	**System Baseline:** VMs missing security baseline configurations and filtered view of missing configuration details for selected VM
--	
+
 Informational options: using the action bars at the top section, select FAQ button to show the frequently asked questions. You can also see recent changes documented on the change log option.
 
 ## Try it on the Azure Portal
@@ -21,7 +21,7 @@ During the deployment, you must select a subscription and resource group to stor
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FCompute%2520Security%2520Dashboard%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FCompute%2520Security%2520Dashboard%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
-
+![Dashboard demo](compsec.gif)
 
 ### Upcoming changes
 
