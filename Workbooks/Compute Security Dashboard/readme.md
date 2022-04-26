@@ -19,7 +19,7 @@ To deploy the new workbook into your Microsoft Defender for Cloud console, click
 During the deployment, you must select a subscription and resource group to store the report. 
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FCompute%2520Security%2520Dashboard%2FComputeSecurityDashboard.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FCompute%2520Security%2520Dashboard%2FComputeSecurityDashboard.json.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FCompute%2520Security%2520Dashboard%2FComputeSecurityDashboard.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ![Dashboard demo](./compsec.GIF)
 
