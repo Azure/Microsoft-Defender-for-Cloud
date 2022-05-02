@@ -78,12 +78,4 @@ Once a vulnerable image has been pushed to the Azure Container Registry registry
  2. Go to the **Recommendations** tab in Defender for Cloud.
  3. In the upper right corner, select **GCP**. 
 
- ![Recommendation for vulnerabilities in ACR](../Images/9recommendation.png?raw=true)
- 4. Click on the recommendation **Container registry images should have vulnerability findings resolved** to get more details about it.
- ![Recommendation for vulnerabilities in ACR More details](../Images/10recommendationmoreinfo.png?raw=true)
- 5. Look around at what's avialble in the recommendation. Take note of the Remediation Steps.
-  ![Remediation Steps](../Images/remsteps.png?raw=true)
- 6. Select the vulnerability ** Container registry images should have vulnerability findings resolved** to get more details about the patch available for it and how to remediate it.
- ![Debian](../Images/11debian.png?raw=true)
- 
 
