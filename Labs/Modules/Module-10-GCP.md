@@ -57,25 +57,34 @@ Containers
 10. Paste the script into the Cloud Shell.
 
 ![GCP console with Cloud Shell](../Images/7gcpconsole.png?raw=true)
-11: let the script run and when it finishes, copy the Service account unique numeric ID.
+11. let the script run and when it finishes, copy the Service account unique numeric ID.
 
-11. Back in the **Configure access** page in **Defender for Cloud**, have the follwing as:
-Security posture management: leave as default
-Containers: leave as default
-Servers: leave as default
-Service account unique numeric ID: paste it in after running the script.
+12. Back in the **Configure access** page in **Defender for Cloud**, have the follwing as:
 
-12. Click **Next: review and Generate**.
-13. In the next screen, after validation completes succesfully, click **create**
+**Security posture management**: leave as default
 
+**Containers**: leave as default
 
+**Servers**: leave as default
+
+**Service account unique numeric ID**: paste it in after running the script.
+
+13. Click **Next: review and Generate**.
+14. In the next screen, after validation completes succesfully, click **create**
+
+Now, you have successfully created a GCP connector in Microsoft Defender for Cloud. Now you'll be able to get GCP recommendations and alerts.
 
 ### Exercise 3: Investigate the GCP recommendations 
 
-Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Containers will start scanning the image for vulnerabilities, by using Qualys. You will now look into the recommendation in Microsoft Defender for Cloud for this. 
+Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Containers will start scanning the image for vulnerabilities, by using Qualys. You will now look into the recommendations in Microsoft Defender for Cloud for this. 
+
+> [!NOTE]
+> You will need to create some GCP resources in order to see recommendations for GCP in Microsoft Defender for Cloud.
  
  1. Go to **Microsoft Defender for Cloud** in the **Azure Portal**.
  2. Go to the **Recommendations** tab in Defender for Cloud.
  3. In the upper right corner, select **GCP**. 
+ 8gcprecommendations
+ ![GCP console with Cloud Shell](../Images/8gcprecommendations.png?raw=true)
 
-
+If you have existing GCP resources, then you'll be able to see recommendations associated with them.
