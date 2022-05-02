@@ -38,9 +38,12 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 
 **Subscription**: Choose your existing subscription
 
-**Resource Group**: Create a new resource group and name it gcp
-**Location**: Select the location nearest you
+**Resource Group**: Create a new resource group and name it GCP.
+
+**Location**: Select the location nearest you.
+
 **GCP project number**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project number from the dashboard.
+
 **GCP project id**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project ID from the dashboard.
 
 ![Create GCP connector](../Images/4creategcpconnector.png?raw=true)
