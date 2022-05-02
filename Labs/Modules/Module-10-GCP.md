@@ -52,7 +52,7 @@ Containers
 
 7. Select **Next: Configure access**.
 8. Copy the GCP Cloud Shell script. 
-![GCP script](../Images/5gcpscript.png?raw=true)
+![GCP script](../Images/6scpscript.png?raw=true)
 9. Click **GCP Cloud Shell** button which will open up the GCP console with Cloud Shell.
 10. Paste the script into the Cloud Shell.
 
