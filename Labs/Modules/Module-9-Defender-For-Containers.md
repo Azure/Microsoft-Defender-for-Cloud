@@ -15,12 +15,14 @@ First you need to install Docker Desktop so that we can oush a vulnerable image 
 1.	Navigate to [Docker](https://www.docker.com/products/docker-desktop)  
 2.  Download and install Docker, Check the system requirements, [Docker Requirements](https://docs.docker.com/get-docker/)
 3.  After the installation, open PowerShell on your computer
-4. Verify your docker version by executing in PowerShell <br />
+4. Verify your docker version by executing in PowerShell 
 ```
     docker version​
 ```
-<br /> 
-You may see an output like the one below: <br />
+
+You may see an output like the one below:
+
+
 ![Docker Version in Powershell](../Images/1dockerversion.png?raw=true)
 
 
@@ -30,52 +32,63 @@ Now you will use Docker to download a vulnerable image from it and push it into 
 
 
 1. Go to the Azure Portal and open the Container Registry (named "asclabcr####") that you created through the ARM template in Lab 1.
-2. In the Overview of it, then please copy the Login server name only.
-<br /> 
+2. In the Overview of it, then please copy the Login server name only. 
 ![ACR server name](../Images/2acrserver.png?raw=true)
-<br /> 
+
+
 3.	Open PowerShell and run (where the NameOfServer is the one copied from above) the command below: <br />
 ```
 az acr login --name NameOfServer
 ```
 You might see an output like 
+
+
 ![ACR login](../Images/3acrlogin.png?raw=true)
+
+
 4. Download vulnerable image from docker hub (which you can get more details at https://hub.docker.com/r/vulnerables/web-dvwa/),
 
 by running the command below in Powershell:
 ```
 docker pull vulnerables/web-dvwa
 ```
-<br />
+
+
 ![ACR login](../Images/4dockerpullimage.png?raw=true)
-<br />
+
+
 5. Check the image on your local repository by running the command below:
 ```
 docker pull vulnerables/web-dvwa
 ```
 ![Docker images](../Images/5dockerimages.png?raw=true)
-<br />
+
 6. Check again the image on your local repository by running the command below (replacingasclabcr### with the name of your server that copied above): 
 ```
 Docker images asclabcr###.azurecr.io/vulnerables/web-dvwa
 ```
 ![Docker local repository](../Images/6dockerlocalrepo.png?raw=true)
-<br />
+
+
+
 
 7. Run docker push to upload the new image to the azure repository and generate image scan (it can take some time), using the command below: <br />
 ```
 docker push secteach365.azurecr.io/vulnerables/web-dvwa:v1
 ```
-<br />
+
+
 ![Docker push](../Images/7dockerpush.png?raw=true)
-<br />
+
+
 
 8. Then go to the Azure portal and find the Container registry you created.
 9. Go to Repositories in the Container Registry. Notice the vulnerable image is found in the ACR repository.
-<br />
+
+
 ![Image in ACR](../Images/8imageinacr.png?raw=true)
 
-<br />
+
 
 ### Exercise 3: Investigate the recommendation for vulnerabilities in ACR
 
@@ -93,7 +106,7 @@ Once a vulnerable image has been pushed to the Azure Container Registry registry
 <br />
   ![Remediation Steps](../Images/remsteps.png?raw=true)
   <br />
- 6. Select the vulnerability ** Container registry images should have vulnerability findings resolved** to get more details about the patch available for it and how to remediate it.
+ 6. Select the vulnerability **Container registry images should have vulnerability findings resolved** to get more details about the patch available for it and how to remediate it.
  <br />
  ![Debian](../Images/11debian.png?raw=true)
  
