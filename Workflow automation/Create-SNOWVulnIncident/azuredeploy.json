@@ -1,0 +1,357 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "metadata": {
+        "comments": "This playbook is for workflow automation. Upon 'Machines should have vulnerability findings resolved' recommendation trigger by a virtual machine this logic app will go out and retrieve the vulnerability findings on the VM and create a ServiceNow Incident Request per each vulnerability finding.",
+        "author": "Nathan Swift"
+    },
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Create-SNOWVulnIncident",
+            "type": "string"
+        },
+        "UserName": {
+            "defaultValue": "<username>@<domain>",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "SNOWConnectionName": "[concat('SNOW-', parameters('PlaybookName'))]",
+        "ASCAssesmentConnectionName": "[concat('ascassessment-', parameters('PlaybookName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('SNOWConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/service-now')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('ASCAssesmentConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "displayName": "[parameters('UserName')]",
+                "customParameterValues": {
+                },
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('SNOWConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('ASCAssesmentConnectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Microsoft_Defender_for_Cloud_Recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Filter_array_severity_medium_or_high": {
+                            "runAfter": {
+                                "GetVMVulns": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Query",
+                            "inputs": {
+                                "from": "@body('GetVMVulns')?['value']",
+                                "where": "@or(equals(item()?['properties']?['status']?['severity'], 'Medium'),equals(item()?['properties']?['status']?['severity'], 'High'))"
+                            }
+                        },
+                        "For_each": {
+                            "foreach": "@body('Filter_array_severity_medium_or_high')",
+                            "actions": {
+                                "Create_Record": {
+                                    "runAfter": {
+                                        "Parse_JSON": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "ApiConnection",
+                                    "inputs": {
+                                        "body": {
+                                            "comments": "To find all vulnerabiltites for @{variables('VM')} please go to URL: @{triggerBody()?['properties']?['links']?['azurePortalUri']}\n\nSeverity: @{body('Parse_JSON')?['properties']?['status']?['severity']}\nCVSS: @{body('Parse_JSON')?['properties']?['additionalData']?['cvss']}\nCVE: @{body('Parse_JSON')?['properties']?['additionalData']?['CVE']}\n\nImpact: @{body('Parse_JSON')?['properties']?['impact']}\n\nThreat: @{body('Parse_JSON')?['properties']?['additionalData']?['threat']}\n\nRemediation: @{body('Parse_JSON')?['properties']?['remediation']}\n\n",
+                                            "short_description": "@{variables('VM')} - @{body('Parse_JSON')?['properties']?['displayName']}",
+                                            "sys_created_by": "Vuln GRC Team"
+                                        },
+                                        "host": {
+                                            "connection": {
+                                                "name": "@parameters('$connections')['service-now']['connectionId']"
+                                            }
+                                        },
+                                        "method": "post",
+                                        "path": "/api/now/v2/table/@{encodeURIComponent('incident')}",
+                                        "queries": {
+                                            "sysparm_display_value": false,
+                                            "sysparm_exclude_reference_link": true
+                                        }
+                                    }
+                                },
+                                "Parse_JSON": {
+                                    "runAfter": {},
+                                    "type": "ParseJson",
+                                    "inputs": {
+                                        "content": "@item()",
+                                        "schema": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "properties": {
+                                                    "properties": {
+                                                        "additionalData": {
+                                                            "properties": {
+                                                                "assessedResourceType": {
+                                                                    "type": "string"
+                                                                },
+                                                                "cve": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "link": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "title": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "title",
+                                                                            "link"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                },
+                                                                "cvss": {
+                                                                    "properties": {
+                                                                        "2.0": {
+                                                                            "properties": {
+                                                                                "base": {
+                                                                                    "type": "number"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        },
+                                                                        "3.0": {
+                                                                            "properties": {
+                                                                                "base": {
+                                                                                    "type": "number"
+                                                                                }
+                                                                            },
+                                                                            "type": "object"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "patchable": {
+                                                                    "type": "boolean"
+                                                                },
+                                                                "publishedTime": {
+                                                                    "type": "string"
+                                                                },
+                                                                "source": {
+                                                                    "type": "string"
+                                                                },
+                                                                "threat": {
+                                                                    "type": "string"
+                                                                },
+                                                                "type": {
+                                                                    "type": "string"
+                                                                },
+                                                                "vendorReferences": {
+                                                                    "items": {
+                                                                        "properties": {
+                                                                            "link": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "title": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "required": [
+                                                                            "title",
+                                                                            "link"
+                                                                        ],
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": "array"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "category": {
+                                                            "type": "string"
+                                                        },
+                                                        "description": {
+                                                            "type": "string"
+                                                        },
+                                                        "displayName": {
+                                                            "type": "string"
+                                                        },
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "impact": {
+                                                            "type": "string"
+                                                        },
+                                                        "remediation": {
+                                                            "type": "string"
+                                                        },
+                                                        "resourceDetails": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string"
+                                                                },
+                                                                "source": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "status": {
+                                                            "properties": {
+                                                                "code": {
+                                                                    "type": "string"
+                                                                },
+                                                                "severity": {
+                                                                    "type": "string"
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        },
+                                                        "timeGenerated": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "type": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Filter_array_severity_medium_or_high": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "GetVMVulns": {
+                            "runAfter": {
+                                "Initialize_variable_VM": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com/",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/@{triggerBody()?['properties']?['resourceDetails']?['id']}/providers/Microsoft.Security/assessments/1195afff-c881-495e-9bc5-1486211ae03f/subAssessments?api-version=2019-01-01-preview"
+                            }
+                        },
+                        "Initialize_variable_VM": {
+                            "runAfter": {
+                                "Initialize_variable_subscriptionId": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "VM",
+                                        "type": "string",
+                                        "value": "@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'],'/'),8))}"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_subscriptionId": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "subscriptionID",
+                                        "type": "string",
+                                        "value": "@{first(skip(split(triggerBody()?['properties']?['resourceDetails']?['id'],'/'),2))}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascassessment": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('ASCAssesmentConnectionName'))]",
+                                "connectionName": "[variables('ASCAssesmentConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/ascassessment')]"
+                            },
+                            "service-now": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('SNOWConnectionName'))]",
+                                "connectionName": "[variables('SNOWConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/service-now')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
