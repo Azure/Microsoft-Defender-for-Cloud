@@ -3441,7 +3441,8 @@
       "isLocked": false,
       "fallbackResourceIds": [
         "azure security center"
-      ]
+      ],
+      "fromTemplateId": "WellArchitectedFrameworkSecurityAssessment"
     }
   },
   "resources": [
