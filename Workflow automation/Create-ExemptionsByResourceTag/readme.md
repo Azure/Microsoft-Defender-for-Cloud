@@ -1,4 +1,4 @@
-# Create resource exemptions from Azure Security Benchmark (ASB) built-in initiative for specific resource tags
+# Create resource exemptions for Azure Security Benchmark (ASB) built-in initiative for specific resource tags
 
 **Author: Lara Goldstein**
 
