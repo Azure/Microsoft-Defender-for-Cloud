@@ -1,4 +1,4 @@
-# Simple Windows 2019 Server VM and Key Vault Demo Environment
+# Simple Windows 2019 Server VM with RCE Vulnerabilities and Key Vault Demo Environment
 
 This template allows you to deploy a simple Windows 2019 Server build version 2803, which includes RCE vulnerabilities out of the box (unless you run an update post install). This will deploy a D2s_v3 size VM in the resource group location and return the fully qualified domain name of the VM. To avoid updating the VM, it is configured with Manual Update only. Also, it deploys a Key Vault, a Managed System Identity assigned to the VM with permission to access the Key Vault, and Net Framework 4.8 for additional vulnerabilities.
 
