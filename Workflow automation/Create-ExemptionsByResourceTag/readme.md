@@ -4,15 +4,16 @@
 
 This automation runs on a scheduled interval to create exemptions from the ASB initiative to exempt resources with a specified tag from Secure Score calculations.
 
-You can deploy the main template by clicking on the buttons below:
+You can deploy the main template by clicking on the button below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkflow%2520automation%2FBlockBruteforceAttack%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Flaragoldstein13%2FMicrosoft-Defender-for-Cloud%2Fpatch-1%2FWorkflow%2520automation%2FCreate-ExemptionsByResourceTag%2FAzuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
+
 The ARM template will create the Logic App Automation. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
 
-The Logic App uses a system-assigned Managed Identity. You need to assign [Reader](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader) permissions and [Resource Policy Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#resource-policy-contributor) permissions to the Logic App's Managed Identity on the subscription or management group level where the policy is assigned so it is able to query for resources with a specific tag in Azure Resource Graph and create the appropriate policy exemptions. You need to assign these roles on all subscriptions or management groups you want to manage resources in using this playbook.
+The Logic App uses a system-assigned Managed Identity. You need to assign [Reader](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#reader) permissions and [Resource Policy Contributor](https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#resource-policy-contributor) permissions to the Logic App's Managed Identity so it is able to query for resources with a specific tag in Azure Resource Graph and create the appropriate policy exemptions. You need to assign these roles on all subscriptions or management groups you want to manage resources in using this playbook.
 Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
 
 **To assign Managed Identity to specific scope:**
