@@ -1,0 +1,307 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "Create-ExemptionsByResourceTag",
+            "type": "String"
+        },
+        "RecurrenceIntervalInDays": {
+            "defaultValue": "3",
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the recurrence interval in days for the Logic App to run",
+                "description": "Enter the recurrence interval in days for the Logic App to run"
+            }
+        },
+        "TagName": {
+            "defaultValue": "owner",
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the tag name to exclude (example - owner)",
+                "description": "Enter the tag name to exclude (example - owner)"
+            }
+        },
+        "TagValue": {
+            "defaultValue": "alias",
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the tag value to exclude",
+                "description": "Enter the tag value to exclude"
+            }
+        },
+        "ExpirationTimeInDays": {
+            "defaultValue": "180",
+            "type": "string",
+            "metadata": {
+                "displayName": "Enter the expiration time for the exemption in days",
+                "description": "Enter the expiration time for the exemption in days"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": "[parameters('RecurrenceIntervalInDays')]"
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": "[parameters('RecurrenceIntervalInDays')]"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "For_each_-_Resource_with_tag": {
+                            "foreach": "@body('Parse_JSON_-_Resources_with_Tag')?['data']",
+                            "actions": {
+                                "For_each_-_Policy_Assignment_Id": {
+                                    "foreach": "@body('Parse_JSON_-_Policy_Assignments_for_ASB')?['data']",
+                                    "actions": {
+                                        "HTTP": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "properties": {
+                                                        "description": "Policy exemption for resources for resources with '@{variables('tagName')}:@{variables('tagName')}' ",
+                                                        "displayName": "Exempt@{variables('tagValue')}",
+                                                        "exemptionCategory": "Waiver",
+                                                        "expiresOn": "@{body('Get_future_time')}",
+                                                        "metadata": {
+                                                            "reason": "Exemption created for resources with @{variables('tagName')}:@{variables('tagValue')}"
+                                                        },
+                                                        "policyAssignmentId": "@{items('For_each_-_Policy_Assignment_Id')?['policyAssignmentId']}"
+                                                    }
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com@{items('For_each_-_Resource_with_tag')?['id']}/providers/Microsoft.Authorization/policyExemptions/@{variables('tagValue')}Exemption?api-version=2020-07-01-preview"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_JSON_-_Policy_Assignments_for_ASB": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "Get_future_time": {
+                            "runAfter": {
+                                "Initialize_variable_-_tagValue": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Expression",
+                            "kind": "GetFutureTime",
+                            "inputs": {
+                                "interval": "[parameters('ExpirationTimeInDays')]",
+                                "timeUnit": "Day"
+                            }
+                        },
+                        "HTTP_-_Get_Policy_Assignments_for_ASB": {
+                            "runAfter": {
+                                "Parse_JSON_-_Resources_with_Tag": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "query": "policyResources | where type =~'Microsoft.Authorization/PolicyAssignments' | project policyAssignmentId = tolower(tostring(id)), policyAssignmentName = name, policyAssignmentDisplayName = tostring(properties.displayName), policyAssignmentScope = tostring(properties.scope), policyAssignmentDefinitionId = tolower(properties.policyDefinitionId), policyAssignmentNotScopes = tolower(properties.notScopes) | where policyAssignmentDefinitionId contains '1f3afdf9-d0c9-4c3d-847f-89da613e70a8'"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01"
+                            }
+                        },
+                        "HTTP_-_Post_ARG_Query_for_Resources_with_Tag": {
+                            "runAfter": {
+                                "Get_future_time": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "query": "Resources |  where tags.@{variables('tagName')} =~ '@{variables('tagValue')}' | project id,name,type,subscriptionId"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "method": "POST",
+                                "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01"
+                            }
+                        },
+                        "Initialize_variable_-_tagName": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "tagName",
+                                        "type": "string",
+                                        "value": "[parameters('TagName')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_-_tagValue": {
+                            "runAfter": {
+                                "Initialize_variable_-_tagName": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "tagValue",
+                                        "type": "string",
+                                        "value": "[parameters('TagValue')]"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON_-_Policy_Assignments_for_ASB": {
+                            "runAfter": {
+                                "HTTP_-_Get_Policy_Assignments_for_ASB": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_-_Get_Policy_Assignments_for_ASB')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "items": {
+                                                "properties": {
+                                                    "policyAssignmentDefinitionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "policyAssignmentDisplayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "policyAssignmentId": {
+                                                        "type": "string"
+                                                    },
+                                                    "policyAssignmentName": {
+                                                        "type": "string"
+                                                    },
+                                                    "policyAssignmentNotScopes": {
+                                                        "type": "string"
+                                                    },
+                                                    "policyAssignmentScope": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "facets": {
+                                            "type": "array"
+                                        },
+                                        "resultTruncated": {
+                                            "type": "string"
+                                        },
+                                        "totalRecords": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        },
+                        "Parse_JSON_-_Resources_with_Tag": {
+                            "runAfter": {
+                                "HTTP_-_Post_ARG_Query_for_Resources_with_Tag": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('HTTP_-_Post_ARG_Query_for_Resources_with_Tag')",
+                                "schema": {
+                                    "properties": {
+                                        "count": {
+                                            "type": "integer"
+                                        },
+                                        "data": {
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "type": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "facets": {
+                                            "type": "array"
+                                        },
+                                        "resultTruncated": {
+                                            "type": "string"
+                                        },
+                                        "totalRecords": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
