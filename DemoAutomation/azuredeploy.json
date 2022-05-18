@@ -328,7 +328,7 @@
         "typeHandlerVersion": "1.7",
         "settings": {
           "fileUris": [
-            "https://raw.githubusercontent.com/laragoldstein13/Microsoft-Defender-for-Cloud/patch-2/DemoAutomation/config.ps1"
+            "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/DemoAutomation/config.ps1"
           ],
           "commandToExecute": "powershell.exe -ExecutionPolicy Unrestricted -File ./config.ps1"
         },
