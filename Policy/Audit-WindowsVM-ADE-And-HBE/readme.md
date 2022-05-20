@@ -5,11 +5,11 @@ This is an auditIfNotExists policy for auditing disk encryption compliance on Wi
 
 The policy leverages the Azure Guest Configuration service to perform assessments within the VM. Pre-requisites listed below need to be installed before enabling the policy.
 
-### Pre-Requisites for Guest Configuration service:
+##### Pre-Requisites for Guest Configuration service:
 		-Install the Guest Configuration extension for Windows on the VM.
 		-Enabled System Assigned Managed Identity on the VM.
 
-### Examples of non-compliant VMs:
+##### Examples of non-compliant VMs:
 		-VMs not encrypted with ADE or HBE.
 		-VMs that are encrypted with ADE but the extension has been uninstalled from the VM.
 	
