@@ -15,6 +15,7 @@ The policy leverages the Azure Guest Configuration service to perform assessment
 	
 
 ## Try on Portal
+
+While deploying policy definition, choose 'Guest Configuration' as the policy category.
+
 [![Deploy to Azure](http://azuredeploy.net/deploybutton.png)](https://portal.azure.com/#blade/Microsoft_Azure_Policy/CreatePolicyDefinitionBlade/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPolicy%2FAudit-WindowsVM-ADE-And-HBE%2Fpolicy.json)
-
-
