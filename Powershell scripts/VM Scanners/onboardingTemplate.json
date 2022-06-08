@@ -15,13 +15,6 @@
         "description": "A new GUID used to identify the role assignment"
       }
     },
-    "roleName": {
-      "type": "string",
-      "defaultValue": "Custom Role - VM Scanner Operator",
-      "metadata": {
-        "description": "Friendly name of the role definition"
-      }
-    },
     "exclusionTags": {
       "type": "object",
       "defaultValue": {},
@@ -44,48 +37,15 @@
     }
   },
   "variables": {
-    "actions": [
-      "Microsoft.Compute/disks/read",
-      "Microsoft.Compute/disks/beginGetAccess/action",
-      "Microsoft.Compute/virtualMachines/instanceView/read",
-      "Microsoft.Compute/virtualMachines/read",
-      "Microsoft.Compute/virtualMachineScaleSets/instanceView/read",
-      "Microsoft.Compute/virtualMachineScaleSets/read",
-      "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/read",
-      "Microsoft.Compute/virtualMachineScaleSets/virtualMachines/instanceView/read"
-    ],
-    "notActions": [],
-    "roleDefName": "[guid(subscription().id, string(variables('actions')), string(variables('notActions')))]"
+    "roleId": "d24ecba3c1f440faa7bb4588a071e8fd"
   },
   "resources": [
-    {
-      "type": "Microsoft.Authorization/roleDefinitions",
-      "apiVersion": "2018-07-01",
-      "name": "[variables('roleDefName')]",
-      "properties": {
-        "roleName": "[parameters('roleName')]",
-        "description": "Used by Microsoft Defender for Cloud to scan VMs",
-        "type": "customRole",
-        "permissions": [
-          {
-            "actions": "[variables('actions')]",
-            "notActions": "[variables('notActions')]"
-          }
-        ],
-        "assignableScopes": [
-          "[subscription().id]"
-        ]
-      }
-    },
     {
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2020-04-01-preview",
       "name": "[parameters('roleNameGuid')]",
-      "dependsOn": [
-        "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefName'))]"
-      ],
       "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleDefName'))]",
+        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleId'))]",
         "principalId": "[parameters('principalId')]"
       }
     },
@@ -109,7 +69,7 @@
               "name": "default",
               "properties": {
                 "scanningMode": "Default",
-                "exclusionTags": "[parameters('exclusionTags')]"
+		"exclusionTags": "[parameters('exclusionTags')]"
               }
             }
           ]
