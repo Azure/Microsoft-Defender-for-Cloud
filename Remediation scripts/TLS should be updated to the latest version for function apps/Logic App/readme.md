@@ -1,0 +1,3 @@
+# Logic Apps sample playbook to remediate
+This sample playbook allows you to remediate TLS verion of Azure Function following "TLS should be updated to the latest version for function apps" Microsoft Defender for Cloud recomendations.
+The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriate permissions on the resources that you would like to remediate.
