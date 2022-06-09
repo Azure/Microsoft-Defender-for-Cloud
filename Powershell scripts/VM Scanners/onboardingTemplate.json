@@ -10,7 +10,7 @@
     },
     "roleNameGuid": {
       "type": "string",
-      "defaultValue": "bd9ea6db-713e-43d0-a2ee-7ff61158181a",
+      "defaultValue": "[newGuid()]",
       "metadata": {
         "description": "A new GUID used to identify the role assignment"
       }
