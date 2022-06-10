@@ -107,6 +107,10 @@
                         "apiversion": {
                             "defaultValue": "[parameters('azureRestAPiVersion')]",
                             "type": "String"
+                        },
+                        "recomendationName": {
+                            "defaultValue": "TLS should be updated to the latest version for function apps",
+                            "type": "String"
                         }
                     },
                     "triggers": {
@@ -131,7 +135,7 @@
                                 "Condition_match_recommendation_name": {
                                     "actions": {
 
-                                        "HTTP_Add_System_Managed_Identity": {
+                                        "HTTP_Set_Minimum_TLS_version_1.2": {
                                             "runAfter": {},
                                             "type": "Http",
                                             "inputs": {
@@ -139,9 +143,11 @@
                                                     "audience": "https://management.azure.com",
                                                     "type": "ManagedServiceIdentity"
                                                 },
-                                                "body": {
-                                                    "identity": {
-                                                        "type": "SystemAssigned"
+                                                "body":{
+                                                    "properties": {
+                                                        "siteConfig": {
+                                                            "minTlsVersion": "1.2"
+                                                        }
                                                     }
                                                 },
                                                 "method": "PATCH",
@@ -166,10 +172,10 @@
                                     },
                                     "expression": {
                                         "and": [
-                                            {
+                                           {
                                                 "equals": [
                                                     "@triggerBody()?['properties']?['displayName']",
-                                                    "Managed identity should be used in function apps"
+                                                    "@parameters('recomendationName')"
                                                 ]
                                             }
                                         ]
