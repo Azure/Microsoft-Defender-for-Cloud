@@ -4,7 +4,7 @@
 
 ## Description
 
-In summer 2021, we added Microsoft Defender for Endpoint (MDE) integration support for Linux machines to Microsoft Defender for Servers. In order to avoid breaking changes during the preview, we added an activation option for this integration so customers can select if they want to deploy MDE to their Linux machines in subscriptions that have existed before this release.
+In summer 2021, we added Microsoft Defender for Endpoint (MDE) integration support for Linux machines to Microsoft Defender for Cloud. In order to avoid breaking changes during the preview, we added an activation option for this integration so customers can select if they want to deploy MDE to their Linux machines in subscriptions that have existed before this release and which already had MDE integration for Windows machines enabled.
 
 ![MDE Integration](./integration.png)
 
