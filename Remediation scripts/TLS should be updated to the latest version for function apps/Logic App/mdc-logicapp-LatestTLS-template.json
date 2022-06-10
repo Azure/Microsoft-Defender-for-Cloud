@@ -13,7 +13,7 @@
             "type": "string",
             "allowedValues": [
                 "northcentralus",
-                "centralus",
+                "Central US",
                 "southcentralus",
                 "northeurope",
                 "westeurope",
