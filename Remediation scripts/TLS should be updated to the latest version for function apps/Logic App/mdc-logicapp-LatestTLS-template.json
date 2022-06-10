@@ -9,52 +9,7 @@
             "defaultValue": "ascassessment",
             "type": "String"
         },
-        /*"connectionLocation": {
-            "type": "string",
-            "allowedValues": [
-                "northcentralus",
-                "Central US",
-                "southcentralus",
-                "northeurope",
-                "westeurope",
-                "eastasia",
-                "southeastasia",
-                "westus",
-                "eastus",
-                "eastus2",
-                "japanwest",
-                "japaneast",
-                "brazilsouth",
-                "australiaeast",
-                "brazilsoutheast",
-                "australiasoutheast",
-                "southindia",
-                "centralindia",
-                "westindia",
-                "westus2",
-                "westus3",
-                "jioindiawest",
-                "westcentralus",
-                "canadacentral",
-                "canadaeast",
-                "uksouth",
-                "ukwest",
-                "francecentral",
-                "francesouth",
-                "koreacentral",
-                "koreasouth",
-                "southafricawest",
-                "southafricanorth",
-                "uaecentral",
-                "uaenorth",
-                "switzerlandnorth",
-                "switzerlandwest",
-                "norwayeast",
-                "norwaywest",
-                "germanynorth",
-                "germanywestcentral"
-            ]
-        }, */
+        
         "azureRestAPiVersion": {
             "type": "string",
             "defaultValue": "api-version=2021-02-01"
@@ -62,7 +17,6 @@
         }
     },
     "variables": {
-        //"connectionName": "[concat(parameters('connectionNamePrefix'),parameters('connectionLocation'))]"
         "connectionName": "[concat(parameters('connectionNamePrefix'),resourceGroup().location)]"
     
     },
@@ -80,7 +34,6 @@
                     "name": "[variables('connectionName')]",
                     "displayName": "Microsoft Defender for Cloud Recommendation",
                     "description": "Microsoft Defender for Cloud is a unified infrastructure security management system that strengthens the security posture of your data centers, and provides advanced threat protection across your hybrid workloads in the cloud - whether they're in Azure or not - as well as on premises",
-                    //"id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('connectionLocation'), 'ascassessment')]",
                     "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'ascassessment')]",
                     "type": "Microsoft.Web/locations/managedApis"
                 },
