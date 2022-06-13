@@ -1,0 +1,186 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflowName": {
+            "type": "String"
+        },
+        "connectionNamePrefix": {
+            "defaultValue": "ascassessment",
+            "type": "String"
+        },
+
+        "azureRestAPiVersion": {
+            "type": "string",
+            "defaultValue": "api-version=2021-02-01"
+
+        }
+    },
+    "variables": {
+        "connectionName": "[concat(parameters('connectionNamePrefix'),resourceGroup().location)]"
+
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('connectionName')]",
+            //"location": "[parameters('connectionLocation')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "Microsoft Defender for Cloud Recommendation",
+                "api": {
+                    "name": "[variables('connectionName')]",
+                    "displayName": "Microsoft Defender for Cloud Recommendation",
+                    "description": "Microsoft Defender for Cloud is a unified infrastructure security management system that strengthens the security posture of your data centers, and provides advanced threat protection across your hybrid workloads in the cloud - whether they're in Azure or not - as well as on premises",
+                    "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'ascassessment')]",
+                    "type": "Microsoft.Web/locations/managedApis"
+                },
+                "testLinks": []
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflowName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections',variables('connectionName'))]"
+            ],
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "apiversion": {
+                            "defaultValue": "[parameters('azureRestAPiVersion')]",
+                            "type": "String"
+                        },
+                        "recomendationName": {
+                            "defaultValue": "Managed identity should be used in function apps",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Azure_Security_Center_Recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "Condition_resource_is_in_Azure": {
+                            "actions": {
+                                "Condition_match_recommendation_name": {
+                                    "actions": {
+
+                                        "HTTP_Add_System_Managed_Identity": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://management.azure.com",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "identity": {
+                                                        "type": "SystemAssigned"
+                                                    }
+                                                },
+                                                "method": "PATCH",
+                                                "uri": "https://management.azure.com/@{triggerBody()?['properties']?['resourceDetails']?['id']}?@{parameters('apiversion')}"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "else": {
+                                        "actions": {
+                                            "Terminate_wrong_recommendation": {
+                                                "runAfter": {},
+                                                "type": "Terminate",
+                                                "inputs": {
+                                                    "runError": {
+                                                        "message": "Recomendation  @{triggerBody()?['properties']?['displayName']} does not match with remediation steps. Please select correct remediation"
+                                                    },
+                                                    "runStatus": "Failed"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@triggerBody()?['properties']?['displayName']",
+                                                    "@parameters('recomendationName')"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {},
+                            "else": {
+                                "actions": {
+                                    "Terminate_wrong_cloud": {
+                                        "runAfter": {},
+                                        "type": "Terminate",
+                                        "inputs": {
+                                            "runError": {
+                                                "message": "This function is designed to remediate resources in @{triggerBody()?['properties']?['resourceDetails']?['source']}. Please select appropriate remediation process for other clouds"
+                                            },
+                                            "runStatus": "Failed"
+                                        }
+                                    }
+                                }
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@triggerBody()?['properties']?['resourceDetails']?['source']",
+                                            "Azure"
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascassessment": {
+
+                                "connectionId": "[resourceId('Microsoft.Web/connections',variables('connectionName'))]",
+                                "connectionName": "[variables('connectionName')]",
+                                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
