@@ -11,7 +11,7 @@ The workbook provides different sections:
 *	Computer Details
 *	GC Compliance Details, Reason and Reason Code per Checkup 
 
-**By Computer''
+**By Computer**
 * Platform, SKU and Offer Overview
 * Compliance by Plattofrm and SKU
 * Computer Overview
@@ -32,5 +32,9 @@ You can deploy the workbook by clicking on the buttons below:
 
 ##
 
-![Workbook Overview](./picture1.png)
-![Workbook Overview](./picture2.png)
+![GC Policy Overview](./gc_overview.png)
+![GC Policy Reasons(./gc_reasons.png)
+![Computer(./computerdetails.png)
+![GC Policy Assignments(./policy_assingment.png)
+![Extensions and Identites(./agent_identity.png)
+
