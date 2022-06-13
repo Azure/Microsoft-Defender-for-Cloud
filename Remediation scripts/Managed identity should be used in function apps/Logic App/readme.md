@@ -3,7 +3,7 @@
 This sample playbook allows you to add System Managed Identity to Function App to remeidate "Managed identity should be used in function apps" Microsoft Defender for Cloud recomendations.
 The playbook leverages a "Managed Identity" which needs to be configured after deployment. This "Managed Identity" also requires the appropriate permissions on the resources that you would like to remediate.
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnoendscripting%2FMicrosoft-Defender-for-Cloud%2Fmain%2FRemediation%20scripts%2FTLS%20should%20be%20updated%20to%20the%20latest%20version%20for%20function%20apps%2FLogic%20App%2Fmdc-logicapp-LatestTLS-template.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fnoendscripting%2FMicrosoft-Defender-for-Cloud%2Fmain%2FRemediation%20scripts%2FManaged%20identity%20should%20be%20used%20in%20function%20apps%2FLogic%20App%2Fmdc-logicapp-MSI-template.json)
 
 # Contributing
 
