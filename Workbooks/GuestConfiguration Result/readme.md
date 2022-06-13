@@ -33,8 +33,8 @@ You can deploy the workbook by clicking on the buttons below:
 ##
 
 ![GC Policy Overview](./gc_overview.png)
-![GC Policy Reasons(./gc_reasons.png)
-![Computer(./computerdetails.png)
-![GC Policy Assignments(./policy_assingment.png)
-![Extensions and Identites(./agent_identity.png)
+![GC Policy Reasons](./gc_reasons.png)
+![Computer](./computerdetails.png)
+![GC Policy Assignments](./policy_assingment.png)
+![Extensions and Identites](./agent_identity.png)
 
