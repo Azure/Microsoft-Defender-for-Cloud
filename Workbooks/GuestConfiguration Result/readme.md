@@ -32,7 +32,7 @@ You can deploy the workbook by clicking on the buttons below:
 
 https://raw.githubusercontent.com/HolgerWache/Azure-Security-Center/HoWa-Workbook/Workbooks/GuestConfiguration%20Result/armTemplate.json
 
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/HolgerWache/Azure-Security-Center/HoWa-Workbook/Workbooks/GuestConfiguration%20Result/armTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https://raw.githubusercontent.com/HolgerWache/Azure-Security-Center/HoWa-Workbook/Workbooks/GuestConfiguration%20Result/armTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 ##
 ![GC Policy Overview](./gc_overview.png)
