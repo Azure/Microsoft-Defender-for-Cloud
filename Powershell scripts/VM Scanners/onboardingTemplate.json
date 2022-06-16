@@ -53,9 +53,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "vmScannersResourceRgTemplate",
-      "dependsOn": [
-        "[resourceId('Microsoft.Authorization/roleAssignments', parameters('roleNameGuid'))]"
-      ],
       "properties": {
         "mode": "Incremental",
         "template": {
