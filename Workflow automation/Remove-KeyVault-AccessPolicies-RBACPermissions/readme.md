@@ -4,7 +4,7 @@
 
 **Contributor(s)**: Safeena Begum, Tom Janetschek
 
-Most Microsoft Defender for Key vault alerts derive from a user trying to access the Key vault in a suspicious manner.  Some examples of these alerts include “Access from a suspicious IP address to a key vault” and “Unusual user accessed a key vault”. When this automation is executed it will automatically respond to these (and other) Key vault alerts, by removing the access policies and RBAC permissions the user has in Key vault. 
+Most Microsoft Defender for Key vault alerts derive from a user trying to access the Key vault in a suspicious manner.  Some examples of these alerts include “Access from a suspicious IP address to a key vault” and “Unusual user accessed a key vault”. When this automation is executed it will automatically respond to these (and other) Key vault alerts, by removing the access policies and RBAC permissions the user has in Key vault.
 
 **Logic Implemented:**
 
@@ -13,10 +13,10 @@ Most Microsoft Defender for Key vault alerts derive from a user trying to access
 
 **Deploy the template by clicking the respective button below.**
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkflow%2520automation%2FExtend-AlertSuppressionRulesAboutToExpire%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%2520automation%2FRemove-KeyVault-AccessPolicies-RBACPermissions%2Fazuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkflow%2520automation%2FExtend-AlertSuppressionRulesAboutToExpire%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%2520automation%2FRemove-KeyVault-AccessPolicies-RBACPermissions%2Fazuredeploy.json" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a>
 
