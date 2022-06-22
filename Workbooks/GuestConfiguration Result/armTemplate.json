@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "GuestConfiguration Result",
+      "defaultValue": "GuestConfiguration Result v1.1",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -37,7 +37,7 @@
         {
           "type": 1,
           "content": {
-            "json": "## Guest Configuration details\n---\n\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines"
+            "json": "## Guest Configuration Result v.1.1\n---\n\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines"
           },
           "name": "text - 2"
         },
@@ -100,10 +100,7 @@
                 "queryType": 1,
                 "resourceType": "microsoft.resourcegraph/resources",
                 "value": [
-                  "GC.3.5.2.AutoApplyScript102UX_TrendMicro_01",
-                  "GC1.20.3_DC2016_Hardening_v02",
-                  "LinuxNoPasswordForSSH",
-                  "AzureLinuxBaseline"
+                  "GC.3.5.2.AutoApplyScript102UX_TrendMicro_01"
                 ]
               },
               {
@@ -133,7 +130,7 @@
                 "resourceType": "microsoft.resourcegraph/resources"
               }
             ],
-            "style": "pills",
+            "style": "above",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources"
           },
@@ -173,8 +170,16 @@
                 "id": "eb4bbb2c-64c8-4cc1-ac81-08544d92e1aa",
                 "cellValue": "SelectedView",
                 "linkTarget": "parameter",
-                "linkLabel": "GC Agents and Identity",
-                "subTarget": "GCAgents",
+                "linkLabel": "Extensions",
+                "subTarget": "Extensions",
+                "style": "link"
+              },
+              {
+                "id": "388ed574-e0b9-40c7-80a9-5d048b306b16",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "Identity",
+                "subTarget": "Identity",
                 "style": "link"
               }
             ]
@@ -186,6 +191,7 @@
           "content": {
             "version": "NotebookGroup/1.0",
             "groupType": "editable",
+            "title": "By Policy",
             "items": [
               {
                 "type": 3,
@@ -299,10 +305,54 @@
                 "name": "Overview-Subscription"
               },
               {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "parameters": [
+                    {
+                      "id": "a35c9af1-81da-4519-9d50-1a519783b318",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "not_reported_for",
+                      "label": "Not Reported for",
+                      "type": 2,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"now()\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
+                      "timeContext": {
+                        "durationMs": 86400000
+                      }
+                    },
+                    {
+                      "id": "75aa4829-b96e-40e9-947f-c6a8fca329b7",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "include_pending",
+                      "label": "Include Pending State",
+                      "type": 10,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"true\", \"label\": \"Yes\", \"selected\":true  },\r\n { \"value\": \"'Pending'\", \"label\": \"No\"}\r\n ]",
+                      "timeContext": {
+                        "durationMs": 86400000
+                      }
+                    }
+                  ],
+                  "style": "above",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
+                },
+                "name": "parameters - 5"
+              },
+              {
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n//| extend lastCheckUTC = format_datetime(todatetime(properties.lastComplianceStatusChecked), 'yyyy-M-dd [H:mm:ss]')\r\n| extend lastCheckUTC = properties.lastComplianceStatusChecked\r\n| extend AssignmentName = properties.latestAssignmentReport.assignment.name\r\n| extend GCName = properties.guestConfiguration.name\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend contentUri = properties.guestConfiguration.contentUri\r\n| extend ReportID = properties.latestReportId\r\n| extend Computer = properties.targetResourceId\r\n| extend Success = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"true\"')\r\n| extend Failed = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"false\"')\r\n| extend ReportID = split(ReportID, \"/reports/\",0)[0]\r\n| extend ReportID = replace(\"/\", \"%2F\", tostring(ReportID))\r\n| extend ReportURL = strcat(\"https://portal.azure.com/#blade/HubsExtension/ResourceMenuBlade/id/\", ReportID)\r\n| extend ChecksFailedPercentage = (100.00 / (Success + Failed)) * Failed\r\n| extend ChecksSuccessPercentage = (100.00 / (Success + Failed)) * Success\r\n| extend ChecksFailed = strcat(Failed,\" of \",(Success + Failed ),\" | \", round(ChecksFailedPercentage,1),\"%\" )\r\n| project  tostring(subscriptionId), resourceGroup = tostring(Computer), tostring(Computer), GCName, ComplianceStatus, ChecksFailed, ChecksFailedPercentage, ChecksSuccessPercentage, lastCheck = lastCheckUTC, ReportURL\r\n| sort by tostring(GCName) asc\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend lastCheckUTC = properties.lastComplianceStatusChecked\r\n| where lastCheckUTC < {not_reported_for:value}\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| where ComplianceStatus != {include_pending}\r\n//| extend lastCheckUTC = format_datetime(todatetime(properties.lastComplianceStatusChecked), 'yyyy-M-dd [H:mm:ss]')\r\n| extend AssignmentName = properties.latestAssignmentReport.assignment.name\r\n| extend GCName = properties.guestConfiguration.name\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend contentUri = properties.guestConfiguration.contentUri\r\n| extend ReportID = properties.latestReportId\r\n| extend Computer = properties.targetResourceId\r\n| extend Success = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"true\"')\r\n| extend Failed = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"false\"')\r\n| extend ReportID = split(ReportID, \"/reports/\",0)[0]\r\n| extend ReportID = replace(\"/\", \"%2F\", tostring(ReportID))\r\n| extend ReportURL = strcat(\"https://portal.azure.com/#blade/HubsExtension/ResourceMenuBlade/id/\", ReportID)\r\n| extend ChecksFailedPercentage = (100.00 / (Success + Failed)) * Failed\r\n| extend ChecksSuccessPercentage = (100.00 / (Success + Failed)) * Success\r\n| extend ChecksFailed = strcat(Failed,\" of \",(Success + Failed ),\" | \", round(ChecksFailedPercentage,1),\"%\" )\r\n| project  tostring(subscriptionId), resourceGroup = tostring(Computer), tostring(Computer), GCName, ComplianceStatus, ChecksFailed, ChecksFailedPercentage, ChecksSuccessPercentage, lastCheck = lastCheckUTC, ReportURL\r\n| sort by tostring(GCName) asc\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
                   "size": 0,
                   "title": "Compliance by Computer, select an entry for more details",
                   "exportedParameters": [
@@ -325,6 +375,21 @@
                   "visualization": "table",
                   "gridSettings": {
                     "formatters": [
+                      {
+                        "columnMatch": "lastCheck",
+                        "formatter": 6,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        },
+                        "dateFormat": {
+                          "showUtcTime": null,
+                          "formatName": "shortDateTimePattern"
+                        }
+                      },
+                      {
+                        "columnMatch": "lastCheckUTC3",
+                        "formatter": 1
+                      },
                       {
                         "columnMatch": "subscriptionId",
                         "formatter": 15,
@@ -421,17 +486,6 @@
                         "formatter": 5
                       },
                       {
-                        "columnMatch": "lastCheck",
-                        "formatter": 6,
-                        "formatOptions": {
-                          "customColumnWidthSetting": "20ch"
-                        },
-                        "dateFormat": {
-                          "showUtcTime": null,
-                          "formatName": "shortDateTimePattern"
-                        }
-                      },
-                      {
                         "columnMatch": "ReportURL",
                         "formatter": 7,
                         "formatOptions": {
@@ -441,26 +495,9 @@
                       }
                     ],
                     "rowLimit": 10000,
-                    "filter": true,
-                    "sortBy": [
-                      {
-                        "itemKey": "$gen_link_Computer_2",
-                        "sortOrder": 1
-                      }
-                    ],
-                    "labelSettings": [
-                      {
-                        "columnId": "ChecksFailedPercentage",
-                        "label": "Resource Checks"
-                      }
-                    ]
+                    "filter": true
                   },
-                  "sortBy": [
-                    {
-                      "itemKey": "$gen_link_Computer_2",
-                      "sortOrder": 1
-                    }
-                  ],
+                  "sortBy": [],
                   "tileSettings": {
                     "showBorder": false,
                     "titleContent": {
@@ -541,7 +578,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Resources\r\n//| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where id =~ \"{Computer}\"\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Computer = id, OS, location, resourceGroup, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=properties.hardwareProfile.vmSize, SKU=properties.storageProfile.imageReference.sku\r\n",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where id =~ \"{Computer}\"\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = id, OS, location,   powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize),  SKU=properties.storageProfile.imageReference.sku,  Version=properties.storageProfile.imageReference.exactVersion\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| where id =~ \"{Computer}\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = id, powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n\r\n\r\n\r\n",
                   "size": 4,
                   "title": "Computer details",
                   "queryType": 1,
@@ -552,6 +589,26 @@
                   "visualization": "table",
                   "gridSettings": {
                     "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "Version",
+                        "formatter": 1
+                      },
                       {
                         "columnMatch": "name",
                         "formatter": 13,
@@ -623,7 +680,7 @@
                         "columnMatch": "Result",
                         "formatter": 0,
                         "formatOptions": {
-                          "customColumnWidthSetting": "140ch"
+                          "customColumnWidthSetting": "100ch"
                         }
                       }
                     ],
@@ -719,6 +776,7 @@
           "content": {
             "version": "NotebookGroup/1.0",
             "groupType": "editable",
+            "title": "By Computer",
             "items": [
               {
                 "type": 3,
@@ -1647,6 +1705,7 @@
           "content": {
             "version": "NotebookGroup/1.0",
             "groupType": "editable",
+            "title": "Policy Details",
             "items": [
               {
                 "type": 3,
@@ -1813,15 +1872,12 @@
           "content": {
             "version": "NotebookGroup/1.0",
             "groupType": "editable",
-            "title": "GC Agents and Identity",
+            "title": "Extensions",
             "items": [
               {
                 "type": 9,
                 "content": {
                   "version": "KqlParameterItem/1.0",
-                  "crossComponentResources": [
-                    "{Subscription}"
-                  ],
                   "parameters": [
                     {
                       "id": "6b832bd9-3c52-4af8-baf8-6eda52f2bf38",
@@ -1867,8 +1923,7 @@
                         "{Subscription}"
                       ],
                       "value": [
-                        "OMSAgentForLinux",
-                        "MicrosoftMonitoringAgent"
+                        "value::all"
                       ],
                       "typeSettings": {
                         "additionalResourceOptions": [
@@ -1896,7 +1951,7 @@
                         "{Subscription}"
                       ],
                       "value": [
-                        "Succeeded"
+                        "value::all"
                       ],
                       "typeSettings": {
                         "additionalResourceOptions": [
@@ -1909,11 +1964,24 @@
                       },
                       "queryType": 1,
                       "resourceType": "microsoft.resourcegraph/resources"
+                    },
+                    {
+                      "id": "20530a61-177c-4111-9fd4-f18444d0b023",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "include_vm_missing_ext",
+                      "label": "Show VMs with missing Extension",
+                      "type": 10,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"true\", \"label\": \"Yes\" },\r\n { \"value\": \"false\", \"label\": \"No\", \"selected\":true }\r\n ]"
                     }
                   ],
-                  "style": "pills",
-                  "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
+                  "style": "above",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
                 },
                 "name": "ExtIdentity Parameter"
               },
@@ -1921,7 +1989,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| join kind=leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend VMId = tostring(split(id, \"/extensions/\")[0])\r\n) on $left.id == $right.VMId\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| extend installed = iff(isnotempty(tostring(name1)), \"installed\", \"missing\")\r\n| summarize count() by Type, installed, OS\r\n| extend text = strcat(installed, \" on \",OS, \" \", Type)\r\n| project-away Type, installed, OS\r\n\r\n",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join kind=leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Filterdummy = iff({include_vm_missing_ext} == \"true\", \"all\", name1 )\r\n| where isnotempty(Filterdummy)\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| extend installed = iff(isnotempty(tostring(name1)), \"installed\", \"missing\")\r\n| summarize count() by Type, installed, OS\r\n| extend text = strcat(installed, \" on \",OS, \" \", Type)\r\n| project-away Type, installed, OS\r\n\r\n",
                   "size": 0,
                   "title": "installed extensions on Azure / Arc",
                   "queryType": 1,
@@ -2105,7 +2173,7 @@
                     ]
                   }
                 },
-                "customWidth": "30",
+                "customWidth": "40",
                 "showPin": false,
                 "name": "ExtensionOverview"
               },
@@ -2113,9 +2181,9 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend IdentityType = tostring(identity.type)\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| project Type, IdentityType\r\n| extend IdentityType = iff(isnotempty(IdentityType), IdentityType, \"none\")\r\n| summarize count() by Type, IdentityType\r\n| extend text = strcat(IdentityType, \" installed on \", Type)\r\n| project-away  Type, IdentityType\r\n",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join  (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| summarize count() by Type, OS, tostring(provState)\r\n| extend text = strcat(provState, \" on \", OS, \" \", Type)\r\n| project-away Type,  OS, provState\r\n\r\n\r\n\r\n\r\n\r\n",
                   "size": 0,
-                  "title": "installed identities on Azure / Arc",
+                  "title": "extensions provisioning state on Azure / Arc",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
@@ -2141,34 +2209,171 @@
                           "showIcon": true,
                           "customColumnWidthSetting": "20ch"
                         }
+                      },
+                      {
+                        "columnMatch": "provState",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Succeeded",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Failed",
+                              "representation": "4",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "1",
+                              "text": "{0}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgr",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Auto Upgrade"
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgrMinVer",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "auto Upgrade Minor Version"
+                        }
+                      },
+                      {
+                        "columnMatch": "properties",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "CellDetails",
+                          "linkLabel": "details",
+                          "linkIsContextBlade": true
+                        }
                       }
-                    ]
+                    ],
+                    "filter": true
+                  },
+                  "sortBy": [],
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "Type",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
                   },
                   "chartSettings": {
                     "seriesLabelSettings": [
                       {
-                        "seriesName": "SystemAssigned installed on Azure",
+                        "seriesName": "installed on Azure",
                         "color": "blue"
                       },
                       {
-                        "seriesName": "SystemAssigned installed on Arc",
+                        "seriesName": "installed on Arc",
                         "color": "purple"
                       },
                       {
-                        "seriesName": "none installed on Azure",
+                        "seriesName": "missing on Arc",
+                        "color": "purpleDark"
+                      },
+                      {
                         "color": "red"
                       }
                     ]
                   }
                 },
-                "customWidth": "50",
-                "name": "Identity Overview"
+                "customWidth": "40",
+                "showPin": false,
+                "name": "ExtensionProvState"
               },
               {
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| join kind=leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend autoUpgrMinVer = properties.autoUpgradeMinorVersion\r\n    | extend autoUpgr = properties.enableAutomaticUpgrade\r\n    | project id, name, provState, autoUpgr, autoUpgrMinVer, properties\r\n    | extend VMId = tostring(split(id, \"/extensions/\")[0])\r\n) on $left.id == $right.VMId\r\n| sort by tolower(name) asc\r\n| project ResId = id, OS, location, Subscription = id, ResGroup = id,  ExtName = name1, ExtId = id1, provState, autoUpgr, autoUpgrMinVer, properties = properties1\r\n\r\n",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join kind= leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend autoUpgrMinVer = properties.autoUpgradeMinorVersion\r\n    | extend autoUpgr = properties.enableAutomaticUpgrade\r\n    | project id, name, provState, autoUpgr, autoUpgrMinVer, properties\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Filterdummy = iff({include_vm_missing_ext} == \"true\", \"all\", name1 )\r\n| where isnotempty(Filterdummy)\r\n| sort by tolower(name) asc\r\n| project ResId = id, OS, location, Subscription = id, ResGroup = id,  ExtName = name1, ExtId = id1, provState, autoUpgr, autoUpgrMinVer, properties = properties1\r\n\r\n\r\n",
                   "size": 0,
                   "title": "extension details if installed on Azure / Arc",
                   "queryType": 1,
@@ -2340,23 +2545,170 @@
                     ],
                     "rowLimit": 10000,
                     "filter": true,
-                    "labelSettings": [
+                    "sortBy": [
                       {
-                        "columnId": "ExtName",
-                        "label": "ExtensionName"
+                        "itemKey": "$gen_link_ResId_0",
+                        "sortOrder": 1
                       }
                     ]
                   },
-                  "sortBy": []
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_link_ResId_0",
+                      "sortOrder": 1
+                    }
+                  ]
                 },
                 "showPin": false,
                 "name": "Extension Details"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "Extensions"
+          },
+          "name": "Extensions"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Identity",
+            "items": [
+              {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "parameters": [
+                    {
+                      "id": "d8bf330a-e3ed-4be0-b0b4-1c9e0ae5f59d",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "ResGroup",
+                      "type": 5,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| summarize by resourceGroup\r\n| sort by resourceGroup",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "defaultValue": "value::all",
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ],
+                      "label": "VM/Arc in ResGroup"
+                    },
+                    {
+                      "id": "696b74af-3f50-42ca-ac32-1ce5d4e821a5",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "IdentityType",
+                      "type": 2,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend IdentityType = tostring(identity.type)\r\n| extend IdentityType = iff(isnotempty(IdentityType), IdentityType, \"NoIdentity\")\r\n| summarize by IdentityType",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "defaultValue": "value::all",
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ]
+                    }
+                  ],
+                  "style": "above",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                "name": "ExtIdentity Parameter - Copy"
               },
               {
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| extend IdentityId = tostring(identity.principalId)\r\n| extend IdentityType = tostring(identity.type)\r\n| sort by tolower(name) asc\r\n| project ResId = id, Subscription = id, ResGroup = id, IdentityId, IdentityType",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend IdentityType = iff(isnotempty(tostring(identity.type)), tostring(identity.type), \"NoIdentity\")\r\n| where IdentityType in ({IdentityType})\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| project Type, IdentityType\r\n| extend IdentityType = iff(isnotempty(IdentityType), IdentityType, \"none\")\r\n| summarize count() by Type, IdentityType\r\n| extend text = strcat(IdentityType, \" installed on \", Type)\r\n| project-away  Type, IdentityType\r\n",
+                  "size": 0,
+                  "title": "installed identities on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      }
+                    ]
+                  },
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "SystemAssigned installed on Azure",
+                        "color": "blue"
+                      },
+                      {
+                        "seriesName": "SystemAssigned installed on Arc",
+                        "color": "purple"
+                      },
+                      {
+                        "seriesName": "none installed on Azure",
+                        "color": "red"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "Identity Overview"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| extend IdentityId = tostring(identity.principalId)\r\n| extend IdentityType = iff(isnotempty(tostring(identity.type)), tostring(identity.type), \"NoIdentity\")\r\n| where IdentityType in ({IdentityType})\r\n| sort by tolower(name) asc\r\n| project ResId = id, Subscription = id, ResGroup = id, IdentityId, IdentityType",
                   "size": 0,
                   "title": "identity details if installed on Azure / Arc",
                   "queryType": 1,
@@ -2383,22 +2735,74 @@
                           "showIcon": true,
                           "customColumnWidthSetting": "20ch"
                         }
+                      },
+                      {
+                        "columnMatch": "IdentityType",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "SystemAssigned",
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "NoIdentity",
+                              "representation": "redBright",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "SystemAssigned, UserAssigned",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "UserAssigned",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
                       }
                     ],
                     "rowLimit": 10000,
-                    "filter": true
-                  }
+                    "filter": true,
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_thresholds_IdentityType_4",
+                        "sortOrder": 1
+                      }
+                    ]
+                  },
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_thresholds_IdentityType_4",
+                      "sortOrder": 1
+                    }
+                  ]
                 },
                 "name": "identity details"
               }
-            ]
+            ],
+            "exportParameters": true
           },
           "conditionalVisibility": {
             "parameterName": "SelectedView",
             "comparison": "isEqualTo",
-            "value": "GCAgents"
+            "value": "Identity"
           },
-          "name": "GCAgents+Identity"
+          "name": "Identity"
         }
       ],
       "isLocked": false,
