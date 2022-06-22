@@ -9,6 +9,7 @@ The workbook provides different sections:
 *	Compliance by Subscription
 *	Comliance by Computer Azure and Arc
 *	Computer Details
+*	Stale Reporting
 *	GC Compliance Details, Reason and Reason Code per Checkup 
 
 **By Computer**
