@@ -20,9 +20,11 @@ The workbook provides different sections:
 * Definition Details, Standalone or Initative mapped
 * Active Assignments
 
-**Agents and Identity**
-* Installed Extensions
-* Installed Identity
+**Extensions**
+* Installed and missing Extensions
+
+**Identity**
+* Installed and missing Identity
 
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
