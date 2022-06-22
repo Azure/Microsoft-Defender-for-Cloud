@@ -24,7 +24,7 @@ The workbook provides different sections:
 * Installed and missing Extensions
 
 **Identity**
-* Installed and missing Identity
+* Installed and missing Identities
 
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
