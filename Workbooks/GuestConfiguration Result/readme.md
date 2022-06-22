@@ -45,5 +45,8 @@ You can deploy the workbook by clicking on the buttons below:
 ![GC Policy Assignments](./policy_assingment.png)
 
 ** **
-![Extensions and Identites](./agent_identity.png)
+![Extensions](./gc_extensions.png)
+
+** **
+![Identity](./gc_identity.png)
 
