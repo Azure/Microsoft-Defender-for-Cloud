@@ -2,19 +2,6 @@
   "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "principalId": {
-      "type": "string",
-      "metadata": {
-        "description": "The principal to assign the role to, should be the object ID of the 'Microsoft Defender for Cloud Servers Scanner Resource Provider' application"
-      }
-    },
-    "roleNameGuid": {
-      "type": "string",
-      "defaultValue": "bd9ea6db-713e-43d0-a2ee-7ff61158181a",
-      "metadata": {
-        "description": "A new GUID used to identify the role assignment"
-      }
-    },
     "exclusionTags": {
       "type": "object",
       "defaultValue": {},
@@ -36,26 +23,11 @@
       }
     }
   },
-  "variables": {
-    "roleId": "d24ecba3c1f440faa7bb4588a071e8fd"
-  },
   "resources": [
-    {
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2020-04-01-preview",
-      "name": "[parameters('roleNameGuid')]",
-      "properties": {
-        "roleDefinitionId": "[resourceId('Microsoft.Authorization/roleDefinitions', variables('roleId'))]",
-        "principalId": "[parameters('principalId')]"
-      }
-    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2020-10-01",
       "name": "vmScannersResourceRgTemplate",
-      "dependsOn": [
-        "[resourceId('Microsoft.Authorization/roleAssignments', parameters('roleNameGuid'))]"
-      ],
       "properties": {
         "mode": "Incremental",
         "template": {
