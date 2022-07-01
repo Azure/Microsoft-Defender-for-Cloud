@@ -1,5 +1,16 @@
 {
   "mode": "Indexed",
+  "metadata": {
+    "category": "Guest Configuration",
+    "version": "2.0.0",
+    "requiredProviders": [
+      "Microsoft.GuestConfiguration"
+    ],
+    "guestConfiguration": {
+      "name": "AzureWindowsVMEncryptionCompliance",
+      "version": "1.*"
+    }
+  },
   "policyRule": {
     "if": {
       "anyOf": [
