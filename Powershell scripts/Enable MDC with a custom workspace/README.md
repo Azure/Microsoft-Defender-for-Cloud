@@ -1,4 +1,4 @@
-# Onboard a new subscription to MDC with custom log analytics workspace by PowerShell
+# Onboard a new subscription to Microsoft Defender for Cloud with a custom log analytics workspace using PowerShell
 
 **Author  : Rotem Simhi**  
 **Reviewer: Shay Amar**
