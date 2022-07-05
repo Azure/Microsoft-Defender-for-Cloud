@@ -109,9 +109,3 @@ Invoke-RestMethod -Uri $RestURI -Method Put -Body $jsonBody -Headers $requestHea
 
 #endregion
 
-
-
-
-# Update JUT network access policy Set-AzJitNetworkAccessPolicy
-
-
