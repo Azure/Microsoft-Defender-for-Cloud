@@ -3,10 +3,11 @@
 
 # Define the Params
 Param(
-    $SubscriptionId    = '525c7f2e-XXXX-XXXX-XXXX-384e05b9e30f',
-    $ResourceGroupName = 'Demo_analytics',
-    $WorkSpaceName     = 'DemoWorkSpaceName',
-    $tenantID          = '525c7f2e-XXXX-XXXX-XXXX-384e05b9e30f'
+    $SubscriptionId              = '525c7f2e-XXXX-XXXX-XXXX-384e05b9e30f',
+    $ResourceGroupName           = 'Demo_analytics',
+    $WorkSpaceSubscriptionID     = 'WorkSpaceSubscriptionID',
+    $WorkSpaceName               = 'DemoWorkSpaceName',
+    $tenantID                    = '525c7f2e-XXXX-XXXX-XXXX-384e05b9e30f'
 )
 
 Connect-AzAccount -Tenant $tenantID
@@ -60,7 +61,7 @@ foreach ($DefenderPlan in $SecurityPricing){
 $WorkspaceSettingName = "default"
 Set-AzSecurityWorkspaceSetting -Name $WorkspaceSettingName `
     -Scope "/subscriptions/$SubscriptionId" `
-    -WorkspaceId "/subscriptions/$SubscriptionId/resourcegroups/$ResourceGroupName/providers/microsoft.operationalinsights/workspaces/$WorkSpaceName"
+    -WorkspaceId "/subscriptions/$WorkSpaceSubscriptionID/resourcegroups/$ResourceGroupName/providers/microsoft.operationalinsights/workspaces/$WorkSpaceName"
 
 # Enable Auto Provisioning
 Set-AzSecurityAutoProvisioningSetting -Name $WorkspaceSettingName -EnableAutoProvision
@@ -102,15 +103,9 @@ $Body.add("properties", $Properties)
 $jsonBody = $Body | ConvertTo-Json
 
 # Generate the request URI  
-$RestURI = 'https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.OperationalInsights/Workspaces/{2}/datasources/SecurityEventCollectionConfiguration?api-version=2015-11-01-preview' -f $SubscriptionId, $ResourceGroupName, $WorkSpaceName
+$RestURI = 'https://management.azure.com/subscriptions/{0}/resourcegroups/{1}/providers/Microsoft.OperationalInsights/Workspaces/{2}/datasources/SecurityEventCollectionConfiguration?api-version=2015-11-01-preview' -f $WorkSpaceSubscriptionID, $ResourceGroupName, $WorkSpaceName
 
 Invoke-RestMethod -Uri $RestURI -Method Put -Body $jsonBody -Headers $requestHeader
 
 #endregion
-
-
-
-
-# Update JUT network access policy Set-AzJitNetworkAccessPolicy
-
 
