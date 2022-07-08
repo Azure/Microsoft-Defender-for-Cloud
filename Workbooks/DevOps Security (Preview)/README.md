@@ -9,4 +9,4 @@ If you have *questions* or *feedback* about the DevOps Workbook please contact d
 ## Try it on the Azure Portal
 To deploy the new DevOps Workbook into your MDC console, click on Deploy to Azure for Azure Public cloud. During the deployment, you must select a subscription and resource group to store the report. Once the Workbook is successfully deployed, navigate to the Workbook to start using it.
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fpreview%2FWorkbooks%2FDevOps%20Security%28Preview%29%2Fdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fpreview%2FWorkbooks%2FDevOps%20Security%20%28Preview%29%2Fdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
