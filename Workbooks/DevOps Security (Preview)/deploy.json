@@ -1,0 +1,1028 @@
+{
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "workbookDisplayName": {
+        "type": "string",
+        "defaultValue": "DevOps Security (Preview)",
+        "metadata": {
+          "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+        }
+      },
+      "workbookType": {
+        "type": "string",
+        "defaultValue": "workbook",
+        "metadata": {
+          "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+        }
+      },
+      "workbookSourceId": {
+        "type": "string",
+        "defaultValue": "Azure Security Center",
+        "metadata": {
+          "description": "The id of resource instance to which the workbook will be associated"
+        }
+      },
+      "workbookId": {
+        "type": "string",
+        "defaultValue": "[newGuid()]",
+        "metadata": {
+          "description": "The unique guid for this workbook instance"
+        }
+      }
+    },
+    "variables": {
+      "workbookContent": {
+        "version": "Notebook/1.0",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## DevOps Security (Preview)"
+            },
+            "customWidth": "75",
+            "name": "text - 1"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "db9e16b7-9f58-4c67-96e1-94c0eacb8b3a",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Subscription",
+                  "type": 6,
+                  "description": "Subscription location of your connector",
+                  "isRequired": true,
+                  "value": null,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "includeAll": true,
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  }
+                },
+                {
+                  "id": "d1154c7e-4989-4bb6-94a3-096ddec22c2f",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ResourceGroup",
+                  "label": " Resource Group",
+                  "type": 2,
+                  "description": "Resource Group location of your connector",
+                  "isRequired": true,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourcegroups?api-version=2021-04-01\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$..name\",\"columns\":[]}}]}",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 12
+                },
+                {
+                  "id": "c88e6e5a-d64e-4065-98a0-63772188ff5e",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Help",
+                  "label": "Show Help",
+                  "type": 10,
+                  "description": "Show insturctions for using this workbook",
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": []
+                  },
+                  "jsonData": "[[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true }\r\n]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  }
+                }
+              ],
+              "style": "above",
+              "queryType": 12
+            },
+            "name": "parameters - 15"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Navigate\r\nClick on one of the tab below to explore each area:\r\n* Overview - Displays all scan results assessments\r\n* Secrets - Allows you to drill into secrets assessments and see exactly which repository is affected\r\n* Code - Shows all Code scanning results that you have configured for Defender for DevOps\r\n* Dependabot - GitHub sends Dependabot alerts when we detect that your repository uses a vulnerable dependency or malware\r\n* Posture - Security posture assessment of your onboarding DevOps environment\r\n* Inventory - Repository inventory discovered during onboarding",
+              "style": "info"
+            },
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Yes"
+            },
+            "name": "NavInstructions"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Welcome to DevOps assessment findings workbook\r\nThis workbook is based on the following recommendations provided by Defender for Cloud:\r\n* [Code repositories should have Code scanning findings resolved](http://portal.azure.com/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/c68a8c2a-6ed4-454b-9e37-4b7654f2165f)\r\n* [Code repositories should have Secret scanning findings resolved](http://portal.azure.com/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27)\r\n* [Code repositories should have Dependabot scanning findings resolved](http://portal.azure.com/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/822425e3-827f-4f35-bc33-33749257f851)\r\n* [GitHub repositories should have Code scanning enabled](http://portal.azure.com/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/0db7ca3c-bd65-4244-9be3-2194c13a3893)\r\n* [GitHub repositories should have Code scanning enabled](http://portal.azure.com/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/580dbad4-33c2-44c8-a37d-22874d8ef4c3)",
+              "style": "info"
+            },
+            "conditionalVisibility": {
+              "parameterName": "Help",
+              "comparison": "isEqualTo",
+              "value": "Yes"
+            },
+            "name": "text - 12"
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "tabs",
+              "links": [
+                {
+                  "id": "28d59a80-f8b1-4a7f-a53e-0342585e1468",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Overview",
+                  "subTarget": "OverviewTab",
+                  "style": "link"
+                },
+                {
+                  "id": "e9b65feb-9f81-4b66-80df-c9d409a4a404",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Secrets",
+                  "subTarget": "SecretsTab",
+                  "style": "link"
+                },
+                {
+                  "id": "8bd0e53b-a116-4be3-8fc8-dda761cdf784",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Code",
+                  "subTarget": "CodeTab",
+                  "style": "link"
+                },
+                {
+                  "id": "456aa2a6-cfb0-4ebd-b615-a7fc9088081d",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Dependabot",
+                  "subTarget": "DependabotTab",
+                  "style": "link"
+                },
+                {
+                  "id": "b6712143-8444-41a3-8669-064143c52e62",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Posture",
+                  "subTarget": "PostureTab",
+                  "style": "link"
+                },
+                {
+                  "id": "12dd051c-1e36-48ee-87d7-fac2cc29529e",
+                  "cellValue": "SelectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Inventory",
+                  "subTarget": "InventoryTab",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "Tabs"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| summarize Count = dcount(VulId) by Severity",
+              "size": 4,
+              "title": "Secrets Exposed",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Severity",
+                  "formatter": 4,
+                  "formatOptions": {
+                    "palette": "redBright"
+                  },
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal"
+                    }
+                  }
+                },
+                "leftContent": {
+                  "columnMatch": "Count",
+                  "formatter": 12,
+                  "formatOptions": {
+                    "palette": "redGreen"
+                  },
+                  "numberFormat": {
+                    "unit": 17,
+                    "options": {
+                      "style": "decimal",
+                      "maximumFractionDigits": 2,
+                      "maximumSignificantDigits": 3
+                    }
+                  }
+                },
+                "showBorder": true,
+                "sortCriteriaField": "Severity"
+              },
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "Unknown",
+                    "color": "blueDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "20",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "SecretsExposed"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\"\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| summarize Count = dcount(VulId) by Severity",
+              "size": 1,
+              "title": "Code Scanning by Severity",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "piechart",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Resource",
+                    "formatter": 0,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "22ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevH",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "redBright",
+                      "compositeBarSettings": {
+                        "labelText": "",
+                        "columnSettings": []
+                      },
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevM",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "yellow",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevL",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "blueDark",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "sevH",
+                    "label": "High"
+                  },
+                  {
+                    "columnId": "sevM",
+                    "label": "Medium"
+                  },
+                  {
+                    "columnId": "sevL",
+                    "label": "Low"
+                  }
+                ]
+              },
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blueDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "CodeScanningBySeverity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\" or assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\" or assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| summarize Count = dcount(VulId) by Severity",
+              "size": 1,
+              "title": "All DevOps Assessments by Severity",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blueDark"
+                  }
+                ]
+              }
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "DevOpsAssessmentsBySeverity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| project Repository",
+              "size": 1,
+              "title": "Repositories with secrets exposed",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Repository",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "RepoName",
+                    "formatter": 1
+                  }
+                ]
+              },
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "RepoName",
+                  "formatter": 3,
+                  "formatOptions": {
+                    "palette": "coldHot"
+                  }
+                },
+                "showBorder": true,
+                "size": "auto"
+              }
+            },
+            "customWidth": "20",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "ReposWithSecrets"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\"\r\n| project Resource = tolower(extract(@'(?i)(.*?)/providers/Microsoft.Security/([^/]+)', 1, id)), subscriptionId, Severity = tostring(properties.status.severity), Status = tostring(properties.status.code), VulnId = tostring(properties.id)\r\n| where Status == 'Unhealthy'\r\n| summarize dcount(VulnId) by Resource, Severity, VulnId\r\n| summarize Total=count(Severity), sevH=countif(Severity=='High'), sevM=countif(Severity=='Medium'), sevL=countif(Severity=='Low') by Resource\r\n| order by sevH desc",
+              "size": 1,
+              "title": "Code vulnerabilities by severity -Top 5 at risk repositories",
+              "noDataMessage": "No unhealthy repositories found",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Resource",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "sevH",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "redBright",
+                      "compositeBarSettings": {
+                        "labelText": "",
+                        "columnSettings": []
+                      },
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevM",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "yellow",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevL",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "blueDark",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  }
+                ],
+                "rowLimit": 5,
+                "labelSettings": [
+                  {
+                    "columnId": "sevH",
+                    "label": "High"
+                  },
+                  {
+                    "columnId": "sevM",
+                    "label": "Medium"
+                  },
+                  {
+                    "columnId": "sevL",
+                    "label": "Low"
+                  }
+                ]
+              },
+              "sortBy": []
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "CodeVulnsBySeverity"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\" or assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\" or assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| project Resource = tolower(extract(@'(?i)(.*?)/providers/Microsoft.Security/([^/]+)', 1, id)), subscriptionId, Severity = tostring(properties.status.severity), Status = tostring(properties.status.code), VulnId = tostring(properties.id)\r\n| where Status == 'Unhealthy'\r\n| summarize dcount(VulnId) by Resource, Severity, VulnId\r\n| summarize Total=count(Severity), sevH=countif(Severity=='High'), sevM=countif(Severity=='Medium'), sevL=countif(Severity=='Low') by Resource\r\n//| order by sevH desc",
+              "size": 1,
+              "title": "DevOps vulnerabilities by severity -Top 5 at risk repositories",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Resource",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "sevH",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "redBright",
+                      "compositeBarSettings": {
+                        "labelText": "",
+                        "columnSettings": []
+                      },
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevM",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "yellow",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "sevL",
+                    "formatter": 4,
+                    "formatOptions": {
+                      "min": 0,
+                      "palette": "blueDark",
+                      "customColumnWidthSetting": "15ch"
+                    }
+                  }
+                ],
+                "rowLimit": 5,
+                "sortBy": [
+                  {
+                    "itemKey": "$gen_bar_sevH_2",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "sevH",
+                    "label": "High"
+                  },
+                  {
+                    "columnId": "sevM",
+                    "label": "Medium"
+                  },
+                  {
+                    "columnId": "sevL",
+                    "label": "Low"
+                  }
+                ]
+              },
+              "sortBy": [
+                {
+                  "itemKey": "$gen_bar_sevH_2",
+                  "sortOrder": 1
+                }
+              ]
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "OverviewTab"
+            },
+            "name": "DevOpsVulnsBySeverity"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "---"
+            },
+            "name": "text - 11"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| extend Severity = properties.status.severity\r\n| extend Secret = properties.status.description\r\n| where Status == 'Unhealthy'\r\n| project Repository, Status, Severity, Secret",
+              "size": 0,
+              "title": "Secret scanning",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Repository",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Severity",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Secret",
+                    "formatter": 1
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "SecretsTab"
+            },
+            "name": "SecretResults"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Finding = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| project Repository, Severity, Finding",
+              "size": 0,
+              "title": "Code scanning by severity",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "rowLimit": 300,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Repository",
+                    "Severity"
+                  ]
+                }
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "CodeTab"
+            },
+            "name": "CodeScanningResults"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\"\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| summarize Count = dcount(VulId) by Severity",
+              "size": 1,
+              "title": "Dependabot alerts by severity",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blueDark"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "DependabotTab"
+            },
+            "name": "GitHubDependabotAlertsGraph"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Finding = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| extend Package = properties.additionalData.data.securityVulnerability__package__ecosystem\r\n| extend Summary = properties.additionalData.data.securityAdvisory__summary\r\n| project Repository, Severity, Summary, Package, Finding",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Repository",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": null,
+                      "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Severity",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Summary",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Package",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Finding",
+                    "formatter": 1
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "DependabotTab"
+            },
+            "name": "GitHubDependabotAlertResults"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\"\r\n| project subassessmentKey=name, parse_json(properties) \r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| where Status == 'Unhealthy'\r\n| summarize Count = dcount(VulId) by Severity",
+              "size": 0,
+              "title": "Security posture by severity",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "visualization": "piechart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "High",
+                    "color": "redBright"
+                  },
+                  {
+                    "seriesName": "Medium",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "Low",
+                    "color": "blueDark"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "PostureTab"
+            },
+            "name": "SecurityPostureGraph"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Environment = properties.additionalData.data.AssessedResourceType\r\n| extend Description = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| project Repository, Environment, Description, Severity",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "value::all"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Repository",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Environment",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Description",
+                    "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Severity",
+                    "formatter": 1
+                  }
+                ],
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Repository",
+                    "Severity"
+                  ]
+                }
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "PostureTab"
+            },
+            "name": "SecurityPosture"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "fd3d2187-8635-4387-98e9-b0fcd1ea1c4a",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Connectors",
+                  "label": "DevOps Connector Filter",
+                  "type": 2,
+                  "isRequired": true,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{ResourceGroup:label}/providers/Microsoft.SecurityDevOps/gitHubConnectors?api-version=2021-10-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value[*].name\",\"columns\":[]}}]}",
+                  "value": null,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "queryType": 12
+                },
+                {
+                  "id": "0a19dfbc-cc74-4082-bba6-5ae94a7bd172",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Environment",
+                  "label": "Connector Type",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "1",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[[\r\n    {\r\n        \"value\": \"1\",\r\n        \"label\": \"gitHubConnectors\"\r\n    },\r\n    {\r\n        \"value\": \"2\",\r\n        \"label\": \"azureDevOpsConnectors\"\r\n    }\r\n]"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "InventoryTab"
+            },
+            "name": "ConnectorsDropdown"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{ResourceGroup:id}/providers/Microsoft.SecurityDevOps/gitHubConnectors/{Connectors:label}/githubrepos?api-version=2021-10-01-preview\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[{\"path\":\"$..name\",\"columnid\":\"Repository\",\"columnType\":\"string\"},{\"path\":\"$..properties.repoUrl\",\"columnid\":\"RepositoryUrl\"},{\"path\":\"$..id\",\"columnid\":\"ResourceId\"}]}}]}",
+              "size": 2,
+              "title": "Repositories",
+              "color": "green",
+              "queryType": 12,
+              "visualization": "table",
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "RepositoryUrl",
+                    "formatter": 7,
+                    "formatOptions": {
+                      "linkTarget": "Url"
+                    }
+                  }
+                ],
+                "filter": true
+              },
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "name"
+                },
+                "showBorder": true,
+                "size": "auto"
+              },
+              "graphSettings": {
+                "type": 2,
+                "topContent": {
+                  "columnMatch": "name"
+                },
+                "nodeIdField": "id",
+                "sourceIdField": "id",
+                "targetIdField": "id",
+                "graphOrientation": 3,
+                "showOrientationToggles": false,
+                "nodeSize": null,
+                "staticNodeSize": 100,
+                "colorSettings": null,
+                "hivesMargin": 5
+              }
+            },
+            "customWidth": "60",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "InventoryTab"
+            },
+            "name": "RepoInventory"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription:id}/resourceGroups/{ResourceGroup:label}/providers/Microsoft.SecurityDevOps/{Environment:label}?api-version=2021-10-01-preview\",\"urlParams\":[{\"key\":\"\",\"value\":\"\"}],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.value\",\"columns\":[]}}]}",
+              "size": 2,
+              "title": "DevOps Connectors",
+              "queryType": 12,
+              "visualization": "tiles",
+              "gridSettings": {
+                "filter": true
+              },
+              "sortBy": [],
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "name",
+                  "numberFormat": {
+                    "unit": 0,
+                    "options": {
+                      "style": "decimal"
+                    }
+                  }
+                },
+                "subtitleContent": {
+                  "columnMatch": "location"
+                },
+                "secondaryContent": {
+                  "columnMatch": "id"
+                },
+                "showBorder": false,
+                "size": "auto"
+              }
+            },
+            "customWidth": "40",
+            "conditionalVisibility": {
+              "parameterName": "SelectedTab",
+              "comparison": "isEqualTo",
+              "value": "InventoryTab"
+            },
+            "name": "DevOpsConnectors"
+          }
+        ],
+        "isLocked": false,
+        "fallbackResourceIds": [
+          "Azure Security Center"
+        ]
+      }
+    },
+    "resources": [
+      {
+        "name": "[parameters('workbookId')]",
+        "type": "microsoft.insights/workbooks",
+        "location": "[resourceGroup().location]",
+        "apiVersion": "2021-03-08",
+        "dependsOn": [],
+        "kind": "shared",
+        "properties": {
+          "displayName": "[parameters('workbookDisplayName')]",
+          "serializedData": "[string(variables('workbookContent'))]",
+          "version": "1.0",
+          "sourceId": "[parameters('workbookSourceId')]",
+          "category": "[parameters('workbookType')]"
+        }
+      }
+    ],
+    "outputs": {
+      "workbookId": {
+        "type": "string",
+        "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+      }
+    },
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+  }
