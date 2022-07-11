@@ -37,7 +37,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## DevOps Security (Preview)"
+              "json": "#  Defender for DevOps\r\n\r\n"
             },
             "customWidth": "75",
             "name": "text - 1"
@@ -618,7 +618,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code)\r\n| extend Severity = properties.status.severity\r\n| extend Secret = properties.status.description\r\n| where Status == 'Unhealthy'\r\n| project Repository, Status, Severity, Secret",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"4e07c7d0-e06c-47d7-a4a9-8c7b748d1b27\"\r\n| extend Repository = split(id, '/')[10],\r\n    VulId = tostring(properties.id), Severity = tostring(properties.status.severity), Status = tostring(properties.status.code),\r\n    Secret = properties.status.description\r\n| project Repository, Status, Severity, Secret",
               "size": 0,
               "title": "Secret scanning",
               "queryType": 1,
@@ -634,6 +634,39 @@
                     "formatOptions": {
                       "linkTarget": null,
                       "showIcon": true
+                    }
+                  },
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Healthy",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unhealthy",
+                          "representation": "2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NotApplicable",
+                          "representation": "1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
                     }
                   },
                   {
@@ -658,7 +691,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Finding = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| project Repository, Severity, Finding",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"c68a8c2a-6ed4-454b-9e37-4b7654f2165f\"\r\n| extend Repository = split(id, '/')[10],\r\n    Finding = tostring(properties.status.description),\r\n    Status = tostring(properties.status.code),\r\n    Severity = tostring(properties.status.severity)\r\n| project Repository, Severity, Status, Finding",
               "size": 0,
               "title": "Code scanning by severity",
               "queryType": 1,
@@ -667,6 +700,41 @@
                 "value::all"
               ],
               "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Healthy",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unhealthy",
+                          "representation": "2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NotApplicable",
+                          "representation": "1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ],
                 "rowLimit": 300,
                 "hierarchySettings": {
                   "treeType": 1,
@@ -725,7 +793,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Finding = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| extend Package = properties.additionalData.data.securityVulnerability__package__ecosystem\r\n| extend Summary = properties.additionalData.data.securityAdvisory__summary\r\n| project Repository, Severity, Summary, Package, Finding",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"822425e3-827f-4f35-bc33-33749257f851\"\r\n| extend Repository = split(id, '/')[10],\r\n    Finding = tostring(properties.status.description),\r\n    Status = tostring(properties.status.code),\r\n    Severity = tostring(properties.status.severity),\r\n    Package = tostring(properties.additionalData.data.securityVulnerability__package__ecosystem),\r\n    Summary = tostring(properties.additionalData.data.securityAdvisory__summary)\r\n| project Repository, Severity,  Status, Summary, Package, Finding",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -745,6 +813,39 @@
                   {
                     "columnMatch": "Severity",
                     "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Healthy",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unhealthy",
+                          "representation": "2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NotApplicable",
+                          "representation": "1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
                   },
                   {
                     "columnMatch": "Summary",
@@ -809,7 +910,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\"\r\n| extend Repository = split(id, '/')[10]\r\n| extend Environment = properties.additionalData.data.AssessedResourceType\r\n| extend Description = properties.status.description\r\n| extend Severity = properties.status.severity\r\n| project Repository, Environment, Description, Severity",
+              "query": "securityresources\r\n| where type == \"microsoft.security/assessments/subassessments\"\r\n| extend assessmentKey = extract(\".*assessments/(.+?)/.*\",1,  id)\r\n| where assessmentKey == \"0db7ca3c-bd65-4244-9be3-2194c13a3893\" or assessmentKey == \"580dbad4-33c2-44c8-a37d-22874d8ef4c3\"\r\n| extend Repository = split(id, '/')[10],\r\n    Environment = tostring(properties.additionalData.data.AssessedResourceType),\r\n    Description = tostring(properties.status.description),\r\n    Status = tostring(properties.status.code),\r\n    Severity = tostring(properties.status.severity)\r\n| project Repository, Environment, Description, Status, Severity",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
@@ -829,6 +930,39 @@
                   {
                     "columnMatch": "Description",
                     "formatter": 1
+                  },
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Healthy",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unhealthy",
+                          "representation": "2",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "NotApllicable",
+                          "representation": "1",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "thresholdValue": null,
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
                   },
                   {
                     "columnMatch": "Severity",
