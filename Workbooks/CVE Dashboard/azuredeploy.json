@@ -101,7 +101,7 @@
                 "type": 10,
                 "description": "Please select the VA solution you are using in your environment",
                 "isRequired": true,
-                "value": "Microsoft threat and vulnerability management",
+                "value": "Built-in Qualys vulnerability assessment",
                 "typeSettings": {
                   "additionalResourceOptions": [],
                   "showDefault": false
@@ -116,7 +116,7 @@
                 "type": 10,
                 "description": "Show additional information for this workbook",
                 "isRequired": true,
-                "value": "Off",
+                "value": "On",
                 "typeSettings": {
                   "additionalResourceOptions": []
                 },
@@ -1037,6 +1037,18 @@
             "groupType": "editable",
             "items": [
               {
+                "type": 1,
+                "content": {
+                  "json": "In the *Vulnerabilities by CVE ID* section, the workbook shows all CVE IDs based on your subscription and severity selection on top of the workbook. The **Amount of CVE IDs by severity** pie chart shows the total number of unique CVE IDs to be addressed in your environment, grouped by severity, while the **List of CVE IDs** table shows details, including CVE IDs, CVSS, Severity, and other relevant information. When selecting one of the rows in this table, two additional tables will appear underneath: **Affected machines by CVE ID** which will show all machines that are affected by vulnerabilities which the CVE ID you selected belongs to, and **Vulnerability details**, which shows more details about this vulnerability."
+                },
+                "conditionalVisibility": {
+                  "parameterName": "info",
+                  "comparison": "isEqualTo",
+                  "value": "On"
+                },
+                "name": "CVEID-Qualys-info"
+              },
+              {
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
@@ -1342,6 +1354,18 @@
             "version": "NotebookGroup/1.0",
             "groupType": "editable",
             "items": [
+              {
+                "type": 1,
+                "content": {
+                  "json": "In the *Vulnerabilities by machine* section, the workbook shows machines in subscriptions which are affected by open vulnerabilities. The **Amount of vulnerabilities by machine** table shows affected machines and the amount of open vulnerabilities, grouped by subscriptions. When selecting one row from this table, the **Discovered vulnerabilities per selected resource** table appears. This table contains a list of all vulnerabilities, including Vulnerability ID and affected software, which have been found on the machine you selected.\nWhen selecting one of the vulnerabilities, the **Total number of CVEs in selected vulnerability** pie chart, and the **CVEs per vulnerability ID** table appear. The pie chart shows the total number of CVE IDs in the vulnerability you selected, including severity. The table shows details to these CVEs based on the selected Vulnerability ID."
+                },
+                "conditionalVisibility": {
+                  "parameterName": "info",
+                  "comparison": "isEqualTo",
+                  "value": "On"
+                },
+                "name": "machine-Qualys-info"
+              },
               {
                 "type": 3,
                 "content": {
