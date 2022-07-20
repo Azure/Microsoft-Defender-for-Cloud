@@ -206,11 +206,12 @@ Stay on top of the progress on the recommendations in the security posture. Week
     ![Environment settings](../Images/mdfc-envsettings.png?raw=true)
 3. From Settings's sidebar, select **Governance Rules** which is found under the **Policy Settings** section.
     <img width="339" alt="image" src="https://user-images.githubusercontent.com/15238159/179999129-68ba1e61-4a15-4583-9d7c-47e08d073eeb.png">
-4.
+4. Click on **Add Rule**
+   ![image](https://user-images.githubusercontent.com/15238159/180010137-35a610dd-1738-4f4e-a967-ab69ad9c5acc.png)
+5. Fill out the new Goverance Rules with **Rule Name**, **Description**, **Priority**, **By Severity select High**, **Set Owner by email Address**, **Set Remedation Timeframe to 14 days, **Select both check marks**, click **Create**
+   ![image](https://user-images.githubusercontent.com/15238159/180011060-6fc01528-9dd2-4792-8991-e1aad64c94df.png)
 
-| project SecureControl , unhealthy, currentscore, maxscore
 ```
-
 
 More details on the [official article](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls) or on the [blog post](https://techcommunity.microsoft.com/t5/azure-security-center/querying-your-secure-score-across-multiple-subscriptions-in/ba-p/1749193)
 
