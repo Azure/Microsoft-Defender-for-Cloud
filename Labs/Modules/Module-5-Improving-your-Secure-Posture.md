@@ -210,6 +210,9 @@ Stay on top of the progress on the recommendations in the security posture. Week
    ![image](https://user-images.githubusercontent.com/15238159/180010137-35a610dd-1738-4f4e-a967-ab69ad9c5acc.png)
 5. Fill out the new Goverance Rules with **Rule Name**, **Description**, **Priority**, **By Severity select High**, **Set Owner by email Address**, **Set Remedation Timeframe to 14 days, **Select both check marks**, click **Create**
    ![image](https://user-images.githubusercontent.com/15238159/180011060-6fc01528-9dd2-4792-8991-e1aad64c94df.png)
+ 6. To confirm Click on **Security Posture** under **Cloud Security** and select **Owners**
+    <img width="1051" alt="image" src="https://user-images.githubusercontent.com/15238159/180055872-6da285ca-124b-4eaf-955d-f6984fd81ef7.png">
+
 
 ```
 
