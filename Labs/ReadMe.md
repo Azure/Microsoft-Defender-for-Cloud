@@ -51,6 +51,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Vulnerability assessment for Containers](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-2-vulnerability-assessment-for-containers)
 - [Automate recommendations with workflow automation](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-3-automate-recommendations-with-workflow-automation)
 - [Accessing your secure score via ARG](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-4-accessing-your-secure-score-via-arg)
+- Creating Governance Rules and Assigning Owners
  
 [**Module 6 – Microsoft Defender Plans (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-6-Azure-Defender.md)
 - [Alert validation](./Modules/Module-6-Azure-Defender.md#exercise-1-alert-validation)
