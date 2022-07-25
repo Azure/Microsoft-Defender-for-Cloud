@@ -8,46 +8,17 @@
       "metadata": {
         "description": "Dictionary of string key-value pairs representing the tags used to exclude resources from being scanned. Resources tagged with one of these values will not be scanned. The values in the dictionary are case-sensitive"
       }
-    },
-    "vmScannerRgName": {
-      "type": "string",
-      "metadata": {
-        "description": "The resource group in which the VmScanners resource will be created"
-      }
-    },
-    "vmScannerRgLocation": {
-      "type": "string",
-      "defaultValue": "westeurope",
-      "metadata": {
-        "description": "Location for creating the resource."
-      }
     }
   },
   "resources": [
     {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2020-10-01",
-      "name": "vmScannersResourceRgTemplate",
+      "type": "Microsoft.Security/vmScanners",
+      "apiVersion": "2022-03-01-preview",
+      "name": "default",
       "properties": {
-        "mode": "Incremental",
-        "template": {
-          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
-          "contentVersion": "1.0.0.0",
-          "resources": [
-            {
-              "type": "Microsoft.Security/vmScanners",
-              "location": "[parameters('vmScannerRgLocation')]",
-              "apiVersion": "2022-03-01-preview",
-              "name": "default",
-              "properties": {
-                "scanningMode": "Default",
-		"exclusionTags": "[parameters('exclusionTags')]"
-              }
-            }
-          ]
-        }
-      },
-      "resourceGroup": "[parameters('vmScannerRgName')]"
+        "scanningMode": "Default",
+        "exclusionTags": "[parameters('exclusionTags')]"
+      }
     }
   ]
 }
