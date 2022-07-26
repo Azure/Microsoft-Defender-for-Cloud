@@ -159,7 +159,7 @@
                 "id": "66b1d4be-4f02-4c29-9a80-b466901b787b",
                 "cellValue": "tab",
                 "linkTarget": "parameter",
-                "linkLabel": "Vulnerabilties by machine",
+                "linkLabel": "Vulnerabilities by machine",
                 "subTarget": "machine",
                 "style": "link"
               }
