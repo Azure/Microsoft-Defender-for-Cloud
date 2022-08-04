@@ -37,8 +37,8 @@ Note: This is the default policy for Microsoft Defender for Cloud recommendation
 ### Exercise 2: Explore Azure Policy
 1.	On Azure Portal, navigate to **Azure Policy blade**. You can use the search box on the upper part for Policy or navigate to: https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade
 2.	From the left navigation pane, under the **Authoring** section, click on **Definitions** to explore the built-in policy definitions and initiatives.
-3.	From the top menu, use the filter button and set Category as **Microsoft Defender for Cloud** and Definitions Type as Initiative
-4.	You can now see two built-in initiatives used by Microsoft Defender for Cloud.
+3.	From the top menu, use the filter button and set Category as **Security Center** and Definitions Type as Initiative
+4.	You can now see few built-in initiatives used by Microsoft Defender for Cloud.
 ![Modifying Microsoft Defender for Cloud default policy assignment](../Images/lab3pl2.gif?raw=true)
 5.	Notice the number of policies included in each initiative (policies column)
 6.	Initiatives are assigned to your subscription automatically. To see current assignments, click on **Assignment** from the left navigation pane. Policy initiatives have a different name for the assignment, for example:
