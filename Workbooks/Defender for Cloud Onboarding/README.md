@@ -16,10 +16,10 @@ The workbook provides different Tabs organized as:
 
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://aka.ms/onboardingworkbook" target="_blank">
+<a href="https://aka.ms/MDCOnboardingWorkbook" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
-<a href="https://aka.ms/onboardingworkbook" target="_blank">
+<a href="https://aka.ms/MDCOnboardingWorkbook" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a> 
 
