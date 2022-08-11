@@ -1,0 +1,31 @@
+# Defender for Cloud Onboarding Workbook
+**Author: Vasavi Pasula**
+
+This Onboarding Workbook checks if all your subscriptions under your Tenant are onboarded with Defender for Cloud, Defender for Cloud Plans currently enabled across your subscriptions and Log Analytics Workspaces, Lists the resources deployed into these subscriptions that can be protected with Defender for Cloud workload protection plans, checks if any onboarding agents are missing for the workload protection.
+The dashboard is powered by Azure Resource Graph (ARG) queries and divided into different sections. 
+The workbook can be edited, and all queries can be modified to meet your needs.
+
+The workbook provides different Tabs organized as: 
+*	Subscription Onboarding
+*	Defender Plans Onboarded
+*	Onboarding Agents Health
+
+## Try it on the Azure Portal
+
+You can deploy the workbook by clicking on the buttons below:
+
+<a href="https://aka.ms/onboardingworkbook" target="_blank">
+    <img src="https://aka.ms/deploytoazurebutton"/>
+</a>
+<a href="https://aka.ms/onboardingworkbook" target="_blank">
+<img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
+</a> 
+
+***
+![Overview](./ImagePDD.png)
+
+Checkout the blog here to learn more details about this workbook https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/policy-distribution-dashboard-for-microsoft-defender-for-cloud/ba-p/3264712
+
+# Acknowledgements
+* Special thanks to **Shay Amar** for the partnership in reviewing and providing feedbacks on the artifact.
+* Many thanks to **Tom Janescheck** & **Yuri Diogenes** in supporting my initiative and suggesting feedbacks.  
