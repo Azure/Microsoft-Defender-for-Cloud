@@ -23,10 +23,7 @@ You can deploy the workbook by clicking on the buttons below:
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a> 
 
-***
-![Overview](./ImagePDD.png)
-
-Checkout the blog here to learn more details about this workbook https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/defender-for-cloud-onboarding-workbook/ba-p/3597457
+Checkout the blog here to learn more details about this workbook here<a href="https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/defender-for-cloud-onboarding-workbook/ba-p/3597457" </a>
 
 # Acknowledgements
 * Special thanks to **Shay Amar** for the partnership in reviewing and providing feedbacks on the artifact.
