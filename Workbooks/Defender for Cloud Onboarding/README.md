@@ -26,7 +26,7 @@ You can deploy the workbook by clicking on the buttons below:
 ***
 ![Overview](./ImagePDD.png)
 
-Checkout the blog here to learn more details about this workbook https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/policy-distribution-dashboard-for-microsoft-defender-for-cloud/ba-p/3264712
+Checkout the blog here to learn more details about this workbook https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/defender-for-cloud-onboarding-workbook/ba-p/3597457
 
 # Acknowledgements
 * Special thanks to **Shay Amar** for the partnership in reviewing and providing feedbacks on the artifact.
