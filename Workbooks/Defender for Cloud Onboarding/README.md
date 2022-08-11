@@ -10,6 +10,8 @@ The workbook provides different Tabs organized as:
 *	Defender Plans Onboarded
 *	Onboarding Agents Health
 
+<img width="945" alt="image" src="https://user-images.githubusercontent.com/102209701/184182161-bc2d46f3-d539-4179-8a87-53089b5a48e8.png">
+
 ## Try it on the Azure Portal
 
 You can deploy the workbook by clicking on the buttons below:
