@@ -1,0 +1,311 @@
+{
+  "mode": "Indexed",
+  "metadata": {
+    "category": "Guest Configuration",
+    "version": "1.0.0",
+    "requiredProviders": [
+      "Microsoft.GuestConfiguration"
+    ],
+    "guestConfiguration": {
+      "name": "AzureLinuxVMEncryptionCompliance",
+      "version": "1.*"
+    }
+  },
+  "policyRule": {
+    "if": {
+      "anyOf": [
+        {
+          "allOf": [
+            {
+              "field": "type",
+              "equals": "Microsoft.Compute/virtualMachines"
+            },
+            {
+              "anyOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "in": [
+                    "microsoft-aks",
+                    "qubole-inc",
+                    "datastax",
+                    "couchbase",
+                    "scalegrid",
+                    "checkpoint",
+                    "paloaltonetworks"
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "OpenLogic"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "CentOS*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "6*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "Oracle"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "equals": "Oracle-Linux"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "6*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "RedHat"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "in": [
+                        "RHEL",
+                        "RHEL-HA",
+                        "RHEL-SAP",
+                        "RHEL-SAP-APPS",
+                        "RHEL-SAP-HA",
+                        "RHEL-SAP-HANA"
+                      ]
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "6*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "RedHat"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "in": [
+                        "osa",
+                        "rhel-byos"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "center-for-internet-security-inc"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "in": [
+                        "cis-centos-7-l1",
+                        "cis-centos-7-v2-1-1-l1",
+                        "cis-centos-8-l1",
+                        "cis-debian-linux-8-l1",
+                        "cis-debian-linux-9-l1",
+                        "cis-nginx-centos-7-v1-1-0-l1",
+                        "cis-oracle-linux-7-v2-0-0-l1",
+                        "cis-oracle-linux-8-l1",
+                        "cis-postgresql-11-centos-linux-7-level-1",
+                        "cis-rhel-7-l2",
+                        "cis-rhel-7-v2-2-0-l1",
+                        "cis-rhel-8-l1",
+                        "cis-suse-linux-12-v2-0-0-l1",
+                        "cis-ubuntu-linux-1604-v1-0-0-l1",
+                        "cis-ubuntu-linux-1804-l1"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "credativ"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "equals": "Debian"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "7*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "Suse"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "SLES*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "11*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "Canonical"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "in": [
+                        "UbuntuServer",
+                        "0001-com-ubuntu-server-focal",
+                        "0001-com-ubuntu-server-focal-daily"
+                      ]
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "12*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "microsoft-dsvm"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "in": [
+                        "linux-data-science-vm-ubuntu",
+                        "azureml"
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "cloudera"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "equals": "cloudera-centos-os"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSKU",
+                      "notLike": "6*"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "cloudera"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "equals": "cloudera-altus-centos-os"
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "equals": "microsoft-ads"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "linux*"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "allOf": [
+            {
+              "value": "[parameters('IncludeArcMachines')]",
+              "equals": "true"
+            },
+            {
+              "field": "type",
+              "equals": "Microsoft.HybridCompute/machines"
+            },
+            {
+              "field": "Microsoft.HybridCompute/imageOffer",
+              "like": "linux*"
+            },
+            {
+              "field": "Microsoft.HybridCompute/imageOffer",
+              "like": "linux*"
+            },
+            {
+              "field": "Microsoft.HybridCompute/imageOffer",
+              "like": "linux*"
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.GuestConfiguration/guestConfigurationAssignments",
+        "name": "AzureLinuxVMEncryptionCompliance",
+        "existenceCondition": {
+          "field": "Microsoft.GuestConfiguration/guestConfigurationAssignments/complianceStatus",
+          "equals": "Compliant"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "IncludeArcMachines": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Include Arc connected servers",
+        "description": "By selecting this option, you agree to be charged monthly per Arc connected machine.",
+        "portalReview": "true"
+      },
+      "allowedValues": [
+        "true",
+        "false"
+      ],
+      "defaultValue": "false"
+    },
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of this policy"
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "AuditIfNotExists"
+    }
+  }
+}
