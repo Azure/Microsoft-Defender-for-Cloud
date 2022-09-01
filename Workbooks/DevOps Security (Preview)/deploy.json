@@ -58,7 +58,7 @@
                 "typeSettings": {
                   "additionalResourceOptions": []
                 },
-                "jsonData": "[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true }\r\n]",
+                "jsonData": "[[\r\n { \"value\": \"Yes\", \"label\": \"Yes\"},\r\n {\"value\": \"No\", \"label\": \"No\", \"selected\":true }\r\n]",
                 "timeContext": {
                   "durationMs": 86400000
                 }
