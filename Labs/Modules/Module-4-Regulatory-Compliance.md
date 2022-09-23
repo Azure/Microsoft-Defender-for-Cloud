@@ -29,7 +29,7 @@ You can add additional industry standards (represented as compliance packages) s
 ![Add CIS 1.1.0 (New) Standard](../Images/asc-azure-cis-new-standard.gif?raw=true)
 
 > ❗ Important: <br>
-> It will take a while until the change takes an effect (2-3 hours).
+> It will take a while until the change takes an effect (2-4 hours).
 
 7.	**Azure CIS 1.1.0 (New)** should now be listed on the standards list.
    
