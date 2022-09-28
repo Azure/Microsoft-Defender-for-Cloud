@@ -6,16 +6,16 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-This exercise guides you how
+This exercise guides you on how to create an alert simulation, suppress alerts and intergrate with Microsoft Defender for Endpoint.
 
 ### Exercise 1: Alert validation
 
-Here let’s cover the new Alert Simulation, which should be out in the first week of December
+Here let’s cover the new Alert Simulation that's available today.
 
-1.	1.	Go to Microsoft Defender for Cloud, and click the Security Alerts in the sidebar.
+1.	Go to Microsoft Defender for Cloud, and click the **Security Alerts** in the sidebar.
 2.	Create an alert simulation for VM:
     - On Security alerts page, click on **Sample alerts** button.
-    - Select **Azure subscription 1**.
+    - Select your Azure subscription.
     - On the Workload Protections plans, keep only **Virtual Machines** selected.
     - Click on the **Create sample alerts** button to trigger the alert simulation for VMs.
 
@@ -29,16 +29,17 @@ Here let’s cover the new Alert Simulation, which should be out in the first we
 5.	Click on the **Digital currency mining related behavior detected alert**.
 6.	The details pane opens. Notice the alert properties at the top (severity, status, and time) along with the alerts description and affected resources. At the bottom part, you can see the kill chain intent of the alert based on the MITRE ATT&CK® framework. This specific alert is at the *Execution* phase.
 7.	To explore the full details of the alert, click on **View full details**.
-8.	Create an alert simulation for Key Vaults:
+8.	Navigate back to Microsoft Defender for Cloud homepage. 
+9.	Create an alert simulation for Key Vaults:
     - On Security alerts page, click on **Create sample alerts** button.
-    - Select **Azure subscription 1**.
+    - Select your Azure subscription.
     - On the Workload Protections plans, keep only **Key Vaults** selected.
     - Click **Create sample alerts** button to trigger the alert simulation for Key Vaults.
-9.	Sample alerts creating in progress, wait for the process to complete. You can track the progress by opening the notification center or on activity log (this process usually takes 2 minutes to complete)
-10.	On the alerts page, you should now see 5 different sample events for a resource named `Sample-KV`. Each alert has the `Sample alert` banner next to it.
-11.	Click on the **Access from a TOR exit node to a Key Vault** alert.
-12.	Click on the **View full details** to see additional information related to the event.
-13.	At the top menu, dismiss the alert by changing the status from Active to **Dismiss**.
+10.	Sample alerts creating in progress, wait for the process to complete. You can track the progress by opening the notification center or on activity log (this process usually takes 2 minutes to complete)
+11.	On the alerts page, you should now see 5 different sample events for a resource named `Sample-KV`. Each alert has the `Sample alert` banner next to it.
+12.	Click on the **Access from a TOR exit node to a Key Vault** alert.
+13.	Click on the **View full details** to see additional information related to the event.
+14.	At the top menu, dismiss the alert by changing the status from Active to **Dismiss**.
 
 > Note: You can choose to trigger sample alerts for additional Workload Protections plans.
 
@@ -74,7 +75,6 @@ In the previous step, we used the dismiss option to manually dismiss a single al
 
 [Workload Protections for servers](https://docs.microsoft.com/en-gb/azure/security-center/defender-for-servers-introduction) includes an integrated license for [Microsoft Defender for Endpoint](https://www.microsoft.com/microsoft-365/security/endpoint-defender). Together, they provide comprehensive endpoint detection and response (EDR) capabilities.
 When Defender for Endpoint detects a threat, it triggers an alert. The alert is shown in Microsoft Defender for Cloud. From Microsoft Defender for Cloud, you can also pivot to the Defender for Endpoint console, and perform a detailed investigation to uncover the scope of the attack.
- 
  
 If you've never enabled the integration for Windows, the Allow Microsoft Defender for Endpoint to access my data option will enable Microsoft Defender for Cloud to deploy Defender for Endpoint to both your Windows and Linux machines.
 1.	From Microsoft Defender for Cloud's menu, select **Environment settings** and select the subscription (**Azure Subscription 1**) with the Linux machines that you want to receive Defender for Endpoint.
