@@ -70,24 +70,5 @@ In the previous step, we used the dismiss option to manually dismiss a single al
 4.  View dismissed alerts: On the Security alerts main page, on the filters section, change the Status filter to show only **Dismissed** items.
 5.  You should now expect to see only **1 dismissed alert**: High volume of operations in a Key Vault Sample alert.
 
-### Exercise 3: Enable the integration with Microsoft Defender for Endpoint for Windows
-
-[Workload Protections for servers](https://docs.microsoft.com/en-gb/azure/security-center/defender-for-servers-introduction) includes an integrated license for [Microsoft Defender for Endpoint](https://www.microsoft.com/microsoft-365/security/endpoint-defender). Together, they provide comprehensive endpoint detection and response (EDR) capabilities.
-When Defender for Endpoint detects a threat, it triggers an alert. The alert is shown in Microsoft Defender for Cloud. From Microsoft Defender for Cloud, you can also pivot to the Defender for Endpoint console, and perform a detailed investigation to uncover the scope of the attack.
- 
- 
-If you've never enabled the integration for Windows, the Allow Microsoft Defender for Endpoint to access my data option will enable Microsoft Defender for Cloud to deploy Defender for Endpoint to both your Windows and Linux machines.
-1.	From Microsoft Defender for Cloud's menu, select **Environment settings** and select the subscription (**Azure Subscription 1**) with the Linux machines that you want to receive Defender for Endpoint.
-2.	Then select **Integrations** from the sidebar.
-
-![](../Images/mdfc-integrations.png?raw=true)
-
-3.	Select **Allow Microsoft Defender for Endpoint** to access my data (if it's not already on), and select **Save**.
-
-Microsoft Defender for Cloud will:
-1.	Automatically onboard your Windows and Linux machines to Defender for Endpoint
-2.	Ignore any Linux machines that are running other fanotify-based solutions (see details of the fanotify kernel option required in [Linux system requirements](https://docs.microsoft.com/en-us/microsoft-365/security/defender-endpoint/microsoft-defender-endpoint-linux#system-requirements))
-3.	Detect any previous installations of Defender for Endpoint and reconfigure them to integrate with Microsoft Defender for Cloud.
-Onboarding might take up to 24 hours.
 
 ### Continue with the next lab: [Module 7 - Exporting Microsoft Defender for Cloud information to a SIEM](../Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md)
