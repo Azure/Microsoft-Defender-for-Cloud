@@ -5,6 +5,9 @@
 #### 🎓 Level: 300 (Advanced)
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
+## Objectives
+In this exercise, you will understand how to use just-in-time (JIT) for virtual machines to reduce your attack surface. Moreover, you will understand the benefits of file integrity monitoring (FIM).
+
 ### Exercise 1: Using JIT to reduce attack surface
 
 1.	From Microsoft Defender for Cloud sidebar, click on **Workload Protections**.
@@ -17,13 +20,9 @@
 
 ![Enable JIT on Windows VM](../Images/asc-enable-jit-win-vm.jpg?raw=true)
 
-5.	On the JIT VM access configuration, keep just the **3389 (RDP) port** set to **On**, and set all others to **Off**. 
-
-![](../Images/lab8jit.jpg?raw=true)
-6.	Click **Save** to apply the VM access configuration.
-
+5.	On the JIT VM access configuration, keep just the **3389 (RDP) port** and delete others.  
 ![JIT VM access configuration](../Images/asc-jit-vm-access-config.gif?raw=true)
-
+6.	Click **Save** to apply the VM access configuration.
 7.	Review the **Configured** tab, now you should see your VM configured: `asclab-win`.
 8.	On the Azure portal sidebar, click on **Virtual Machines**.
 9.	Click on **asclab-win**.
