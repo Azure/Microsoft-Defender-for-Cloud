@@ -87,7 +87,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 [**Module 13 – Governance (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md)
 - [Add a new Governance Rule in Microsoft Defender for Cloud]([https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-1-enable-database-protection-on-your-subscription](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-1-add-a-new-governance-rule-in-microsoft-defender-for-cloud)
-- [See recommendations that you're the owner of]([https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-2-create-an-azure-cosmos-db-account-and-protect-it-using-microsoft-defender-for-azure-cosmos-db](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-2-see-recommendations-that-youre-the-owner-of))
+- [See recommendations that you're the owner of](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-2-see-recommendations-that-youre-the-owner-of))
 
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
