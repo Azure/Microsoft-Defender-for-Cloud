@@ -24,7 +24,7 @@ First you need to create an AWS account project.
 2. Navigate to **Defender for Cloud**, then go to **Environment settings**.
 3. Select **Add environment**, then choose **Amazon Web Services**.
 4. Connecting an AWS account to an Azure subscription.
-5. Enter the details of the AWS account, including the location where you'll store the connector resource.
+5. Enter the details of the AWS account, including the location where you'll store the connector resource. Select the *Single account* option. 
  ![Add AWS account](../Images/add-aws-account.png?raw=true)
 6. Select **Next: Select plans**.
 
