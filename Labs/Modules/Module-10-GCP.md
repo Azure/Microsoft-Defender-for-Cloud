@@ -12,12 +12,12 @@ This exercise guides you on how to connect and protect GCP projects using Defend
 
 First you need to create a GCP project. 
 
-1.	Navigate to [Create free GCP](https://www.google.com/aclk?sa=l&ai=DChcSEwiA7K7Gubn3AhUJuu0KHbACBZkYABAAGgJkZw&sig=AOD64_0Cc0zndLvPEu7wV4blEFwWvjOWag&q&adurl&ved=2ahUKEwihk6nGubn3AhVFZcAKHWP5BYkQ0Qx6BAgDEAE)  
+1.	Navigate to [Create free GCP](https://www.google.com/aclk?sa=l&ai=DChcSEwiA7K7Gubn3AhUJuu0KHbACBZkYABAAGgJkZw&sig=AOD64_0Cc0zndLvPEu7wV4blEFwWvjOWag&q&adurl&ved=2ahUKEwihk6nGubn3AhVFZcAKHWP5BYkQ0Qx6BAgDEAE).  
 ![Docker Version in Powershell](../Images/1gcpintro.png?raw=true)
 2.  Click **Get started for free**.
 3.  Now select either an existing Google account or create a new one. 
 4.  Follow the on-screen instructions to create the GCP project.
-5.  At the end, you should be able to sign in to the [Google Cloud Console](console.cloud.google.com) , and see the Dashboard:
+5.  At the end, you should be able to sign in to the [Google Cloud Console](console.cloud.google.com), and see the Dashboard:
 ![GCP console](../Images/2gcpconsole.png?raw=true)
 6. Copy the project number and project ID, and keep them safe, as you'll be using them in the next exercise.
 
@@ -35,6 +35,8 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 4. In the **Create GCP connector** page, then fill in all the details:
 
 **Connector Name**: select a new name
+
+**Onboard**: Single project 
 
 **Subscription**: Choose your existing subscription
 
