@@ -1,4 +1,4 @@
-# Module 13 - Goverance in Microsoft Defender for Cloud
+# Module 13 - Governance in Microsoft Defender for Cloud
 
 <p align="left"><img src="../Images/asc-labs-advanced.gif?raw=true"></p>
 
