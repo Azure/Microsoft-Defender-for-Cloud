@@ -34,8 +34,8 @@ In this exercise, you will understand how to configure the continuous export for
 11.	Click on the **asclab-la-xxx** workspace.
 12.	From the workspace’s sidebar, click on the **Logs** button.
 13.	On the welcome page, click on the **Get Started** button and then **close the Queries window**.
-14.	From the left pane, notice the following tables: `SecureScores`, `SecureScoreControls`, `SecurityAlert`, `SecurityRecommendation` and `SecurityNestedRecommendation`.
-15.	Query the tables later on to validate data streaming - double click on the desired table to open a new query. Then click **Run**.
+14.	From the left pane, expand, Security and Audit. Notice the following tables under Security and Audit:  `SecureScoreControls`, `SecureScores`, `SecurityAlert`, `SecurityNestedRecommendation`, `SecurityRecommendation` and `SecurityRegulatoryCompliance`.
+15.	At any point, administrators can run custom queries by using these tables provided by Microsoft Defender for Cloud.
 
 ![Respective tables in the Log Analytics workspace](../Images/asc-continuous-export-tables.gif?raw=true)
 
