@@ -200,19 +200,6 @@
     }
   },
   "parameters": {
-    "IncludeArcMachines": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Include Arc connected servers",
-        "description": "By selecting this option, you agree to be charged monthly per Arc connected machine.",
-        "portalReview": "true"
-      },
-      "allowedValues": [
-        "true",
-        "false"
-      ],
-      "defaultValue": "false"
-    },
     "effect": {
       "type": "String",
       "metadata": {
