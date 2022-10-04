@@ -68,12 +68,22 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-file-integrity-monitoring)
 
 [**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
+- [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
+- [Download vulnerable image from Docker Hub into the Container Registry]([Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry))
+- [Investigate the recommendation for vulnerabilities in ACR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-3-investigate-the-recommendation-for-vulnerabilities-in-acr)
 
 [**Module 10 – GCP (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md)
+- [Create a GCP project](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-1-create-a-gcp-project)
+- [Create the GCP connector in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-2-create-the-gcp-connector-in-microsoft-defender-for-cloud)
+- [Investigate the GCP recommendations](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-3-investigate-the-gcp-recommendations)
 
 [**Module 11 – AWS (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md)
+- [Create an AWS account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-1-create-an-aws-account)
+- [Create an AWS connector for the new AWS account in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-2-create-an-aws-connector-for-the-new-aws-account-in-microsoft-defender-for-cloud)
 
 [**Module 12 – Defender for Azure Cosmos DB (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md)
+- [Enable database protection on your subscription](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-1-enable-database-protection-on-your-subscription)
+- [Create an Azure Cosmos DB account and protect it using Microsoft Defender for Azure Cosmos DB](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-2-create-an-azure-cosmos-db-account-and-protect-it-using-microsoft-defender-for-azure-cosmos-db)
 
 
 ## Acronyms
