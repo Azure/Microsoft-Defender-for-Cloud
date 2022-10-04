@@ -69,7 +69,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 [**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
 - [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
-- [Download vulnerable image from Docker Hub into the Container Registry]([Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry))
+- [Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry)
 - [Investigate the recommendation for vulnerabilities in ACR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-3-investigate-the-recommendation-for-vulnerabilities-in-acr)
 
 [**Module 10 – GCP (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md)
