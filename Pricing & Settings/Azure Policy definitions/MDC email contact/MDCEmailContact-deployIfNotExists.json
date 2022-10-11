@@ -20,15 +20,11 @@
             {
               "field": "Microsoft.Security/securityContacts/email",
               "equals": "[parameters ('emailSecurityContact')]"
-            },
-            {
-              "field": "Microsoft.Security/securityContacts/phone",
-              "equals": "[parameters ('phoneNumberSecurityContact')]"
             }
           ]
         },
         "roleDefinitionIds": [
-          "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
+          "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
         ],
         "deployment": {
           "location": "westus",
@@ -41,13 +37,10 @@
                 "emailSecurityContact": {
                   "type": "string"
                 },
-                "phoneNumberSecurityContact": {
-                  "type": "string"
+                "notificationsByRole": {
+                  "type": "array"
                 },
-                "alertNotifications": {
-                  "type": "string"
-                },
-                "alertsToAdmins": {
+                "minimalSeverity": {
                   "type": "string"
                 }
               },
@@ -55,13 +48,18 @@
               "resources": [
                 {
                   "type": "Microsoft.Security/securityContacts",
-                  "name": "default1",
-                  "apiVersion": "2017-08-01-preview",
+                  "name": "default",
+                  "apiVersion": "2020-01-01-preview",
                   "properties": {
-                    "email": "[parameters('emailSecurityContact')]",
-                    "phone": "[parameters('phoneNumberSecurityContact')]",
-                    "alertNotifications": "[parameters('alertNotifications')]",
-                    "alertsToAdmins": "[parameters('alertsToAdmins')]"
+                    "emails": "[parameters('emailSecurityContact')]",
+                    "alertNotifications": {
+                        "state": "On",
+                        "minimalSeverity": "[parameters('minimalSeverity')]"
+                    },
+                    "notificationsByRole": {
+                        "state": "On",
+                        "roles": "[parameters('notificationsByRole')]"
+                    }
                   }
                 }
               ],
@@ -71,14 +69,11 @@
               "emailSecurityContact": {
                 "value": "[parameters('emailSecurityContact')]"
               },
-              "phoneNumberSecurityContact": {
-                "value": "[parameters('phoneNumberSecurityContact')]"
+              "minimalSeverity": {
+                "value": "[parameters('minimalSeverity')]"
               },
-              "alertNotifications": {
-                "value": "[parameters('alertNotifications')]"
-              },
-              "alertsToAdmins": {
-                "value": "[parameters('alertsToAdmins')]"
+              "notificationsByRole": {
+                "value": "[parameters('notificationsByRole')]"
               }
             }
           }
@@ -91,33 +86,28 @@
       "type": "String",
       "metadata": {
         "displayName": "emailSecurityContact",
-        "description": "email address to send ASC alerts"
+        "description": "email addresses to send MDC alerts, seprate by comma"
       },
-      "defaultValue": "johndoe@contoso.com"
+      "defaultValue": "johndoe@contoso.com;wandadoe@contoso.com"
     },
-    "phoneNumberSecurityContact": {
+    "minimalSeverity": {
       "type": "String",
       "metadata": {
-        "displayName": "Contact phone number",
-        "description": "The phone number of the email contact"
+        "displayName": "Minimal Severity to Alert On",
+        "description": "The minimal severity to alert on Low, Medium, or High"
       },
-      "defaultValue": "12345"
+      "defaultValue": "High"
     },
-    "alertNotifications": {
-      "type": "String",
+    "notificationsByRole": {
+      "type": "Array",
       "metadata": {
-        "displayName": "Alert Notifications On or Off",
-        "description": "Set alert notifications on or off"
+        "displayName": "Notifications by Role",
+        "description": "Array of Roles to be notified on MDC alerts"
       },
-      "defaultValue": "On"
-    },
-    "alertsToAdmins": {
-      "type": "String",
-      "metadata": {
-        "displayName": "Send alerts to admins, On or Off",
-        "description": "Set sending alerts to admins On or Off"
-      },
-      "defaultValue": "On"
+      "defaultValue": [
+        "Owner",
+        "Contributor"
+      ]
     }
   }
 }
