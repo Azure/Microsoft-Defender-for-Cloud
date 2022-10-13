@@ -68,5 +68,16 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 > **Note** Admin privileges to the Azure DevOps organization are required to install the extension. If you don’t have access to install the extension, you must request access from your Azure DevOps organization’s administrator during the installation process
 
 
+### Exercise 5: Install Free extension SARIF SAST Scans Tab
+
+In order to view the scan results (when you execute the pipelines), in an easier and readable format, install this free extension in your Azure DevOps organization.
+
+1.	Login to the Azure DevOps organization that you created in Exercise 3 and open the marketplace using the same steps that were descrivbed in the previous exercise.
+2.	In the search field, type ***SARIF SANST Scans*** and click the search button.
+3.	Follow the same steps as shown in the previous exercise to install this extension in your Azure ADO organization.
+4.	After finishing installing you should see two extensions as shown in the example below:
+
+![Azure ADO Connector - SANS](../Images/M14_Fig6.PNG?raw=true)
+
 
 ### Continue with the next lab: [Module 15 – Configuring GitHub Connector in Defender for DevOps](Module-8-Advance-Cloud-Defense.md)
