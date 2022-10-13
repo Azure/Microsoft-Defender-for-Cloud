@@ -43,7 +43,7 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 
 14.	After the authorization is complete, you will need to select your Azure ADO organization and projects as shown in the sample below:
 
-![Azure ADO Connector - Accept](../Images/M14_Fig4.PNG?raw=true)
+![Azure ADO Connector - Completed](../Images/M14_Fig4.PNG?raw=true)
 
 15.	After selecting the organization, keep the option **Auto discovery of projects** enabled.
 16.	Click **Review and create** button to continue.
@@ -53,6 +53,19 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 
 
 17.	After some minutes you will see the Azure DevOps connector in the **Environment settings** page and in about 15 minutes, you will start to seeing the total resources number populating.
+
+### Exercise 4: Configure the Microsoft Security DevOps Azure DevOps Extension
+
+1.	Login to the Azure DevOps organization that you created in Exercise 3.
+2.	In the right corner, click in the shopping bag icon and click **Browse marketplace** option.
+3.	In the search field, type ***Microsoft Security DevOps extension*** and click the search button.
+4.	Click in the extension, select Install. Choose appropriate Organization from the dropdown menu, select Install and Proceed to Organization.
+5.	 you have it installed, you’ll notice the Extension under ‘Installed’ section in the organization level settings as shown the example below:
+
+![Azure ADO Connector - Extension](../Images/M14_Fig5.PNG?raw=true)
+
+
+> **Note** Admin privileges to the Azure DevOps organization are required to install the extension. If you don’t have access to install the extension, you must request access from your Azure DevOps organization’s administrator during the installation process
 
 
 
