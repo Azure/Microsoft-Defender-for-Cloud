@@ -37,7 +37,9 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 
 ![Azure ADO Connector - Accept](../Images/M14_Fig3.PNG?raw=true)
 
+
 > **Note** When you click **Accept** in your Azure DevOps, you’ll notice the proof of Authorization to the **Microsoft Security DevOps** App. You can find this in your Azure ADO organization, under the **Personal Access tokens** / **User Settings** / **Authorizatons**.  
+
 
 14.	After the authorization is complete, you will need to select your Azure ADO organization and projects as shown in the sample below:
 
@@ -46,7 +48,9 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 15.	After selecting the organization, keep the option **Auto discovery of projects** enabled.
 16.	Click **Review and create** button to continue.
 
+
 > **Note** You need to be a **Project Collection Admin** in the Azure DevOps organization that you selected to complete this process. Learn more about this role [here](https://learn.microsoft.com/en-us/azure/devops/organizations/settings/about-settings?view=azure-devops&WT.mc_id=Portal-Microsoft_Azure_Security_DevOps#project-collection-administrator-pca-role-and-managing-collections-of-projects)
+
 
 17.	After some minutes you will see the Azure DevOps connector in the **Environment settings** page and in about 15 minutes, you will start to seeing the total resources number populating.
 
