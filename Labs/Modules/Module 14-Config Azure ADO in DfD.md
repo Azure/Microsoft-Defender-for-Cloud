@@ -79,5 +79,13 @@ In order to view the scan results (when you execute the pipelines), in an easier
 
 ![Azure ADO Connector - SANS](../Images/M14_Fig6.PNG?raw=true)
 
+### Exercise 6: Configure your pipelines using YAML 
+
+The purpose of this exercise is to allow you to see how the extension used by Defender for DevOps will check your pipeline. Before start this exercise review the following observations:
+- If you are using the free version of Azure DevOps you will receive an error message when executing the pipeline. This message will ask you to visit  https://aka.ms/azpipelines-parallelism-request/ and request increased parallelism in Azure DevOps. This can take 2 to 4 days to occur.
+- An alternative way to create a pipeline is by using a Hosted Build Agent, which is the method used in this exercise. To create your hosted build agent follow the steps from [Module 14 - Appendix 1](Module14-Appendix1.pdf). After finishing these steps, you can continue
+
+1. 
+
 
 ### Continue with the next lab: [Module 15 – Configuring GitHub Connector in Defender for DevOps](Module-8-Advance-Cloud-Defense.md)
