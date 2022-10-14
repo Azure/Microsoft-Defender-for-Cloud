@@ -103,7 +103,6 @@ The purpose of this exercise is to allow you to see how the extension used by De
 7. In the page that opens up, replace the YAML code for the one below:
 
 ```
-
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
@@ -125,10 +124,18 @@ steps:
     version: 6.0.x
 - task: MicrosoftSecurityDevOps@1
   displayName: 'Microsoft Security DevOps'
-
-
 ```
 
+> **Note** Observe that the pool is pointing to windows-build-agents, which is the VMSS that you created.
+
+8. Click **Save and run** button and then click Save and run button again.
+
+
+> **Note** At this point the job will queue up to run. This step may take some time to spin up a build agent in the VMSS. During this time, if you go back to VMSS dashboard you will see that the instance is getting created
+
+9. In a few more minutes, the job will start to have some activity as shown the example below:
+
+![Azure ADO Connector - result](../Images/M14_Fig10.PNG?raw=true)
 
 
 
