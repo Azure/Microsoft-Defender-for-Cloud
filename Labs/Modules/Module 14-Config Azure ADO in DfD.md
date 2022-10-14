@@ -79,13 +79,57 @@ In order to view the scan results (when you execute the pipelines), in an easier
 
 ![Azure ADO Connector - SANS](../Images/M14_Fig6.PNG?raw=true)
 
-### Exercise 6: Configure your pipelines using YAML 
+### Exercise 6: Configure your pipeline using YAML 
 
 The purpose of this exercise is to allow you to see how the extension used by Defender for DevOps will check your pipeline. Before start this exercise review the following observations:
 - If you are using the free version of Azure DevOps you will receive an error message when executing the pipeline. This message will ask you to visit  https://aka.ms/azpipelines-parallelism-request/ and request increased parallelism in Azure DevOps. This can take 2 to 4 days to occur.
 - An alternative way to create a pipeline is by using a Hosted Build Agent, which is the method used in this exercise. To create your hosted build agent follow the steps from [Module 14 - Appendix 1](Module14-Appendix1.pdf). After finishing these steps, you can continue
 
-1. 
+1. Login to the Azure DevOps organization that you created in Exercise 3 and open your project.
+2. In the left navigation pane, click **Pipelines** as shown below:
+
+![Azure ADO Connector - Pipeline](../Images/M14_Fig7.PNG?raw=true)
+
+3. In the right pane, click **New pipeline** button.
+4. In the **Where is your code?** page, click **Azure Repos Git** as shown below: 
+
+![Azure ADO Connector - where](../Images/M14_Fig8.PNG?raw=true)
+
+5. Click the appropriate repository.
+6. In the **Configure your pipeline** page, click **Starter pipeline** as shown below: 
+
+![Azure ADO Connector - starter](../Images/M14_Fig9.PNG?raw=true)
+
+7. In the page that opens up, replace the YAML code for the one below:
+
+```
+
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+trigger: none
+pool: windows-build-agents
+steps:
+- task: UseDotNet@2
+  displayName: 'Use dotnet'
+  inputs:
+    version: 3.1.x
+- task: UseDotNet@2
+  displayName: 'Use dotnet'
+  inputs:
+    version: 5.0.x
+- task: UseDotNet@2
+  displayName: 'Use dotnet'
+  inputs:
+    version: 6.0.x
+- task: MicrosoftSecurityDevOps@1
+  displayName: 'Microsoft Security DevOps'
+
+
+```
+
+
 
 
 ### Continue with the next lab: [Module 15 – Configuring GitHub Connector in Defender for DevOps](Module-8-Advance-Cloud-Defense.md)
