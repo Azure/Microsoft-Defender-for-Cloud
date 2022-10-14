@@ -143,4 +143,3 @@ steps:
 
 
 
-### Continue with the next lab: [Module 15 – Configuring GitHub Connector in Defender for DevOps](Module-8-Advance-Cloud-Defense.md)
