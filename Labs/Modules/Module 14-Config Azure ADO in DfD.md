@@ -137,6 +137,10 @@ steps:
 
 ![Azure ADO Connector - result](../Images/M14_Fig10.PNG?raw=true)
 
+10. After it finishes you can see scan done by Defender for DevOps. To do that click **Microsoft Security DevOps** section in the left and you will see the output of the actions that were done as shown below:
+
+![Azure ADO Connector - scanresult](../Images/M14_Fig11.PNG?raw=true)
+
 
 
 ### Continue with the next lab: [Module 15 – Configuring GitHub Connector in Defender for DevOps](Module-8-Advance-Cloud-Defense.md)
