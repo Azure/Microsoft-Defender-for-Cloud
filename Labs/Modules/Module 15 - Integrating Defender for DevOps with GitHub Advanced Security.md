@@ -35,21 +35,25 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 ![Azure ADO Connector](../Images/Picture1.png?raw=true)
 
 4.	Type the name for the connector, select the subscription, select the Resource Group, which can be the same you used in this lab and the region. 
-11.	Click **Next:select plans >** button to continue.
-12.	In the next page leave the default selection with **DevOps** selected and click **Next: Authorize connection >** button to continue. The following page appears:
+5.	Click **Next:select plans >** button to continue.
+6.	In the next page leave the default selection with **DevOps** selected and click **Next: Authorize connection >** button to continue. The following page appears:
 
 ![Azure ADO Connector - Authorize](../Images/Pic2.png?raw=true)
 
 
-13.	Click **Authorize** button. Now Click **Install** button under Install Defender for DevOps app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
+7.	Click **Authorize** button. Now Click **Install** button under Install Defender for DevOps app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
 
-![Azure ADO Connector - Accept](../Images/M14_Fig3.PNG?raw=true)
+![Azure ADO Connector - Install](../Images/Pic3.png?raw=true)
 
-14. Choose **All repositories** or **only select repositories** as per your choice and click on **Install**
-15. Once you click on install, you'll recieve another pop-up window requesting to enter the password inorder to confirm access. 
-15. Back to the Azure portal, you'll notice that the extension status is changed to **Installed** 
+![Azure ADO Connector - Choose Repository](../Images/Pic4.png?raw=true)
 
-16.	Click **Review and create** button to continue.
+8. Choose **All repositories** or **only select repositories** as per your choice and click on **Install**
+
+![Azure ADO Connector - Install](../Images/Pic5.png?raw=true)
+
+9. Once you click on install, you’ll receive another pop-up window requesting to enter the password inorder to confirm access   
+
+10. Back to the Azure portal, you’ll notice that the extension is installed > Click on **Review and Create** button to continue.  
 
 ### Exercise 5: Configure the Microsoft Security DevOps GitHub action:
 
