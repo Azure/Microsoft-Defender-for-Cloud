@@ -122,14 +122,17 @@ jobs:
 7.	Click on **Start Commit** **Commit new file**
 
 ![Azure GitHub - Commit](../Images/Pic10?raw=true)
+
 ![Azure GitHub - Commit](../Images/Pic11?raw=true)
 
 The process can take up to one minute to complete. 
 A workflow gets created in your repositories github folder with the above copied yml file 
 
-![Azure GitHub - Workflow example](../Images/M14_Fig5.PNG?raw=true)
+![Azure GitHub - Workflow example](../Images/Picture11.png?raw=true)
 
 8.	Select **Actions** and verify the new action is running/completed running. 
+
+![Azure GitHub - New Action](../Images/Picture12.png?raw=true)
 
 9.	Once this job completes running, navigate to the Security tab > Click on Code scanning 
 
@@ -137,9 +140,9 @@ NOTE: if you don’t see anything is because your code scanning feature is disab
 
 10.	If you see No code scanning alerts here, In the filter of Code scanning tab, choose is:open tool: Notice the available tools Defender for DevOps uses.
 
-![Azure GitHub - Code Scanning](../Images/M14_Fig5.PNG?raw=true)
+![Azure GitHub - Code Scanning](../Images/Picture13.png?raw=true)
 
 11.	Code scanning findings will be filtered by specific MSDO tools in GitHub. These code scanning results are also pulled into Defender for Cloud recommendations.
 
-![Azure GitHub - Code Scanning Findins](../Images/M14_Fig5.PNG?raw=true)
+![Azure GitHub - Code Scanning Findins](../Images/Picture14.png?raw=true)
 
