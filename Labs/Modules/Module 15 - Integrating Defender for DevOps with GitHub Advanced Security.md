@@ -1,4 +1,4 @@
-# Module 14 – Integrating Defender for DevOps with GitHub Advanced Security
+# Module 15 – Integrating Defender for DevOps with GitHub Advanced Security
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
