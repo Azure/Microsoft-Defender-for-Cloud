@@ -38,7 +38,7 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 11.	Click **Next:select plans >** button to continue.
 12.	In the next page leave the default selection with **DevOps** selected and click **Next: Authorize connection >** button to continue. The following page appears:
 
-![Azure ADO Connector - Authorize](../Images/Screenshot 2022-10-17 092413.png?raw=true)
+![Azure ADO Connector - Authorize](../Images/Pic2.png?raw=true)
 
 
 13.	Click **Authorize** button. Now Click **Install** button under Install Defender for DevOps app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
