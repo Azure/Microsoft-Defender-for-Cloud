@@ -121,9 +121,9 @@ jobs:
 
 7.	Click on **Start Commit** **Commit new file**
 
-![Azure GitHub - Commit](../Images/Pic10?raw=true)
+![Azure GitHub - Commit](../Images/Pic10.png?raw=true)
 
-![Azure GitHub - Commit](../Images/Pic11?raw=true)
+![Azure GitHub - Commit](../Images/Pic11.png?raw=true)
 
 The process can take up to one minute to complete. 
 A workflow gets created in your repositories github folder with the above copied yml file 
