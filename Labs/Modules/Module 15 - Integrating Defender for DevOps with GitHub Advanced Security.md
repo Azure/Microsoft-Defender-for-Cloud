@@ -1,4 +1,4 @@
-# Module 14 – Configuring Azure ADO Connector in Defender for DevOps
+# Module 14 – Integrating Defender for DevOps with GitHub Advanced Security
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
