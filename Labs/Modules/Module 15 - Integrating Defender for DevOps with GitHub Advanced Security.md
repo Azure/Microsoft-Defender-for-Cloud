@@ -32,7 +32,7 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 2.	In the left navigation pane, click **Environment settings** option
 3.	Click the **Add environment** button and click **GitHub (preview)** option. The **Create GitHub connection** page appears as shown the sample below.
 
-![Azure ADO Connector](../Images/M14_Fig1.PNG?raw=true)
+![Azure ADO Connector](../Images/Picture1.png?raw=true)
 
 4.	Type the name for the connector, select the subscription, select the Resource Group, which can be the same you used in this lab and the region. 
 11.	Click **Next:select plans >** button to continue.
