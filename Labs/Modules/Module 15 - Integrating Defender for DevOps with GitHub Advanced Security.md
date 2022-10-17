@@ -54,6 +54,9 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 9. Once you click on install, you’ll receive another pop-up window requesting to enter the password inorder to confirm access   
 
 10. Back to the Azure portal, you’ll notice that the extension is installed > Click on **Review and Create** button to continue.  
+11. Navigating to the **Environment Settings** under **Microsoft Defender for Cloud**, you’ll notice the GitHub Connection was successfully created. 
+
+![Azure ADO Connector - Confirming the connector](../Images/Pic6.png?raw=true)
 
 ### Exercise 5: Configure the Microsoft Security DevOps GitHub action:
 
@@ -62,20 +65,15 @@ To setup GitHub action:
 2.	Select a repository on which you want to configure the GitHub action.
 3.	Select **Actions** as shown in the image below 
 
-![Azure GitHub - Actions](../Images/M14_Fig3.PNG?raw=true)
+![Azure GitHub - Actions](../Images/Pic7.png?raw=true)
 
 4.	Select **New Workflow**
 
-![Azure GitHub - New workflow](../Images/M14_Fig3.PNG?raw=true)
+![Azure GitHub - New workflow](../Images/Pic8.png?raw=true)
 
 5.	In the text box, enter a name for your workflow file. For example **msdevopssec.yml**
 
-![Azure GitHub - New workflow](../Images/M14_Fig3.PNG?raw=true)
-
-4.	Click in the extension, select Install. Choose appropriate Organization from the dropdown menu, select Install and Proceed to Organization.
-5.	 you have it installed, you’ll notice the Extension under ‘Installed’ section in the organization level settings as shown the example below:
-
-![Azure GitHub - Workflow](../Images/M14_Fig5.PNG?raw=true)
+![Azure GitHub - New workflow](../Images/Pic9.png?raw=true)
 
 6.	Copy and paste the following sample action workflow into the **Edit new file** tab. 
 
@@ -123,7 +121,8 @@ jobs:
 
 7.	Click on **Start Commit** **Commit new file**
 
-![Azure GitHub - Commit](../Images/M14_Fig5.PNG?raw=true)
+![Azure GitHub - Commit](../Images/Pic10?raw=true)
+![Azure GitHub - Commit](../Images/Pic11?raw=true)
 
 The process can take up to one minute to complete. 
 A workflow gets created in your repositories github folder with the above copied yml file 
