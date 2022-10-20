@@ -4,7 +4,7 @@ The policy enables Microsoft Defender for Cloud servers [agentless scanning](htt
 **Agentless scanning for servers is part of the CSPM and/or Servers P2 bundle**
 
 ## Policy actions
-1. Assigns 'VM Scanner Operator' role definition to 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application, which is application used by Microsoft Defender for Cloud to orchestrate the scanning process on the scanned subscription. Use the PowerShell script below to get the object ID of 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application.
+1. Assigns 'VM Scanner Operator' role definition to 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application, which is the application used by Microsoft Defender for Cloud to orchestrate the scanning process on the scanned subscription. Use the PowerShell script below to get the object ID of 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application.
 
 2. Creates a new Microsoft.Security/vmScanner ARM resource on the subscription remediated by the policy
 
