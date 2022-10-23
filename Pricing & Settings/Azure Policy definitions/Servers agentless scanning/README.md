@@ -1,7 +1,7 @@
 # Servers Agentless scanning enablement
-The policy enables Microsoft Defender for Cloud servers [agentless scanning](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-agentless-data-collection) mode on subscription level.
+The policy enables Microsoft Defender for Cloud [servers agentless scanning](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-agentless-data-collection) mode on subscription level.
 
-**Agentless scanning for servers is part of the CSPM and/or Servers P2 bundle**
+**Agentless scanning for servers is part of the Defender CSPM and/or Servers P2 bundle**
 
 ## Policy actions
 1. Assigns 'VM Scanner Operator' role definition to 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application, which is the application used by Microsoft Defender for Cloud to orchestrate the scanning process on the scanned subscription. Use the PowerShell script below to get the object ID of 'Microsoft Defender for Cloud Servers Scanner Resource Provider' enterprise application.
