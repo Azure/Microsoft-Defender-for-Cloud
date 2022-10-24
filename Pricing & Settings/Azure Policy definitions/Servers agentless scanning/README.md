@@ -15,4 +15,5 @@ The policy enables Microsoft Defender for Cloud [servers agentless scanning](htt
 2. Assign the policy to a management group / the subscriptions you would like to enable at scale, the object ID retrieved in step 1 should be set as the *mdcObjectId* policy parameter value. Optionally - set the exclusionTags parameter as well, which is a dictionary of string key-value pairs representing the tags used to exclude resources from being scanned (e.g. { "businessUnit": "Finance" }).
 
 **Alternative - click the button below to deploy the policy to management group**
+
 [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPricing%2520%2526%2520Settings%2FAzure%2520Policy%2520definitions%2FServers%2520agentless%2520scanning%2FManagementGroupDeployment%2Fazuredeploy.json)
