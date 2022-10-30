@@ -13,6 +13,7 @@ Microsoft Defender for Storage continuously analyzes the transactions of [Azure 
 This PowerShell script allows you to estimate the cost of the new per-storage pricing plan and it considers all storage accounts with and without Microsoft Defender for Storage enabled across the selected scope. 
 
 The results are derived from data extracted from the past month, and the estimation is for the monthly cost. 
+>At the end of the script execution CSV file (DefenderEstimatedCostBySubscription.csv) will be saved in the current directory. 
 
 ## Important
 You can also try the [Microsoft Defender for Storage pricing estimation workbook](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20Storage%20Price%20Estimation).
