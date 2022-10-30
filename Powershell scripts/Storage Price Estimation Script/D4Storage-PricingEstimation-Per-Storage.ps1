@@ -1,6 +1,7 @@
 $OverageBar = 73000000
 $PricePer1MOverageTransactions = 0.1492
 $CostPerStorageAccount = 10
+$GetMetricRetries = 3
 
 if ($null -eq $(Get-AzContext)) {Connect-AzAccount}
 $subscriptions = Get-AzSubscription
@@ -15,17 +16,28 @@ try{
         $startDate = (get-date (get-date).AddMonths(-1) -UFormat "%F")
         $endDate = Get-Date -UFormat "%F"
     
-        Write-Host "Estimating the Microsoft Defender For Storage per-storage-account plan monthly cost for $($storageAccounts.Length) accounts"
+        Write-Host "Estimating Defender For Storage monthly price for $($storageAccounts.Length) accounts"
         foreach ($storage in $storageAccounts){
-            $metric = Get-AzMetric `
-                -ResourceId $($storage.Id) `
-                -MetricName Transactions `
-                -AggregationType "Total" `
-                -StartTime $startDate `
-                -EndTime $endDate `
-                -TimeGrain $(New-TimeSpan -Days 1) `
-                -WarningAction SilentlyContinue `
-                -ErrorAction Stop
+            $metric = $null
+            for ($attempt = 0; $attempt -lt $GetMetricRetries; $attempt++) {
+                try {
+                    $metric = Get-AzMetric `
+                        -ResourceId $($storage.Id) `
+                        -MetricName Transactions `
+                        -AggregationType "Total" `
+                        -StartTime $startDate `
+                        -EndTime $endDate `
+                        -TimeGrain $(New-TimeSpan -Days 1) `
+                        -WarningAction SilentlyContinue `
+                        -ErrorAction Stop
+                }
+                catch {
+                    if($attempt -eq ($GetMetricRetries - 1)){
+                        throw
+                    }
+                    Write-Error "Got an error: $($PSItem.Exception.Message)"
+                }
+            }
     
             $totalTransactions = ($metric.Data.Total | Measure-Object -sum).Sum
             $overageTransactions = (($totalTransactions - $OverageBar) -ge 0) ? ($totalTransactions - $OverageBar) : 0
@@ -49,8 +61,8 @@ catch
 {
     $subscriptionTotalCostArray| ConvertTo-csv | out-file DefenderEstimatedCostBySubscription.csv
     Write-Error "The script encountered an error, partiall results were saved to a .csv file in the script directory"
-    throw $PSItem
+    throw
 }
 
 $subscriptionTotalCostArray| ConvertTo-csv | out-file DefenderEstimatedCostBySubscription.csv
-Write-Host "Total Microsoft Defender for storage cost for $($subscriptions.Length) subscriptions in the per-storage-account pricing plan: $("{0:C2}" -f $totalCost)"
+Write-Host "Total Defender for storage cost for $($subscriptions.Length) subscription: $("{0:C2}" -f $totalCost)"
