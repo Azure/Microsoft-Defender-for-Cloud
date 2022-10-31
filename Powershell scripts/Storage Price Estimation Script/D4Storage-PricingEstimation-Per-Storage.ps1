@@ -1,3 +1,6 @@
+#Requires -Version 7.0
+#Requires -Modules Az.Monitor
+
 $OverageBar = 73000000
 $PricePer1MOverageTransactions = 0.1492
 $CostPerStorageAccount = 10
