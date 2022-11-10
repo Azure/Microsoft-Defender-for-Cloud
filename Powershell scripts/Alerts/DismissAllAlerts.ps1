@@ -97,12 +97,9 @@ function Dismiss-Alert($alert) {
         }   
       }
     }
-   
-
- 
-
   }
 }
+
 function Should-BeDismissed($alert) {
 	return $alert.properties.status -ne "Dismissed"
 }
