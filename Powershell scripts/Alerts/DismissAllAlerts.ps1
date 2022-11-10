@@ -66,12 +66,45 @@ function Dismiss-Alert($alert) {
     $dismissUrl = "https://management.azure.com/$($alert.id)/dismiss?api-version=2021-01-01"
     Write-Host (Get-Date).ToString() "  " $dismissUrl
     $headers = Get-Headers
-    Invoke-RestMethod -Method "Post" -Uri $dismissUrl -Headers $headers
+    $retryCount = 0
+    $success = $false
+    while (($success -ne $true)){
+      try {
+        Invoke-RestMethod -Method "Post" -Uri $dismissUrl -Headers $headers
+        $success = $true
+      }  
+      catch [System.Net.WebException]{
+        $StatusCode = [int]$PSItem.Exception.Response.StatusCode
+        if ($StatusCode -eq 429) {
+          Write-Host "Request was throttled"
+          try{
+            $RetryAfter = [int]$PSItem.Exception.Response.Headers["Retry-After"]
+          }
+          catch {
+            $RetryAfter = 360
+          }
+
+          if($retryCount -gt 5){
+            Write-Host "max retry reached, throwing exception"
+            throw
+          }
+          Write-Host "Sleep for $($RetryAfter) Seconds then retry"
+          Start-Sleep -Seconds $RetryAfter
+          $retryCount++
+        }
+        else{
+          throw
+        }   
+      }
+    }
+   
+
+ 
+
   }
 }
-
 function Should-BeDismissed($alert) {
-	return $true
+	return $alert.properties.status -ne "Dismissed"
 }
 
 try {
