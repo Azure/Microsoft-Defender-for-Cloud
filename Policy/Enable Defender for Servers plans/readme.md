@@ -2,7 +2,8 @@
 
 | Version | Description | Author | Date |
 | ------ | ------ | ------ | ------ |
-| 1.0 | Initial release | [Tom Janetscheck](https://github.com/tomjanetscheck )| 10/27/2022|
+| 1.0 | Initial release | [Tom Janetscheck](https://github.com/tomjanetscheck)| 10/27/2022|
+| 1.1 | Fixing template parameter | [Tom Janetscheck](https://github.com/tomjanetscheck) | 11/18/2022 |
 
 This Azure policy definition allows you to enable Microsoft Defender for Servers on your subscriptions and management groups while, at the same time, selecting the Defender for Servers plan (Plan 1 or Plan 2). The policy uses assignment parameters to allow for plan selection:
 
