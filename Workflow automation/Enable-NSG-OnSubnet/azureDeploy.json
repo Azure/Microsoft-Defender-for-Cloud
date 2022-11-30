@@ -1,0 +1,476 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"metadata": {
+		"title": "",
+		"description": "",
+		"prerequisites": "",
+		"postDeployment": [],
+		"prerequisitesDeployTemplateFile": "",
+		"lastUpdateTime": "",
+		"entities": [],
+		"tags": [],
+		"support": {
+			"tier": "community",
+			"armtemplate": "Generated from https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Playbook-ARM-Template-Generator"
+		},
+		"author": {
+			"name": ""
+		}
+	},
+	"parameters": {
+		"PlaybookName": {
+			"defaultValue": "enable-default-nsg",
+			"type": "string"
+		},
+		"NSGNamePrefix": {
+			"defaultValue": "default-nsg-",
+			"type": "string",
+			"metadata": {
+				"description": "The network security group name prefix. The subnet name will be appended automatically"
+			}
+		},
+		"securityRules": {
+			"defaultValue": {"securityRules":[]},
+			"type": "Object",
+			"metadata": {
+				"description": "Additional nsg security rules that should be added during the creation of the nsg. Format must be valid json. Example: https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Workflow automation/Enable-NSG-OnSubnet/exampleRules.json"
+			}
+		}
+	},
+	"variables": {
+		"ArmConnectionName": "[concat('Arm-', parameters('PlaybookName'))]",
+		"AscassessmentConnectionName": "[concat('Ascassessment-', parameters('PlaybookName'))]"
+	},
+	"resources": [
+		{
+			"properties": {
+				"provisioningState": "Succeeded",
+				"state": "Enabled",
+				"definition": {
+					"$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+					"contentVersion": "1.0.0.0",
+					"parameters": {
+						"$connections": {
+							"defaultValue": {},
+							"type": "Object"
+						},
+						"NSGNamePrefix": {
+							"type": "string",
+							"defaultValue": "[parameters('NSGNamePrefix')]"
+						},
+						"securityRules": {
+							"type": "Object",
+							"defaultValue": "[parameters('securityRules')]"
+						}
+					},
+					"triggers": {
+						"When_an_Microsoft_Defender_for_Cloud_Recommendation_is_created_or_triggered": {
+							"type": "ApiConnectionWebhook",
+							"inputs": {
+								"body": {
+									"callback_url": "@{listCallbackUrl()}"
+								},
+								"host": {
+									"connection": {
+										"name": "@parameters('$connections')['ascassessment']['connectionId']"
+									}
+								},
+								"path": "/Microsoft.Security/Assessment/subscribe"
+							}
+						}
+					},
+					"actions": {
+						"For_each_-_subnetsWithNoNsgs": {
+							"foreach": "@union(variables('subnetsWithNoNsgs'),variables('subnetsWithNoNsgs'))",
+							"actions": {
+								"Associate_Subnet_With_NSG": {
+									"runAfter": {
+										"Verify_Results": [
+											"Succeeded"
+										]
+									},
+									"type": "ApiConnection",
+									"inputs": {
+										"body": {
+											"properties": {
+												"addressPrefix": "@{body('Read_a_resource_-_subnet')?['properties']?['addressPrefix']}",
+												"networkSecurityGroup": {
+													"id": "/subscriptions/@{variables('Subscription')}/resourceGroups/@{variables('ResourceGroup')}/providers/Microsoft.Network/networkSecurityGroups/@{variables('nsgName')}@{body('Read_a_resource_-_subnet')?['name']}"
+												}
+											}
+										},
+										"host": {
+											"connection": {
+												"name": "@parameters('$connections')['arm_1']['connectionId']"
+											}
+										},
+										"method": "put",
+										"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Network')}/@{encodeURIComponent(concat('virtualNetworks/', split(item(),'/')[8], '/subnets/', last(split(item(),'/'))))}",
+										"queries": {
+											"x-ms-api-version": "2022-05-01"
+										}
+									}
+								},
+								"Check_for_default_nsg": {
+									"runAfter": {
+										"Read_a_resource_-_vnet": [
+											"Succeeded"
+										]
+									},
+									"type": "ApiConnection",
+									"inputs": {
+										"host": {
+											"connection": {
+												"name": "@parameters('$connections')['arm_1']['connectionId']"
+											}
+										},
+										"method": "get",
+										"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourceGroups/@{encodeURIComponent(variables('ResourceGroup'))}/resources",
+										"queries": {
+											"$filter": "name eq '@{concat(variables('nsgName'),body('Read_a_resource_-_subnet')?['name'])}' and resourceType eq 'Microsoft.Network/networkSecurityGroups'",
+											"x-ms-api-version": "2016-06-01"
+										}
+									}
+								},
+								"Read_a_resource_-_subnet": {
+									"runAfter": {},
+									"type": "ApiConnection",
+									"inputs": {
+										"host": {
+											"connection": {
+												"name": "@parameters('$connections')['arm_1']['connectionId']"
+											}
+										},
+										"method": "get",
+										"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Network')}/@{encodeURIComponent(concat('virtualNetworks/', split(item(),'/')[8], '/subnets/', last(split(item(),'/'))))}",
+										"queries": {
+											"x-ms-api-version": "2022-05-01"
+										}
+									}
+								},
+								"Read_a_resource_-_vnet": {
+									"runAfter": {
+										"Read_a_resource_-_subnet": [
+											"Succeeded"
+										]
+									},
+									"type": "ApiConnection",
+									"inputs": {
+										"host": {
+											"connection": {
+												"name": "@parameters('$connections')['arm_1']['connectionId']"
+											}
+										},
+										"method": "get",
+										"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Network')}/@{encodeURIComponent('virtualNetworks/',split(item(),'/')[8])}",
+										"queries": {
+											"x-ms-api-version": "2022-05-01"
+										}
+									}
+								},
+								"Verify_Results": {
+									"actions": {},
+									"runAfter": {
+										"Check_for_default_nsg": [
+											"Succeeded"
+										]
+									},
+									"else": {
+										"actions": {
+											"Create_Default_NSG": {
+												"runAfter": {},
+												"type": "ApiConnection",
+												"inputs": {
+													"body": {
+														"location": "@body('Read_a_resource_-_vnet')?['location']",
+														"properties": "@parameters('securityRules')"
+													},
+													"host": {
+														"connection": {
+															"name": "@parameters('$connections')['arm_1']['connectionId']"
+														}
+													},
+													"method": "put",
+													"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Network')}/@{encodeURIComponent('networkSecurityGroups/',concat(variables('nsgName'),body('Read_a_resource_-_subnet')?['name']))}",
+													"queries": {
+														"x-ms-api-version": "2022-05-01"
+													}
+												}
+											}
+										}
+									},
+									"expression": {
+										"and": [
+											{
+												"equals": [
+													"@empty(body('Check_for_default_nsg')?['value'])",
+													"@false"
+												]
+											}
+										]
+									},
+									"type": "If"
+								}
+							},
+							"runAfter": {
+								"For_each_NetworkInterface": [
+									"Succeeded"
+								]
+							},
+							"type": "Foreach"
+						},
+						"For_each_NetworkInterface": {
+							"foreach": "@body('Read_a_resource_-_VM')?['properties']?['networkProfile']?['networkInterfaces']",
+							"actions": {
+								"Check_for_Network_Security_Groups": {
+									"actions": {},
+									"runAfter": {
+										"Read_a_resource_-_networkInterfaces": [
+											"Succeeded"
+										]
+									},
+									"else": {
+										"actions": {
+											"For_each_-_subnet": {
+												"foreach": "@body('Read_a_resource_-_networkInterfaces')?['properties']?['ipConfigurations']",
+												"actions": {
+													"Append_to_array_variable_-_subnetsWithNoNSG": {
+														"runAfter": {},
+														"type": "AppendToArrayVariable",
+														"inputs": {
+															"name": "subnetsWithNoNsgs",
+															"value": "@items('For_each_-_subnet')?['properties']?['subnet']?['id']"
+														}
+													}
+												},
+												"runAfter": {},
+												"type": "Foreach"
+											}
+										}
+									},
+									"expression": {
+										"and": [
+											{
+												"not": {
+													"equals": [
+														"@body('Read_a_resource_-_networkInterfaces')?['properties']?['networkSecurityGroup']",
+														"@null"
+													]
+												}
+											}
+										]
+									},
+									"type": "If"
+								},
+								"Read_a_resource_-_networkInterfaces": {
+									"runAfter": {},
+									"type": "ApiConnection",
+									"inputs": {
+										"host": {
+											"connection": {
+												"name": "@parameters('$connections')['arm_1']['connectionId']"
+											}
+										},
+										"method": "get",
+										"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Network')}/@{encodeURIComponent(concat('networkInterfaces/', last(split(items('For_each_NetworkInterface')?['id'], '/'))))}",
+										"queries": {
+											"x-ms-api-version": "2022-05-01"
+										}
+									}
+								}
+							},
+							"runAfter": {
+								"Read_a_resource_-_VM": [
+									"Succeeded"
+								]
+							},
+							"type": "Foreach"
+						},
+						"Initialize_variable_-_ResourceGroup": {
+							"runAfter": {
+								"Initialize_variable_-_Subscription": [
+									"Succeeded"
+								]
+							},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "ResourceGroup",
+										"type": "string",
+										"value": "@{split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[4]}"
+									}
+								]
+							}
+						},
+						"Initialize_variable_-_Subscription": {
+							"runAfter": {},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "Subscription",
+										"type": "string",
+										"value": "@{split(triggerBody()?['properties']?['resourceDetails']?['id'], '/')[2]}"
+									}
+								]
+							}
+						},
+						"Initialize_variable_-__nsgName": {
+							"runAfter": {
+								"Initialize_variable_-_subnetName": [
+									"Succeeded"
+								]
+							},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "nsgName",
+										"type": "string",
+										"value": "@{parameters('NSGNamePrefix')}"
+									}
+								]
+							}
+						},
+						"Initialize_variable_-_subnetName": {
+							"runAfter": {
+								"Initialize_variable_-_vnetName": [
+									"Succeeded"
+								]
+							},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "subnetName",
+										"type": "string"
+									}
+								]
+							}
+						},
+						"Initialize_variable_-_subnetsWithNoNsgs": {
+							"runAfter": {
+								"Initialize_variable_-__nsgName": [
+									"Succeeded"
+								]
+							},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "subnetsWithNoNsgs",
+										"type": "array"
+									}
+								]
+							}
+						},
+						"Initialize_variable_-_vnetName": {
+							"runAfter": {
+								"Initialize_variable_-_ResourceGroup": [
+									"Succeeded"
+								]
+							},
+							"type": "InitializeVariable",
+							"inputs": {
+								"variables": [
+									{
+										"name": "vnetName",
+										"type": "string"
+									}
+								]
+							}
+						},
+						"Read_a_resource_-_VM": {
+							"runAfter": {
+								"Initialize_variable_-_subnetsWithNoNsgs": [
+									"Succeeded"
+								]
+							},
+							"type": "ApiConnection",
+							"inputs": {
+								"host": {
+									"connection": {
+										"name": "@parameters('$connections')['arm_1']['connectionId']"
+									}
+								},
+								"method": "get",
+								"path": "/subscriptions/@{encodeURIComponent(variables('Subscription'))}/resourcegroups/@{encodeURIComponent(variables('ResourceGroup'))}/providers/@{encodeURIComponent('Microsoft.Compute')}/@{encodeURIComponent(concat('virtualMachines/', last(split(triggerBody()?['properties']?['resourceDetails']?['id'], '/'))))}",
+								"queries": {
+									"x-ms-api-version": "2022-08-01"
+								}
+							}
+						}
+					},
+					"outputs": {}
+				},
+				"parameters": {
+					"$connections": {
+						"value": {
+							"arm_1": {
+								"connectionId": "[resourceId('Microsoft.Web/connections', variables('ArmConnectionName'))]",
+								"connectionName": "[variables('ArmConnectionName')]",
+								"id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Arm')]",
+								"connectionProperties": {
+									"authentication": {
+										"type": "ManagedServiceIdentity"
+									}
+								}
+							},
+							"ascassessment": {
+								"connectionId": "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]",
+								"connectionName": "[variables('AscassessmentConnectionName')]",
+								"id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+							}
+						}
+					}
+				}
+			},
+			"name": "[parameters('PlaybookName')]",
+			"type": "Microsoft.Logic/workflows",
+			"location": "[resourceGroup().location]",
+			"tags": {
+				"hidden-SentinelTemplateName": "[parameters('PlaybookName')]",
+				"hidden-SentinelTemplateVersion": "1.0"
+			},
+			"identity": {
+				"type": "SystemAssigned"
+			},
+			"apiVersion": "2017-07-01",
+			"dependsOn": [
+				"[resourceId('Microsoft.Web/connections', variables('ArmConnectionName'))]",
+				"[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]"
+			]
+		},
+		{
+			"type": "Microsoft.Web/connections",
+			"apiVersion": "2016-06-01",
+			"name": "[variables('ArmConnectionName')]",
+			"location": "[resourceGroup().location]",
+			"kind": "V1",
+			"properties": {
+				"displayName": "[variables('ArmConnectionName')]",
+				"customParameterValues": {},
+				"parameterValueType": "Alternative",
+				"api": {
+					"id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Arm')]"
+				}
+			}
+		},
+		{
+			"type": "Microsoft.Web/connections",
+			"apiVersion": "2016-06-01",
+			"name": "[variables('AscassessmentConnectionName')]",
+			"location": "[resourceGroup().location]",
+			"kind": "V1",
+			"properties": {
+				"displayName": "[variables('AscassessmentConnectionName')]",
+				"customParameterValues": {},
+				"api": {
+					"id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+				}
+			}
+		}
+	]
+}
