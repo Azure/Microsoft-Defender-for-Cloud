@@ -4,7 +4,7 @@
 
 ## Overview
 
-This workflow responds to the following reccomendations by creating a network security group and associating it with the subnet. 
+This workflow responds to the following recommendations by creating a network security group and associating it with the subnet. 
 - **Non-internet-facing virtual machines should be protected with network security groups** 
 - **Internet-facing virtual machines should be protected with network security groups** 
 
