@@ -21,22 +21,21 @@ You can add additional industry standards (represented as compliance packages) s
 1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies**.
 2.	Select a scope to assign the new package: **Azure subscription 1**.
 3.	On the **Industry & regulatory standards** section, notice the out of the box standards. Click on **Add more standards**.
-4.	On the **Add regulatory compliance standards**, locate the **Azure CIS 1.1.0 (New)** standard and select **Add**.
-![Regulatory compliance assessment and standards](../Images/lab4rc4.gif?raw=true)
+4.	On the **Add regulatory compliance standards**, locate the **Azure CIS 1.1.0** standard and select **Add**.
+![Regulatory compliance assessment and standards](../Images/module4_addingnewstandards_addAzCIS_yl.png?raw=true)
 5.	Click **Assign the Policy**. For scope, select azure subscription 1, and leave all other options as default.
-
 6.	Click **Review + create** and then **Create**.
 ![Add CIS 1.1.0 (New) Standard](../Images/asc-azure-cis-new-standard.gif?raw=true)
 
 > ❗ Important: <br>
 > It will take a while until the change takes an effect (2-3 hours).
 
-7.	**Azure CIS 1.1.0 (New)** should now be listed on the standards list.
+7.	**Azure CIS 1.1.0** should now be listed on the standards list.
    
 ### Exercise 3: Exploring a benchmark 
-1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies** which can be found under the Lowest compliance regulatory standards tile.
-2. Then select **Azure Subscription 1** and choose **Security Policy** from the sidebar.
-3.	On the **Industry & regulatory standards** section, notice the out of the box standards under **Industry & regulatory standards**.
+1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies** which can be found next to **Download report**, above the **Lowest compliance regulatory standards** tile.
+2. Then select your subscription and choose **Security Policy** from the sidebar.
+3.	On the **Industry & regulatory standards** section, notice the out of the box standards like Azure Security Benchmark, PCI DSS 3.2.1 and ISO 27001.
 4.	Locate the **PCI DSS 3.2.1** standard and select **Enable**.
 ![Regulatory compliance assessment and standards](../Images/mdfc-pci.png?raw=true)
 5. Select **yes** to the pop-up asking you to enable PCI DSS.
@@ -44,22 +43,23 @@ You can add additional industry standards (represented as compliance packages) s
 
 Once you have enabled PCI DSS 3.2.1, now we will explore a particular control included in it.
 
-1. From the **regulatory compliance** page, select **PCI DSS 3.2.1.** Notice the different compliance controls mapped to assessments.
+1. From the **regulatory compliance** page, select **PCI DSS 3.2.1.**. Notice the different compliance controls mapped to assessments.
+![Regulatory compliance assessment and standards](https://user-images.githubusercontent.com/45104504/192821604-cdd9d2cc-1b1d-47a4-8336-ac1fd462e0a3.png)
 
-![Regulatory compliance assessment and standards](../Images/lab4rc1.gif?raw=true)
-
-2.	Click to open up **Encrypt transmission of cardholder data across open, public networks.**
+2.	Click to open up **4. Encrypt transmission of cardholder data across open, public networks.**
 3.	Click to open **control 4.1**
+4.  Click to open **control 4.1.*.**
 ![Regulatory compliance assessment and standards](../Images/lab4rc2.gif?raw=true)
-4.	Click to open **Secure transfer to storage accounts should be enabled.**
-5.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
+5.	Click to open **Secure transfer to storage accounts should be enabled.**
+6.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
 ![Regulatory compliance assessment and standards](../Images/lab4rc3.jpg?raw=true)
-6.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
-7.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select Download report.
-8.	On the Report standard dropdown menu, select **PSI DSS 3.2.1** and **PDF**. Click **Download**
-9.	A local PDF file is now stored on your machine. Open the **PCI DSS 3.2.1 Compliance Report** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
+7.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
+8.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select Download report.
+9.	On the Report standard dropdown menu, select **PSI DSS 3.2.1** and **PDF**. Click **Download**
+10. A local PDF file is now stored on your machine. Open the **PCI DSS 3.2.1 Compliance Report** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
 
-### Exercise 4: Creating your own benchmark
+### Exercise 4: Creating your own benchmark!
+
 
 Once you create your custom initiative, Microsoft Defender for Cloud allows you to add it as security policy and which provides two main benefits:
 * Having security requirements represent as custom recommendations under the recommendation list.
@@ -87,14 +87,14 @@ Navigate to Azure Policy blade. You can also select this [link](https://portal.a
 16.	You should now see your new initiative listed – **Custom Benchmark** along with the additional metadata (scope, category, etc.)
 ![Regulatory compliance assessment and standards](../Images/lab4rc5.gif?raw=true)
 17.	To assign your new security policy, open **Microsoft Defender for Cloud blade**.
-18.	From the left navigation pane, under Management section, click on **Security policy**.
-19.	Select a **desired scope** to assign your new security policy (it could be either Management Group or Subscription).
-20.	On **Security policy** page, hover to Your custom initiatives and select **Add a custom initiative**. 
+18.	From the left navigation pane, click on **Environment Settings**, choose your subscription.
+19.	Under **Policy settings**, click on **Security policy**.
+20.	On **Security policy** page, scroll down to Your custom initiatives and select **Add a custom initiative**. 
 21.	On **Add custom initiative**, your new standard should be listed there, so you can click on **Add** to assign to it. Once assigned, it will be listed as a recommendation in the Recommendations blade and be added in the Regulatory Compliance dashboard.
 22.	Follow the **on-screen instructions to assign it on the desired scope**. If you decided to include parameters in your initiative, now you should be able to fulfill them. Click **Review + create** to start the validation process and then **Create**.
 23.	Now your new security benchmark is displayed in regulatory compliance along with the built-in regulatory standards.
 
-### Exercise 4 Azure Audit Reports
+### Exercise 5 Azure Audit Reports
 
 Now in Microsoft Defender for Cloud, you can easily create & download Audit reports for Regulatory Compliance Standards.
 1.	From Microsoft Defender for Cloud, select Regulatory Compliance from the sidebar
@@ -106,19 +106,19 @@ Now in Microsoft Defender for Cloud, you can easily create & download Audit repo
 You now have the audit report downloaded.
 
 
-### Exercise 5 Continuous Export & Compliance over time workbook
+### Exercise 6 Continuous Export & Compliance over time workbook
 
 Compliance dashboard over time is a Workbook in Microsoft Defender for Cloud dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it.
 
 You'll need to configure continuous export first to export data to a Log Analytics workspace:
 1.	From Microsoft Defender for Cloud's sidebar, select **Environment Settings**.
-2.	Select **Azure Subscription 1** for which you want to configure the data export.
+2.	Select the subscription for which you want to configure the data export.
 3.	From the sidebar of the settings page for that subscription, select **Continuous Export**.
-4.	Set the export target to **Log Analytics workspace** (which is the tab beside Event hub).
-5.	Select the following data types: **Regulatory compliance**.
+4.	Click on the **Log Analytics workspace**. Set the export enable to **On** (which is the tab beside Event hub).
+5.	Leave settings as is. Check off box next to **Regulatory compliance** and choose **All standards selected**
 6.	From the export frequency options, select both **Streaming updates** and **Snapshots (Preview)**.
 7.	Select target workspace and the Resource Group to be those you created earlier.
-9.	Select Save.
+9.	Select Save. You might get a message about Sentinel alerts connector already enabled. Click **Confirm**.
 10.	Wait for the first snapshot to occur. 
 
 ![Regulatory compliance assessment and standards](../Images/lab4rc8.jpg?raw=true)
