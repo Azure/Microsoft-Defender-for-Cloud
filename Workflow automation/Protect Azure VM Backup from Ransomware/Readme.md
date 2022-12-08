@@ -23,32 +23,34 @@ The Logic App uses a user-assigned Managed Identity. You need to assign 'Contrib
 
 In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
 
-To assign Managed Identity to specific scope:
+**To assign Managed Identity to specific scope:**
 
-Make sure you have User Access Administrator or Owner permissions for this scope.
-Go to the subscription/management group page (by searching for Subscriptions in the searchbar in the Azure portal).
-Go to Access Control (IAM) on the navigation bar.
-Press +Add and Add role assignment.
-In Check access, go to Add role assignment.
-Select the 'VM Contributor' and 'Backup Contributor' Roles.
-Click on the Assignments tab, and seach for the name of your logic app.
-Assign access to Logic App.
-Select the subscription where the logic app was deployed.
-Select "Protect-Azure-VM-Backup-from-Ransomware" Logic App.
-Press save.
-To authorize the API connection:
+1. Make sure you have User Access Administrator or Owner permissions for this scope.
+2. Go to the subscription/management group page (by searching for Subscriptions in the searchbar in the Azure portal).
+3. Go to Access Control (IAM) on the navigation bar.
+4. Press +Add and Add role assignment.
+5. In Check access, go to Add role assignment.
+6. Select the 'VM Contributor' and 'Backup Contributor' Roles.
+7. Click on the Assignments tab, and seach for the name of your logic app.
+8. Assign access to Logic App.
+9. Select the subscription where the logic app was deployed.
+10.Select "Protect-Azure-VM-Backup-from-Ransomware" Logic App.
+11.Press save.
 
-Go to the Resource Group you have used to deployed the template resources.
-Select the Office365 API connection (which is one of the resources you just deployed) and click on the error that appears at the API connection.
-Press Edit API connection.
-Press the Authorize button.
-Make sure to authenticate against Azure AD.
-Press save.
-Once you have deployed and authorized the Logic App, you can create a new Workflow automation in Microsoft Defender for Cloud
+**To authorize the API connection:**
 
-Go to Microsoft Defender for Cloud and select the Workflow automation button in the navigation pane.
-Select + Add workflow automation.
-Enter the values needed. Especially make sure you select Threat detection alerts as the trigger condition.
-In the Alert name contains field, enter "Ransomware".
-In the actions area, make sure to select the Protect-Azure-VM-Backup-from-Ransomware Logic App you have deployed and authorized before.
-Press create.
+1. Go to the Resource Group you have used to deployed the template resources.
+2. Select the Office365 API connection (which is one of the resources you just deployed) and click on the error that appears at the API connection.
+3. Press Edit API connection.
+4. Press the Authorize button.
+5. Make sure to authenticate against Azure AD.
+6. Press save.
+
+**Once you have deployed and authorized the Logic App, you can create a new Workflow automation in Microsoft Defender for Cloud**
+
+1. Go to Microsoft Defender for Cloud and select the Workflow automation button in the navigation pane.
+2. Select + Add workflow automation.
+3. Enter the values needed. Especially make sure you select Threat detection alerts as the trigger condition.
+4. In the Alert name contains field, enter "Ransomware".
+5. In the actions area, make sure to select the Protect-Azure-VM-Backup-from-Ransomware Logic App you have deployed and authorized before.
+6. Press create.
