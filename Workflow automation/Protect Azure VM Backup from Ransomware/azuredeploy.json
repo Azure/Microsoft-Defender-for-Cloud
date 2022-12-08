@@ -1,0 +1,402 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "Backup Admin Email": {
+            "type": "String",
+            "metadata": {
+                "description": "Email ID of the Backup Admin"
+            }
+        },
+        "Managed Identity Name": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the Managed Identity"
+            }
+        },
+        "Managed Identity SubscriptionID": {
+            "type": "String",
+            "metadata": {
+                "description": "Subscription ID of the Managed Identity"
+            }
+        },
+        "Managed Identity ResourceGroup": {
+            "type": "String",
+            "metadata": {
+                "description": "ResourceGroup of the Managed Identity"
+            }
+        },
+        "Logic App Name": {
+            "type": "string",
+            "metadata": {
+                "description": "Name of the logic app to be deployed"
+            }
+        }
+    },
+    "variables": {
+        "SecurityCenterConnectionName": "[concat(resourceGroup().location,'-','ascalert')]",
+        "office365ConnectionName": "[concat(resourceGroup().location,'-','office365')]",
+        "automationDescription": "automation description for subscription {0}",
+        "vmConnectionName": "[concat(resourceGroup().location, '-', 'azurevm')]",
+        "Managed_Identity": "[concat('/subscriptions/',parameters('Managed Identity SubscriptionID'),'/resourceGroups/',parameters('Managed Identity ResourceGroup'),'/providers/Microsoft.ManagedIdentity/userAssignedIdentities/',parameters('Managed Identity Name'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2018-07-01-preview",
+            "name": "[variables('SecurityCenterConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "api": {
+                    "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'ascalert')]"
+                },
+                "displayName": "ascalert"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/locks",
+            "apiVersion": "2016-09-01",
+            "name": "Logic App Lock",
+            "scope": "[concat('Microsoft.Logic/workflows/', parameters('Logic App Name'))]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Logic/workflows', parameters('Logic App Name'))]"
+            ],
+            "properties": {
+                "level": "CanNotDelete",
+                "notes": "LA should not be deleted."
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2018-07-01-preview",
+            "name": "[variables('office365ConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "api": {
+                    "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'office365')]"
+                },
+                "displayName": "office365"
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2018-07-01-preview",
+            "name": "[variables('vmConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "parameterValues": {},
+                "parameterValueType": "Alternative",
+                "customParameterValues": {},
+                "nonSecretParameterValues": {},
+                "api": {
+                    "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'azurevm')]"
+                },
+                "displayName": "azurevm"
+            }
+        },
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2019-05-01",
+            "name": "[parameters('Logic App Name')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('SecurityCenterConnectionName'))]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[variables('Managed_Identity')]": {}
+                }
+            },
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "Backup Admin Email": {
+                            "defaultValue": "[parameters('Backup Admin Email')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "When_an_Microsoft_Defender_for_Cloud_Alert_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "body": {
+                                    "callback_url": "@{listCallbackUrl()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascalert']['connectionId']"
+                                    }
+                                },
+                                "path": "/Microsoft.Security/Alert/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "EmailBody_variable": {
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "EmailBody",
+                                        "type": "string"
+                                    }
+                                ]
+                            },
+                            "runAfter": {},
+                            "type": "InitializeVariable"
+                        },
+                        "For_each": {
+                            "actions": {
+                                "Is_affected_entity_a_host": {
+                                    "actions": {
+                                        "Get_Backup_Status_API": {
+                                            "inputs": {
+                                                "authentication": {
+                                                    "identity": "[variables('Managed_Identity')]",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "resourceId": "@{body('Get_virtual_machine_Location')?['id']}",
+                                                    "resourceType": "VM"
+                                                },
+                                                "headers": {
+                                                    "Content-Type": "application/json"
+                                                },
+                                                "method": "POST",
+                                                "uri": "https://management.azure.com/Subscriptions/@{first(skip(split(items('For_each')?['azureID'], '/'), 2))}/providers/Microsoft.RecoveryServices/locations/@{body('Get_virtual_machine_Location')?['location']}/backupStatus?api-version=2022-03-01"
+                                            },
+                                            "runAfter": {
+                                                "Get_virtual_machine_Location": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http"
+                                        },
+                                        "Get_virtual_machine_Location": {
+                                            "inputs": {
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['azurevm']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "get",
+                                                "path": "/subscriptions/@{encodeURIComponent(first(skip(split(items('For_each')?['azureID'], '/'), 2)))}/resourcegroups/@{encodeURIComponent(first(skip(split(items('For_each')?['azureID'], '/'), 4)))}/providers/Microsoft.Compute/virtualMachines/@{encodeURIComponent(last(split(items('For_each')?['azureID'], '/')))}",
+                                                "queries": {
+                                                    "api-version": "2019-12-01"
+                                                }
+                                            },
+                                            "runAfter": {},
+                                            "type": "ApiConnection"
+                                        },
+                                        "Is_the_host_protected": {
+                                            "actions": {
+                                                "Get_VM_Protection_Status": {
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "identity": "[variables('Managed_Identity')]",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com@{body('Get_Backup_Status_API')?['vaultId']}/backupFabrics/@{body('Get_Backup_Status_API')?['fabricName']}/protectionContainers/@{body('Get_Backup_Status_API')?['containerName']}/protectedItems/@{body('Get_Backup_Status_API')?['protectedItemName']}?api-version=2021-02-10"
+                                                    },
+                                                    "runAfter": {},
+                                                    "type": "Http"
+                                                },
+                                                "Is_VM_Actively_Protected": {
+                                                    "actions": {
+                                                        "Send_Backup_Details_to_Backup_Admin": {
+                                                            "inputs": {
+                                                                "body": {
+                                                                    "Body": "<p>@{variables('EmailBody')}</p>",
+                                                                    "Subject": "Important: Malware alert triggered for your Virtual Machine",
+                                                                    "To": "@parameters('BCDR Admin Email')"
+                                                                },
+                                                                "host": {
+                                                                    "connection": {
+                                                                        "name": "@parameters('$connections')['office365']['connectionId']"
+                                                                    }
+                                                                },
+                                                                "method": "post",
+                                                                "path": "/v2/Mail"
+                                                            },
+                                                            "runAfter": {
+                                                                "Set_Email_body": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "ApiConnection"
+                                                        },
+                                                        "Set_Email_body": {
+                                                            "inputs": {
+                                                                "name": "EmailBody",
+                                                                "value": "<p><i> You are receiving this email as you have integrated Azure Backup with Microsoft Defender for Cloud alerts via logic apps.</i></br></br><b>Time of alert: @{triggerBody()?['StartTimeUtc']}</b> </br></br>A malware alert has been triggered by Microsoft Defender for Cloud for your virtual machine \"@{last(split(body('Get_virtual_machine_Location')?['id'], '/'))}\" in subscription \"@{first(skip(split(body('Get_virtual_machine_Location')?['id'], '/'), 2))}\". Your backups and the corresponding backup policy in the vault \"@{last(split(body('Get_Backup_Status_API')?['vaultId'], '/'))}\" have been stopped to avoid the loss of safe recovery points and prevent corrupted backups. <br /> </br><b>Recommended actions:</b> <ol><li>Confirm the existence of malware in the source VM and resume backups if it's a false alarm.</li><li>Confirm the existence of malware in the source VM and restore the VM using a safe, older recovery point if the alert is verified.</li><li>Configure backups for the newly restored VM in step 2 above if malware free.</li> </ol ></br> View more details in <a href = '@{triggerBody()?['AlertUri']}'>Azure portal.<a /> </p>"
+                                                            },
+                                                            "runAfter": {},
+                                                            "type": "SetVariable"
+                                                        },
+                                                        "Stop_Protection_with_Retain_Data": {
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "identity": "[variables('Managed_Identity')]",
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "body": {
+                                                                    "properties": {
+                                                                        "protectionState": "ProtectionStopped",
+                                                                        "sourceResourceId": "@{body('Get_virtual_machine_Location')?['id']}"
+                                                                    }
+                                                                },
+                                                                "method": "PUT",
+                                                                "uri": "https://management.azure.com@{body('Get_Backup_Status_API')?['vaultId']}/backupFabrics/@{body('Get_Backup_Status_API')?['fabricName']}/protectionContainers/@{body('Get_Backup_Status_API')?['containerName']}/protectedItems/@{body('Get_Backup_Status_API')?['protectedItemName']}?api-version=2019-05-13"
+                                                            },
+                                                            "runAfter": {
+                                                                "Send_Backup_Details_to_Backup_Admin": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Http"
+                                                        }
+                                                    },
+                                                    "else": {
+                                                        "actions": {
+                                                            "No_Active_Protection_for_VM": {
+                                                                "inputs": {
+                                                                    "name": "EmailBody",
+                                                                    "value": "\"\""
+                                                                },
+                                                                "runAfter": {},
+                                                                "type": "SetVariable"
+                                                            }
+                                                        }
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('Get_VM_Protection_Status')?['properties']?['protectionState']",
+                                                                        "ProtectionStopped"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "runAfter": {
+                                                        "Get_VM_Protection_Status": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            },
+                                            "else": {
+                                                "actions": {
+                                                    "Container_not_protected": {
+                                                        "inputs": {
+                                                            "name": "EmailBody",
+                                                            "value": "\"\""
+                                                        },
+                                                        "runAfter": {},
+                                                        "type": "SetVariable"
+                                                    }
+                                                }
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "equals": [
+                                                            "@outputs('Get_Backup_Status_API')['statusCode']",
+                                                            200
+                                                        ]
+                                                    },
+                                                    {
+                                                        "equals": [
+                                                            "@body('Get_Backup_Status_API')?['protectionStatus']",
+                                                            "Protected"
+                                                        ]
+                                                    }
+                                                ]
+                                            },
+                                            "runAfter": {
+                                                "Get_Backup_Status_API": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "If"
+                                        }
+                                    },
+                                    "else": {
+                                        "actions": {
+                                            "No_Action": {
+                                                "inputs": {
+                                                    "name": "EmailBody",
+                                                    "value": "\"\""
+                                                },
+                                                "runAfter": {},
+                                                "type": "SetVariable"
+                                            }
+                                        }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@items('For_each')?['type']",
+                                                    "host"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "runAfter": {},
+                                    "type": "If"
+                                }
+                            },
+                            "foreach": "@triggerBody()?['entities']",
+                            "runAfter": {
+                                "EmailBody_variable": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascalert": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('SecurityCenterConnectionName'))]",
+                                "connectionName": "[variables('SecurityCenterConnectionName')]",
+                                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'ascalert')]"
+                            },
+                            "azurevm": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('vmConnectionName'))]",
+                                "connectionName": "[variables('vmConnectionName')]",
+                                "connectionProperties": {
+                                  "authentication": {
+                                     "identity": "[variables('Managed_Identity')]",
+                                     "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis',resourceGroup().location, 'azurevm')]"
+                            },
+                            "office365": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('office365ConnectionName'))]",
+                                "connectionName": "[variables('office365ConnectionName')]",
+                                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', resourceGroup().location, 'office365')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
