@@ -10,6 +10,6 @@ This workbook provides price estimations for various Microsoft Defender for Clou
 * Microsoft Defender for Containers
 * Microsoft Defender for Storage
 
-![Dashboard](./dashboard.gif)
+![Dashboard](./overview.png)
 
 <a href="https://aka.ms/AAg29zc" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
