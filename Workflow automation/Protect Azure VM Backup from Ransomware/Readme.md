@@ -17,3 +17,38 @@ The logic app deployed using this template will prevent the loss of recovery poi
 **Scope:**
 
 The logic app can only be deployed at a subscription level, which means that all Azure VMs under the subscription can leverage the logic app for pausing backup pruning in the event of a security alert.
+The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
+
+The Logic App uses a user-assigned Managed Identity. You need to assign 'Contributor' permissions, or Security Reader and 'Virtual Machine Contributor', 'Backup Contributor'  permissions to the Logic App's Managed Identity so it is able to perform the operation of ‘Stop backup and retain data’ on the backup automatically in the event of a Ransomware alert. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook. Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
+
+In addition to that, you need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
+
+To assign Managed Identity to specific scope:
+
+Make sure you have User Access Administrator or Owner permissions for this scope.
+Go to the subscription/management group page (by searching for Subscriptions in the searchbar in the Azure portal).
+Go to Access Control (IAM) on the navigation bar.
+Press +Add and Add role assignment.
+In Check access, go to Add role assignment.
+Select the 'VM Contributor' and 'Backup Contributor' Roles.
+Click on the Assignments tab, and seach for the name of your logic app.
+Assign access to Logic App.
+Select the subscription where the logic app was deployed.
+Select "Protect-Azure-VM-Backup-from-Ransomware" Logic App.
+Press save.
+To authorize the API connection:
+
+Go to the Resource Group you have used to deployed the template resources.
+Select the Office365 API connection (which is one of the resources you just deployed) and click on the error that appears at the API connection.
+Press Edit API connection.
+Press the Authorize button.
+Make sure to authenticate against Azure AD.
+Press save.
+Once you have deployed and authorized the Logic App, you can create a new Workflow automation in Microsoft Defender for Cloud
+
+Go to Microsoft Defender for Cloud and select the Workflow automation button in the navigation pane.
+Select + Add workflow automation.
+Enter the values needed. Especially make sure you select Threat detection alerts as the trigger condition.
+In the Alert name contains field, enter "Ransomware".
+In the actions area, make sure to select the Protect-Azure-VM-Backup-from-Ransomware Logic App you have deployed and authorized before.
+Press create.
