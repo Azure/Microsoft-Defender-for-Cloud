@@ -120,9 +120,9 @@ When the deployment is complete, you should see the following:
    
     ![Environment settings](../Images/mdfc-envsettings2.png?raw=true)
 
-4. Ensure that both plans for **Servers** and **SQL servers on machines** are turned **On**.
+4. Ensure that plans for **Servers** and **Databases** are turned **On**. To check for **SQL servers on machines**, in Databases, click on **Select types** and make sure **SQL servers on machines** is toggled **On**. **Azure SQL Databases** should be toggled **On** too. 
 
-![Environment settings](../Images/mdfc-workspaceenvsettings.png?raw=true)
+![Environment settings](../Images/module1_defenderCoverageStatus_dbSQL_yl.png?raw=true)
 
 
 #### Configure the data collection settings in Microsoft Defender for Cloud
@@ -130,18 +130,17 @@ When the deployment is complete, you should see the following:
 1. Go back to the **Environment settings** in the sidebar and drill down into your **Azure subscription** (Azure subscription 1).
 2. Navigate to **Auto provisioning**
 
-![Auto-provisioning](../Images/mdfc-autoprovisioning.png?raw=true)
+![Auto-provisioning](../Images/module1_loganalytics_status_yl.png?raw=true)
 
-5. On the **Auto provisioning - Extensions** page, set **Log Analytics agent for Azure VMs** to **On** (if it's not already set to On)
-6. Click **Edit configuration** under the configuration column.
-7. On the workspace configuration section, use the **Connect Azure VMs to a different workspace** option to select your workspace **xxx-lab-xxx** (which has been created by the ARM template).
-8. Under **Store additional raw data - Windows security events** section, select **All Events** option.
+3. On the **Auto provisioning - Extensions** page, set **Log Analytics agent/Azure Montior agent** to **On** (if it's not already set to On)
+4. Click **Edit configuration** under the configuration column.
+5. On the workspace configuration section, use the **Custom workspace** option to select your workspace **asclab-xxx** (which has been created by the ARM template).
+6. Under **Security events storage** section, select **All Events** option.
 
-![Enable Microsoft Defender for Cloud on the workspace level](../Images/asc-extension-deployment-configuration.gif?raw=true)
+![Enable Microsoft Defender for Cloud on the workspace level](../Images/module1_loganalytics_config_YL.png?raw=true)
 
-9. Select **Existing and new VMs** in the pop-up.
-10. Click on **Apply**.
-11. Click on **Save**.
+7. Click on **Apply**.
+8. Click on **Save**.
 
 <br>
 

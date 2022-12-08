@@ -1,0 +1,216 @@
+{
+  "mode": "Indexed",
+  "metadata": {
+    "category": "Guest Configuration",
+    "version": "1.0.0",
+    "requiredProviders": [
+      "Microsoft.GuestConfiguration"
+    ],
+    "guestConfiguration": {
+      "name": "AzureLinuxVMEncryptionCompliance",
+      "version": "1.*"
+    }
+  },
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "anyOf": [
+            {
+              "field": "Microsoft.Compute/imagePublisher",
+              "in": [
+                "microsoft-aks",
+                "qubole-inc",
+                "datastax",
+                "couchbase",
+                "scalegrid",
+                "checkpoint",
+                "paloaltonetworks",
+                "debian",
+                "credativ"
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "OpenLogic"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "6*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "Oracle"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "6*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "RedHat"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "6*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "center-for-internet-security-inc"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "notLike": "cis-windows*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "Suse"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "11*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "Canonical"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "12*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "microsoft-dsvm"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "notLike": "dsvm-win*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "cloudera"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "notLike": "6*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "microsoft-ads"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "like": "linux*"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/virtualMachines/osProfile.linuxConfiguration",
+                      "exists": "true"
+                    },
+                    {
+                      "field": "Microsoft.Compute/virtualMachines/storageProfile.osDisk.osType",
+                      "like": "Linux*"
+                    }
+                  ]
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "exists": "false"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imagePublisher",
+                      "notIn": [
+                        "OpenLogic",
+                        "RedHat",
+                        "credativ",
+                        "Suse",
+                        "Canonical",
+                        "microsoft-dsvm",
+                        "cloudera",
+                        "microsoft-ads",
+                        "center-for-internet-security-inc",
+                        "Oracle",
+                        "AzureDatabricks",
+                        "azureopenshift"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.GuestConfiguration/guestConfigurationAssignments",
+        "name": "AzureLinuxVMEncryptionCompliance",
+        "existenceCondition": {
+          "field": "Microsoft.GuestConfiguration/guestConfigurationAssignments/complianceStatus",
+          "equals": "Compliant"
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of this policy"
+      },
+      "allowedValues": [
+        "AuditIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "AuditIfNotExists"
+    }
+  }
+}

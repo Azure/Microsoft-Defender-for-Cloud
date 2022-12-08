@@ -1,0 +1,113 @@
+{
+  "mode": "All",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Resources/subscriptions"
+        }
+      ]
+    },
+    "then": {
+      "effect": "deployIfNotExists",
+      "details": {
+        "deploymentScope": "subscription",
+        "existenceScope": "subscription",
+        "type": "Microsoft.Security/securityContacts",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "Microsoft.Security/securityContacts/email",
+              "equals": "[parameters ('emailSecurityContact')]"
+            }
+          ]
+        },
+        "roleDefinitionIds": [
+          "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
+        ],
+        "deployment": {
+          "location": "westus",
+          "properties": {
+            "mode": "incremental",
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "emailSecurityContact": {
+                  "type": "string"
+                },
+                "notificationsByRole": {
+                  "type": "array"
+                },
+                "minimalSeverity": {
+                  "type": "string"
+                }
+              },
+              "variables": {},
+              "resources": [
+                {
+                  "type": "Microsoft.Security/securityContacts",
+                  "name": "default",
+                  "apiVersion": "2020-01-01-preview",
+                  "properties": {
+                    "emails": "[parameters('emailSecurityContact')]",
+                    "alertNotifications": {
+                        "state": "On",
+                        "minimalSeverity": "[parameters('minimalSeverity')]"
+                    },
+                    "notificationsByRole": {
+                        "state": "On",
+                        "roles": "[parameters('notificationsByRole')]"
+                    }
+                  }
+                }
+              ],
+              "outputs": {}
+            },
+            "parameters": {
+              "emailSecurityContact": {
+                "value": "[parameters('emailSecurityContact')]"
+              },
+              "minimalSeverity": {
+                "value": "[parameters('minimalSeverity')]"
+              },
+              "notificationsByRole": {
+                "value": "[parameters('notificationsByRole')]"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "emailSecurityContact": {
+      "type": "String",
+      "metadata": {
+        "displayName": "emailSecurityContact",
+        "description": "email addresses to send MDC alerts, seprate by comma"
+      },
+      "defaultValue": "johndoe@contoso.com;wandadoe@contoso.com"
+    },
+    "minimalSeverity": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Minimal Severity to Alert On",
+        "description": "The minimal severity to alert on Low, Medium, or High"
+      },
+      "defaultValue": "High"
+    },
+    "notificationsByRole": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Notifications by Role",
+        "description": "Array of Roles to be notified on MDC alerts"
+      },
+      "defaultValue": [
+        "Owner",
+        "Contributor"
+      ]
+    }
+  }
+}

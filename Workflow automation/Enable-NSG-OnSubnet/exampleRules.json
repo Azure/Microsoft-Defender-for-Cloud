@@ -1,0 +1,30 @@
+{
+	"securityRules": [
+		{
+			"name": "Deny-RDP",
+			"properties": {
+				"protocol": "*",
+				"sourceAddressPrefix": "*",
+				"destinationAddressPrefix": "*",
+				"access": "Deny",
+				"destinationPortRange": "3389",
+				"sourcePortRange": "*",
+				"priority": 130,
+				"direction": "Inbound"
+			}
+		},
+		{
+			"name": "Deny-SSH",
+			"properties": {
+				"protocol": "*",
+				"sourceAddressPrefix": "*",
+				"destinationAddressPrefix": "*",
+				"access": "Deny",
+				"destinationPortRange": "22",
+				"sourcePortRange": "*",
+				"priority": 131,
+				"direction": "Inbound"
+			}
+		}
+	]
+}

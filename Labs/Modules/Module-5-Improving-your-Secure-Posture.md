@@ -18,7 +18,7 @@ With Microsoft Defender for Cloud for servers, you can quickly deploy the integr
 2.	Expend **Remediate vulnerabilities** security control (which contains all recommendations related to security vulnerabilities).
 3.	Make sure you have *A vulnerability assessment solution should be enabled on your virtual machines* recommendation. If you don’t have this recommendation on the list, you will probably need 24 hours to have the recommendation with the assessment.
 4.	Open the **A vulnerability assessment solution should be enabled on your virtual machines” recommendation** – this recommendation is a Quick Fix one which allows you to deploy the VM extension on the desired VMs.
-5.	Expend **Remediation steps** – in addition to the Quick Fix remediation option, you can also use the **view recommendation logic** option to expose an automatic remediation script content (ARM template). **Close this window.**
+5.	Expend **Remediation steps** – in addition to the Quick Fix remediation option, you can also use the **view quick fix logic** option to expose an automatic remediation script content (ARM template). **Close this window.**
 6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Fix**.
 7.	On the **Choose a vulnerability assessment solution** select **Recommended: Deploy ASC integrated vulnerability scanner powered by Qualys (included in Microsoft Defender for Cloud for servers)**. Click **Proceed**.
 8.	A window opens, review the list of VMs and click **Remediate 2 resource** button.
@@ -45,12 +45,12 @@ With Microsoft Defender for Cloud for servers, you can quickly deploy the integr
 4.	On the Security Checks, you should see a list of vulnerabilities found on the affected resources.
 5.	On the recommendation, expend **Affected resources**. You should see two unhealthy resources (asclab-win and asclab-linux) and not applicable resources.
 6.	From the **Unhealthy resources**, select **asclab-win** resource. Here you can view all relevant recommendations for that resource.
-7.	From the findings list, click on the highest vulnerability located at the top (ID 91649).
+7.	From the findings list, click on the highest vulnerability located at the top (ID 376813).
 8.	Notice the vulnerability details on the information pane including the description, impact, severity, remediation steps, etc.
 
 ### Exercise 2: Vulnerability assessment for Containers
 
-Microsoft Defender for Cloud scans images in your ACR (Azure Container Registry) that are pushed to the registry, imported into the registry, or any images pulled within the last 30 day.
+Microsoft Defender for Cloud scans images in your ACR (Azure Container Registry) that are pushed to the registry, imported into the registry, or any images pulled within the last 30 days.
 Then, it exposes detailed findings per image. All vulnerabilities can be found in the following recommendation: Vulnerabilities in Azure Container Registry images should be remediated (powered by Qualys).
 
 To simulate a container registry image with vulnerabilities, we will use ACR tasks commands and sample image:
@@ -77,7 +77,7 @@ az acr build --image sample/hello-world:v1 --registry <your container registry n
 5. Wait for a successful execution message to appear. For example: Run ID: cb1 was successful after 23s
 6.	The scan completes typically within few minutes, but it might take up to 15 minutes for the vulnerabilities/security findings to appear on the recommendation.
 7.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
-8.	Expend **Remediate vulnerabilities** security control and select **Vulnerabilities in Azure Container Registry images should be remediated (powered by Qualys)**.
+8.	Expand **Remediate vulnerabilities** security control and select **Container registry images should have vulnerability findings resolved**.
 9.	On the recommendation page, notice the following details at the upper section:
     - Unhealthy registries: *1/1*
     - Severity of recommendation: *High*
@@ -98,23 +98,24 @@ In this lab, you will create a new Logic App and then trigger it automatically u
 1.	On the Azure Portal, type *Logic Apps* on the search field at the top or [click here](https://ms.portal.azure.com/#blade/HubsExtension/BrowseResource/resourceType/Microsoft.Logic%2Fworkflows).
 2.	Click **Add** to create a new Logic App.
 3.	On the Basics tab, select **Azure subscription 1** and resource group **asclab**.
-4.	On the Logic app name field enter *SendRecommendationsChanges*, and type: *Consumption*.
+4.	On the Logic app name field enter a unique name such as *SendRecommendationsChanges12* (Note: There will be an error if the Logic app name is not unique) .
 5.	Select location, for example: **West Europe** (it’s recommended to use the same region as used in the previous exercises).
-6.	Leave all other options as per the default.
-7.	Select **Review + Creation** and then **Create**.
-8.	The Logic Apps Designer opens, select **Blank Logic App**.
-9.	At the search control, type *Microsoft Defender for Cloud* and select **When an Microsoft Defender for Cloud Recommendation is created or triggered**.
-10.	Click on new step and type *Outlook.com*.
-11. Scroll down the list, and click **Send an email (V2)** action to add it to the Designer.
+6.	Under the Plan section, **select consumption**. 
+7.	Leave all other options as per the default.
+8.	Select **Review + Creation** and then **Create**.
+9.	The Logic Apps Designer opens, select **Blank Logic App**.
+10.	At the search control, type *Microsoft Defender for Cloud* and select **When an Microsoft Defender for Cloud Recommendation is created or triggered**.
+11. Click on new step and type *Outlook.com*.
+12. Scroll down the list, and click **Send an email (V2)** action to add it to the Designer.
 
 > Note: you will need to sign into your Outlook.com (Microsoft Account) and grant permissions for the Logic App to send email using your account.
 > 
-12.	In the Send an email (V2), add your email address to the **To** field.
+13.	In the Send an email (V2), add your email address to the **To** field.
 
 > Later, you will use that email address to check if you received an email using workflow automation feature.
 
-13.	Click in the **Subject box**, then type: *Recommendation changed:*
-14.	Click just after Recommendation changed: to get your cursor in the right place. In the dynamic content box, click on **Dynamic content** and then select `Properties Display Name` (click Add dynamic content if it doesn’t pop out automatically.
+14.	Click in the **Subject box**, then type: *Recommendation changed:*
+15.	Click just after Recommendation changed: to get your cursor in the right place. In the dynamic content box, click on **Dynamic content** and then select `Properties Display Name` (click Add dynamic content if it doesn’t pop out automatically).
 15.	Click into the Body text box and type the following:
 
 **The following recommendation has been changed**</br>
@@ -196,6 +197,25 @@ SecurityResources
 | where type == 'microsoft.security/securescores/securescorecontrols'
 | extend SecureControl = properties.displayName, unhealthy = properties.unhealthyResourceCount, currentscore = properties.score.current, maxscore = properties.score.max
 | project SecureControl , unhealthy, currentscore, maxscore
+```
+### Exercise 5: Creating Governance Rules and Assigning Owners
+Security teams are responsible for improving the security posture of their organizations but they may not have the resources or authority to actually implement security recommendations. Assigning owners with due dates and defining governance rules creates accountability and transparency so you can drive the process of improving the security posture in your organization.
+
+Follow the progress for your created recommendations on the Security Posture page. Weekly email notifications to the owners and managers make sure that they take timely action on the recommendations that can improve your security posture and recommendations.
+
+1. Return to Microsoft Defender for Cloud blade and Click on **Environment settings**. Click the down arrow on **Azure** to show the subscription, and then click the down arrow on **Azure Susbcription 1** to show the workspace. 
+    ![Environment settings](../Images/mdfc-envsettings.png?raw=true)
+2. From Settings's sidebar, select **Governance Rules** which is found under the **Policy Settings** section.
+    <img width="339" alt="image" src="https://user-images.githubusercontent.com/15238159/179999129-68ba1e61-4a15-4583-9d7c-47e08d073eeb.png">
+3. Click on **Add Rule**
+   ![image](https://user-images.githubusercontent.com/15238159/180010137-35a610dd-1738-4f4e-a967-ab69ad9c5acc.png)
+4. Fill out the new Goverance Rules with **Rule Name**, **Description**, **Priority**, **By Severity select High**, **Set Owner by email Address**, **Set Remedation Timeframe to 14 days, **Select both check marks**, click **Create**
+   
+   <img width="359" alt="image" src="https://user-images.githubusercontent.com/15238159/180060164-6f28dd5f-3791-4f38-989e-0b87b255aa65.png">
+5. To confirm Click on **Security Posture** under **Cloud Security** and select **Owners**
+    <img width="1051" alt="image" src="https://user-images.githubusercontent.com/15238159/180055872-6da285ca-124b-4eaf-955d-f6984fd81ef7.png">
+
+
 ```
 
 More details on the [official article](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls) or on the [blog post](https://techcommunity.microsoft.com/t5/azure-security-center/querying-your-secure-score-across-multiple-subscriptions-in/ba-p/1749193)

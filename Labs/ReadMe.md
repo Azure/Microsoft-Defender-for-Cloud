@@ -51,6 +51,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Vulnerability assessment for Containers](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-2-vulnerability-assessment-for-containers)
 - [Automate recommendations with workflow automation](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-3-automate-recommendations-with-workflow-automation)
 - [Accessing your secure score via ARG](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-4-accessing-your-secure-score-via-arg)
+- [Creating Governance Rules and Assigning Owners](./Modules/Module-5-Improving-your-Secure-Posture.md#exercise-4-accessing-your-secure-score-via-arg)
  
 [**Module 6 – Microsoft Defender Plans (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-6-Azure-Defender.md)
 - [Alert validation](./Modules/Module-6-Azure-Defender.md#exercise-1-alert-validation)
@@ -66,6 +67,46 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-2-adaptive-application-control)
 - [File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-file-integrity-monitoring)
 
+[**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
+- [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
+- [Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry)
+- [Investigate the recommendation for vulnerabilities in ACR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-3-investigate-the-recommendation-for-vulnerabilities-in-acr)
+
+[**Module 10 – GCP (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md)
+- [Create a GCP project](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-1-create-a-gcp-project)
+- [Create the GCP connector in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-2-create-the-gcp-connector-in-microsoft-defender-for-cloud)
+- [Investigate the GCP recommendations](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-3-investigate-the-gcp-recommendations)
+
+[**Module 11 – AWS (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md)
+- [Create an AWS account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-1-create-an-aws-account)
+- [Create an AWS connector for the new AWS account in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-2-create-an-aws-connector-for-the-new-aws-account-in-microsoft-defender-for-cloud)
+
+[**Module 12 – Defender for Azure Cosmos DB (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md)
+- [Enable database protection on your subscription](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-1-enable-database-protection-on-your-subscription)
+- [Create an Azure Cosmos DB account and protect it using Microsoft Defender for Azure Cosmos DB](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-2-create-an-azure-cosmos-db-account-and-protect-it-using-microsoft-defender-for-azure-cosmos-db)
+
+[**Module 13 – Governance (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md)
+- [Add a new Governance Rule in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-1-add-a-new-governance-rule-in-microsoft-defender-for-cloud)
+- [See recommendations that you're the owner of](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-2-see-recommendations-that-youre-the-owner-of)
+
+[**Module 14 – Configuring Azure ADO Connector in Defender for DevOps (L200)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md)
+- [Preparing the environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-1-preparing-the-environment)
+- [Creating an Azure ADO Trial Subscription](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-2-creating-an-azure-ado-trial-subscription)
+- [Configuring Azure ADO Connector](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-3-configuring-azure-ado-connector)
+- [Configure the Microsoft Security DevOps Azure DevOps Extension](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-4-configure-the-microsoft-security-devops-azure-devops-extension)
+- [Install Free extension SARIF SAST Scans Tab](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-5-install-free-extension-sarif-sast-scans-tab)
+- [Configure your pipeline using YAML](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-6-configure-your-pipeline-using-yaml)
+
+[**Module 15 – Integrating Defender for DevOps with GitHub Advanced Security (L200)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md)
+- [Preparing the environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md#exercise-1-preparing-the-environment)
+- [Creating an GitHub Trial account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md#exercise-2-creating-an-github-trial-account)
+- [Obtain trial of GitHub Enterprise Cloud account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md#exercise-3-obtain-trial-of-github-enterprise-cloud-account)
+- [Connecting your GitHub organization](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md#exercise-4-connecting-your-github-organization)
+- [Configure the Microsoft Security DevOps GitHub action](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2015%20-%20Integrating%20Defender%20for%20DevOps%20with%20GitHub%20Advanced%20Security.md#exercise-5-configure-the-microsoft-security-devops-github-action)
+
+
+[**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
+
 ## Acronyms
 
 Acronym | Meaning | Description
@@ -78,3 +119,6 @@ ARM | Azure Resource Manager | Deployment and management layer that enables you 
 RBAC | Role-based access control | Authorization system built on Azure Resource Manager that provides fine-grained access management of Azure resources.
 VA | Vulnerability Assessment | Provides vulnerability scanning for your virtual machines and container registries.
 SIEM | Security information and event management | Tool to provide a central place to collect events and alerts, that aggregates data from multiple systems and analyze that data to catch abnormal behavior or potential cyberattacks. For example, Microsoft Sentinel.
+
+
+[**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)

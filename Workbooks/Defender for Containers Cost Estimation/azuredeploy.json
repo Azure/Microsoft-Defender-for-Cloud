@@ -37,7 +37,7 @@
         {
           "type": 1,
           "content": {
-            "json": "# Microsoft Defender for Containers - Cost estimation dashboard\n\nMicrosoft Defender for Containers is a new offering that consolidates two existing Microsoft Defender for Cloud meters:\n* Microsoft Defender for Kubernetes\n* Microsoft Defender for Container Registries\n\nIn addition, Microsoft Defender for Servers is no longer required for host-level protection of Kubernetes clusters as relevant node-level protection capabilities are added to the new plan, alongside new capabilities:\n\n* **New Kubernetes native deployment** - We developed a DaemonSet, which is deployed and maintained on the Kubernetes control plane. The new DaemonSet is responsible for all data collection events, supports any Kubernetes (Azure & non-Azure) and removes our current dependency on the Log Analytics agent. The DaemonSet gives customers visibility and management capabilities via Kubernetes tooling, and will resolve ongoing customer issues and challenges with the current VM extension model. It is integrated into Azure Kubernetes Service (AKS) as a Security profile and into Azure Arc connected clusters as a cluster extension for both on-prem and multi-cloud scenarios.\n* **Advanced Threat Protection** - additional Kubernetes-aware AI analytics and anomaly detection based on process signals. A full list of alerts is published in our [Reference table for all security alerts in Microsoft Defender for Cloud](https://docs.microsoft.com/azure/defender-for-cloud/alerts-reference?WT.mc_id=Portal-fx#alerts-k8scluster).\n* **Runtime visibility of vulnerabilities** - A new Microsoft Defender for Cloud recommendation that monitors Kubernetes clusters will surface a list of running images with vulnerabilities based on vulnerability assessment scans powered by Qualys. This new recommendation can help customers focus on the most critical vulnerabilities that expose their runtime environments to security threats and attacks.\n\nThis workbook considers all Kubernetes clusters with/without Microsoft Defender for Containers enabled across your selected subscriptions. The estimated price is based on the amount of average nodes in an AKS cluster, or on the number of CPU cores per Azure Arc-enabled Kubernetes cluster."
+            "json": "# Microsoft Defender for Containers - Price estimation dashboard\n\nMicrosoft Defender for Containers is a new offering that consolidates two existing Microsoft Defender for Cloud meters:\n* Microsoft Defender for Kubernetes\n* Microsoft Defender for Container Registries\n\nIn addition, Microsoft Defender for Servers is no longer required for host-level protection of Kubernetes clusters as relevant node-level protection capabilities are added to the new plan, alongside new capabilities:\n\n* **New Kubernetes native deployment** - We developed a DaemonSet, which is deployed and maintained on the Kubernetes control plane. The new DaemonSet is responsible for all data collection events, supports any Kubernetes (Azure & non-Azure) and removes our current dependency on the Log Analytics agent. The DaemonSet gives customers visibility and management capabilities via Kubernetes tooling, and will resolve ongoing customer issues and challenges with the current VM extension model. It is integrated into Azure Kubernetes Service (AKS) as a Security profile and into Azure Arc connected clusters as a cluster extension for both on-prem and multi-cloud scenarios.\n* **Advanced Threat Protection** - additional Kubernetes-aware AI analytics and anomaly detection based on process signals. A full list of alerts is published in our [Reference table for all security alerts in Microsoft Defender for Cloud](https://docs.microsoft.com/azure/defender-for-cloud/alerts-reference?WT.mc_id=Portal-fx#alerts-k8scluster).\n* **Runtime visibility of vulnerabilities** - A new Microsoft Defender for Cloud recommendation that monitors Kubernetes clusters will surface a list of running images with vulnerabilities based on vulnerability assessment scans powered by Qualys. This new recommendation can help customers focus on the most critical vulnerabilities that expose their runtime environments to security threats and attacks.\n\nThis workbook considers all Kubernetes clusters with/without Microsoft Defender for Containers enabled across your selected subscriptions. The estimated price is based on the amount of average nodes in an AKS cluster, or on the number of CPU cores per Azure Arc-enabled Kubernetes cluster."
           },
           "name": "text - 2"
         },
@@ -164,7 +164,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "resources\n| where type =~ \"microsoft.containerservice/managedclusters\"\n| extend machineType = tostring(properties.agentPoolProfiles[0].vmSize), \n        nodesCount = toint(properties.agentPoolProfiles[0]['count']),\n        powerState = tostring(properties.agentPoolProfiles[0].powerState.code)\n| extend vCoresPerMachine = toint(extract_all(@\"(\\d+)\", machineType)[0])\n| extend coresTotal = vCoresPerMachine * nodesCount\n| extend estimatedMonthlyCost = coresTotal * 7",
+                  "query": "resources\n| where type =~ \"microsoft.containerservice/managedclusters\"\n| extend machineType = tostring(properties.agentPoolProfiles[0].vmSize), \n        nodesCount = toint(properties.agentPoolProfiles[0]['count']),\n        powerState = tostring(properties.agentPoolProfiles[0].powerState.code)\n| extend vCoresPerMachine = toint(extract_all(@\"(\\d+)\", machineType)[0])\n| extend coresTotal = vCoresPerMachine * nodesCount\n| extend estimatedMonthlyCost = coresTotal * 7",
                   "size": 4,
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -332,11 +332,6 @@
                   },
                   "metrics": [
                     {
-                      "namespace": "insights.container/nodes",
-                      "metric": "insights.container/nodes--nodesCount",
-                      "aggregation": 4
-                    },
-                    {
                       "namespace": "microsoft.containerservice/managedclusters",
                       "metric": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
                       "aggregation": 4
@@ -352,19 +347,19 @@
                         "columnMatch": "Name",
                         "formatter": 13,
                         "formatOptions": {
-                          "linkTarget": "Resource"
+                          "linkTarget": "Resource",
+                          "showIcon": true
                         }
                       },
                       {
-                        "columnMatch": "insights.container/nodes--nodesCount Timeline",
-                        "formatter": 5
-                      },
-                      {
-                        "columnMatch": "insights.container/nodes--nodesCount",
+                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
                         "formatter": 1,
                         "numberFormat": {
                           "unit": 0,
-                          "options": null
+                          "options": {
+                            "style": "decimal",
+                            "maximumFractionDigits": 2
+                          }
                         }
                       },
                       {
@@ -372,39 +367,15 @@
                         "formatter": 1
                       },
                       {
-                        "columnMatch": "Aggregation",
-                        "formatter": 5
-                      },
-                      {
                         "columnMatch": "Value",
                         "formatter": 1
-                      },
-                      {
-                        "columnMatch": "Timeline",
-                        "formatter": 9
-                      },
-                      {
-                        "columnMatch": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
-                        "formatter": 1,
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": null
-                        }
                       }
                     ],
                     "rowLimit": 10000,
                     "labelSettings": [
                       {
-                        "columnId": "insights.container/nodes--nodesCount",
-                        "label": "nodesCount (Average)"
-                      },
-                      {
-                        "columnId": "insights.container/nodes--nodesCount Timeline",
-                        "label": "nodesCount Timeline"
-                      },
-                      {
                         "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores",
-                        "label": "Total number of available cpu cores in a managed cluster (Average)"
+                        "label": "nodesCount (Average)"
                       },
                       {
                         "columnId": "microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline",
@@ -432,7 +403,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\",\"mergeType\":\"innerunique\",\"leftTable\":\"metric - 2\",\"rightTable\":\"query - 1\",\"leftColumn\":\"Name\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'Total estimated Defender cost'\"}}]},{\"originalName\":\"[metric - 2].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].id\",\"mergedName\":\"Cluster Name\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].type\",\"mergedName\":\"type\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].location\",\"mergedName\":\"location\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].physicalCoresCount\",\"mergedName\":\"physicalCoresCount\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].machineType\",\"mergedName\":\"machineType\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].nodesCount\",\"mergedName\":\"nodesCount\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[metric - 2].insights.container/nodes--nodesCount\",\"mergedName\":\"nodesCount (Average)\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].powerState\",\"mergedName\":\"powerState\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].vCoresPerMachine\",\"mergedName\":\"vCoresPerMachine\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].coresTotal\",\"mergedName\":\"coresTotal\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores\",\"mergedName\":\"averageCores\",\"fromId\":\"unknown\"},{\"originalName\":\"[query - 1].estimatedMonthlyCost\",\"mergedName\":\"estimatedMonthlyCost\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"freeScans\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"nodesCount (Average)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"nodesCount (Average)\\\"] * [\\\"vCoresPerMachine\\\"] * 20\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"coresTotal\\\"] * 20\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"estimatedAverageCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"averageCores\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"averageCores\\\"] * 7\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"coresTotal\\\"] * 7\"}}]},{\"originalName\":\"[metric - 2].Name\"},{\"originalName\":\"[metric - 2].insights.container/nodes--nodesCount Timeline\"},{\"originalName\":\"[query - 1].name\"},{\"originalName\":\"[query - 1].tenantId\"},{\"originalName\":\"[query - 1].kind\"},{\"originalName\":\"[query - 1].resourceGroup\"},{\"originalName\":\"[query - 1].subscriptionId\"},{\"originalName\":\"[query - 1].managedBy\"},{\"originalName\":\"[query - 1].sku\"},{\"originalName\":\"[query - 1].plan\"},{\"originalName\":\"[query - 1].properties\"},{\"originalName\":\"[query - 1].tags\"},{\"originalName\":\"[query - 1].identity\"},{\"originalName\":\"[query - 1].zones\"},{\"originalName\":\"[query - 1].extendedLocation\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition Timeline\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition\"},{\"originalName\":\"[metric - 2].Timeline\"},{\"originalName\":\"[metric - 2].Segment\"},{\"originalName\":\"[metric - 2].Segment Field\"},{\"originalName\":\"[metric - 2].Aggregation\"},{\"originalName\":\"[metric - 2].Metric ID\"},{\"originalName\":\"[metric - 2].Metric\"},{\"originalName\":\"[metric - 2].Namespace\"},{\"originalName\":\"[metric - 2].Value\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline\"},{\"originalName\":\"[query - 1].minMonthlyCost\"},{\"originalName\":\"[query - 1].maxMonthlyCost\"},{\"originalName\":\"[query - 1].minMachineCount\"},{\"originalName\":\"[query - 1].maxMachineCount\"}]}",
+                  "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\",\"mergeType\":\"innerunique\",\"leftTable\":\"metric - 2\",\"rightTable\":\"query - 1\",\"leftColumn\":\"Name\",\"rightColumn\":\"id\"}],\"projectRename\":[{\"originalName\":\"[Added column]\",\"mergedName\":\"Total estimated Defender cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'Total estimated Defender cost'\"}}]},{\"originalName\":\"[metric - 2].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].id\",\"mergedName\":\"Cluster Name\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].machineType\",\"mergedName\":\"machineType\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].powerState\",\"mergedName\":\"powerState\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[query - 1].coresTotal\",\"mergedName\":\"coresTotal\",\"fromId\":\"dcc7ad6e-4539-45c3-b63f-d151da8c0259\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores\",\"mergedName\":\"averageCores\",\"fromId\":\"unknown\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"freeScans\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"nodesCount (Average)\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"nodesCount (Average)\\\"] * [\\\"vCoresPerMachine\\\"] * 20\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"coresTotal\\\"] * 20\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"estimatedAverageCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"averageCores\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"averageCores\\\"] * 7\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"coresTotal\\\"] * 7\"}}]},{\"originalName\":\"[metric - 2].Name\"},{\"originalName\":\"[metric - 2].insights.container/nodes--nodesCount Timeline\"},{\"originalName\":\"[query - 1].name\"},{\"originalName\":\"[query - 1].tenantId\"},{\"originalName\":\"[query - 1].kind\"},{\"originalName\":\"[query - 1].resourceGroup\"},{\"originalName\":\"[query - 1].subscriptionId\"},{\"originalName\":\"[query - 1].managedBy\"},{\"originalName\":\"[query - 1].sku\"},{\"originalName\":\"[query - 1].plan\"},{\"originalName\":\"[query - 1].properties\"},{\"originalName\":\"[query - 1].tags\"},{\"originalName\":\"[query - 1].identity\"},{\"originalName\":\"[query - 1].zones\"},{\"originalName\":\"[query - 1].extendedLocation\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition Timeline\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_condition\"},{\"originalName\":\"[metric - 2].Timeline\"},{\"originalName\":\"[metric - 2].Segment\"},{\"originalName\":\"[metric - 2].Segment Field\"},{\"originalName\":\"[metric - 2].Aggregation\"},{\"originalName\":\"[metric - 2].Metric ID\"},{\"originalName\":\"[metric - 2].Metric\"},{\"originalName\":\"[metric - 2].Namespace\"},{\"originalName\":\"[metric - 2].Value\"},{\"originalName\":\"[metric - 2].microsoft.containerservice/managedclusters-Nodes-kube_node_status_allocatable_cpu_cores Timeline\"},{\"originalName\":\"[query - 1].minMonthlyCost\"},{\"originalName\":\"[query - 1].maxMonthlyCost\"},{\"originalName\":\"[query - 1].minMachineCount\"},{\"originalName\":\"[query - 1].maxMachineCount\"},{\"originalName\":\"[query - 1].estimatedMonthlyCost\"},{\"originalName\":\"[query - 1].vCoresPerMachine\"},{\"originalName\":\"[metric - 2].insights.container/nodes--nodesCount\"},{\"originalName\":\"[query - 1].nodesCount\"},{\"originalName\":\"[query - 1].physicalCoresCount\"},{\"originalName\":\"[query - 1].location\"},{\"originalName\":\"[query - 1].type\"}]}",
                   "size": 3,
                   "noDataMessage": "No Kubernetes service resources are selected. Please select Kubernetes Cluster.",
                   "queryType": 7,
@@ -457,6 +428,93 @@
                       {
                         "columnMatch": "Subscription",
                         "formatter": 5
+                      },
+                      {
+                        "columnMatch": "powerState",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Running",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Stopped",
+                              "representation": "stopped",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "pending",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "coresTotal",
+                        "formatter": 5,
+                        "formatOptions": {
+                          "aggregation": "Sum",
+                          "customColumnWidthSetting": "22.28ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "averageCores",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "aggregation": "Sum"
+                        },
+                        "numberFormat": {
+                          "unit": 0,
+                          "options": {
+                            "style": "decimal",
+                            "maximumFractionDigits": 2
+                          }
+                        }
+                      },
+                      {
+                        "columnMatch": "freeScans",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "palette": "blue",
+                          "aggregation": "Sum",
+                          "customColumnWidthSetting": "35ch"
+                        },
+                        "numberFormat": {
+                          "unit": 17,
+                          "options": {
+                            "style": "decimal",
+                            "maximumFractionDigits": 0
+                          }
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Number of container images included for scanning based on the amount of vCores per Kubernetes cluster."
+                        }
+                      },
+                      {
+                        "columnMatch": "estimatedAverageCost",
+                        "formatter": 3,
+                        "formatOptions": {
+                          "palette": "yellow",
+                          "aggregation": "Sum",
+                          "customColumnWidthSetting": "35ch"
+                        },
+                        "numberFormat": {
+                          "unit": 0,
+                          "options": {
+                            "currency": "USD",
+                            "style": "currency"
+                          }
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Estimated monthly Defender cost based on the average node count within the last 30 days. In case there is no node count telemetry available, average cost is calculated based on the current number of nodes running in a cluster."
+                        }
                       },
                       {
                         "columnMatch": "type",
@@ -489,57 +547,8 @@
                         }
                       },
                       {
-                        "columnMatch": "powerState",
-                        "formatter": 18,
-                        "formatOptions": {
-                          "thresholdsOptions": "icons",
-                          "thresholdsGrid": [
-                            {
-                              "operator": "==",
-                              "thresholdValue": "Running",
-                              "representation": "success",
-                              "text": "{0}{1}"
-                            },
-                            {
-                              "operator": "==",
-                              "thresholdValue": "Stopped",
-                              "representation": "stopped",
-                              "text": "{0}{1}"
-                            },
-                            {
-                              "operator": "Default",
-                              "thresholdValue": null,
-                              "representation": "pending",
-                              "text": "{0}{1}"
-                            }
-                          ]
-                        }
-                      },
-                      {
                         "columnMatch": "vCoresPerMachine",
                         "formatter": 5
-                      },
-                      {
-                        "columnMatch": "coresTotal",
-                        "formatter": 0,
-                        "formatOptions": {
-                          "aggregation": "Sum",
-                          "customColumnWidthSetting": "22.28ch"
-                        }
-                      },
-                      {
-                        "columnMatch": "averageCores",
-                        "formatter": 0,
-                        "formatOptions": {
-                          "aggregation": "Sum"
-                        },
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": {
-                            "style": "decimal",
-                            "maximumFractionDigits": 2
-                          }
-                        }
                       },
                       {
                         "columnMatch": "estimatedMonthlyCost",
@@ -550,42 +559,6 @@
                             "currency": "USD",
                             "style": "currency"
                           }
-                        }
-                      },
-                      {
-                        "columnMatch": "freeScans",
-                        "formatter": 3,
-                        "formatOptions": {
-                          "palette": "blue",
-                          "aggregation": "Sum"
-                        },
-                        "numberFormat": {
-                          "unit": 17,
-                          "options": {
-                            "style": "decimal",
-                            "maximumFractionDigits": 0
-                          }
-                        },
-                        "tooltipFormat": {
-                          "tooltip": "Number of container images included for scanning based on the amount of vCores per Kubernetes cluster."
-                        }
-                      },
-                      {
-                        "columnMatch": "estimatedAverageCost",
-                        "formatter": 3,
-                        "formatOptions": {
-                          "palette": "orange",
-                          "aggregation": "Sum"
-                        },
-                        "numberFormat": {
-                          "unit": 0,
-                          "options": {
-                            "currency": "USD",
-                            "style": "currency"
-                          }
-                        },
-                        "tooltipFormat": {
-                          "tooltip": "Estimated monthly Defender cost based on the average node count within the last 30 days. In case there is no node count telemetry available, average cost is calculated based on the current number of nodes running in a cluster."
                         }
                       },
                       {
@@ -614,20 +587,8 @@
                         "label": "Azure VM size"
                       },
                       {
-                        "columnId": "nodesCount",
-                        "label": "Nodes (current)"
-                      },
-                      {
-                        "columnId": "nodesCount (Average)",
-                        "label": "Nodes (average)"
-                      },
-                      {
                         "columnId": "powerState",
                         "label": "Power State"
-                      },
-                      {
-                        "columnId": "coresTotal",
-                        "label": "Total cores (current)"
                       },
                       {
                         "columnId": "averageCores",
@@ -645,7 +606,6 @@
                   },
                   "sortBy": []
                 },
-                "showPin": false,
                 "name": "query - 3"
               }
             ]
@@ -676,7 +636,7 @@
                 "type": 3,
                 "content": {
                   "version": "KqlItem/1.0",
-                  "query": "resources\n| where type == \"microsoft.kubernetes/connectedclusters\" and \"{kubernetesCluster:name}\" contains name\n| extend physicalCoresCount = properties.totalCoreCount\n| extend estimatedMonthlyCost = physicalCoresCount * 7\n| project clusterName = id, subscriptionId, toint(physicalCoresCount), estimatedMonthlyCost",
+                  "query": "resources\n| where type == \"microsoft.kubernetes/connectedclusters\" and \"{kubernetesCluster:name}\" contains name\n| extend physicalCoresCount = properties.totalCoreCount\n| extend estimatedMonthlyCost = physicalCoresCount * 7\n| project clusterName = id, subscriptionId, toint(physicalCoresCount), estimatedMonthlyCost",
                   "size": 1,
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
@@ -737,7 +697,8 @@
                         "formatter": 3,
                         "formatOptions": {
                           "palette": "blue",
-                          "aggregation": "Sum"
+                          "aggregation": "Sum",
+                          "customColumnWidthSetting": "230px"
                         },
                         "numberFormat": {
                           "unit": 17,
@@ -754,8 +715,9 @@
                         "columnMatch": "estimatedMonthlyCost",
                         "formatter": 3,
                         "formatOptions": {
-                          "palette": "orange",
-                          "aggregation": "Sum"
+                          "palette": "yellow",
+                          "aggregation": "Sum",
+                          "customColumnWidthSetting": "270px"
                         },
                         "numberFormat": {
                           "unit": 0,

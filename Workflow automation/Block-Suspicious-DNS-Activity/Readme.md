@@ -53,7 +53,7 @@ Once you have deployed and authorized the Logic App, you can create a [new Workf
 1. Go to Azure Security Center and select the _Workflow automation_ button in the navigation pane.
 2. Select _+ Add workflow automation_.
 3. Enter the values needed. Especially make sure you select _Threat detection alerts_ as the trigger condition.
-4. In the _Alert name contains_ field, enter _brute_.
+4. In the _Alert name contains_ field, enter _domain_ or _network_.
 5. In the _actions_ area, make sure to select the _Block-Suspicious-DNS-Activity_ Logic App you have deployed and authorized before.
 6. Press _create_.
 

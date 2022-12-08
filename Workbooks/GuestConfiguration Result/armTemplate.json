@@ -1,0 +1,2836 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "GuestConfiguration Result v1.1",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "Azure Security Center",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "variables": {
+    "workbookContent": {
+      "version": "Notebook/1.0",
+      "items": [
+        {
+          "type": 1,
+          "content": {
+            "json": "## Guest Configuration Result v.1.1\n---\n\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines"
+          },
+          "name": "text - 2"
+        },
+        {
+          "type": 9,
+          "content": {
+            "version": "KqlParameterItem/1.0",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "parameters": [
+              {
+                "id": "5bb86d1c-e81a-4e65-a105-1bf63e495a75",
+                "version": "KqlParameterItem/1.0",
+                "name": "Subscription",
+                "type": 6,
+                "description": "Select Subscription",
+                "isRequired": true,
+                "multiSelect": true,
+                "quote": "'",
+                "delimiter": ",",
+                "value": [
+                  "value::all"
+                ],
+                "typeSettings": {
+                  "additionalResourceOptions": [
+                    "value::all"
+                  ],
+                  "includeAll": true
+                },
+                "timeContext": {
+                  "durationMs": 86400000
+                },
+                "defaultValue": "value::all"
+              },
+              {
+                "id": "89752a41-a363-48e7-8424-7e3e1159f9ad",
+                "version": "KqlParameterItem/1.0",
+                "name": "GCPolicy",
+                "label": "GC Policy",
+                "type": 2,
+                "isRequired": true,
+                "multiSelect": true,
+                "quote": "'",
+                "delimiter": ",",
+                "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| summarize by name\r\n | sort by name asc",
+                "crossComponentResources": [
+                  "{Subscription}"
+                ],
+                "typeSettings": {
+                  "additionalResourceOptions": [
+                    "value::all"
+                  ],
+                  "showDefault": false
+                },
+                "timeContext": {
+                  "durationMs": 86400000
+                },
+                "defaultValue": "value::all",
+                "queryType": 1,
+                "resourceType": "microsoft.resourcegraph/resources",
+                "value": [
+                  "GC.3.5.2.AutoApplyScript102UX_TrendMicro_01"
+                ]
+              },
+              {
+                "id": "b4e8a3d4-982a-49d8-9b5e-aee446d99299",
+                "version": "KqlParameterItem/1.0",
+                "name": "ComplianceStatus",
+                "label": "Compliance Status",
+                "type": 2,
+                "multiSelect": true,
+                "quote": "'",
+                "delimiter": ",",
+                "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| summarize by tostring(ComplianceStatus)",
+                "crossComponentResources": [
+                  "{Subscription}"
+                ],
+                "typeSettings": {
+                  "additionalResourceOptions": [
+                    "value::all"
+                  ],
+                  "showDefault": false
+                },
+                "timeContext": {
+                  "durationMs": 86400000
+                },
+                "defaultValue": "value::all",
+                "queryType": 1,
+                "resourceType": "microsoft.resourcegraph/resources"
+              }
+            ],
+            "style": "above",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          "name": "parameters - 3"
+        },
+        {
+          "type": 11,
+          "content": {
+            "version": "LinkItem/1.0",
+            "style": "tabs",
+            "links": [
+              {
+                "id": "8a6e1ef3-ef4f-46cc-80a0-ffb749c8737f",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "By Policy",
+                "subTarget": "TabByPolicy",
+                "style": "link"
+              },
+              {
+                "id": "1ebcf7a0-4664-459c-b0f1-da574e515e60",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "By Computer",
+                "subTarget": "TabByComputer",
+                "style": "link"
+              },
+              {
+                "id": "aab8a68c-d050-42b4-a6e7-5f14afaa5b3e",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "Policy Details",
+                "subTarget": "PolicyDetails",
+                "style": "link"
+              },
+              {
+                "id": "eb4bbb2c-64c8-4cc1-ac81-08544d92e1aa",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "Extensions",
+                "subTarget": "Extensions",
+                "style": "link"
+              },
+              {
+                "id": "388ed574-e0b9-40c7-80a9-5d048b306b16",
+                "cellValue": "SelectedView",
+                "linkTarget": "parameter",
+                "linkLabel": "Identity",
+                "subTarget": "Identity",
+                "style": "link"
+              }
+            ]
+          },
+          "name": "links - 6"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "By Policy",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| summarize count() by tostring(ComplianceStatus)",
+                  "size": 4,
+                  "title": "Compliance Overview",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "sortBy": [],
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "NonCompliant",
+                        "color": "red"
+                      },
+                      {
+                        "seriesName": "Compliant",
+                        "color": "green"
+                      },
+                      {
+                        "seriesName": "Pending",
+                        "color": "gray"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "30",
+                "name": "Overview-Donut"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| extend VMname = tostring(split(id,\"/\",8)[0])\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif\r\n(ComplianceStatus==\"Pending\"), VMcount=dcount(VMname) by tostring(subscriptionId)\r\n| sort by NonCompliant\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+                  "size": 0,
+                  "title": "Compliance by Subscription",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "subscriptionId",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "Compliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "green"
+                        }
+                      },
+                      {
+                        "columnMatch": "NonCompliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "red"
+                        }
+                      },
+                      {
+                        "columnMatch": "Pending",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "gray"
+                        }
+                      },
+                      {
+                        "columnMatch": "Subsciption",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "40ch"
+                        }
+                      }
+                    ]
+                  },
+                  "sortBy": [],
+                  "graphSettings": {
+                    "type": 0,
+                    "topContent": {
+                      "columnMatch": "subscriptionId",
+                      "formatter": 1
+                    },
+                    "centerContent": {
+                      "columnMatch": "count_",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  }
+                },
+                "customWidth": "70",
+                "name": "Overview-Subscription"
+              },
+              {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "parameters": [
+                    {
+                      "id": "a35c9af1-81da-4519-9d50-1a519783b318",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "not_reported_for",
+                      "label": "Not Reported for",
+                      "type": 2,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"now()\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
+                      "timeContext": {
+                        "durationMs": 86400000
+                      }
+                    },
+                    {
+                      "id": "75aa4829-b96e-40e9-947f-c6a8fca329b7",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "include_pending",
+                      "label": "Include Pending State",
+                      "type": 10,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"true\", \"label\": \"Yes\", \"selected\":true  },\r\n { \"value\": \"'Pending'\", \"label\": \"No\"}\r\n ]",
+                      "timeContext": {
+                        "durationMs": 86400000
+                      }
+                    }
+                  ],
+                  "style": "above",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
+                },
+                "name": "parameters - 5"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend lastCheckUTC = properties.lastComplianceStatusChecked\r\n| where lastCheckUTC < {not_reported_for:value}\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| where ComplianceStatus != {include_pending}\r\n//| extend lastCheckUTC = format_datetime(todatetime(properties.lastComplianceStatusChecked), 'yyyy-M-dd [H:mm:ss]')\r\n| extend AssignmentName = properties.latestAssignmentReport.assignment.name\r\n| extend GCName = properties.guestConfiguration.name\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend contentUri = properties.guestConfiguration.contentUri\r\n| extend ReportID = properties.latestReportId\r\n| extend Computer = properties.targetResourceId\r\n| extend Success = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"true\"')\r\n| extend Failed = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"false\"')\r\n| extend ReportID = split(ReportID, \"/reports/\",0)[0]\r\n| extend ReportID = replace(\"/\", \"%2F\", tostring(ReportID))\r\n| extend ReportURL = strcat(\"https://portal.azure.com/#blade/HubsExtension/ResourceMenuBlade/id/\", ReportID)\r\n| extend ChecksFailedPercentage = (100.00 / (Success + Failed)) * Failed\r\n| extend ChecksSuccessPercentage = (100.00 / (Success + Failed)) * Success\r\n| extend ChecksFailed = strcat(Failed,\" of \",(Success + Failed ),\" | \", round(ChecksFailedPercentage,1),\"%\" )\r\n| project  tostring(subscriptionId), resourceGroup = tostring(Computer), tostring(Computer), GCName, ComplianceStatus, ChecksFailed, ChecksFailedPercentage, ChecksSuccessPercentage, lastCheck = lastCheckUTC, ReportURL\r\n| sort by tostring(GCName) asc\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+                  "size": 0,
+                  "title": "Compliance by Computer, select an entry for more details",
+                  "exportedParameters": [
+                    {
+                      "fieldName": "Computer",
+                      "parameterName": "Computer",
+                      "parameterType": 1
+                    },
+                    {
+                      "fieldName": "GCName",
+                      "parameterName": "GCName",
+                      "parameterType": 1
+                    }
+                  ],
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "table",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "lastCheck",
+                        "formatter": 6,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        },
+                        "dateFormat": {
+                          "showUtcTime": null,
+                          "formatName": "shortDateTimePattern"
+                        }
+                      },
+                      {
+                        "columnMatch": "lastCheckUTC3",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "subscriptionId",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "GCName",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "ComplianceStatus",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Compliant ",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "NonCompliant",
+                              "representation": "4",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Pending",
+                              "representation": "pending",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "ChecksFailed",
+                        "formatter": 5,
+                        "formatOptions": {
+                          "compositeBarSettings": {
+                            "labelText": "",
+                            "columnSettings": [
+                              {
+                                "columnName": "ChecksFailedPercentage",
+                                "color": "blue"
+                              }
+                            ]
+                          }
+                        }
+                      },
+                      {
+                        "columnMatch": "ChecksFailedPercentage",
+                        "formatter": 22,
+                        "formatOptions": {
+                          "aggregation": "Average",
+                          "compositeBarSettings": {
+                            "labelText": "[[\"ChecksFailed\"]",
+                            "columnSettings": [
+                              {
+                                "columnName": "ChecksFailedPercentage",
+                                "color": "red"
+                              },
+                              {
+                                "columnName": "ChecksSuccessPercentage",
+                                "color": "green"
+                              }
+                            ]
+                          },
+                          "customColumnWidthSetting": "45ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ChecksSuccessPercentage",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "ReportURL",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "Url",
+                          "linkLabel": "Go to Report"
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000,
+                    "filter": true
+                  },
+                  "sortBy": [],
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "GCName",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "graphSettings": {
+                    "type": 0,
+                    "topContent": {
+                      "columnMatch": "subscriptionId",
+                      "formatter": 1
+                    },
+                    "centerContent": {
+                      "columnMatch": "count_",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "xAxis": "GCName",
+                    "yAxis": [
+                      "count_"
+                    ],
+                    "showLegend": true,
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "NotApplicable",
+                        "color": "gray"
+                      },
+                      {
+                        "seriesName": "Unhealthy",
+                        "color": "red"
+                      },
+                      {
+                        "seriesName": "Healthy",
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "mapSettings": {
+                    "locInfo": "LatLong",
+                    "sizeSettings": "count_",
+                    "sizeAggregation": "Sum",
+                    "legendMetric": "count_",
+                    "legendAggregation": "Sum",
+                    "itemColorSettings": {
+                      "type": "heatmap",
+                      "colorAggregation": "Sum",
+                      "nodeColorField": "count_",
+                      "heatmapPalette": "greenRed"
+                    }
+                  }
+                },
+                "name": "Compliance by Computer"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where id =~ \"{Computer}\"\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = id, OS, location,   powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize),  SKU=properties.storageProfile.imageReference.sku,  Version=properties.storageProfile.imageReference.exactVersion\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| where id =~ \"{Computer}\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = id, powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n\r\n\r\n\r\n",
+                  "size": 4,
+                  "title": "Computer details",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "table",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "Version",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "name",
+                        "formatter": 13,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "rowLimit": 5
+                  },
+                  "tileSettings": {
+                    "showBorder": false
+                  },
+                  "textSettings": {
+                    "style": "markdown"
+                  }
+                },
+                "name": "Computer details"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| extend Computer = properties.targetResourceId\r\n| where Computer == \"{Computer}\"\r\n| extend GCName = properties.guestConfiguration.name\r\n| where GCName == \"{GCName}\"\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend ReportID = properties.latestReportId\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| mv-expand resource =  todynamic(properties.latestAssignmentReport.resources)\r\n| extend ResourceCompliant = resource.complianceStatus\r\n| extend ResourceID = resource.resourceId\r\n| mv-expand reason = resource.reasons\r\n| extend ReasonCode = reason.code\r\n| extend Result = reason.phrase\r\n| project ResourceID, ResourceCompliant, Result, ReasonCode\r\n| sort by tostring(ResourceID) asc",
+                  "size": 0,
+                  "title": "Compliance Details",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "table",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "ResourceID",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "ResourceCompliant",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "green",
+                              "text": "True"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "redBright",
+                              "text": "False"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Result",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "100ch"
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000
+                  },
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "GCName",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "graphSettings": {
+                    "type": 0,
+                    "topContent": {
+                      "columnMatch": "subscriptionId",
+                      "formatter": 1
+                    },
+                    "centerContent": {
+                      "columnMatch": "count_",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "xAxis": "GCName",
+                    "yAxis": [
+                      "count_"
+                    ],
+                    "showLegend": true,
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "NotApplicable",
+                        "color": "gray"
+                      },
+                      {
+                        "seriesName": "Unhealthy",
+                        "color": "red"
+                      },
+                      {
+                        "seriesName": "Healthy",
+                        "color": "green"
+                      }
+                    ]
+                  },
+                  "mapSettings": {
+                    "locInfo": "LatLong",
+                    "sizeSettings": "count_",
+                    "sizeAggregation": "Sum",
+                    "legendMetric": "count_",
+                    "legendAggregation": "Sum",
+                    "itemColorSettings": {
+                      "type": "heatmap",
+                      "colorAggregation": "Sum",
+                      "nodeColorField": "count_",
+                      "heatmapPalette": "greenRed"
+                    }
+                  }
+                },
+                "name": "Compliance Details"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "TabByPolicy"
+          },
+          "name": "Overview by Policy"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "By Computer",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project SKU = properties.osSku\r\n| summarize count() by tostring(SKU)\r\n| sort by count_\r\n\r\n\r\n",
+                  "size": 3,
+                  "title": "Arc Machines by SKU",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Plattform",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Hybrid",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Azure",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "Compliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "green"
+                        }
+                      },
+                      {
+                        "columnMatch": "NonCompliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "red"
+                        }
+                      },
+                      {
+                        "columnMatch": "Pending",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "gray"
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Computer",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": null,
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "powerstate",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Disconnected",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Expired",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "deallocated",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "filter": true
+                  },
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "Version",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "createOtherGroup": 12,
+                    "showMetrics": false,
+                    "showLegend": true
+                  }
+                },
+                "customWidth": "30",
+                "name": "Arc Machines by SKU",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Platform = \"Azure\", OS = toupper(OS)\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Platform = \"Arc\", OS = toupper(tostring(properties.osType))\r\n)\r\n| summarize count() by Platform, OS\r\n| extend text= strcat(Platform, \" | \", OS)\r\n| sort by count_\r\n\r\n\r\n",
+                  "size": 3,
+                  "title": "Computer by Platform and SKU",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "tiles",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Plattform",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Hybrid",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Azure",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "Compliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "green"
+                        }
+                      },
+                      {
+                        "columnMatch": "NonCompliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "red"
+                        }
+                      },
+                      {
+                        "columnMatch": "Pending",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "gray"
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Computer",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": null,
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "powerstate",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Disconnected",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Expired",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "deallocated",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ]
+                  },
+                  "tileSettings": {
+                    "titleContent": {
+                      "columnMatch": "Version",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "style": "decimal",
+                          "maximumFractionDigits": 2,
+                          "maximumSignificantDigits": 3
+                        }
+                      }
+                    },
+                    "rightContent": {
+                      "columnMatch": "text"
+                    },
+                    "showBorder": true,
+                    "size": "auto"
+                  },
+                  "graphSettings": {
+                    "type": 0,
+                    "topContent": {
+                      "columnMatch": "Platform",
+                      "formatter": 1
+                    },
+                    "centerContent": {
+                      "columnMatch": "count_",
+                      "formatter": 1,
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "createOtherGroup": 9,
+                    "showLegend": true
+                  }
+                },
+                "customWidth": "50",
+                "name": "Computer by Platform and SKU",
+                "styleSettings": {
+                  "padding": "50px",
+                  "maxWidth": "65%"
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project offer= iff(isnotempty(properties.storageProfile.imageReference.offer), properties.storageProfile.imageReference.offer, \"<EMPTY>\")\r\n| summarize count() by tostring(offer)\r\n| sort by count_\r\n\r\n",
+                  "size": 3,
+                  "title": "Azure Computer by Offer",
+                  "exportFieldName": "offer",
+                  "exportParameterName": "offer",
+                  "exportDefaultValue": "default",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Plattform",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Hybrid",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Azure",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "Compliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "green"
+                        }
+                      },
+                      {
+                        "columnMatch": "NonCompliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "red"
+                        }
+                      },
+                      {
+                        "columnMatch": "Pending",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "gray"
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Computer",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": null,
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "powerstate",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Disconnected",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Expired",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "deallocated",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "filter": true
+                  },
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "Version",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "createOtherGroup": 12,
+                    "showMetrics": false,
+                    "showLegend": true
+                  }
+                },
+                "customWidth": "30",
+                "name": "Azure Computer by Offer",
+                "styleSettings": {
+                  "showBorder": true
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Computer = tolower(id), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, resourceGroup, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(id), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup,  SKU = properties.osSku, Version = properties.osVersion\r\n)\r\n| join (\r\nguestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| extend  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| extend Plattform = iff(Computer contains \"/providers/Microsoft.HybridCompute/machines/\", \"Hybrid\", \"Azure\")\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif(ComplianceStatus==\"Pending\") , VMcount=  dcount(Computer) by Plattform, tostring(offer), tostring(SKU)\r\n| sort by toupper(offer) asc \r\n",
+                  "size": 0,
+                  "title": "Compliance by Platform and SKU -- select row to filter Computer Overview below",
+                  "exportedParameters": [
+                    {
+                      "fieldName": "offer",
+                      "parameterName": "offer",
+                      "parameterType": 1,
+                      "defaultValue": "default"
+                    },
+                    {
+                      "fieldName": "SKU",
+                      "parameterName": "SKU",
+                      "parameterType": 1,
+                      "defaultValue": "default"
+                    }
+                  ],
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Plattform",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Hybrid",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Azure",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "10ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Compliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "green",
+                          "customColumnWidthSetting": "10ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "NonCompliant",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "red",
+                          "customColumnWidthSetting": "10ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Pending",
+                        "formatter": 8,
+                        "formatOptions": {
+                          "palette": "gray",
+                          "customColumnWidthSetting": "10ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "VMcount",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "numberFormat": {
+                          "unit": 0,
+                          "options": {
+                            "style": "decimal",
+                            "useGrouping": false
+                          }
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Computer",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": null,
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "powerstate",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Disconnected",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Expired",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "deallocated",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "filter": true
+                  }
+                },
+                "customWidth": "70",
+                "name": "Compliance by Platform and SKU ",
+                "styleSettings": {
+                  "margin": "10px"
+                }
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = tolower(tostring(id)), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(tostring(id)), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n| extend default = \"default\"\r\n| where  default == \"{SKU}\" or SKU == \"{SKU}\"\r\n| where  default == \"{offer}\" or offer == \"{offer}\"\r\n| sort by tolower(tostring(split(Computer, \"/\", 8)[0])) asc\r\n| join  (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | project  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| summarize by Subscription, resourceGroup, Computer,  tostring(OS), tostring(Version), location, powerstate, VMSize, tostring(SKU), tostring(offer)\r\n",
+                  "size": 0,
+                  "title": "Computer Overview",
+                  "noDataMessage": "Select a SKU and Offer ",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true
+                        }
+                      },
+                      {
+                        "columnMatch": "resourceGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "Computer",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": null,
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "powerstate",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Disconnected",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Expired",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "deallocated",
+                              "representation": "orange",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "default",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": null,
+                          "showIcon": true
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000,
+                    "filter": true
+                  },
+                  "sortBy": []
+                },
+                "name": "Computer Overview"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "TabByComputer"
+          },
+          "name": "Overview by Computer"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Policy Details",
+            "items": [
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n//| extend GCName = properties.policyRule.then.details.deployment.properties.parameters.configurationName.value\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project Displayname, DefinitionId = id, Initiative = Displayname1, InitiativeId = tostring(id1) \r\n| extend PolicyDefinition = strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(DefinitionId)))\r\n| extend PolicyInitiative = iff(isnotempty(InitiativeId),strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(InitiativeId))), \"\")\r\n| sort by tostring(Displayname)",
+                  "size": 0,
+                  "title": "Definitions, standalone or Initiative mapped",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resources/tenants",
+                  "crossComponentResources": [
+                    "value::tenant"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Displayname",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "60ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "DefinitionId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "Initiative",
+                        "formatter": 0,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "60ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "InitiativeId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "PolicyDefinition",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "Url",
+                          "linkLabel": "Go to Definition"
+                        }
+                      },
+                      {
+                        "columnMatch": "PolicyInitiative",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "Url",
+                          "linkLabel": "Go to Initiative"
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000
+                  }
+                },
+                "name": "Definiton Overview"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project DefId = id1\r\n| union (policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| project DefId = id)\r\n| join (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policyassignments\"\r\n    | extend DefId = tostring(properties.policyDefinitionId)\r\n    | extend Displayname = properties.displayName\r\n    | extend CreatedOn = properties.metadata.createdOn\r\n    | extend updatedOn = properties.metadata.updatedOn\r\n    | extend assignedBy = properties.metadata.assignedBy\r\n    | extend Parameters = properties.parameters\r\n    | extend AssignedScope = properties.scope\r\n    | extend enforcementMode = properties.enforcementMode\r\n    | project DefId, id, Displayname, AssignedScope, ScopeType = AssignedScope, enforcementMode, Parameters, CreatedOn, updatedOn, assignedBy\r\n) on DefId\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+                  "size": 0,
+                  "title": "Acitve Assignments by filtered GC Policies, direct or via initiative",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resources/tenants",
+                  "crossComponentResources": [
+                    "value::tenant"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "DefId",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "DefId1",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "id",
+                        "formatter": 5
+                      },
+                      {
+                        "columnMatch": "Displayname",
+                        "formatter": 1,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "40ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "AssignedScope",
+                        "formatter": 13,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ScopeType",
+                        "formatter": 16,
+                        "formatOptions": {
+                          "showIcon": true,
+                          "customColumnWidthSetting": "25ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "enforcementMode",
+                        "formatter": 1
+                      },
+                      {
+                        "columnMatch": "Parameters",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "CellDetails",
+                          "linkLabel": "Parameters",
+                          "linkIsContextBlade": true
+                        }
+                      },
+                      {
+                        "columnMatch": "CreatedOn",
+                        "formatter": 6,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        },
+                        "numberFormat": {
+                          "unit": 0,
+                          "options": {
+                            "style": "decimal"
+                          }
+                        }
+                      },
+                      {
+                        "columnMatch": "updatedOn",
+                        "formatter": 6,
+                        "formatOptions": {
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "assignedBy",
+                        "formatter": 1
+                      }
+                    ],
+                    "rowLimit": 10000
+                  }
+                },
+                "name": "Policy Assignments"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "PolicyDetails"
+          },
+          "name": "Overview by Assignment"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Extensions",
+            "items": [
+              {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "parameters": [
+                    {
+                      "id": "6b832bd9-3c52-4af8-baf8-6eda52f2bf38",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "ResGroup",
+                      "type": 5,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| summarize by resourceGroup\r\n| sort by resourceGroup",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "defaultValue": "value::all",
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ],
+                      "label": "VM/Arc in ResGroup"
+                    },
+                    {
+                      "id": "f434f853-1fd3-47cd-a789-3ce8adb5b2c0",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "Extension",
+                      "type": 5,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n| summarize by name",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "value": [
+                        "value::all"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources"
+                    },
+                    {
+                      "id": "80b3f18f-5136-480f-9a03-2a070a0e581d",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "provState",
+                      "type": 2,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n| where name in ({Extension})\r\n| extend provState = tostring(properties.provisioningState)\r\n| summarize by provState\r\n",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "value": [
+                        "value::all"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources"
+                    },
+                    {
+                      "id": "20530a61-177c-4111-9fd4-f18444d0b023",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "include_vm_missing_ext",
+                      "label": "Show VMs with missing Extension",
+                      "type": 10,
+                      "isRequired": true,
+                      "typeSettings": {
+                        "additionalResourceOptions": [],
+                        "showDefault": false
+                      },
+                      "jsonData": "[[\r\n { \"value\": \"true\", \"label\": \"Yes\" },\r\n { \"value\": \"false\", \"label\": \"No\", \"selected\":true }\r\n ]"
+                    }
+                  ],
+                  "style": "above",
+                  "queryType": 0,
+                  "resourceType": "microsoft.operationalinsights/workspaces"
+                },
+                "name": "ExtIdentity Parameter"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join kind=leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Filterdummy = iff({include_vm_missing_ext} == \"true\", \"all\", name1 )\r\n| where isnotempty(Filterdummy)\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| extend installed = iff(isnotempty(tostring(name1)), \"installed\", \"missing\")\r\n| summarize count() by Type, installed, OS\r\n| extend text = strcat(installed, \" on \",OS, \" \", Type)\r\n| project-away Type, installed, OS\r\n\r\n",
+                  "size": 0,
+                  "title": "installed extensions on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "provState",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Succeeded",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Failed",
+                              "representation": "4",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "1",
+                              "text": "{0}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgr",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Auto Upgrade"
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgrMinVer",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "auto Upgrade Minor Version"
+                        }
+                      },
+                      {
+                        "columnMatch": "properties",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "CellDetails",
+                          "linkLabel": "details",
+                          "linkIsContextBlade": true
+                        }
+                      }
+                    ],
+                    "filter": true
+                  },
+                  "sortBy": [],
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "Type",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "installed on Azure",
+                        "color": "blue"
+                      },
+                      {
+                        "seriesName": "installed on Arc",
+                        "color": "purple"
+                      },
+                      {
+                        "seriesName": "missing on Arc",
+                        "color": "purpleDark"
+                      },
+                      {
+                        "color": "red"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "40",
+                "showPin": false,
+                "name": "ExtensionOverview"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join  (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| summarize count() by Type, OS, tostring(provState)\r\n| extend text = strcat(provState, \" on \", OS, \" \", Type)\r\n| project-away Type,  OS, provState\r\n\r\n\r\n\r\n\r\n\r\n",
+                  "size": 0,
+                  "title": "extensions provisioning state on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "provState",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Succeeded",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Failed",
+                              "representation": "4",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "1",
+                              "text": "{0}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgr",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Auto Upgrade"
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgrMinVer",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "auto Upgrade Minor Version"
+                        }
+                      },
+                      {
+                        "columnMatch": "properties",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "CellDetails",
+                          "linkLabel": "details",
+                          "linkIsContextBlade": true
+                        }
+                      }
+                    ],
+                    "filter": true
+                  },
+                  "sortBy": [],
+                  "tileSettings": {
+                    "showBorder": false,
+                    "titleContent": {
+                      "columnMatch": "Type",
+                      "formatter": 1
+                    },
+                    "leftContent": {
+                      "columnMatch": "count_",
+                      "formatter": 12,
+                      "formatOptions": {
+                        "palette": "auto"
+                      },
+                      "numberFormat": {
+                        "unit": 17,
+                        "options": {
+                          "maximumSignificantDigits": 3,
+                          "maximumFractionDigits": 2
+                        }
+                      }
+                    }
+                  },
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "installed on Azure",
+                        "color": "blue"
+                      },
+                      {
+                        "seriesName": "installed on Arc",
+                        "color": "purple"
+                      },
+                      {
+                        "seriesName": "missing on Arc",
+                        "color": "purpleDark"
+                      },
+                      {
+                        "color": "red"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "40",
+                "showPin": false,
+                "name": "ExtensionProvState"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend ArcOS = tostring(toupper(tostring(properties.osType)))\r\n| extend OS = iff(notempty(ArcOS), ArcOS, tostring(toupper(tostring(properties.storageProfile.osDisk.osType))))\r\n| extend id = tolower(id)\r\n| join kind= leftouter (Resources\r\n    | where type =~ \"Microsoft.Compute/virtualMachines/extensions\" or type =~ \"microsoft.hybridcompute/machines/extensions\"\r\n    | where name in ({Extension})\r\n    | extend provState = properties.provisioningState\r\n    | where provState in ({provState})\r\n    | extend autoUpgrMinVer = properties.autoUpgradeMinorVersion\r\n    | extend autoUpgr = properties.enableAutomaticUpgrade\r\n    | project id, name, provState, autoUpgr, autoUpgrMinVer, properties\r\n    | extend VMId = tolower(tostring(split(id, \"/extensions/\")[0]))\r\n) on $left.id == $right.VMId\r\n| extend Filterdummy = iff({include_vm_missing_ext} == \"true\", \"all\", name1 )\r\n| where isnotempty(Filterdummy)\r\n| sort by tolower(name) asc\r\n| project ResId = id, OS, location, Subscription = id, ResGroup = id,  ExtName = name1, ExtId = id1, provState, autoUpgr, autoUpgrMinVer, properties = properties1\r\n\r\n\r\n",
+                  "size": 0,
+                  "title": "extension details if installed on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "OS",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "WINDOWS",
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "LINUX",
+                              "representation": "magenta",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "provState",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Succeeded",
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "Failed",
+                              "representation": "4",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "1",
+                              "text": "{0}"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgr",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "Auto Upgrade"
+                        }
+                      },
+                      {
+                        "columnMatch": "autoUpgrMinVer",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "icons",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "is Empty",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "true",
+                              "representation": "Check",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "false",
+                              "representation": "Close",
+                              "text": "{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "success",
+                              "text": "{0}{1}"
+                            }
+                          ],
+                          "customColumnWidthSetting": "15ch"
+                        },
+                        "tooltipFormat": {
+                          "tooltip": "auto Upgrade Minor Version"
+                        }
+                      },
+                      {
+                        "columnMatch": "properties",
+                        "formatter": 7,
+                        "formatOptions": {
+                          "linkTarget": "CellDetails",
+                          "linkLabel": "details",
+                          "linkIsContextBlade": true
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000,
+                    "filter": true,
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_link_ResId_0",
+                        "sortOrder": 1
+                      }
+                    ]
+                  },
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_link_ResId_0",
+                      "sortOrder": 1
+                    }
+                  ]
+                },
+                "showPin": false,
+                "name": "Extension Details"
+              }
+            ]
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "Extensions"
+          },
+          "name": "Extensions"
+        },
+        {
+          "type": 12,
+          "content": {
+            "version": "NotebookGroup/1.0",
+            "groupType": "editable",
+            "title": "Identity",
+            "items": [
+              {
+                "type": 9,
+                "content": {
+                  "version": "KqlParameterItem/1.0",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "parameters": [
+                    {
+                      "id": "d8bf330a-e3ed-4be0-b0b4-1c9e0ae5f59d",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "ResGroup",
+                      "type": 5,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| summarize by resourceGroup\r\n| sort by resourceGroup",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "timeContext": {
+                        "durationMs": 86400000
+                      },
+                      "defaultValue": "value::all",
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ],
+                      "label": "VM/Arc in ResGroup"
+                    },
+                    {
+                      "id": "696b74af-3f50-42ca-ac32-1ce5d4e821a5",
+                      "version": "KqlParameterItem/1.0",
+                      "name": "IdentityType",
+                      "type": 2,
+                      "isRequired": true,
+                      "multiSelect": true,
+                      "quote": "'",
+                      "delimiter": ",",
+                      "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend IdentityType = tostring(identity.type)\r\n| extend IdentityType = iff(isnotempty(IdentityType), IdentityType, \"NoIdentity\")\r\n| summarize by IdentityType",
+                      "crossComponentResources": [
+                        "{Subscription}"
+                      ],
+                      "typeSettings": {
+                        "additionalResourceOptions": [
+                          "value::all"
+                        ],
+                        "showDefault": false
+                      },
+                      "defaultValue": "value::all",
+                      "queryType": 1,
+                      "resourceType": "microsoft.resourcegraph/resources",
+                      "value": [
+                        "value::all"
+                      ]
+                    }
+                  ],
+                  "style": "above",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                "name": "ExtIdentity Parameter - Copy"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend IdentityType = iff(isnotempty(tostring(identity.type)), tostring(identity.type), \"NoIdentity\")\r\n| where IdentityType in ({IdentityType})\r\n| extend Type = iff(id contains \"hybrid\",\"Arc\", \"Azure\")\r\n| project Type, IdentityType\r\n| extend IdentityType = iff(isnotempty(IdentityType), IdentityType, \"none\")\r\n| summarize count() by Type, IdentityType\r\n| extend text = strcat(IdentityType, \" installed on \", Type)\r\n| project-away  Type, IdentityType\r\n",
+                  "size": 0,
+                  "title": "installed identities on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "visualization": "piechart",
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      }
+                    ]
+                  },
+                  "chartSettings": {
+                    "seriesLabelSettings": [
+                      {
+                        "seriesName": "SystemAssigned installed on Azure",
+                        "color": "blue"
+                      },
+                      {
+                        "seriesName": "SystemAssigned installed on Arc",
+                        "color": "purple"
+                      },
+                      {
+                        "seriesName": "none installed on Azure",
+                        "color": "red"
+                      }
+                    ]
+                  }
+                },
+                "customWidth": "50",
+                "name": "Identity Overview"
+              },
+              {
+                "type": 3,
+                "content": {
+                  "version": "KqlItem/1.0",
+                  "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines' or type =~ \"microsoft.hybridcompute/machines\"\r\n| where resourceGroup in ({ResGroup})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| extend IdentityId = tostring(identity.principalId)\r\n| extend IdentityType = iff(isnotempty(tostring(identity.type)), tostring(identity.type), \"NoIdentity\")\r\n| where IdentityType in ({IdentityType})\r\n| sort by tolower(name) asc\r\n| project ResId = id, Subscription = id, ResGroup = id, IdentityId, IdentityType",
+                  "size": 0,
+                  "title": "identity details if installed on Azure / Arc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "gridSettings": {
+                    "formatters": [
+                      {
+                        "columnMatch": "Subscription",
+                        "formatter": 15,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "ResGroup",
+                        "formatter": 14,
+                        "formatOptions": {
+                          "linkTarget": "Resource",
+                          "showIcon": true,
+                          "customColumnWidthSetting": "20ch"
+                        }
+                      },
+                      {
+                        "columnMatch": "IdentityType",
+                        "formatter": 18,
+                        "formatOptions": {
+                          "thresholdsOptions": "colors",
+                          "thresholdsGrid": [
+                            {
+                              "operator": "==",
+                              "thresholdValue": "SystemAssigned",
+                              "representation": "green",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "NoIdentity",
+                              "representation": "redBright",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "SystemAssigned, UserAssigned",
+                              "representation": "pink",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "==",
+                              "thresholdValue": "UserAssigned",
+                              "representation": "purple",
+                              "text": "{0}{1}"
+                            },
+                            {
+                              "operator": "Default",
+                              "thresholdValue": null,
+                              "representation": "blue",
+                              "text": "{0}{1}"
+                            }
+                          ]
+                        }
+                      }
+                    ],
+                    "rowLimit": 10000,
+                    "filter": true,
+                    "sortBy": [
+                      {
+                        "itemKey": "$gen_thresholds_IdentityType_4",
+                        "sortOrder": 1
+                      }
+                    ]
+                  },
+                  "sortBy": [
+                    {
+                      "itemKey": "$gen_thresholds_IdentityType_4",
+                      "sortOrder": 1
+                    }
+                  ]
+                },
+                "name": "identity details"
+              }
+            ],
+            "exportParameters": true
+          },
+          "conditionalVisibility": {
+            "parameterName": "SelectedView",
+            "comparison": "isEqualTo",
+            "value": "Identity"
+          },
+          "name": "Identity"
+        }
+      ],
+      "isLocked": false,
+      "fromTemplateId": "sentinel-UserWorkbook"
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2021-03-08",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "[string(variables('workbookContent'))]",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}
