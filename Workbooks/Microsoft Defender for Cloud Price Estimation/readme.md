@@ -1,4 +1,4 @@
-# Microsoft Defender for Cloud - Price Estimation Dashboard
+# Microsoft Defender for Cloud - Cost Estimation Dashboard
 
 **Author: Ahmed Masalha**
 
