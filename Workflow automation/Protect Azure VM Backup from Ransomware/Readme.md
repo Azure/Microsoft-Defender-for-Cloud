@@ -15,7 +15,7 @@ The ARM template will create the Logic App Playbook and an API connection to Off
 
 **Deploy the template by clicking the respective button below.**
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkflow%2520automation%2FStop-Protection-With-Retain-Data%2Fazuredeploy.json" target="_blank">
+<a href="https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Workflow%20automation/Protect%20Azure%20VM%20Backup%20from%20Ransomware/azuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
