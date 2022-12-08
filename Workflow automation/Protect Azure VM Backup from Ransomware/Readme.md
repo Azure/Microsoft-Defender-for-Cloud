@@ -11,7 +11,7 @@ The logic app deployed using this template will prevent the loss of recovery poi
 **Scope:**
 
 The logic app can only be deployed at a subscription level, which means that all Azure VMs under the subscription can leverage the logic app for pausing backup pruning in the event of a security alert.
-The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the target Resource Group.
+The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the Subscription.
 
 **Deploy the template by clicking the respective button below.**
 
@@ -19,7 +19,7 @@ The ARM template will create the Logic App Playbook and an API connection to Off
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
-The Logic App uses a user-assigned Managed Identity. You need to assign 'Security Reader' and 'Virtual Machine Contributor', 'Backup Contributor'  permissions to the Logic App's Managed Identity so it is able to perform the operation of ‘Stop backup and retain data’ on the backup automatically in the event of a Ransomware alert. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook. Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
+The Logic App uses a user-assigned Managed Identity. You need to assign 'Security Reader' and 'Virtual Machine Contributor', 'Backup Contributor'  permissions to the Logic App's Managed Identity so it is able to perform the Disable Backup Policy operation on the backup automatically in the event of a Ransomware alert. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook. Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
 
 You need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
 
