@@ -19,7 +19,7 @@ The ARM template will create the Logic App Playbook and an API connection to Off
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
-The Logic App uses a user-assigned Managed Identity. You need to assign 'Contributor' permissions, or Security Reader and 'Virtual Machine Contributor', 'Backup Contributor'  permissions to the Logic App's Managed Identity so it is able to perform the operation of ‘Stop backup and retain data’ on the backup automatically in the event of a Ransomware alert. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook. Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
+The Logic App uses a user-assigned Managed Identity. You need to assign 'Security Reader' and 'Virtual Machine Contributor', 'Backup Contributor'  permissions to the Logic App's Managed Identity so it is able to perform the operation of ‘Stop backup and retain data’ on the backup automatically in the event of a Ransomware alert. You need to assign these roles on all subscriptions or management groups you want to monitor and manage resources in using this playbook. Notice that you can assign permissions only if your account has been assigned Owner or User Access Administrator roles, and make sure all selected subscriptions registered to Microsoft Defender for Cloud.
 
 You need to authorize the Office 365 API connection so it can access the sender mailbox and send the emails from there.
 
@@ -30,7 +30,7 @@ You need to authorize the Office 365 API connection so it can access the sender 
 3. Go to Access Control (IAM) on the navigation bar.
 4. Press +Add and Add role assignment.
 5. In Check access, go to Add role assignment.
-6. Select the 'VM Contributor' and 'Backup Contributor' Roles.
+6. Select the 'VM Contributor' , 'Backup Contributor', and 'Security Reader' Roles.
 7. Click on the Assignments tab, and seach for the name of your logic app.
 8. Assign access to Logic App.
 9. Select the subscription where the logic app was deployed.
