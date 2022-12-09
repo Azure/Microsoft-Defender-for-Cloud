@@ -15,10 +15,9 @@ The ARM template will create the Logic App Playbook and an API connection to Off
 
  
 **Create a User Assigned Managed Identity**
- To create a user-assigned managed identity, your account needs the Managed Identity Contributor role assignment. 
 
- Sign in to the Azure portal. 
-
+To create a user-assigned managed identity, your account needs the Managed Identity Contributor role assignment. 
+Sign in to the Azure portal. 
 1. In the search box, enter Managed Identities. Under Services, select Managed Identities. 
 2. Select Add, and enter values in the following boxes in the Create User Assigned Managed Identity pane: 
 3. Subscription: Choose the subscription to create the user-assigned managed identity under. 
