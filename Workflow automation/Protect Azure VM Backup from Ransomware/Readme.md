@@ -10,8 +10,24 @@ The logic app deployed using this template will prevent the loss of recovery poi
 
 **Scope:**
 
-The logic app can only be deployed at a subscription level, which means that all Azure VMs under the subscription can leverage the logic app for pausing backup pruning in the event of a security alert.
+The logic app can be deployed at a subscription level, which means that all Azure VMs under the subscription can leverage the logic app for pausing backup pruning in the event of a security alert for Ransomware detection.
 The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the Subscription.
+
+ 
+**Create a User Assigned Managed Identity**
+To create a user-assigned managed identity, your account needs the Managed Identity Contributor role assignment. 
+
+Sign in to the Azure portal. 
+
+1. In the search box, enter Managed Identities. Under Services, select Managed Identities. 
+2. Select Add, and enter values in the following boxes in the Create User Assigned Managed Identity pane: 
+3. Subscription: Choose the subscription to create the user-assigned managed identity under. 
+4. Resource group: Choose a resource group to create the user-assigned managed identity in, or select Create new to create a new resource group. 
+5. Region: Choose a region to deploy the user-assigned managed identity, for example, West US. 
+6. Name: Enter the name for your user-assigned managed identity, for example, UAI1. 
+7. Select Review + create to review the changes. 
+8. Select Create. 
+
 
 **Deploy the template by clicking the respective button below.**
 
