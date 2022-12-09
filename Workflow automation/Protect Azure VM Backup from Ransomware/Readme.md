@@ -13,7 +13,49 @@ The logic app deployed using this template will prevent the loss of recovery poi
 The logic app can be deployed at a subscription level, which means that all Azure VMs under the subscription can leverage the logic app for pausing backup pruning in the event of a security alert for Ransomware detection.
 The ARM template will create the Logic App Playbook and an API connection to Office 365, and ASCalert. In order to be able to deploy the resources, your user account needs to be granted Contributor rights on the Subscription.
 
- 
+**Create a Custom Role for Managed Identity**
+Create a json file in your machine and replace the contents with below contents
+```
+{ 
+    "properties": { 
+        "roleName": "<fill the name of the custom role>", 
+        "description": "<Fill the description>", 
+        "assignableScopes": [ 
+            "/subscriptions/<Replace with subscription id>"
+        ], 
+        "permissions": [ 
+            { 
+                "actions": [ 
+                    "Microsoft.RecoveryServices/Locations/backupStatus/action", 
+                    "Microsoft.RecoveryServices/Vaults/backupProtectedItems/read", 
+                    "Microsoft.RecoveryServices/Vaults/backupFabrics/protectionContainers/protectedItems/write", 
+                    "Microsoft.Compute/virtualMachines/read", 
+                    "Microsoft.RecoveryServices/Vaults/backupFabrics/protectionContainers/protectedItems/read", 
+                    "Microsoft.RecoveryServices/Vaults/backupFabrics/protectionContainers/protectedItems/operationResults/read", 
+                    "Microsoft.Security/*/read", 
+                    "Microsoft.Insights/alertRules/read"
+                ], 
+                "notActions": [], 
+                "dataActions": [], 
+                "notDataActions": [] 
+            } 
+        ] 
+    } 
+} 
+```
+Fill in the Custom role name, description and replace the subscription id in assignable scopes in above template.
+2. In the Azure portal, open the Access control (IAM) page. 
+3. Click Add and then click Add custom role. 
+4. Add custom role menu
+This opens the custom roles editor. 
+5. On the Basics tab, in Baseline permissions, select Start from JSON. 
+6. Next to the Select a file box, click the folder button to open the Open dialog box. 
+7. Select your JSON file and then click Open. 
+8. In the Custom role name box, specify a name for the custom role. The name must be unique for the Azure AD directory. The name can include letters, numbers, spaces, and special characters. 
+9. In the Description box, specify an optional description for the custom role. This will become the tooltip for the custom role. 
+10. Please click on Review + Create
+
+
 **Create a User Assigned Managed Identity**
 
 To create a user-assigned managed identity, your account needs the Managed Identity Contributor role assignment. 
@@ -25,7 +67,7 @@ Sign in to the Azure portal.
 5. Region: Choose a region to deploy the user-assigned managed identity, for example, West US. 
 6. Name: Enter the name for your user-assigned managed identity, for example, UAI1. 
 7. Select Review + create to review the changes. 
-8. Select Create. 
+8. Select Create.
 
 
 **Deploy the template by clicking the respective button below.**
@@ -45,7 +87,7 @@ You need to authorize the Office 365 API connection so it can access the sender 
 3. Go to Access Control (IAM) on the navigation bar.
 4. Press +Add and Add role assignment.
 5. In Check access, go to Add role assignment.
-6. Select the 'VM Contributor' , 'Backup Contributor', and 'Security Reader' Roles.
+6. Select the newly created role name in the previous section. IIf the new role is not created in the previous step, then only select 'VM Contributor' , 'Backup Contributor', and 'Security Reader' Roles.
 7. Click on the Assignments tab, and seach for the name of your logic app.
 8. Assign access to Logic App.
 9. Select the subscription where the logic app was deployed.
