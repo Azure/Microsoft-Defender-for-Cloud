@@ -43,6 +43,11 @@ You can deploy the workbook by clicking on the buttons below:
 ![GC Policy Reasons](./gc_reasons.png)
 
 ** **
+
+![Resource View](./gc_resourceview.png)
+
+** **
+
 ![Computer](./computerdetails.png)
 
 ** **
