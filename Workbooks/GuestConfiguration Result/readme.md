@@ -12,6 +12,11 @@ The workbook provides different sections:
 *	Stale Reporting
 *	GC Compliance Details, Reason and Reason Code per Checkup 
 
+**Resource View**
+* View from a Resource perspektive (independent of GC Result in ARG backend)
+* OS/SKU overview by Azure/Arc VMs
+* Overview by GC Policy, including VMs not sent a report (no checking whether policy is assigned)
+
 **By Computer**
 * Platform, SKU and Offer Overview
 * Compliance by Plattofrm and SKU
