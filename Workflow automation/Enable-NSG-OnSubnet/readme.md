@@ -16,7 +16,7 @@ This workflow responds to the following recommendations by creating a network se
 - The Logic App uses a system-assigned Managed Identity. You will need to assign the **Network Contributor** and **Reader** role to applicable subscriptions to create and associate network security groups. 
 
 ## Expected Impact
-There is no expected impact that will occur on exisitng resources when the network security group is created and associated with an existing subnets. The nsg created will only have the [default network security group rules](https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview#default-security-rules). 
+There is no expected impact that will occur on existing resources when the network security group is created and associated with an existing subnets. The nsg created will only have the [default network security group rules](https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview#default-security-rules). 
 
 Please test appropriately. 
 
@@ -24,7 +24,7 @@ Please test appropriately.
 
 You can deploy the main template by clicking on the button below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%2520automation%2FEnable-NSG-OnSubnet%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%2520automation%2FEnable-NSG-OnSubnet%2FazureDeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
@@ -35,8 +35,8 @@ You can deploy the main template by clicking on the button below:
 2. Create a new Workflow Automation in Defender for Cloud
     - Trigger Conditions
         - **Defender for Cloud data type:** Recommendation
-        - **Recomendation name:** Non-internet-facing virtual machines should be protected with network security groups and Internet-facing virtual machines should be protected with network security groups
-        - **Recomendation State:** Unhealthy
+        - **Recommendation name:** Non-internet-facing virtual machines should be protected with network security groups and Internet-facing virtual machines should be protected with network security groups
+        - **Recommendation State:** Unhealthy
 
 ## Configuration Options
 
