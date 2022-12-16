@@ -1,0 +1,695 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+
+    "metadata": {
+        "comments": "This Logic App can be set to run daily,weekly. Upon scheduled trigger it will match Azure VMs to MDE Devices and Sync the Azure VM tags to the MDE Device Tags on the Server in MDE. This can be useful to help with reporting in MDE portal and MDE Tags can also be tied to a Device Group so you can Separate Permissions to Servers and also set Automation Investigation & Remediation (AIRs) to none, Semi, or Full for the Servers onboarded to MDE from Defender for Servers P1/P2.",
+        "author": "Nathan Swift, Matt Egen"
+    },
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Sync-AzureVMTags-MDEDeviceTags",
+            "type": "String"
+        },
+        "TokenGeneration": {
+            "defaultValue": "nameprivpublic",
+            "metadata": {
+                "description": "Set how token generation occurs for Azure and MDE, values are 'name','namepriv', or 'nameprivpublic'. name matching is lowest matching on just device and azvm name, namepriv - checks name but also private ip address. nameprivpublic - hardest matching"
+            },
+            "type": "string",
+            "allowedValues": [
+                "name",
+                "namepriv",
+                "nameprivpublic"
+            ]
+        }
+    },
+    "variables": {
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                }
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                }
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "BuildMDETokenArray": {
+                            "foreach": "@body('GetMDEDevices')?['Results']",
+                            "actions": {
+                                "Switch": {
+                                    "runAfter": {},
+                                    "cases": {
+                                        "Case": {
+                                            "case": "name",
+                                            "actions": {
+                                                "Append_to_array_variable_4": {
+                                                    "runAfter": {
+                                                        "MDETokenItem3": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "MDETokenArray",
+                                                        "value": "@outputs('MDETokenItem3')"
+                                                    },
+                                                    "description": "add server based token to mde token array"
+                                                },
+                                                "MDETokenItem3": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": {
+                                                        "DeviceId": "@{items('BuildMDETokenArray')?['DeviceId']}",
+                                                        "DeviceToken": "@{first(skip(split(tolower(item()?['DeviceName']),'.'),0))}"
+                                                    },
+                                                    "description": "generate a server based token"
+                                                }
+                                            }
+                                        },
+                                        "Case_2": {
+                                            "case": "namepriv",
+                                            "actions": {
+                                                "Append_to_array_variable_3": {
+                                                    "runAfter": {
+                                                        "MDETokenItem2": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "MDETokenArray",
+                                                        "value": "@outputs('MDETokenItem2')"
+                                                    },
+                                                    "description": "add server based token to mde token array"
+                                                },
+                                                "MDETokenItem2": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": {
+                                                        "DeviceId": "@{items('BuildMDETokenArray')?['DeviceId']}",
+                                                        "DeviceToken": "@{concat(first(skip(split(tolower(item()?['DeviceName']),'.'),0)), '-', item()?['IPAddress'])}"
+                                                    },
+                                                    "description": "generate a name-priv based token"
+                                                }
+                                            }
+                                        },
+                                        "Case_3": {
+                                            "case": "nameprivpublic",
+                                            "actions": {
+                                                "Append_to_array_variable": {
+                                                    "runAfter": {
+                                                        "MDETokenItem": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type": "AppendToArrayVariable",
+                                                    "inputs": {
+                                                        "name": "MDETokenArray",
+                                                        "value": "@outputs('MDETokenItem')"
+                                                    },
+                                                    "description": "add server based token to mde token array"
+                                                },
+                                                "MDETokenItem": {
+                                                    "runAfter": {},
+                                                    "type": "Compose",
+                                                    "inputs": {
+                                                        "DeviceId": "@{items('BuildMDETokenArray')?['DeviceId']}",
+                                                        "DeviceToken": "@{concat(first(skip(split(tolower(item()?['DeviceName']),'.'),0)), '-', item()?['IPAddress'], '-', item()?['PublicIP'])}"
+                                                    },
+                                                    "description": "generate a name-priv-public based token"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "default": {
+                                        "actions": {}
+                                    },
+                                    "expression": "@variables('SetTokenGen')",
+                                    "type": "Switch",
+                                    "description": "Which Token should be generate name, namepriv, or nameprivpublic defined earlier in deployment and in variable"
+                                }
+                            },
+                            "runAfter": {
+                                "GetMDEDevices": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "For each MDE device generate a MDE Token and add it to MDE Token Array to be used in filter later against Azure tokens",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "ForEachSub": {
+                            "foreach": "@body('GetAzureSubs')?['value']",
+                            "actions": {
+                                "BuildAzureTokenArray": {
+                                    "foreach": "@body('GetAzureVMs')?['value']",
+                                    "actions": {
+                                        "Condition": {
+                                            "actions": {
+                                                "Condition_2": {
+                                                    "actions": {
+                                                        "ApplyMDETags": {
+                                                            "foreach": "@variables('TagsArray')",
+                                                            "actions": {
+                                                                "ApplyMDETag": {
+                                                                    "runAfter": {},
+                                                                    "type": "Http",
+                                                                    "inputs": {
+                                                                        "authentication": {
+                                                                            "audience": "https://api.securitycenter.windows.com/",
+                                                                            "type": "ManagedServiceIdentity"
+                                                                        },
+                                                                        "body": {
+                                                                            "Action": "Add",
+                                                                            "Value": "@{item()}"
+                                                                        },
+                                                                        "method": "POST",
+                                                                        "uri": "https://api.securitycenter.windows.com/api/machines/@{body('MatchMDEToken-AzureToken')[0]?['DeviceId']}/tags"
+                                                                    },
+                                                                    "description": "Apply Azure Tag to the matched MDE Device"
+                                                                }
+                                                            },
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArray_-_Form": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Foreach",
+                                                            "description": "Apply Azure Tags to matched MDE Device"
+                                                        },
+                                                        "Set_variable_TagsArrayString": {
+                                                            "runAfter": {},
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArrayString",
+                                                                "value": "@{string(body('GetAzureVMTags')?['properties']?['tags'])}"
+                                                            },
+                                                            "description": "JSON Object of Azure VM Tags"
+                                                        },
+                                                        "Set_variable_TagsArrayString_-_Replace": {
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArrayString": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArrayStringModify",
+                                                                "value": "@{replace(variables('TagsArrayString'), '{', '')}"
+                                                            },
+                                                            "description": "remove { character"
+                                                        },
+                                                        "Set_variable_TagsArrayString_-_Replace_2": {
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArrayString_-_Replace": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArrayString",
+                                                                "value": "@{replace(variables('TagsArrayStringModify'), '}', '')}"
+                                                            },
+                                                            "description": "remove } character"
+                                                        },
+                                                        "Set_variable_TagsArrayString_-_Replace_3": {
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArrayString_-_Replace_2": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArrayStringModify",
+                                                                "value": "@{replace(variables('TagsArrayString'), '\":\"', ':')}"
+                                                            },
+                                                            "description": "replace \":\" characters with : update the tag as a value:key string"
+                                                        },
+                                                        "Set_variable_TagsArrayString_-_Replace_4": {
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArrayString_-_Replace_3": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArrayString",
+                                                                "value": "@{replace(variables('TagsArrayStringModify'), '\"', '')}"
+                                                            },
+                                                            "description": "remove \" characters"
+                                                        },
+                                                        "Set_variable_TagsArray_-_Form": {
+                                                            "runAfter": {
+                                                                "Set_variable_TagsArrayString_-_Replace_4": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "TagsArray",
+                                                                "value": "@split(variables('TagsArrayString'), ',')"
+                                                            },
+                                                            "description": "split string using , and place results into a data array"
+                                                        }
+                                                    },
+                                                    "runAfter": {
+                                                        "GetAzureVMTags": [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@body('GetAzureVMTags')?['properties']?['tags']",
+                                                                        "@null"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If",
+                                                    "description": "Ensure Azure VM has Tags to apply to MDE Device"
+                                                },
+                                                "GetAzureVMTags": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://management.azure.com/",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "method": "GET",
+                                                        "uri": "https://management.azure.com/@{item()?['id']}/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                                                    },
+                                                    "description": "Add the Tag to the MDE Device Id that was matched in Azure"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "MatchMDEToken-AzureToken": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "not": {
+                                                            "equals": [
+                                                                "@body('MatchMDEToken-AzureToken')[0]?['DeviceId']",
+                                                                "@null"
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If",
+                                            "description": "Ensure a match is found and a device id is passed"
+                                        },
+                                        "MatchMDEToken-AzureToken": {
+                                            "runAfter": {
+                                                "Switch_2": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Query",
+                                            "inputs": {
+                                                "from": "@variables('MDETokenArray')",
+                                                "where": "@startsWith(item()?['DeviceToken'], variables('AzureTokenItem'))"
+                                            },
+                                            "description": "Match Azure Token to MDE Token Array to find device id"
+                                        },
+                                        "Set_variable_AzureToken_Null": {
+                                            "runAfter": {
+                                                "Condition": [
+                                                    "Succeeded",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "AzureTokenItem",
+                                                "value": "@{null}"
+                                            },
+                                            "description": "Reset the Azure Token to match to null to be generated for next VM"
+                                        },
+                                        "Set_variable_TagsArray": {
+                                            "runAfter": {
+                                                "Set_variable_AzureToken_Null": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "TagsArray",
+                                                "value": []
+                                            },
+                                            "description": "Reset the TagsArray to null to be generated for next VM Tags"
+                                        },
+                                        "Switch_2": {
+                                            "runAfter": {},
+                                            "cases": {
+                                                "Case": {
+                                                    "case": "name",
+                                                    "actions": {
+                                                        "Set_variable_AzureTokenItem_Name": {
+                                                            "runAfter": {},
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "AzureTokenItem",
+                                                                "value": "@{tolower(item()?['name'])}"
+                                                            },
+                                                            "description": "generate a name based token"
+                                                        }
+                                                    }
+                                                },
+                                                "Case_2": {
+                                                    "case": "namepriv",
+                                                    "actions": {
+                                                        "GetAzureVmPrivateIp": {
+                                                            "runAfter": {},
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "audience": "https://management.azure.com/",
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "method": "GET",
+                                                                "uri": "https://management.azure.com/@{item()?['properties']?['networkProfile']?['networkInterfaces'][0]?['id']}?api-version=2022-07-01&$expand"
+                                                            },
+                                                            "description": "Get Azure VM Private Ip Address"
+                                                        },
+                                                        "Set_variable_AzureTokenItem_Name-Priv": {
+                                                            "runAfter": {
+                                                                "GetAzureVmPrivateIp": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "AzureTokenItem",
+                                                                "value": "@{concat(tolower(item()?['name']), '-', body('GetAzureVmPrivateIp')?['properties']?['ipConfigurations'][0]?['properties']?['privateIPAddress'])}"
+                                                            },
+                                                            "description": "generate a name-priv based token"
+                                                        }
+                                                    }
+                                                },
+                                                "Case_3": {
+                                                    "case": "nameprivpublic",
+                                                    "actions": {
+                                                        "GetAzureVmPrivateIp2": {
+                                                            "runAfter": {},
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "audience": "https://management.azure.com/",
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "method": "GET",
+                                                                "uri": "https://management.azure.com/@{item()?['properties']?['networkProfile']?['networkInterfaces'][0]?['id']}?api-version=2022-07-01&$expand"
+                                                            },
+                                                            "description": "Get Azure VM Private Ip Address"
+                                                        },
+                                                        "GetAzureVmPublicIp": {
+                                                            "runAfter": {
+                                                                "GetAzureVmPrivateIp2": [
+                                                                    "Succeeded"
+                                                                ]
+                                                            },
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "audience": "https://management.azure.com",
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "method": "GET",
+                                                                "uri": "https://management.azure.com/@{body('GetAzureVmPrivateIp2')?['properties']?['ipConfigurations'][0]?['properties']?['publicIPAddress']?['id']}?api-version=2022-07-01"
+                                                            },
+                                                            "description": "Get Azure VM Public Ip Address"
+                                                        },
+                                                        "Set_variable_AzureTokenItem_Name-Priv-Public": {
+                                                            "runAfter": {
+                                                                "GetAzureVmPublicIp": [
+                                                                    "Succeeded",
+                                                                    "Failed"
+                                                                ]
+                                                            },
+                                                            "type": "SetVariable",
+                                                            "inputs": {
+                                                                "name": "AzureTokenItem",
+                                                                "value": "@{concat(tolower(item()?['name']), '-', body('GetAzureVmPrivateIp2')?['properties']?['ipConfigurations'][0]?['properties']?['privateIPAddress'], '-', body('GetAzureVmPublicIp')?['properties']?['ipAddress'])}"
+                                                            },
+                                                            "description": "generate a name-priv-public based token"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "default": {
+                                                "actions": {}
+                                            },
+                                            "expression": "@variables('SetTokenGen')",
+                                            "type": "Switch",
+                                            "description": "Which Azure Token should be generated name, namepriv, or nameprivpublic defined earlier in deployment and in variable"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "GetAzureVMs": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "description": "For each VM generate a Azure token and match against the MDE Token array to determine device id to set a MDE Device Tag to"
+                                },
+                                "GetAzureVMs": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{item()?['subscriptionId']}/providers/Microsoft.Compute/virtualMachines?api-version=2022-08-01"
+                                    },
+                                    "description": "Get Azure VMs in Subscription to match"
+                                }
+                            },
+                            "runAfter": {
+                                "GetAzureSubs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "get each server vm and generate a azure token to match against the MDE Token array and set a MDE Device Tag if a match occurs to the Matched MDE Device Id",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "GetAzureSubs": {
+                            "runAfter": {
+                                "BuildMDETokenArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                            },
+                            "description": "get all azure subscriptions to search for azure vms"
+                        },
+                        "GetMDEDevices": {
+                            "runAfter": {
+                                "Initialize_variable_TagsArrayStringModify": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://api.securitycenter.windows.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "Query": "@variables('AdvHuntKQLQuery')"
+                                },
+                                "method": "POST",
+                                "uri": "https://api.securitycenter.windows.com/api/advancedqueries/run"
+                            },
+                            "description": "Using advanced hunting api get the MDE Devices information to generate matching tokens array"
+                        },
+                        "Initialize_variable_AdvHuntKQLQuery": {
+                            "runAfter": {
+                                "_Initialize_variable_SetTokenGen": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AdvHuntKQLQuery",
+                                        "type": "string",
+                                        "value": "DeviceNetworkInfo | mvexpand parse_json(IPAddresses) | project IPAddress=IPAddresses.IPAddress, DeviceName, DeviceId | join kind = leftouter (DeviceInfo) on $left.DeviceId == $right.DeviceId | where DeviceType == \"Server\" or OSPlatform == \"Linux\" | where IPAddress !has \":\" | summarize by tostring(IPAddress), PublicIP, DeviceName, DeviceId"
+                                    }
+                                ]
+                            },
+                            "description": "this kql in adv hunting will lookup mde devices that are servers"
+                        },
+                        "Initialize_variable_AzureTokenItem": {
+                            "runAfter": {
+                                "Initialize_variable_MDETokenArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AzureTokenItem",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            },
+                            "description": "used later to generate a azure token to match and filter against MDE token array"
+                        },
+                        "Initialize_variable_MDETokenArray": {
+                            "runAfter": {
+                                "Initialize_variable_AdvHuntKQLQuery": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "MDETokenArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "description": "used later to filter and match azure vms against mde devices"
+                        },
+                        "Initialize_variable_TagsArray": {
+                            "runAfter": {
+                                "Initialize_variable_AzureTokenItem": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TagsArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "description": "Array for Azure Tags to be applied to MDE Device"
+                        },
+                        "Initialize_variable_TagsArrayString": {
+                            "runAfter": {
+                                "Initialize_variable_TagsArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TagsArrayString",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            },
+                            "description": "Azure Tags JSON Object converted to string and needs further string manipulation to get to a data array"
+                        },
+                        "Initialize_variable_TagsArrayStringModify": {
+                            "runAfter": {
+                                "Initialize_variable_TagsArrayString": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TagsArrayStringModify",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            },
+                            "description": "Azure Tags JSON Object converted to string and needs further string manipulation to get to a data array"
+                        },
+                        "_Initialize_variable_SetTokenGen": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "SetTokenGen",
+                                        "type": "string",
+                                        "value": "nameprivpublic"
+                                    }
+                                ]
+                            },
+                            "description": "Set how token generation occurs for Azure and MDE, values are 'name','namepriv', or 'nameprivpublic'. name matching is lowest matching on just device and azvm name, namepriv - checks name but also private ip address. nameprivpublic - hardest matching"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
