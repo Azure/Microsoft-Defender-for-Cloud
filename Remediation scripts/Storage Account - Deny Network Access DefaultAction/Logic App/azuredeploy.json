@@ -1,0 +1,413 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "workflows_SetStorageAccountDefaultAction_name": {
+            "defaultValue": "SetStorageAccountDefaultAction",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('workflows_SetStorageAccountDefaultAction_name')]",
+            "location": "eastus",
+            "tags": {
+                "displayName": "LogicApp"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Disabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "schedule": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "for_each_subscription": {
+                            "foreach": "@body('parse_output_(subscriptions)')?['value']",
+                            "actions": {
+                                "subscription_status": {
+                                    "actions": {
+                                        "for_each_storage_account": {
+                                            "foreach": "@body('parse_output_(storage_accounts)')?['value']",
+                                            "actions": {
+                                                "Condition": {
+                                                    "actions": {
+                                                        "set_storage_account_default_action": {
+                                                            "runAfter": {},
+                                                            "type": "Http",
+                                                            "inputs": {
+                                                                "authentication": {
+                                                                    "type": "ManagedServiceIdentity"
+                                                                },
+                                                                "body": {
+                                                                    "properties": {
+                                                                        "networkAcls": {
+                                                                            "defaultAction": "Deny"
+                                                                        }
+                                                                    }
+                                                                },
+                                                                "method": "PATCH",
+                                                                "uri": "https://management.azure.com@{items('for_each_storage_account')?['id']}?api-version=2022-09-01"
+                                                            }
+                                                        }
+                                                    },
+                                                    "runAfter": {},
+                                                    "expression": {
+                                                        "and": [
+                                                            {
+                                                                "not": {
+                                                                    "equals": [
+                                                                        "@items('for_each_storage_account')?['properties']?['networkAcls']?['defaultAction']",
+                                                                        "Deny"
+                                                                    ]
+                                                                }
+                                                            }
+                                                        ]
+                                                    },
+                                                    "type": "If"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "parse_output_(storage_accounts)": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Foreach"
+                                        },
+                                        "get_storage_accounts": {
+                                            "runAfter": {},
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "method": "GET",
+                                                "uri": "https://management.azure.com@{items('for_each_subscription')?['id']}/providers/Microsoft.Storage/storageAccounts?api-version=2022-09-01"
+                                            }
+                                        },
+                                        "parse_output_(storage_accounts)": {
+                                            "runAfter": {
+                                                "get_storage_accounts": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@body('get_storage_accounts')",
+                                                "schema": {
+                                                    "properties": {
+                                                        "value": {
+                                                            "items": {
+                                                                "properties": {
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "kind": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "location": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "name": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "properties": {
+                                                                        "properties": {
+                                                                            "accessTier": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "allowBlobPublicAccess": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "allowCrossTenantReplication": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "allowSharedKeyAccess": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "creationTime": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "defaultToOAuthAuthentication": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "dnsEndpointType": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "encryption": {
+                                                                                "properties": {
+                                                                                    "keySource": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "requireInfrastructureEncryption": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "services": {
+                                                                                        "properties": {
+                                                                                            "blob": {
+                                                                                                "properties": {
+                                                                                                    "enabled": {
+                                                                                                        "type": "boolean"
+                                                                                                    },
+                                                                                                    "keyType": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "lastEnabledTime": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            },
+                                                                                            "file": {
+                                                                                                "properties": {
+                                                                                                    "enabled": {
+                                                                                                        "type": "boolean"
+                                                                                                    },
+                                                                                                    "keyType": {
+                                                                                                        "type": "string"
+                                                                                                    },
+                                                                                                    "lastEnabledTime": {
+                                                                                                        "type": "string"
+                                                                                                    }
+                                                                                                },
+                                                                                                "type": "object"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "keyCreationTime": {
+                                                                                "properties": {
+                                                                                    "key1": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "key2": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "minimumTlsVersion": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "networkAcls": {
+                                                                                "properties": {
+                                                                                    "bypass": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "defaultAction": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "ipRules": {
+                                                                                        "type": "array"
+                                                                                    },
+                                                                                    "virtualNetworkRules": {
+                                                                                        "type": "array"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "primaryEndpoints": {
+                                                                                "properties": {
+                                                                                    "blob": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "dfs": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "file": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "queue": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "table": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "web": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "primaryLocation": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "privateEndpointConnections": {
+                                                                                "type": "array"
+                                                                            },
+                                                                            "provisioningState": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "publicNetworkAccess": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "statusOfPrimary": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "supportsHttpsTrafficOnly": {
+                                                                                "type": "boolean"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "sku": {
+                                                                        "properties": {
+                                                                            "name": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "tier": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "tags": {
+                                                                        "properties": {},
+                                                                        "type": "object"
+                                                                    },
+                                                                    "type": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "sku",
+                                                                    "kind",
+                                                                    "id",
+                                                                    "name",
+                                                                    "type",
+                                                                    "location",
+                                                                    "tags",
+                                                                    "properties"
+                                                                ],
+                                                                "type": "object"
+                                                            },
+                                                            "type": "array"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "equals": [
+                                                    "@items('for_each_subscription')?['state']",
+                                                    "Enabled"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
+                                }
+                            },
+                            "runAfter": {
+                                "parse_output_(subscriptions)": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach"
+                        },
+                        "get_subscriptions": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2022-09-01"
+                            }
+                        },
+                        "parse_output_(subscriptions)": {
+                            "runAfter": {
+                                "get_subscriptions": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@body('get_subscriptions')",
+                                "schema": {
+                                    "properties": {
+                                        "value": {
+                                            "items": {
+                                                "properties": {
+                                                    "authorizationSource": {
+                                                        "type": "string"
+                                                    },
+                                                    "displayName": {
+                                                        "type": "string"
+                                                    },
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "state": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionId": {
+                                                        "type": "string"
+                                                    },
+                                                    "subscriptionPolicies": {
+                                                        "properties": {
+                                                            "locationPlacementId": {
+                                                                "type": "string"
+                                                            },
+                                                            "quotaId": {
+                                                                "type": "string"
+                                                            },
+                                                            "spendingLimit": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "subscriptionId",
+                                                    "displayName",
+                                                    "state",
+                                                    "subscriptionPolicies",
+                                                    "authorizationSource"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
