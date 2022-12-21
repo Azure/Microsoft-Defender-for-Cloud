@@ -1,22 +1,6 @@
-## Introduction
-Use this deployment template to create a Logic App to enable secure transfer for storage acocunt and set's the protocol as TLS 1.2.
+# Logic App sampless to remediate Storage Account
 
-```json
-{
-  "minimumTlsVersion": "TLS1_2",
-  "supportsHttpsTrafficOnly": true
- }
-```
-The Logic App iterates through all storage account in enabled subscriptions.
-The Logic App is configured as scheduled trigger with frequency of once per day.
-Day based schedule needs to be configured atleast 24 hours prior.
-
-## Post Deployment
-- Enable Logic App
-- Enable System Manged Identity
-- Assign System Managed Identity **Storage Account Contributor** role at subscription level
-
-## Contributing
+# Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us

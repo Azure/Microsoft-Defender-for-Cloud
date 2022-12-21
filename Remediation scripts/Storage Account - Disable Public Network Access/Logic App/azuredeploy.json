@@ -2,8 +2,12 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
-        "workflows_DisableStorageAccountPublicAccess_name": {
+        "workflow_name": {
             "defaultValue": "DisableStorageAccountPublicAccess",
+            "type": "String"
+        },
+        "location": {
+            "defaultValue": "eastus",
             "type": "String"
         }
     },
@@ -12,8 +16,8 @@
         {
             "type": "Microsoft.Logic/workflows",
             "apiVersion": "2017-07-01",
-            "name": "[parameters('workflows_DisableStorageAccountPublicAccess_name')]",
-            "location": "eastus",
+            "name": "[parameters('workflow_name')]",
+            "location": "[parameters('location')]",
             "tags": {
                 "displayName": "LogicApp"
             },

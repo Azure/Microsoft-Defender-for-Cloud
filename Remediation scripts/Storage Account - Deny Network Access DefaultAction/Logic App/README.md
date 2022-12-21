@@ -7,6 +7,7 @@ Use this deployment template to create a Logic App to set Deny as DefaultAction 
 ```
 The Logic App iterates through all storage account in enabled subscriptions.
 The Logic App is configured as scheduled trigger with frequency of once per day.
+Day based schedule needs to be configured atleast 24 hours prior.
 
 ## Post Deployment
 - Enable Logic App
