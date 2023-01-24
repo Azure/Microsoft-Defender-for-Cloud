@@ -23,7 +23,7 @@ Windows 10 Hyper-V System. The guidance also works for Windows 11, see more [her
 ![Settings](../Images/settings-desktop.png?raw=true)
 2. Select **“Turn Windows features on or off”**. 
 3. Then tick the boxes associated with both Hyper-V features and click okay - **Hyper-V Management Tools** and **Hyper-V Platform**.
-![Windows Features](img src="../Images/windowsfeatures.png?raw=true)
+![Windows Features](../Images/windowsfeatures.png?raw=true)
 4. You will need to re-start your PC to let the changes take effect.
 5. Search for **Hyper-V** in the Windows search bar and open it.
 6. Download an ISO image which will install an operating system, such as Windows Server 2022, by going [here](https://www.microsoft.com/en-us/evalcenter/download-windows-server-2022).
