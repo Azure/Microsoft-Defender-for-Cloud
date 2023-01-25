@@ -1,0 +1,98 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        //relicate the parameters of the nested templates here
+                //parmaeters for user name
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine."
+            }
+        },  
+        // parameters for password
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+        // parameters for virtual network name
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "asclab-vnet",
+            "metadata": {
+                "description": "This needs to be the same name as the vNet you used in the previous deploymnet. Open the Resource Group hosting Lab environment and copy the vNet Name"
+            }
+        },
+        // parameters for storage account name
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the storage account you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the SA Name"
+            }
+        },
+        //parameters for kye vault name
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the Key Vault you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the KV Name"
+            }
+        },
+        //parameters for Azure SQL DB name
+        "sqlServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the Azure SQL Server you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the SQL Server Name"
+            }
+        }
+    },
+    "variables": {
+        "linuxVmTemplateLink": "https://raw.githubusercontent.com/gastori/LAB-DCSPM-Module/temp/nested/nested-linux-vm.json",
+        "windowsVmTemplateLink": "https://raw.githubusercontent.com/gastori/LAB-DCSPM-Module/temp/nested/nested-windows-vm.json"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "linuxVmDeployment",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxVmTemplateLink')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": { "value": "[parameters('adminUsername')]" },
+                    "adminPassword": {"value": "[parameters('adminPassword')]"},
+                    "virtualNetworkName": {"value": "[parameters('virtualNetworkName')]"},
+                    "storageAccountName": {"value": "[parameters('storageAccountName')]"},
+                    "keyVaultName": {"value": "[parameters('keyVaultName')]"},
+                    "sqlServerName": {"value": "[parameters('sqlServerName')]"}
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "windowsVmDeployment",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windowsVmTemplateLink')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "adminUsername": { "value": "[parameters('adminUsername')]" },
+                    "adminPassword": {"value": "[parameters('adminPassword')]"},
+                    "virtualNetworkName": {"value": "[parameters('virtualNetworkName')]"},
+                    "storageAccountName": {"value": "[parameters('storageAccountName')]"},
+                    "keyVaultName": {"value": "[parameters('keyVaultName')]"},
+                    "sqlServerName": {"value": "[parameters('sqlServerName')]"}
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}
