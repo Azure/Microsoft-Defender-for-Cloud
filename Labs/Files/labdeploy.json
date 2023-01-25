@@ -464,7 +464,7 @@
             "location": "[resourceGroup().location]",
             "apiVersion": "2015-08-01",
             "sku": {
-                "name": "F1"
+                "name": "S1"
             },
             "dependsOn": [],
             "tags": "[parameters('resourceTags')]",
