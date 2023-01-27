@@ -1,4 +1,4 @@
-# Custom assessments and standards in Microsoft Defender for Cloud for AWS workloads (Preview)
+# Terraform onboarding for Micorsoft Defender for Cloud
 
 ![GitHub](https://img.shields.io/github/license/azure/Microsoft-Defender-for-Cloud?label=License&style=plastic)
 ![GitHub contributors](https://img.shields.io/github/contributors/azure/Microsoft-Defender-for-Cloud?label=Contributors&style=plastic)
@@ -6,11 +6,49 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/Microsoft-Defender-for-Cloud?label=Commit%20activity&style=plastic)
 ![GitHub issues](https://img.shields.io/github/issues/azure/Microsoft-Defender-for-Cloud?label=Issues&style=plastic)
 
-Welcome to the Microsoft Defender for Cloud Custom assessments and standards in Microsoft Defender for Cloud for AWS workloads (Preview) :
+Welcome to Terraform onboarding for Micorsoft Defender for Cloud
 
-Microsoft Defender for Cloud implements AWS security recommendations in the Defender for Cloud portal right alongside Azure recommendations. 
-There are more than 160 out-of-box recommendations for IaaS and PaaS services as well as support for regulatory standards including CIS, PCI and AWS 
-Foundational Security Best Practices.
-Check out the security recommendations for AWS resources here. To learn more about Defender for cloud and it’s support for AWS, check out this article. 
-You should continuously review the security recommendations to assess and evaluate the current status of your platform's security posture and identify 
-important configuration gaps. 
+## Creating resources in the destination cloud
+
+To create the necessary resources (like roles) in AWS/GCP, perform the following actions:
+
+* Clone the relevant cloud folder with the terraform template 
+
+```
+Templates --> GCP --> Local
+```
+
+* Create variables file (.tfvars) containing the needed variable 
+
+``` 
+project_id = 123456789
+workload pool id is the tenant id on Azure workload_pool_id
+```
+
+* Run terraform commands to deploy
+
+```
+terraform init terraform plan -var-file=cloud_vars.tfvars terraform apply -var-file=cloud_vard.tfvars
+```
+
+## Creating the security connector in Azure
+
+To create the security connector in Azure, perform the following actions:
+
+* Clone the MultipleAccount folder
+* Create variables file (.tfvars) containing the needed variable 
+
+``` 
+account_id_or_project_number = ["123415589123", "12343123123"] 
+gcp_project_names = ["project_example1", "project_example2"] 
+mdc_azure_resource_group_name = "rg_gcp_corp_projects" 
+mdc_azure_resource_group_prefix = ["first", "second"] 
+mdc_azure_resource_group_location = "westeurope" 
+mdc_cloud_type = "GCP"
+```
+
+* Run terraform commands to deploy 
+
+```
+terraform init terraform plan -var-file=cloud_vars.tfvars terraform apply -var-file=cloud_vard.tfvars
+```
