@@ -1,4 +1,4 @@
-﻿#---------------------------------------------------------------------------------------------------
+﻿﻿#---------------------------------------------------------------------------------------------------
 # Script to generate a .csv report of failed MDE. VM Extensions, useful for filtering and grouping
 #---------------------------------------------------------------------------------------------------
 
@@ -9,7 +9,8 @@ $csvpath = "C:\temp\mdeextreport.csv"
 $outputFile = $path
 
 #Set and apply 1st line of csv headers
-$string = "VM Name,VM Extension,VM Extension Status,VM Extension Error,VM Extension Detailed Errors"
+# FUTURE # ,VM Extension Detailed Errors
+$string = "Subscription,VM Name,VM Extension,OS,VM Extension Status,Error Code,Error Description,VM Extension Error"
 $string | Out-File $outputFile -append -force
 
 # get all subscriptions
@@ -29,22 +30,49 @@ foreach($sub in $subs){
     foreach($vm in $vms){
 
         #get particular extension details of VM
-        $vm = Get-AzVm -ResourceGroupName $vm.ResourceGroupName  -Name $vm.Name -Status
+        $vme = Get-AzVm -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name -Status
 
         # conditional check for VM if it has MDE extension
-        if($vm.Extensions.Name -match "MDE"){
+        if($vme.Extensions.Name -match "MDE"){
 
             # set variable for status level of MDE extension
-            $level = ($vm.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level
+            $level = ($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level
 
             # if the mde extension is not successful then generate a entry in the report for the vm and informnationa round mde extension
             if($level -ne "Info"){
             
                 # future build for sub status detailed errors, is in a list, would need to foreach and join into a single string with a unique delimiter
-                $SubMessages = ($vm.Extensions | where-Object {($_.Name -match "MDE")}).Substatuses.message
+                $SubMessages = ($vme.Extensions | where-Object {($_.Name -match "MDE")}).Substatuses.message
+
+                $code = (($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.message).split(' ')[16]
+
+                # Define Hashtables for switch lookup rather than IF
+                $codedesc = switch ($code) 
+                    { 
+	                    1 {"ERR_INTERNAL"}
+                        2 {"ERR_INVALID_ARGUMENTS"}
+                        3 {"ERR_INSUFFICIENT_PRIVILAGES"}
+                        4 {"ERR_NO_INTERNET_CONNECTIVITY"}
+                        5 {"ERR_CONFLICTING_APPS"}
+                        10 {"ERR_UNSUPPORTED_DISTRO"}
+                        11 {"ERR_UNSUPPORTED_VERSION"}
+                        12 {"ERR_INSUFFICIENT_REQUIREMENTS"}
+                        20 {"ERR_MDE_NOT_INSTALLED"}
+                        21 {"ERR_INSTALLATION_FAILED"}
+                        22 {"ERR_UNINSTALLATION_FAILED"}
+                        23 {"ERR_FAILED_DEPENDENCY"}
+                        24 {"ERR_FAILED_REPO_SETUP"}
+                        25 {"ERR_INVALID_CHANNEL"}
+                        26 {"ERR_FAILED_REPO_CLEANUP"}
+                        30 {"ERR_ONBOARDING_NOT_FOUND"}
+                        31 {"ERR_ONBOARDING_FAILED"}
+                        40 {"ERR_TAG_NOT_SUPPORTED"}
+                        41 {"ERR_PARAMETER_SET_FAILED"}
+                        default {"ERR_UNKNOWNCODE"}
+                    }
 
                 #generate entry for report
-                $string = "$($vm.Name), $(($vm.Extensions | where-Object {($_.Name -match "MDE")}).Name), $(($vm.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level), $(($vm.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.Message)"               
+                $string = "$($sub.Name),$($vme.Name), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Name), $($vm.StorageProfile.ImageReference.sku), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level), $($code), $($codedesc), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.Message)"               
                 
                 #output entry into report
                 $string | Out-File $outputFile -append -force
