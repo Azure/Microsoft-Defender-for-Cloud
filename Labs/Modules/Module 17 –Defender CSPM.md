@@ -32,13 +32,13 @@ dcspmlab-nix | Virtual machine | Linux Server
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmaster%2FLabs%2FFiles%2Fdcspmlabdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
   
-2.	You will be redirected to Azure Portal > custom deployment page where you should specify mandatory fields for deployment.
+2.	You will be redirected to **Azure Portal** > **custom deployment** page where you should specify mandatory fields for deployment.
 ![image](https://user-images.githubusercontent.com/102209701/215821808-99521c72-065c-4078-af9c-893ac8719e24.png)
 
  
-3.	On the subscription field, select Azure subscription used in Module 1.
-4.	On the resource group field, click on **select existing** and select asclab (you can pick any name you want or keep the default).
-5.	On the parameters section, select the data center **region** you deployed the ARM Template in Module 1 (all downstream resources will be created in the same region as the resource group).
+3.	On the **subscription** field, select Azure subscription used in **Module 1**.
+4.	On the **Resource group** field, click on **select existing** and select asclab (you can pick any name you want or keep the default).
+5.	On the Instance Details section, select the data center **region** you deployed the ARM Template in **Module 1** (all downstream resources will be created in the same region as the resource group).
 6.	Select **Admin Username** and **Admin password** that will be used for Windows Virtual Machine and Linux Virtual Machine you are deploying.
 Notice that password must be between 12 and 72 characters and have 3 of the following: 1 lower case, 1 upper case, 1 number and 1 special character.
 7.	Select **Storage Account Name** (asclabsa[uniqestring]), **Key Vault Name** (asclab-kv-[uniqestring]), and **Sql Server Name** (asclab-sql-[uniqestring]) you already deployed in Module 1. 
