@@ -4,6 +4,7 @@
 
 #### 💁 Authors: 
 Vasavi Pasula [Github](https://github.com/vapasula), [Linkedin](https://www.linkedin.com/in/pasulavasavi/)
+
 Giulio Astori [Github](https://github.com/gastori), [Linkedin](https://www.linkedin.com/in/giulioastori/)
 
 #### 🎓 Level: 200 (Intermediate)
@@ -53,7 +54,7 @@ dcspmlab-winsrv | Virtual machine | Windows Server
 dcspmlab-nix | Virtual machine | Linux Server
 
 ## Exercise 2: Enabling Defender CSPM plan
-To gain access to the capabilities provided by Defender CSPM, you'll need to enable the Defender Cloud Security Posture Management (CSPM) plan on your subscription
+To gain access to the capabilities provided by Defender CSPM, you'll need to <a href="https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security">enable the Defender Cloud Security Posture Management (CSPM) plan </a> on your subscription
 1.	Open Azure Portal and navigate to Microsoft Defender for Cloud blade.
 2.	From Defender for Cloud's menu, open the Environment Settings page and select the relevant subscription.
 3.	In the Defender plans page, select Defender CSPM turn the status to ON and select Settings under Monitoring Coverage.
