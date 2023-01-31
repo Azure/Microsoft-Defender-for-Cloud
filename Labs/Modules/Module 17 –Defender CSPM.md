@@ -4,8 +4,8 @@
 
 #### 💁 Authors: 
 Vasavi Pasula [Github](https://github.com/vapasula), [Linkedin](https://www.linkedin.com/in/pasulavasavi/)
-
 Giulio Astori [Github](https://github.com/gastori), [Linkedin](https://www.linkedin.com/in/giulioastori/)
+
 #### 🎓 Level: 200 (Intermediate)
 #### ⌛ Estimated time to complete this lab: 60 minutes
 <br />
@@ -21,11 +21,15 @@ If you already finished Module 1 of this lab, (Module 1 – Preparing the Enviro
 As part of this exercise, you will create an environment using an automated deployment based on ARM template. 
 
 The following list of resources will be deployed during the provisioning process (including dependencies like disks, network interfaces, public IP addresses, etc.):
-Name	Resource Type	Purpose
-dcspmlab-winsrv	Virtual machine	Windows Server
-dcspmlab-nix	Virtual machine	Linux Server
+Name | Resource Type | Purpose
+-----| ------------- | -------
+dcspmlab-winsrv | Virtual machine | Windows Server
+dcspmlab-nix | Virtual machine | Linux Server
 
-1.	Prepare your lab environment by clicking on the blue Deploy to Azure button below:
+
+1.	Prepare your lab environment by clicking on the blue **Deploy to Azure** button below:
+
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmaster%2FLabs%2FFiles%2Fdcspmlabdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
   
 2.	You will be redirected to Azure Portal > custom deployment page where you should specify mandatory fields for deployment.
  
