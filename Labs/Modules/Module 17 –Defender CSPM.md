@@ -32,6 +32,8 @@ dcspmlab-nix | Virtual machine | Linux Server
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmaster%2FLabs%2FFiles%2Fdcspmlabdeploy.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
   
 2.	You will be redirected to Azure Portal > custom deployment page where you should specify mandatory fields for deployment.
+![image](https://user-images.githubusercontent.com/102209701/215821808-99521c72-065c-4078-af9c-893ac8719e24.png)
+
  
 3.	On the subscription field, select Azure subscription 1.
 4.	On the resource group field, click on select existing and select asclab (you can pick any name you want or keep the default).
