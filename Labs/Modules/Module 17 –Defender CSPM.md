@@ -16,7 +16,7 @@ In this exercise, you will learn how to enable Defender for CSPM, and leverage D
 
 ## Exercise 1: Preparing the Environment for DCSPM plan
 
-Pre-requisites: Deploy the Environment in ** Module 1 - Preparing the Environment **
+Pre-requisites: Deploy the Environment in **Module 1 - Preparing the Environment **
 
 If you already finished Module 1 of this lab, (Module 1 – Preparing the Environment), you will deploy an extended environment for Defender CSPM plan.
 As part of this exercise, you will create an environment using an automated deployment based on ARM template. 
