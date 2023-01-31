@@ -80,10 +80,12 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From Defender for Cloud's menu, open the **Recommendations** page
 3.	You will find Attack path tab as below:
+
  ![image](https://user-images.githubusercontent.com/102209701/215828282-358965da-9a0f-4467-846a-2572cf6d8cb8.png)
 
 4.	Click on **Attack path**. You will find the Attack Paths in your Environment. 
 5.	Click on **“Internet exposed VM has High severity vulnerabilities and read permission to key vault”**
+
 ![image](https://user-images.githubusercontent.com/102209701/215828721-bad6c2ba-a3dc-4984-91b9-f8b15dab6ad4.png)
  
 6.	You can observe the Attack path and the resources involved in the attack path.
@@ -93,6 +95,7 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 ## Exercise 4: Build query with Cloud Security Explorer
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From Defender for Cloud's menu, open the **Cloud Security Explorer(preview)** page
+
  ![image](https://user-images.githubusercontent.com/102209701/215828929-98a0e9fe-1f0e-4ac8-97f5-4bed96d0d174.png)
 
 3.	Select a predefined query Template **“Internet exposed VMs with high severity vulnerabilities”** and click on **Search**
@@ -100,19 +103,24 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 5.	Select a predefined query Template **“Internet exposed SQL servers with managed identity”** and click on **Search**
 6.	You will find the list of SQL servers with managed identity.
 7.	You can also explore and build your own queries using query builder as shown below: In the dropdown select ->Virtual machines ->Insight ->Title -> vulnerable to remote code execution.
+
  ![image](https://user-images.githubusercontent.com/102209701/215829274-f268ffbd-2da6-4692-98d7-db11f05e6013.png)
 
 8.	Explore your Environment for Virtual Machines with a specific vulnerability 
+
  ![image](https://user-images.githubusercontent.com/102209701/215829372-74895012-7beb-4a09-b34d-cd4ad18d2fa8.png)
 
 9.	Explore your Environment for Storage Accounts exposed to the Internet
+
  ![image](https://user-images.githubusercontent.com/102209701/215829437-b12e741d-48e1-43e8-834f-71996fcf6645.png)
 
 10.	Explore your Environment for Virtual machines with a managed identity 
+
 ![image](https://user-images.githubusercontent.com/102209701/215829494-1cb52fc0-1844-437a-aee0-d194d03049ea.png)
 
  
 ## Exercise 5: Assign Governance Rule
+
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From Defender for Cloud's menu, open the **Environment Settings** page and select the relevant subscription.
 3.	Under **settings** Select **Governance Rules(Preview)**
@@ -120,10 +128,12 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 5.	Give a **rule name**, select **scope** at subscription level, **priority** 100
 6.	Under **conditions**, select **By severity -> High**, **Owner -> By email address**, specify the email address of the workload owner to receive notification email, **Remediation timeframe -> 90 days**
 7.	**Notify Owners weekly about open and overdue tasks** and click **Save**.
+
  ![image](https://user-images.githubusercontent.com/102209701/215829686-cd5fc20c-32be-4822-be5f-04e5f85563c5.png)
 
 8.	Click on **Governance report** to view the status of tasks **Complete, Overdue, Ontime, Unassign**
-9.	![image](https://user-images.githubusercontent.com/102209701/215830577-947675fb-2f05-44a0-9482-fbd58a86d360.png)
+
+ ![image](https://user-images.githubusercontent.com/102209701/215830577-947675fb-2f05-44a0-9482-fbd58a86d360.png)
 
  
 
