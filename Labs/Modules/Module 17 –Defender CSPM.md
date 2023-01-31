@@ -35,23 +35,24 @@ dcspmlab-nix | Virtual machine | Linux Server
 ![image](https://user-images.githubusercontent.com/102209701/215821808-99521c72-065c-4078-af9c-893ac8719e24.png)
 
  
-3.	On the subscription field, select Azure subscription 1.
-4.	On the resource group field, click on select existing and select asclab (you can pick any name you want or keep the default).
-5.	On the parameters section, select the data center region you deployed the ARM Template in Module 1 (all downstream resources will be created in the same region as the resource group).
-6.	Select Admin Username and Admin password that will be used for Windows Virtual Machine and Linux Virtual Machine you are deploying.
+3.	On the subscription field, select Azure subscription used in Module 1.
+4.	On the resource group field, click on **select existing** and select asclab (you can pick any name you want or keep the default).
+5.	On the parameters section, select the data center **region** you deployed the ARM Template in Module 1 (all downstream resources will be created in the same region as the resource group).
+6.	Select **Admin Username** and **Admin password** that will be used for Windows Virtual Machine and Linux Virtual Machine you are deploying.
 Notice that password must be between 12 and 72 characters and have 3 of the following: 1 lower case, 1 upper case, 1 number and 1 special character.
-7.	Select Storage Account Name (asclabsa[uniqestring]), Key Vault Name (asclab-kv-[uniqestring]), and Sql Server Name (asclab-sql-[uniqestring]) you already deployed in Module 1. 
-8.	Click Review + create to start the validation process. Once validation passed, click on Create to start the ARM deployment on your subscription.
-9.	The deployment takes about 10 minutes to complete.
+7.	Select **Storage Account Name** (asclabsa[uniqestring]), **Key Vault Name** (asclab-kv-[uniqestring]), and **Sql Server Name** (asclab-sql-[uniqestring]) you already deployed in Module 1. 
+8.	Click **Review + create** to start the validation process. Once validation passed, click on **Create** to start the ARM deployment on your subscription.
+9.	The deployment takes about **10 minutes** to complete.
 The deployment is in progress page continues to update and show the resources being uploaded to the environment assuming the deployment is successful.
 
-You can also check the progress of your deployment if you click on your created resource group details, then click on Deployments (1 deploying).
+You can also check the progress of your deployment if you click on your created resource group details, then click on **Deployments** (1 deploying).
 When the deployment is complete, you should see the following:
-Name	Resource Type	Purpose
-dcspmlab-winsrv	Virtual machine	Windows Server
-dcspmlab-nix	Virtual machine	Linux Server
+Name | Resource Type | Purpose
+-----| ------------- | -------
+dcspmlab-winsrv | Virtual machine | Windows Server
+dcspmlab-nix | Virtual machine | Linux Server
 
-Exercise 2: Enabling Defender CSPM plan
+## Exercise 2: Enabling Defender CSPM plan
 To gain access to the capabilities provided by Defender CSPM, you'll need to enable the Defender Cloud Security Posture Management (CSPM) plan on your subscription
 1.	Open Azure Portal and navigate to Microsoft Defender for Cloud blade.
 2.	From Defender for Cloud's menu, open the Environment Settings page and select the relevant subscription.
@@ -60,7 +61,7 @@ To gain access to the capabilities provided by Defender CSPM, you'll need to ena
 5.	Click on Save to save the changes 
 Agentless scanning for VMs provides vulnerability assessment and software inventory in 24 hours. Leave the setup and comeback after 24 hours.
  
-Exercise 3: Explore Attack Paths in your Environment
+## Exercise 3: Explore Attack Paths in your Environment
 1.	Open Azure Portal and navigate to Microsoft Defender for Cloud blade.
 2.	From Defender for Cloud's menu, open the Recommendations page
 3.	You will find Attack path tab as below:
@@ -71,7 +72,8 @@ Exercise 3: Explore Attack Paths in your Environment
 6.	You can observe the Attack path and the resources involved in the attack path.
 7.	Remediate the recommendations to resolve the attack path 
 8.	Explore the rest of the Attack paths found in your Environment and remidiate
-Exercise 4: Build query with Cloud Security Explorer
+
+## Exercise 4: Build query with Cloud Security Explorer
 1.	Open Azure Portal and navigate to Microsoft Defender for Cloud blade.
 2.	From Defender for Cloud's menu, open the Cloud Security Explorer(preview) page
  
