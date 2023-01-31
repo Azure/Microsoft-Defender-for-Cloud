@@ -1,11 +1,26 @@
-# Module 17 –Defender CSPM
-Level: 200 (Intermediate)
-⌛ Estimated time to complete this lab: 30 minutes
-Objectives
+# Module 17 – Defender CSPM  
+
+<p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
+
+#### 💁 Authors: 
+Vasavi Pasula [Github](https://github.com/vapasula), [Linkedin](https://www.linkedin.com/in/pasulavasavi/)
+
+Giulio Astori [Github](https://github.com/gastori), [Linkedin](https://www.linkedin.com/in/giulioastori/)
+#### 🎓 Level: 200 (Intermediate)
+#### ⌛ Estimated time to complete this lab: 60 minutes
+<br />
+
+## Objectives
 In this exercise, you will learn how to enable Defender for CSPM, and leverage Defender for CSPM Capabilities
-Exercise 1: Preparing the Environment for DCSPM plan
+
+## Exercise 1: Preparing the Environment for DCSPM plan
+
+Pre-requisites: Deploy the Environment in ** Module 1 - Preparing the Environment **
+
 If you already finished Module 1 of this lab, (Module 1 – Preparing the Environment), you will deploy an extended environment for Defender CSPM plan.
-As part of this exercise, you will create an environment using an automated deployment based on ARM template. An ARM template is a JavaScript Object Notation (JSON) file that defines the infrastructure and configuration for your project. The template uses declarative syntax, which lets you state what you intend to deploy without having to write the sequence of programming commands to create it. The following list of resources will be deployed during the provisioning process (including dependencies like disks, network interfaces, public IP addresses, etc.):
+As part of this exercise, you will create an environment using an automated deployment based on ARM template. 
+
+The following list of resources will be deployed during the provisioning process (including dependencies like disks, network interfaces, public IP addresses, etc.):
 Name	Resource Type	Purpose
 dcspmlab-winsrv	Virtual machine	Windows Server
 dcspmlab-nix	Virtual machine	Linux Server
