@@ -1,8 +1,8 @@
-﻿﻿#---------------------------------------------------------------------------------------------------
+﻿﻿﻿#---------------------------------------------------------------------------------------------------
 # Script to generate a .csv report of failed MDE. VM Extensions, useful for filtering and grouping
 #---------------------------------------------------------------------------------------------------
 
-# Outputfile for MDE extension error report
+# Outputfile for MDE extension error report thresholds
 
 $path = "C:\temp\mdeextreport.txt"
 $csvpath = "C:\temp\mdeextreport.csv"
@@ -10,7 +10,7 @@ $outputFile = $path
 
 #Set and apply 1st line of csv headers
 # FUTURE # ,VM Extension Detailed Errors
-$string = "Subscription,VM Name,VM Extension,OS,VM Extension Status,Error Code,Error Description,VM Extension Error"
+$string = "Subscription,VM Name,VM Extension,OS,VM Extension Status,Error Code,Error Description,VM Extension Error, VM Extension Error Details"
 $string | Out-File $outputFile -append -force
 
 # get all subscriptions
@@ -44,6 +44,12 @@ foreach($sub in $subs){
                 # future build for sub status detailed errors, is in a list, would need to foreach and join into a single string with a unique delimiter
                 $SubMessages = ($vme.Extensions | where-Object {($_.Name -match "MDE")}).Substatuses.message
 
+                $modstring = $SubMessages.Split('')
+                $modstring = $modstring.Split("'`n'")
+                $modstring = $modstring.Split("'`t'")
+                $modstring = $modstring.Split("'`r'")
+                $modstring = $modstring.Split('`,')
+
                 $code = (($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.message).split(' ')[16]
 
                 # Define Hashtables for switch lookup rather than IF
@@ -72,7 +78,7 @@ foreach($sub in $subs){
                     }
 
                 #generate entry for report
-                $string = "$($sub.Name),$($vme.Name), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Name), $($vm.StorageProfile.ImageReference.sku), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level), $($code), $($codedesc), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.Message)"               
+                $string = "$($sub.Name),$($vme.Name), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Name), $($vm.StorageProfile.ImageReference.sku), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.level), $($code), $($codedesc), $(($vme.Extensions | where-Object {($_.Name -match "MDE")}).Statuses.Message), $($modstring)"               
                 
                 #output entry into report
                 $string | Out-File $outputFile -append -force
