@@ -1,6 +1,9 @@
 # Microsoft Defender for Servers - CVE Dashboard
 
-**Author: Tom Janetscheck**
+| Version | Description | Author | Date |
+| ------ | ------ | ------ | ------ |
+| 1.0 | Initial release | [Tom Janetscheck](https://github.com/tomjanetscheck)| 8/15/2022 |
+| 1.1 | Adding support for EC2 instances and agentless VA scanning | [Tom Janetscheck](https://github.com/tomjanetscheck) | 2/3/2023 |
 
 This interactive workbook provides an overview of machines in your environment that are affected by open vulnerabilities with a focus on CVE IDs. It will show vulnerability findings for either Microsoft Defender Vulnerability Management, or the integrated Qualys VA scanner.
 
