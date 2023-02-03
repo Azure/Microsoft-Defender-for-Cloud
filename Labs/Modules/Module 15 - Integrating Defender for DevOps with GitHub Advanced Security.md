@@ -98,9 +98,9 @@ jobs:
       fail-fast: true
       
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     
-    - uses: actions/setup-dotnet@v1
+    - uses: actions/setup-dotnet@v3
       with:
         dotnet-version: |
           5.0.x
