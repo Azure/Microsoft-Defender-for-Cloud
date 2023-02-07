@@ -120,6 +120,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 3: Explore Attack Paths in your Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-3-explore-attack-paths-in-your-environment)
 - [Exercise 4: Build query with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-4-build-query-with-cloud-security-explorer)
 - [Exercise 5: Assign Governance Rule](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-5-assign-governance-rule)
+
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
 ## Acronyms
