@@ -1,11 +1,5 @@
 # Terraform onboarding for Micorsoft Defender for Cloud
 
-![GitHub](https://img.shields.io/github/license/azure/Microsoft-Defender-for-Cloud?label=License&style=plastic)
-![GitHub contributors](https://img.shields.io/github/contributors/azure/Microsoft-Defender-for-Cloud?label=Contributors&style=plastic)
-![GitHub last commit (branch)](https://img.shields.io/github/last-commit/azure/Microsoft-Defender-for-Cloud/main?label=Last%20commit&style=plastic)
-![GitHub commit activity](https://img.shields.io/github/commit-activity/m/azure/Microsoft-Defender-for-Cloud?label=Commit%20activity&style=plastic)
-![GitHub issues](https://img.shields.io/github/issues/azure/Microsoft-Defender-for-Cloud?label=Issues&style=plastic)
-
 Welcome to Terraform onboarding for Micorsoft Defender for Cloud
 
 ## Creating resources in the destination cloud
