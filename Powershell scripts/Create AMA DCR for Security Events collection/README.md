@@ -4,7 +4,7 @@
 
 ## Description
 
-This script only creates the Data Collection Rule. Don't forget to create the Data Collection Rule Associations for each of the Virtual Machines you want to collect Security Events from.
+**This script only creates the Data Collection Rule**. Don't forget to create the Data Collection Rule Associations for each of the Virtual Machines you want to collect Security Events from.
 
 ## Usage
 
