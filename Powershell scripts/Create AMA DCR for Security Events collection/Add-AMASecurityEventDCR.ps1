@@ -19,8 +19,22 @@ param (
     [string]$EventFilter = "AllEvents",
 
     [Parameter(Mandatory = $false)]
-    [string]$CustomEventFilter
+    [string[]]$CustomEventFilter
 )
+
+$ctx = Get-AzContext
+if ($null -eq $ctx) {
+    Write-Error "No Azure context found. Logging in to Azure..."
+    Connect-AzAccount -SubscriptionId $SubscriptionId
+}
+else
+{
+    if (-not(Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionId })) {
+        Write-Error "Subscription $SubscriptionId not found in current Azure context. Logging in to Azure..."
+        Disconnect-AzAccount -Scope Process
+        Connect-AzAccount -SubscriptionId $SubscriptionId
+    }
+}
 
 if ($EventFilter -eq "Custom") {
     if ([string]::IsNullOrEmpty($CustomEventFilter)) {
@@ -97,7 +111,7 @@ $body = @'
                     "streams": [
                         "Microsoft-SecurityEvent"
                     ],
-                    "xPathQueries": [ <XPATH Queries> ],
+                    "xPathQueries": [ <XPath Queries> ],
                     "name": "eventLogsDataSource"
                 }
             ]
@@ -129,7 +143,7 @@ $body = @'
 }
 '@
 
-$body = $body.Replace("<XPATH Queries>", '"' + ($xPathQueries -join '","') + '"')
+$body = $body.Replace("<XPath Queries>", '"' + ($xPathQueries -join '","') + '"')
 $body = $body.Replace("<Log Analytics Workspace ARM Id>", $LogAnalyticsWorkspaceARMId)
 $body = $body.Replace("<Log Analytics Workspace Id>", $logAnalyticsWorkspaceId)
 $body = $body.Replace("<Azure Region>", $Region)
