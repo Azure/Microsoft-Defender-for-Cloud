@@ -46,6 +46,193 @@
             "westus",
             "westus2"
           ]
+        },
+        {
+          "anyOf": [
+            {
+              "field": "Microsoft.Compute/imageId",
+              "in": "[parameters('listOfWindowsImageIdToInclude')]"
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServer"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2008-R2-SP1*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2012-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2016-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2019-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2022-*"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServerSemiAnnual"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "in": [
+                    "Datacenter-Core-1709-smalldisk",
+                    "Datacenter-Core-1709-with-Containers-smalldisk",
+                    "Datacenter-Core-1803-with-Containers-smalldisk"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServerHPCPack"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServerHPCPack"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftSQLServer"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2022"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2022-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2019"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2019-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2016"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2016-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2012R2"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2012R2-BYOL"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftRServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "MLServer-WS2016"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftVisualStudio"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "in": [
+                    "VisualStudio",
+                    "Windows"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftDynamicsAX"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "Dynamics"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "equals": "Pre-Req-AX7-Onebox-U8"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "microsoft-ads"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "windows-data-science-vm"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsDesktop"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "Windows-10"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -71,7 +258,7 @@
           ]
         },
         "deployment": {
-          "location": "[parameters('dcrRegion')]",
+          "location": "westeurope",
           "properties": {
             "mode": "incremental",
             "parameters": {
@@ -89,6 +276,12 @@
               },
               "dcrResourceGroup": {
                 "value": "[parameters('dcrResourceGroup')]"
+              },
+              "eventFilter": {
+                "value": "[parameters('eventFilter')]"
+              },
+              "listOfCustomEventFilters": {
+                "value": "[parameters('listOfCustomEventFilters')]"
               }
             },
             "template": {
@@ -109,6 +302,12 @@
                 },
                 "dcrResourceGroup": {
                   "type": "string"
+                },
+                "eventFilter": {
+                  "type": "string"
+                },
+                "listOfCustomEventFilters": {
+                  "type": "array"
                 }
               },
               "variables": {
@@ -118,7 +317,12 @@
                 "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('dcrResourceGroup'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
                 "dcraName": "[concat(parameters('vmName'),'/Microsoft.Insights/SecurityEvents-RulesAssociation')]",
                 "deployDefaultAmaDcrResourceGroup": "[concat('deployDefaultAmaDcrResourceGroup-', uniqueString(deployment().name))]",
-                "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]"
+                "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]",
+                "xPathQueries": {
+                  "AllEvents": ["Security!*", "Microsoft-Windows-AppLocker/EXE and DLL!*","Microsoft-Windows-AppLocker/MSI and Script!*"],
+                  "Common": ["Security!*[System[(EventID=4624 or EventID=4625)]]", "Security!*[System[(EventID=4648 or EventID=4649)]]", "Security!*[System[(EventID=4672 or EventID=4673)]]", "Security!*[System[(EventID=4688 or EventID=4689)]]", "Security!*[System[(EventID=4697 or EventID=4698)]]", "Security!*[System[(EventID=4720 or EventID=4722)]]", "Security!*[System[(EventID=4723 or EventID=4724)]]", "Security!*[System[(EventID=4725 or EventID=4726)]]", "Security!*[System[(EventID=4732 or EventID=4733)]]", "Security!*[System[(EventID=4738 or EventID=4739)]]", "Security!*[System[(EventID=4740 or EventID=4741)]]", "Security!*[System[(EventID=4742 or EventID=4743)]]", "Security!*[System[(EventID=4746 or EventID=4747)]]", "Security!*[System[(EventID=4756 or EventID=4757)]]", "Security!*[System[(EventID=4767 or EventID=4768)]]", "Security!*[System[(EventID=4776 or EventID=4778)]]", "Security!*[System[(EventID=4779 or EventID=4780)]]", "Security!*[System[(EventID=4798 or EventID=4799)]]", "Security!*[System[(EventID=4800 or EventID=4801)]]", "Security!*[System[(EventID=4802 or EventID=4803)]]", "Security!*[System[(EventID=4808 or EventID=4809)]]", "Security!*[System[(EventID=4816 or EventID=4817)]]", "Security!*[System[(EventID=4826 or EventID=4827)]]", "Security!*[System[(EventID=4904 or EventID=4905)]]", "Security!*[System[(EventID=4906 or EventID=4907)]]"],
+                  "Minimal": ["Security!*[System[(EventID=4624 or EventID=4625)]]", "Security!*[System[(EventID=4648 or EventID=4649)]]", "Security!*[System[(EventID=4672 or EventID=4673)]]", "Security!*[System[(EventID=4688 or EventID=4689)]]", "Security!*[System[(EventID=4697 or EventID=4698)]]", "Security!*[System[(EventID=4720 or EventID=4722)]]", "Security!*[System[(EventID=4723 or EventID=4724)]]", "Security!*[System[(EventID=4725 or EventID=4726)]]", "Security!*[System[(EventID=4732 or EventID=4733)]]", "Security!*[System[(EventID=4738 or EventID=4739)]]", "Security!*[System[(EventID=4740 or EventID=4741)]]", "Security!*[System[(EventID=4742 or EventID=4743)]]", "Security!*[System[(EventID=4746 or EventID=4747)]]", "Security!*[System[(EventID=4756 or EventID=4757)]]", "Security!*[System[(EventID=4767 or EventID=4768)]]", "Security!*[System[(EventID=4776 or EventID=4778)]]", "Security!*[System[(EventID=4779 or EventID=4780)]]", "Security!*[System[(EventID=4798 or EventID=4799)]]", "Security!*[System[(EventID=4800 or EventID=4801)]]", "Security!*[System[(EventID=4802 or EventID=4803)]]", "Security!*[System[(EventID=4808 or EventID=4809)]]", "Security!*[System[(EventID=4816 or EventID=4817)]]", "Security!*[System[(EventID=4826 or EventID=4827)]]", "Security!*[System[(EventID=4904 or EventID=4905)]]", "Security!*[System[(EventID=4906 or EventID=4907)]]"]
+                }
               },
               "resources": [
                 {
@@ -149,6 +353,9 @@
                       },
                       "dcrId": {
                         "value": "[variables('dcrId')]"
+                      },
+                      "xPathQueries": {
+                        "value": "[if(equals(parameters('eventFilter'),'AllEvents'),variables('xpathQueries').AllEvents,if(equals(parameters('eventFilter'),'Common'),variables('xpathQueries').Common,if(equals(parameters('eventFilter'),'Minimal'),variables('xpathQueries').Minimal,parameters('listOfCustomEventFilters'))))]"
                       }
                     },
                     "template": {
@@ -166,6 +373,9 @@
                         },
                         "dcrId": {
                           "type": "string"
+                        },
+                        "xPathQueries": {
+                          "type": "array"
                         }
                       },
                       "variables": {},
@@ -183,7 +393,7 @@
                                     "streams": [
                                         "Microsoft-SecurityEvent"
                                     ],
-                                    "xPathQueries": [ "TBD", "TBD"],
+                                    "xPathQueries": "[parameters('xPathQueries')]",
                                     "name": "eventLogsDataSource"
                                 }
                             ]
@@ -318,6 +528,22 @@
         "description": "Security Events Filter (all events, common, minimal, or custom)"
       },
       "allowedValues": [ "AllEvents", "Common", "Minimal", "Custom" ]
+    },
+    "listOfCustomEventFilters": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Custom xPath Queries",
+        "description": "List of xPath queries to filter the Security Events. Example values: 'Security!*[System[(EventID=4624 or EventID=4625)]]'"
+      },
+      "defaultValue": []
+    },
+    "listOfWindowsImageIdToInclude": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Additional Virtual Machine Images",
+        "description": "List of virtual machine images that have supported Windows OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+      },
+      "defaultValue": []
     }
   }
 }
