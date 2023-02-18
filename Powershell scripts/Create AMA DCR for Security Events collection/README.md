@@ -1,6 +1,8 @@
 # Microsoft Defender for Servers - Create Azure Monitor Agent Data Collection Rule for Security Events collection
 
-**Author: Hélder Pinto**
+| Version | Description | Author | Date |
+| ------ | ------ | ------ | ------ |
+| 1.0 | Initial release | [Hélder Pinto](https://github.com/helderpinto)| 02/20/2023|
 
 ## Description
 
