@@ -18,7 +18,7 @@ For your reference, this Policy initiative is made of two Policy definitions: [D
 
 [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fhelderpinto%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPolicy%2FDeploy%20AMA%20DCR%20for%20Security%20Events%20collection%2Fazuredeploy.json)
 
-Once deployed, you can assign this initiative at the desired scope, by filling in the required and optional parameters:
+Once deployed, you can assign the **Configure Data Collection Rule for Security Events collection** Policy initiative at the desired scope, by filling in the required and optional parameters:
 
 * Effect - DeployIfNotExists or Disabled
 * Workspace Resource Id - Log Analytics Workspace where to send the Security Events to (must have Defender for Servers Plan 2 enabled)
