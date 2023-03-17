@@ -18,7 +18,6 @@ Tab 2 has a slightly different focus and will present you with a list of machine
 
 ## Try it on the Azure Portal
 
-You can deploy the workbook by clicking on the buttons below:
+You can deploy the workbook by clicking on the button below:
 
 <a href="https://aka.ms/AAhgf41" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://aka.ms/AAhghxm" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
