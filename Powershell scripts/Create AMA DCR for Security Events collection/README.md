@@ -4,6 +4,8 @@
 | ------ | ------ | ------ | ------ |
 | 1.0 | Initial release | [Hélder Pinto](https://github.com/helderpinto)| 02/20/2023|
 
+For the full context around this artifact, please read the [accompanying blog post](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/how-to-configure-security-events-collection-with-azure-monitor/ba-p/3770719).
+
 ## Description
 
 Although Defender for Servers does not rely on security events collection to provide its protection capabilities, customers may want to collect this valuable data to bring additional context to their server security investigations or alerts. This script allows you to create a Data Collection Rule for Security Events collection by Azure Monitor Agents running in your Windows servers.
