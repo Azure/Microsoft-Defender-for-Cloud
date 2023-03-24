@@ -4,6 +4,8 @@
 | ------ | ------ | ------ | ------ |
 | 1.0 | Initial release | [Hélder Pinto](https://github.com/helderpinto)| 02/20/2023|
 
+For the full context around this artifact, please read the [accompanying blog post](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/how-to-configure-security-events-collection-with-azure-monitor/ba-p/3770719).
+
 ## Description
 
 Although Defender for Servers does not rely on security events collection to provide its protection capabilities, customers may want to collect this valuable data to bring additional context to their server security investigations or alerts. This Azure Policy initiative allows you to create a Data Collection Rule for Security Events collection by Azure Monitor Agents running in your Windows servers.
@@ -16,7 +18,7 @@ The simplest way to deploy this Policy initiative is by clicking on the "Deploy 
 
 For your reference, this Policy initiative is made of two Policy definitions: [DeployAMADCRForSecurityEventsCollection.json](./DeployAMADCRForSecurityEventsCollection.json) (for existing VMs) and [DeployAMADCRForSecurityEventsCollectionVMAssociation.json](./DeployAMADCRForSecurityEventsCollectionVMAssociation.json) (for new VMs).
 
-[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fhelderpinto%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPolicy%2FDeploy%20AMA%20DCR%20for%20Security%20Events%20collection%2Fazuredeploy.json)
+[![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPolicy%2FDeploy%20AMA%20DCR%20for%20Security%20Events%20collection%2Fazuredeploy.json)
 
 Once deployed, you can assign the **Configure Data Collection Rule for Security Events collection** Policy initiative at the desired scope, by filling in the required and optional parameters:
 
