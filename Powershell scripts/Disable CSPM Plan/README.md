@@ -8,3 +8,4 @@ and proactively remediate vulnerabilities and misconfigurations. Further, new in
 data breaches with full visibility into the multicloud data estate and pressing risks to sensitive data. 
 
 This script will allow to disable the cspm plan at a subscription level. 
+You need to provide Subscription ID to execute. 
