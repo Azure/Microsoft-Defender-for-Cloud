@@ -1,4 +1,4 @@
-# GuestConfiguration Result v1.5
+# GuestConfiguration Result v1.7
 
 This workbook gives an overview to GuestConfiguration results and machine configruation. Azure Arc is fully included.
 All data is queried by the Azure Resource Grapsh (ARG) and has no dependencies to Microsoft Defender for Cloud generated data. 
