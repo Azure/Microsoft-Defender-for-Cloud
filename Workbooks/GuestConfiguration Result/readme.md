@@ -20,7 +20,7 @@ The workbook provides different sections:
 
 **By Computer**
 * Platform, SKU and Offer Overview
-* Compliance by Platofrm and SKU
+* Compliance by Platform and SKU
 * Computer Overview
 
 **Policy Details**
