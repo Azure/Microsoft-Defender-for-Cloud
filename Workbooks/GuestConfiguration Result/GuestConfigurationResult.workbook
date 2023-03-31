@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## Guest Configuration Result v1.5\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n\n---"
+        "json": "## Guest Configuration Result v1.7\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n| v1.6|h.wache|2023-01| fixed failed query because of added value on GC assignment name, (multiple assignments support availability)|\n| v.1.7|h.wache|2023-03| added parameter to filter for Azure VM \"timeCreated\" attribute in \"By Policy\" and \"By Computer\" tab\n\n---"
       },
       "name": "head"
     },
@@ -12,9 +12,6 @@
       "type": 9,
       "content": {
         "version": "KqlParameterItem/1.0",
-        "crossComponentResources": [
-          "value::all"
-        ],
         "parameters": [
           {
             "id": "c8b0b43b-1ca1-4f00-a421-edea20010918",
@@ -68,10 +65,7 @@
             },
             "defaultValue": "value::all",
             "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "value::all"
-            ]
+            "resourceType": "microsoft.resourcegraph/resources"
           },
           {
             "id": "89752a41-a363-48e7-8424-7e3e1159f9ad",
@@ -98,7 +92,10 @@
             },
             "defaultValue": "value::all",
             "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources"
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
           },
           {
             "id": "b4e8a3d4-982a-49d8-9b5e-aee446d99299",
@@ -155,8 +152,8 @@
           }
         ],
         "style": "above",
-        "queryType": 1,
-        "resourceType": "microsoft.resources/tenants"
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
       },
       "name": "parameters - 3"
     },
@@ -234,10 +231,39 @@
         "title": "By Policy",
         "items": [
           {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "ff2d7fff-a881-4d19-80bd-d1f684b4fc55",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "vmcreation",
+                  "label": "Azure VM Creation",
+                  "type": 2,
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\r\n { \"value\": \"startofyear(datetime(now), -20)\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-7d)\", \"label\": \"Last 7 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "now(-90d)"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "parameters-bypolicy1"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize count() by tostring(ComplianceStatus)\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize count() by tostring(ComplianceStatus)\r\n",
               "size": 3,
               "title": "Compliance Overview (Sum of Policies)",
               "queryType": 1,
@@ -279,7 +305,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize count() by tostring(ComplianceStatus), name\r\n\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize count() by tostring(ComplianceStatus), name\r\n\r\n\r\n\r\n",
               "size": 0,
               "title": "Compliance Overview (by Policy)",
               "queryType": 1,
@@ -351,7 +377,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize countif(ComplianceStatus == \"NonCompliant\" or ComplianceStatus == \"Pending\") by tolower(tostring(id))\r\n| extend Compliant = iff(countif_ > 0, \"NonCompliant VM\", \"Compliant VM\")\r\n| summarize count() by Compliant\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| summarize countif(ComplianceStatus == \"NonCompliant\" or ComplianceStatus == \"Pending\") by tolower(tostring(id))\r\n| extend Compliant = iff(countif_ > 0, \"NonCompliant VM\", \"Compliant VM\")\r\n| summarize count() by Compliant\r\n\r\n\r\n",
               "size": 3,
               "title": "Compliance Overview (VMs with all Policies Compliant)",
               "queryType": 1,
@@ -406,7 +432,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| extend VMname = tostring(split(id,\"/\",8)[0])\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif\r\n(ComplianceStatus==\"Pending\"), VMcount=dcount(VMname) by tostring(subscriptionId)\r\n| sort by NonCompliant\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend  ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n    ) on id\r\n| extend VMname = tostring(split(id,\"/\",8)[0])\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif\r\n(ComplianceStatus==\"Pending\"), VMcount=dcount(VMname) by tostring(subscriptionId)\r\n| sort by NonCompliant\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
               "size": 0,
               "title": "Compliance by Subscription (Sum of Policies)",
               "queryType": 1,
@@ -521,13 +547,13 @@
               "queryType": 0,
               "resourceType": "microsoft.operationalinsights/workspaces"
             },
-            "name": "parameters - 5"
+            "name": "parameters-bypolicy2"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend lastCheckUTC = properties.lastComplianceStatusChecked\r\n    | where lastCheckUTC < {not_reported_for:value}\r\n    | extend ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | where ComplianceStatus != {include_pending}\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n     //| extend lastCheckUTC = format_datetime(todatetime(properties.lastComplianceStatusChecked), 'yyyy-M-dd [H:mm:ss]')\r\n    | extend AssignmentName = properties.latestAssignmentReport.assignment.name\r\n    | extend GCName = properties.guestConfiguration.name\r\n    | extend contentHash = properties.guestConfiguration.contentHash\r\n    | extend contentUri = properties.guestConfiguration.contentUri\r\n    | extend ReportID = properties.latestReportId\r\n    | extend Computer = properties.targetResourceId\r\n    | extend Success = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"true\"')\r\n    | extend Failed = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"false\"')\r\n    | extend ReportID = split(ReportID, \"/reports/\",0)[0]\r\n    | extend ReportID = replace(\"/\", \"%2F\", tostring(ReportID))\r\n    | extend ReportURL = strcat(\"https://portal.azure.com/#blade/HubsExtension/ResourceMenuBlade/id/\", ReportID)\r\n    | extend ChecksFailedPercentage = (100.00 / (Success + Failed)) * Failed\r\n    | extend ChecksSuccessPercentage = (100.00 / (Success + Failed)) * Success\r\n    | extend ChecksFailed = strcat(Failed,\" of \",(Success + Failed ),\" | \", round(ChecksFailedPercentage,1),\"%\" )\r\n    ) on id\r\n| project  tostring(subscriptionId), resourceGroup = tostring(Computer), tostring(Computer), GCName, ComplianceStatus, ChecksFailed, ChecksFailedPercentage, ChecksSuccessPercentage, lastCheck = lastCheckUTC, ReportURL\r\n| sort by tostring(GCName) asc\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project id = tolower(tostring(id)), powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| extend env = \"Azure\"\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| project id = tolower(tostring(id)), powerstate\r\n| extend env = \"Arc\")\r\n| where powerstate in~ ({PowerStatus})\r\n| join (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | extend lastCheckUTC = properties.lastComplianceStatusChecked\r\n    | where lastCheckUTC < {not_reported_for:value}\r\n    | extend ComplianceStatus = properties.complianceStatus\r\n    | where ComplianceStatus in ({ComplianceStatus})\r\n    | where ComplianceStatus != {include_pending}\r\n    | extend id = tolower(tostring(properties.targetResourceId))\r\n     //| extend lastCheckUTC = format_datetime(todatetime(properties.lastComplianceStatusChecked), 'yyyy-M-dd [H:mm:ss]')\r\n    | extend AssignmentName = properties.latestAssignmentReport.assignment.name\r\n    | extend GCName = properties.guestConfiguration.name\r\n    | extend contentHash = properties.guestConfiguration.contentHash\r\n    | extend contentUri = properties.guestConfiguration.contentUri\r\n    | extend ReportID = properties.latestReportId\r\n    | extend Computer = properties.targetResourceId\r\n    | extend Success = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"true\"')\r\n    | extend Failed = countof(tostring(properties.latestAssignmentReport.resources), '\"complianceStatus\":\"false\"')\r\n    | extend ReportID = split(ReportID, \"/reports/\",0)[0]\r\n    | extend ReportID = replace(\"/\", \"%2F\", tostring(ReportID))\r\n    | extend ReportURL = strcat(\"https://portal.azure.com/#blade/HubsExtension/ResourceMenuBlade/id/\", ReportID)\r\n    | extend ChecksFailedPercentage = (100.00 / (Success + Failed)) * Failed\r\n    | extend ChecksSuccessPercentage = (100.00 / (Success + Failed)) * Success\r\n    | extend ChecksFailed = strcat(Failed,\" of \",(Success + Failed ),\" | \", round(ChecksFailedPercentage,1),\"%\" )\r\n    ) on id\r\n| project  tostring(subscriptionId), resourceGroup = tostring(Computer), tostring(Computer), GCName, Name=name, ComplianceStatus, ChecksFailed, ChecksFailedPercentage, ChecksSuccessPercentage, lastCheck = lastCheckUTC, ReportURL\r\n| sort by tostring(GCName) asc\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
               "size": 0,
               "title": "Compliance by Computer, select an entry for more details",
               "exportedParameters": [
@@ -539,6 +565,11 @@
                 {
                   "fieldName": "GCName",
                   "parameterName": "GCName",
+                  "parameterType": 1
+                },
+                {
+                  "fieldName": "Name",
+                  "parameterName": "Name",
                   "parameterType": 1
                 }
               ],
@@ -764,7 +795,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where id =~ \"{Computer}\"\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = id, OS, location,   powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize),  SKU=properties.storageProfile.imageReference.sku,  Version=properties.storageProfile.imageReference.exactVersion\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| where id =~ \"{Computer}\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = id, powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where id =~ \"{Computer}\"\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = id, OS, location,   powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize),  SKU=properties.storageProfile.imageReference.sku,  Version=properties.storageProfile.imageReference.exactVersion, TimeCreated = properties.timeCreated\r\n| union (Resources\r\n| where type =~ \"microsoft.hybridcompute/machines\"\r\n| where id =~ \"{Computer}\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = id, powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n\r\n\r\n\r\n",
               "size": 3,
               "title": "Computer details",
               "queryType": 1,
@@ -796,6 +827,10 @@
                     "formatter": 1
                   },
                   {
+                    "columnMatch": "TimeCreated",
+                    "formatter": 6
+                  },
+                  {
                     "columnMatch": "name",
                     "formatter": 13,
                     "formatOptions": {
@@ -819,7 +854,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{Computer}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/{GCName}?api-version=2020-06-25\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.properties\",\"columns\":[{\"path\":\"$.guestConfiguration.assignmentType\",\"columnid\":\"assignmentType\"},{\"path\":\"$.provisioningState\",\"columnid\":\"provisioningState\"},{\"path\":\"$.guestConfiguration.name\",\"columnid\":\"name\"}]}}]}",
+              "query": "{\"version\":\"ARMEndpoint/1.0\",\"data\":null,\"headers\":[],\"method\":\"GET\",\"path\":\"{Computer}/providers/Microsoft.GuestConfiguration/guestConfigurationAssignments/{Name}?api-version=2020-06-25\",\"urlParams\":[],\"batchDisabled\":false,\"transformers\":[{\"type\":\"jsonpath\",\"settings\":{\"tablePath\":\"$.properties\",\"columns\":[{\"path\":\"$.guestConfiguration.assignmentType\",\"columnid\":\"assignmentType\"},{\"path\":\"$.provisioningState\",\"columnid\":\"provisioningState\"},{\"path\":\"$.guestConfiguration.name\",\"columnid\":\"name\"}]}}]}",
               "size": 3,
               "title": "Assignment",
               "queryType": 12,
@@ -877,7 +912,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| extend Computer = properties.targetResourceId\r\n| where Computer == \"{Computer}\"\r\n| extend GCName = properties.guestConfiguration.name\r\n| where GCName == \"{GCName}\"\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend ReportID = properties.latestReportId\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| mv-expand resource =  todynamic(properties.latestAssignmentReport.resources)\r\n| extend ResourceCompliant = resource.complianceStatus\r\n| extend ResourceID = resource.resourceId\r\n| mv-expand reason = resource.reasons\r\n| extend ReasonCode = reason.code\r\n| extend Result = reason.phrase\r\n| project ResourceID, ResourceCompliant, Result, ReasonCode\r\n| sort by tostring(ResourceID) asc",
+              "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| extend Computer = properties.targetResourceId\r\n| where Computer == \"{Computer}\"\r\n| where name == \"{Name}\"\r\n| extend contentHash = properties.guestConfiguration.contentHash\r\n| extend ReportID = properties.latestReportId\r\n| extend ComplianceStatus = properties.complianceStatus\r\n| mv-expand resource =  todynamic(properties.latestAssignmentReport.resources)\r\n| extend ResourceCompliant = resource.complianceStatus\r\n| extend ResourceID = resource.resourceId\r\n| mv-expand reason = resource.reasons\r\n| extend ReasonCode = reason.code\r\n| extend Result = reason.phrase\r\n| project ResourceID, ResourceCompliant, Result, ReasonCode\r\n| sort by tostring(ResourceID) asc\r\n",
               "size": 0,
               "title": "Compliance Details",
               "queryType": 1,
@@ -1127,8 +1162,7 @@
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "value": [
-                    "none",
-                    "Windows Server 2016 Datacenter"
+                    "none"
                   ],
                   "id": "7abfcdf6-a8f8-4688-9a6d-54b19c4a8b1a"
                 }
@@ -1971,6 +2005,35 @@
         "title": "By Computer",
         "items": [
           {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "f97e8504-51fe-4e3c-a9ff-710d7d61189e",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "vmcreation",
+                  "label": "Azure VM Creation",
+                  "type": 2,
+                  "isRequired": true,
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[\r\n { \"value\": \"startofyear(datetime(now), -20)\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-7d)\", \"label\": \"Last 7 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "value": "now(-90d)"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "parameters-bycomputer1"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
@@ -2165,7 +2228,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| where powerstate in~ ({PowerStatus})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Platform = \"Azure\", OS = toupper(OS)\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| where powerstate in~ ({PowerStatus})\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Platform = \"Arc\", OS = toupper(tostring(properties.osType))\r\n)\r\n| summarize count() by Platform, OS\r\n| extend text= strcat(Platform, \" | \", OS)\r\n| sort by count_\r\n\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| where powerstate in~ ({PowerStatus})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Platform = \"Azure\", OS = toupper(OS)\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| extend powerstate = tostring(properties.status)\r\n| where powerstate in~ ({PowerStatus})\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Platform = \"Arc\", OS = toupper(tostring(properties.osType))\r\n)\r\n| summarize count() by Platform, OS\r\n| extend text= strcat(Platform, \" | \", OS)\r\n| sort by count_\r\n\r\n\r\n",
               "size": 3,
               "title": "Computer by Platform and SKU",
               "queryType": 1,
@@ -2378,7 +2441,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| where powerstate in~ ({PowerStatus})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project offer= iff(isnotempty(properties.storageProfile.imageReference.offer), properties.storageProfile.imageReference.offer, \"<EMPTY>\")\r\n| summarize count() by tostring(offer)\r\n| sort by count_\r\n\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1])\r\n| where powerstate in~ ({PowerStatus})\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project offer= iff(isnotempty(properties.storageProfile.imageReference.offer), properties.storageProfile.imageReference.offer, \"<EMPTY>\")\r\n| summarize count() by tostring(offer)\r\n| sort by count_\r\n\r\n",
               "size": 3,
               "title": "Azure Computer by Offer ",
               "exportFieldName": "offer",
@@ -2572,7 +2635,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Computer = tolower(id), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, resourceGroup, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(id), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup,  SKU = properties.osSku, Version = properties.osVersion\r\n)\r\n| where powerstate in~ ({PowerStatus})\r\n| join (\r\nguestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| extend  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| extend Plattform = iff(Computer contains \"/providers/Microsoft.HybridCompute/machines/\", \"Hybrid\", \"Azure\")\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif(ComplianceStatus==\"Pending\") , VMcount=  dcount(Computer) by Plattform, tostring(offer), tostring(SKU)\r\n| sort by toupper(offer) asc \r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Computer = tolower(id), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, resourceGroup, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(id), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup,  SKU = properties.osSku, Version = properties.osVersion\r\n)\r\n| where powerstate in~ ({PowerStatus})\r\n| join (\r\nguestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| where name in ({GCPolicy})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| where ComplianceStatus in ({ComplianceStatus})\r\n| extend  ComplianceStatus = properties.complianceStatus\r\n| extend  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| extend Plattform = iff(Computer contains \"/providers/Microsoft.HybridCompute/machines/\", \"Hybrid\", \"Azure\")\r\n| summarize Compliant=countif(ComplianceStatus==\"Compliant\"), NonCompliant=countif(ComplianceStatus==\"NonCompliant\") ,Pending=countif(ComplianceStatus==\"Pending\") , VMcount=  dcount(Computer) by Plattform, tostring(offer), tostring(SKU)\r\n| sort by toupper(offer) asc \r\n",
               "size": 0,
               "title": "Compliance by Platform and SKU -- select row to filter Computer Overview below",
               "exportedParameters": [
@@ -2768,7 +2831,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = tolower(tostring(id)), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(tostring(id)), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n| where powerstate in~ ({PowerStatus})\r\n| extend default = \"default\"\r\n| where  default == \"{SKU}\" or SKU == \"{SKU}\"\r\n| where  default == \"{offer}\" or offer == \"{offer}\"\r\n| sort by tolower(tostring(split(Computer, \"/\", 8)[0])) asc\r\n| join  (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | project  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| summarize by Subscription, resourceGroup, Computer,  tostring(OS), tostring(Version), location, powerstate, VMSize, tostring(SKU), tostring(offer)\r\n",
+              "query": "Resources\r\n| where type =~ 'Microsoft.Compute/virtualMachines'\r\n| where properties.timeCreated > {vmcreation:value}\r\n| extend OS= tostring(properties.storageProfile.osDisk.osType)\r\n| project Subscription = id, resourceGroup = id, Computer = tolower(tostring(id)), OS = toupper(OS), Version=properties.storageProfile.imageReference.exactVersion, location, powerstate = strcat(split(properties.extended.instanceView.powerState.code, '/')[1]), VMSize=tostring(properties.hardwareProfile.vmSize), SKU=properties.storageProfile.imageReference.sku, offer=properties.storageProfile.imageReference.offer\r\n| union (Resources\r\n| where type == \"microsoft.hybridcompute/machines\"\r\n| project-away sku\r\n| extend powerstate = tostring(properties.status)\r\n| project Computer = tolower(tostring(id)), powerstate, VMSize = tostring(\"Arc\"), OS = toupper(tostring(properties.osType)), location, resourceGroup = id,  SKU = properties.osSku, Version = properties.osVersion,Subscription = id\r\n)\r\n| where powerstate in~ ({PowerStatus})\r\n| extend default = \"default\"\r\n| where  default == \"{SKU}\" or SKU == \"{SKU}\"\r\n| where  default == \"{offer}\" or offer == \"{offer}\"\r\n| sort by tolower(tostring(split(Computer, \"/\", 8)[0])) asc\r\n| join  (guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | where name in ({GCPolicy})\r\n    | project  Computer = tolower(tostring(properties.targetResourceId))\r\n) on Computer\r\n| summarize by Subscription, resourceGroup, Computer,  tostring(OS), tostring(Version), location, powerstate, VMSize, tostring(SKU), tostring(offer)\r\n",
               "size": 0,
               "title": "Computer Overview",
               "noDataMessage": "Select a SKU and Offer ",
@@ -2900,10 +2963,56 @@
         "title": "Policy Details",
         "items": [
           {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "parameters": [
+                {
+                  "id": "24181cb7-31a3-481f-9281-47101fd940dd",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "BaseGCPolicy",
+                  "label": "Base GC Policy ",
+                  "type": 2,
+                  "isRequired": true,
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| extend name = tostring(properties.guestConfiguration.name)\r\n| summarize by name\r\n| sort by name asc",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "showDefault": false
+                  },
+                  "timeContext": {
+                    "durationMs": 86400000
+                  },
+                  "defaultValue": "value::all",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": [
+                    "GC.3.5.2.AutoApplyScript102_SplunkForwarder01",
+                    "GC.4.2.0.AutoApplyScript103Win"
+                  ]
+                }
+              ],
+              "style": "above",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources"
+            },
+            "name": "parameters - 3 - Copy"
+          },
+          {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n//| extend GCName = properties.policyRule.then.details.deployment.properties.parameters.configurationName.value\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project Displayname, DefinitionId = id, Initiative = Displayname1, InitiativeId = tostring(id1) \r\n| extend PolicyDefinition = strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(DefinitionId)))\r\n| extend PolicyInitiative = iff(isnotempty(InitiativeId),strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(InitiativeId))), \"\")\r\n| sort by tostring(Displayname)",
+              "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n//| extend GCName = properties.policyRule.then.details.deployment.properties.parameters.configurationName.value\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where Displayname in ({BaseGCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project Displayname, DefinitionId = id, Initiative = Displayname1, InitiativeId = tostring(id1)\r\n| extend PolicyDefinition = strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(DefinitionId)))\r\n| extend PolicyInitiative = iff(isnotempty(InitiativeId),strcat(\"https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/\",url_encode_component(tostring(InitiativeId))), \"\")\r\n| sort by tostring(Displayname)\r\n",
               "size": 0,
               "title": "Definitions, standalone or Initiative mapped",
               "queryType": 1,
@@ -2961,7 +3070,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project DefId = id1\r\n| union (policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where GCName in ({GCPolicy})\r\n| project DefId = id)\r\n| join (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policyassignments\"\r\n    | extend DefId = tostring(properties.policyDefinitionId)\r\n    | extend Displayname = properties.displayName\r\n    | extend CreatedOn = properties.metadata.createdOn\r\n    | extend updatedOn = properties.metadata.updatedOn\r\n    | extend assignedBy = properties.metadata.assignedBy\r\n    | extend Parameters = properties.parameters\r\n    | extend AssignedScope = properties.scope\r\n    | extend enforcementMode = properties.enforcementMode\r\n    | project DefId, id, Displayname, AssignedScope, ScopeType = AssignedScope, enforcementMode, Parameters, CreatedOn, updatedOn, assignedBy\r\n) on DefId\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
+              "query": "policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where Displayname in ({BaseGCPolicy})\r\n| join kind=leftouter   (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policysetdefinitions\"\r\n    | extend Displayname = properties.displayName\r\n    | mv-expand policydefinition = properties.policyDefinitions\r\n    | extend policyDefinitionId = tostring(policydefinition.policyDefinitionId)\r\n) on $left.id == $right.policyDefinitionId\r\n| project DefId = id1\r\n| union (policyresources\r\n| where type == \"microsoft.authorization/policydefinitions\"\r\n| extend Displayname = properties.displayName\r\n| extend GCName = properties.policyRule.then.details.name\r\n| where Displayname in ({BaseGCPolicy})\r\n| project DefId = id)\r\n| join (\r\n    policyresources\r\n    | where type == \"microsoft.authorization/policyassignments\"\r\n    | extend DefId = tostring(properties.policyDefinitionId)\r\n    | extend Displayname = properties.displayName\r\n    | extend CreatedOn = properties.metadata.createdOn\r\n    | extend updatedOn = properties.metadata.updatedOn\r\n    | extend assignedBy = properties.metadata.assignedBy\r\n    | extend Parameters = properties.parameters\r\n    | extend AssignedScope = properties.scope\r\n    | extend enforcementMode = properties.enforcementMode\r\n    | project DefId, id, Displayname, AssignedScope, ScopeType = AssignedScope, enforcementMode, Parameters, CreatedOn, updatedOn, assignedBy\r\n) on DefId\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n",
               "size": 0,
               "title": "Acitve Assignments by filtered GC Policies, direct or via initiative",
               "queryType": 1,
@@ -3057,7 +3166,7 @@
         "comparison": "isEqualTo",
         "value": "PolicyDetails"
       },
-      "name": "Overview by Assignment"
+      "name": "Overview Policy"
     },
     {
       "type": 12,
@@ -3124,10 +3233,7 @@
                     "durationMs": 86400000
                   },
                   "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources",
-                  "value": [
-                    "AzurePolicyforLinux"
-                  ]
+                  "resourceType": "microsoft.resourcegraph/resources"
                 },
                 {
                   "id": "80b3f18f-5136-480f-9a03-2a070a0e581d",
