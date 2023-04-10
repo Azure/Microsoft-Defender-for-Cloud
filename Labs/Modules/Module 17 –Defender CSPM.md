@@ -102,7 +102,10 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 4.	You will find the list of VMs with high severity Vulnerabilities.
 5.	Select a predefined query Template **“Internet exposed SQL servers with managed identity”** and click on **Search**
 6.	You will find the list of SQL servers with managed identity.
-7.	You can also explore and build your own queries using query builder as shown below: In the dropdown select Compute -> Virtual machines -> Azure Virtual Machines <img width="333" alt="image" src="https://user-images.githubusercontent.com/102209701/230955586-c6b28705-d75e-4c62-a33d-720054747464.png">
+7.	You can also explore and build your own queries using query builder as shown below: In the dropdown select Compute -> Virtual machines -> Azure Virtual Machines
+
+![image](https://user-images.githubusercontent.com/102209701/230957007-478bf8c3-eb3e-4c04-908b-514710d30967.png)
+
  Click on + and under select condition, select Security -> vulnerable to remote code execution.
 
  ![image](https://user-images.githubusercontent.com/102209701/230956384-cee04cd8-8a49-4345-a9a4-4b0e8e619ca9.png)
