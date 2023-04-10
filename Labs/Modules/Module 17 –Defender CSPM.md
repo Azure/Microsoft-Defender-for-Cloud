@@ -128,7 +128,7 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 
 10.	Explore your Environment for Storage Accounts with a Sensitive Data 
 
-![image](https://user-images.githubusercontent.com/102209701/230959934-f85f2f19-2ccf-452f-aec7-f3403d35fb3a.png)
+![image](https://user-images.githubusercontent.com/102209701/230960239-65feb795-4ab7-47e1-8f0e-fff3e8ef2085.png)
 
 
  
