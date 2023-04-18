@@ -1,24 +1,24 @@
 variable "account_id" {
-    type        = string
-    description = "account ID for AWS"
+  type        = string
+  description = "account ID for AWS"
 }
 
-variable "connector_name_aws" {
+variable "connector_name" {
   type        = string
   description = "name of the base connector, account/project name will be appended to this name."
 }
 
-variable "mdc_azure_resource_group_location_aws" {
+variable "mdc_azure_resource_group_location" {
   type        = string
   description = "resource group location for MDC connectors"
 }
-  
-variable "mdc_azure_resource_group_id_aws" {
+
+variable "mdc_azure_resource_group_id" {
   type        = string
   description = "resource group id for MDC connectors"
 }
 
-variable "mdc_connector_tags_aws" {
+variable "mdc_connector_tags" {
   type        = map(string)
   description = "tags for the MDC connector"
   default = {

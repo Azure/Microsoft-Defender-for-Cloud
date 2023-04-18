@@ -1,21 +1,21 @@
 terraform {
   required_providers {
     azapi = {
-      source = "Azure/azapi"
+      source  = "Azure/azapi"
       version = "1.2.0"
     }
   }
 }
 
 locals {
-  
+
   gcp_service_account_email = "@${var.project_name}.iam.gserviceaccount.com"
 
   //cspm monitor
   cspm_gcp = {
     offeringType = "CspmMonitorGcp",
     nativeCloudConnection = {
-      serviceAccountEmailAddress   = "${var.cspm_gcp_service_account_name}${local.gcp_service_account_email}"
+      serviceAccountEmailAddress = "${var.cspm_gcp_service_account_name}${local.gcp_service_account_email}"
       workloadIdentityProviderId = var.cspm_gcp_workload_identity_provider_id
     }
   }
@@ -29,16 +29,16 @@ locals {
   defender_servers_gcp = {
     offeringType = "DefenderForServersGcp"
     arcAutoProvisioning = {
-      enabled = true
+      enabled       = true
       configuration = {}
-      
+
     }
     defenderForServers = {
-      serviceAccountEmailAddress  = "${var.defender_servers_gcp_service_account_name}${local.gcp_service_account_email}"
+      serviceAccountEmailAddress = "${var.defender_servers_gcp_service_account_name}${local.gcp_service_account_email}"
       workloadIdentityProviderId = var.defender_servers_workload_identity_provider_id
     }
     mdeAutoProvisioning = {
-      enabled = true
+      enabled       = true
       configuration = {}
     }
     subPlan = var.defender_servers_sub_plan
@@ -71,7 +71,7 @@ locals {
     offeringType = "DefenderForDatabasesGcp"
     arcAutoProvisioning = {
       configuration = {}
-      enabled = true
+      enabled       = true
     }
     defenderForDatabasesArcAutoProvisioning = {
       serviceAccountEmailAddress = "${var.defender_db_gcp_service_account_name}${local.gcp_service_account_email}"
@@ -83,24 +83,24 @@ locals {
   security_connector_gcp_offerings = [local.cspm_gcp, local.defender_cspm_gcp, local.defender_containers_gcp, local.defender_db_gcp, local.defender_servers_gcp]
   //filtering the offerings based on the offerings selected in the variable
   security_connector_gcp_offerings_filtered = [for offering in local.security_connector_gcp_offerings : offering if contains(var.mdc_offerings, trimsuffix(offering.offeringType, "Gcp"))]
- 
+
 
 }
 
 resource "azapi_resource" "mdc_azure_security_connector_gcp" {
   schema_validation_enabled = false
-  type      = "Microsoft.Security/securityConnectors@2022-08-01-preview"
-  name      = var.connector_name_gcp
-  location  = var.mdc_azure_resource_group_location_gcp
-  parent_id = var.mdc_azure_resource_group_id_gcp
-  tags      = var.mdc_connector_tags_gcp
+  type                      = "Microsoft.Security/securityConnectors@2022-08-01-preview"
+  name                      = var.connector_name
+  location                  = var.mdc_azure_resource_group_location
+  parent_id                 = var.mdc_azure_resource_group_id
+  tags                      = var.mdc_connector_tags
 
   body = jsonencode({
     properties = {
       environmentData = {
         environmentType = "GcpProject"
         projectDetails = {
-          projectId = var.project_name
+          projectId     = var.project_name
           projectNumber = var.project_number
         }
       },

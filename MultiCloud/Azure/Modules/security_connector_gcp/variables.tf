@@ -8,22 +8,22 @@ variable "project_number" {
   description = "GCP project number"
 }
 
-variable "connector_name_gcp" {
+variable "connector_name" {
   type        = string
   description = "name of the base connector, account/project name will be appended to this name."
 }
 
-variable "mdc_azure_resource_group_id_gcp" {
+variable "mdc_azure_resource_group_id" {
   type        = string
   description = "resource group name for MDC connectors"
 }
 
-variable "mdc_azure_resource_group_location_gcp" {
+variable "mdc_azure_resource_group_location" {
   type        = string
   description = "resource group location for MDC connectors"
 }
 
-variable "mdc_connector_tags_gcp" {
+variable "mdc_connector_tags" {
   type        = map(string)
   description = "tags for the MDC connector"
   default = {
@@ -38,15 +38,15 @@ variable "mdc_offerings" {
 
 //csp monitor
 variable "cspm_gcp_service_account_name" {
-    type        = string
-    description = "GCP service account name for CSPM"
-    default     = "microsoft-defender-cspm"
+  type        = string
+  description = "GCP service account name for CSPM"
+  default     = "microsoft-defender-cspm"
 }
 
 variable "cspm_gcp_workload_identity_provider_id" {
-    type        = string
-    description = "workload identity provider ID for CSPM"
-    default     = "cspm"
+  type        = string
+  description = "workload identity provider ID for CSPM"
+  default     = "cspm"
 }
 
 
