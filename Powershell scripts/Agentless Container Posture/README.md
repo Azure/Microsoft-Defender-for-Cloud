@@ -23,4 +23,4 @@ Where subscriptions.txt is a path to a file with the following (example) content
 
 
 
-> **Credits:** [Future Kortor](https://github.com/future-at-work), [Shay Amar](https://www.linkedin.com/in/shay-amar/)
+> **Credits:** [Future Kortor](https://github.com/future-at-work), [Shani Freund](https://www.linkedin.com/shfreund), [Shay Amar](https://www.linkedin.com/in/shay-amar/)
