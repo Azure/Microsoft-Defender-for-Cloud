@@ -38,10 +38,6 @@ function handleSubscription($subscription)
     # Account set
     az account set -s $line
     
-    # Register feature flag
-    az feature register --namespace Microsoft.ContainerService --name TrustedAccessPreview  *> $null
-    az provider register --name Microsoft.ContainerService
-    
     # Call Pricing API
     $auth = az account get-access-token --output json | ConvertFrom-Json
     $token = "$($auth.tokenType) $($auth.accessToken)"
