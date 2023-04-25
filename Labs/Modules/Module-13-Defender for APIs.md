@@ -2,7 +2,7 @@
 
 <p align="left"><img src="../Images/asc-labs-advanced.gif?raw=true"></p>
 
-#### 🎓 Level: 200 (Advanced)
+#### 🎓 Level: 300 (Advanced)
 #### ⌛ Estimated time to complete this lab: 120 minutes
 #### 💁 Author: Liana Anca Tomescu 
 
