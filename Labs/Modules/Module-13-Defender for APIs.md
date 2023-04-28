@@ -96,7 +96,11 @@ Next, you will onboard that API to be protected by Defender for API.
 
 ![](../Images/api8.png?raw=true)
  
-3.	In the recommendation **Azure API Management APIs should be onboarded to Defender for APIs**, tick the box of the API labs-test that you would like to onboard, and click **Fix**.
+3.	In the recommendation **Azure API Management APIs should be onboarded to Defender for APIs**, tick the box of the API labs-test and echo-api that you would like to onboard, and click **Fix**.
+
+
+Note: Echo-api is an API that is created by default when you created the Azure API Management service, which is used for testing.
+
 
  ![](../Images/api9.png?raw=true)
 
