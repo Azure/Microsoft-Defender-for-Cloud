@@ -6,7 +6,7 @@
 > This feature provides customers with enhanced posture capabilities and an intelligent cloud security graph to help identify, prioritize, and reduce risk across cloud resources,  including Kubernetes clusters and container vulnerability assessment. 
 
 > Up until today, the addition of containers and Kubernetes to the cloud security graph requires an agent-based solution through Defender for Containers offering. 
-> In this private preview, Defender CSPM will introduce a new agentless discovery and visibility capability for Kubernetes and containers registries across SDLC and runtime, including container vulnerability assessment insights as part of the cloud security explorer and Kubernetes attack path analysis.
+> Defender CSPM now includes agentless discovery and visibility capability for Kubernetes and containers registries across SDLC and runtime, including container vulnerability assessment insights as part of the cloud security explorer and Kubernetes attack path analysis.
 
 ## Onboarding Via PowerShell Script: 
 For at-scale onboarding, it is possible to use the PowerShell script. 
