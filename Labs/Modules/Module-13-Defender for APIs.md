@@ -104,9 +104,9 @@ Note: Echo-api is an API that is created by default when you created the Azure A
 
  ![](../Images/api9.png?raw=true)
 
-4.	In the Fixing resources pane that appears, select **Fix 1 resource**. After a few minutes, you will receive a notification stating that the API has been onboarded.
+4.	In the Fixing resources pane that appears, select **Fix 2 resources**. After a few minutes, you will receive a notification stating that the APIs have been onboarded.
 
-Now you have onboarded that API to Defender for API.
+Now you have protected those APIs with Microsoft Defender for API.
 
 
 
