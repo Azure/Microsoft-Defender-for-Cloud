@@ -22,12 +22,12 @@ Add new yaml file under [.azure-pipelines](https://github.com/Azure/Azure-Sentin
 
 4. Add the new job to [azure-pipelines.yml](https://github.com/Azure/Azure-Sentinel/blob/master/azure-pipelines.yml) file as a new template under jobs property
 
-5. Create script file for the new validation. The job from step #3 has reference to this file. See instructions in [How to add script validation](#how-to-add-scipt-validation) section.  
+5. Create script file for the new validation. The job from step #3 has reference to this file. See instructions in [How to add script validation](#how-to-add-script-validation) section.  
    A step is a failure if it either explicitly reports failure (using a ##vso command) or ends the script with a non-zero exit code
 
 6. Test the new validation. See instruction in [How to test the new validation](#How-to-test-the-new-validation) section
 
-### How to add scipt validation
+### How to add script validation
 
 **Note**: All script logs are public and display in DevOps pipeline.  
 By default, the logs color is white. In case you want another color you can use [logging commands](https://docs.microsoft.com/en-us/azure/devops/pipelines/scripts/logging-commands?view=azure-devops&tabs=bash)
@@ -37,7 +37,7 @@ By default, the logs color is white. In case you want another color you can use 
 2. In case you use TypeScript language, you can use the infrastructure script. See example in [yamlFileValidator.ts](https://github.com/Azure/Azure-Sentinel/blob/master/.script/yamlFileValidator.ts):
    - Create async validation function that gets file path and returns success in case the validation pass.
    - Create CheckOptions object with 3 properties:  
-     - onCheckFile: the validation validetion function that will run on each file (from step one)  
+     - onCheckFile: the validation function that will run on each file (from step one)  
      - onExecError: error behavior in case that the file validation failed  
      - onFinalFailed:  error behavior at the end of the validation, execute in case one of the validation failed
    - Call runCheckOverChangedFiles with properties:
