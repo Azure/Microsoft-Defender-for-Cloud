@@ -17,7 +17,9 @@
     },
     "workbookSourceId": {
       "type": "string",
+
       "defaultValue": "azure monitor",
+
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }

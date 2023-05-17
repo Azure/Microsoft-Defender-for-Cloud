@@ -1,0 +1,572 @@
+{
+  "mode": "Indexed",
+  "policyRule": {
+    "if": {
+      "allOf": [
+        {
+          "field": "type",
+          "equals": "Microsoft.Compute/virtualMachines"
+        },
+        {
+          "field": "location",
+          "in": [
+            "australiacentral",
+            "australiaeast",
+            "australiasoutheast",
+            "brazilsouth",
+            "canadacentral",
+            "canadaeast",
+            "centralindia",
+            "centralus",
+            "eastasia",
+            "eastus2euap",
+            "eastus",
+            "eastus2",
+            "francecentral",
+            "germanywestcentral",
+            "japaneast",
+            "japanwest",
+            "jioindiawest",
+            "koreacentral",
+            "koreasouth",
+            "northcentralus",
+            "northeurope",
+            "norwayeast",
+            "southafricanorth",
+            "southcentralus",
+            "southeastasia",
+            "southindia",
+            "switzerlandnorth",
+            "uaenorth",
+            "uksouth",
+            "ukwest",
+            "westcentralus",
+            "westeurope",
+            "westindia",
+            "westus",
+            "westus2"
+          ]
+        },
+        {
+          "anyOf": [
+            {
+              "field": "Microsoft.Compute/imageId",
+              "in": "[parameters('listOfWindowsImageIdToInclude')]"
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServer"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2008-R2-SP1*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2012-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2016-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2019-*"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageSku",
+                      "like": "2022-*"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServerSemiAnnual"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "in": [
+                    "Datacenter-Core-1709-smalldisk",
+                    "Datacenter-Core-1709-with-Containers-smalldisk",
+                    "Datacenter-Core-1803-with-Containers-smalldisk"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsServerHPCPack"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "WindowsServerHPCPack"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftSQLServer"
+                },
+                {
+                  "anyOf": [
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2022"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2022-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2019"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2019-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2016"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2016-BYOL"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2012R2"
+                    },
+                    {
+                      "field": "Microsoft.Compute/imageOffer",
+                      "like": "*-WS2012R2-BYOL"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftRServer"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "MLServer-WS2016"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftVisualStudio"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "in": [
+                    "VisualStudio",
+                    "Windows"
+                  ]
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftDynamicsAX"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "Dynamics"
+                },
+                {
+                  "field": "Microsoft.Compute/imageSKU",
+                  "equals": "Pre-Req-AX7-Onebox-U8"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "microsoft-ads"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "windows-data-science-vm"
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "field": "Microsoft.Compute/imagePublisher",
+                  "equals": "MicrosoftWindowsDesktop"
+                },
+                {
+                  "field": "Microsoft.Compute/imageOffer",
+                  "equals": "Windows-10"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "then": {
+      "effect": "[parameters('effect')]",
+      "details": {
+        "type": "Microsoft.Insights/dataCollectionRules",
+        "deploymentScope": "subscription",
+        "roleDefinitionIds": [
+          "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+        ],
+        "existenceScope": "subscription",
+        "existenceCondition": {
+          "allOf": [
+            {
+              "field": "location",
+              "equals": "[parameters('dcrRegion')]"
+            },
+            {
+              "field": "name",
+              "equals": "[concat('Microsoft-SecurityEvents-', parameters('dcrRegion'), '-dcr')]"
+            }
+          ]
+        },
+        "deployment": {
+          "location": "westeurope",
+          "properties": {
+            "mode": "incremental",
+            "parameters": {
+              "resourceGroup": {
+                "value": "[resourceGroup().name]"
+              },
+              "vmName": {
+                "value": "[field('name')]"
+              },
+              "userWorkspaceResourceId": {
+                "value": "[parameters('userWorkspaceResourceId')]"
+              },
+              "dcrRegion": {
+                "value": "[parameters('dcrRegion')]"
+              },
+              "dcrResourceGroup": {
+                "value": "[parameters('dcrResourceGroup')]"
+              },
+              "eventFilter": {
+                "value": "[parameters('eventFilter')]"
+              },
+              "listOfCustomEventFilters": {
+                "value": "[parameters('listOfCustomEventFilters')]"
+              }
+            },
+            "template": {
+              "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+              "contentVersion": "1.0.0.0",
+              "parameters": {
+                "resourceGroup": {
+                  "type": "string"
+                },
+                "vmName": {
+                  "type": "string"
+                },
+                "userWorkspaceResourceId": {
+                  "type": "string"
+                },
+                "dcrRegion": {
+                  "type": "string"
+                },
+                "dcrResourceGroup": {
+                  "type": "string"
+                },
+                "eventFilter": {
+                  "type": "string"
+                },
+                "listOfCustomEventFilters": {
+                  "type": "array"
+                }
+              },
+              "variables": {
+                "subscriptionId": "[subscription().subscriptionId]",
+                "workspaceResourceId": "[parameters('userWorkspaceResourceId')]",
+                "dcrName": "[concat('Microsoft-SecurityEvents-', parameters('dcrRegion'), '-dcr')]",
+                "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('dcrResourceGroup'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
+                "dcraName": "[concat(parameters('vmName'),'/Microsoft.Insights/SecurityEvents-RulesAssociation')]",
+                "deployDefaultAmaDcrResourceGroup": "[concat('deployDefaultAmaDcrResourceGroup-', uniqueString(deployment().name))]",
+                "deployDataCollectionRulesAssociation": "[concat('deployDataCollectionRulesAssociation-', uniqueString(deployment().name))]",
+                "xPathQueries": {
+                  "AllEvents": [
+                    "Security!*", 
+                    "Microsoft-Windows-AppLocker/EXE and DLL!*",
+                    "Microsoft-Windows-AppLocker/MSI and Script!*"
+                  ],
+                  "Common": [
+                    "Security!*[System[(EventID=1) or (EventID=299) or (EventID=300) or (EventID=324) or (EventID=340) or (EventID=403) or (EventID=404) or (EventID=410) or (EventID=411) or (EventID=412) or (EventID=413) or (EventID=431) or (EventID=500) or (EventID=501) or (EventID=1100)]]",
+                    "Security!*[System[(EventID=1102) or (EventID=1107) or (EventID=1108) or (EventID=4608) or (EventID=4610) or (EventID=4611) or (EventID=4614) or (EventID=4622) or (EventID=4624) or (EventID=4625) or (EventID=4634) or (EventID=4647) or (EventID=4648) or (EventID=4649) or (EventID=4657)]]",
+                    "Security!*[System[(EventID=4661) or (EventID=4662) or (EventID=4663) or (EventID=4665) or (EventID=4666) or (EventID=4667) or (EventID=4688) or (EventID=4670) or (EventID=4672) or (EventID=4673) or (EventID=4674) or (EventID=4675) or (EventID=4689) or (EventID=4697) or (EventID=4700)]]",
+                    "Security!*[System[(EventID=4702) or (EventID=4704) or (EventID=4705) or (EventID=4716) or (EventID=4717) or (EventID=4718) or (EventID=4719) or (EventID=4720) or (EventID=4722) or (EventID=4723) or (EventID=4724) or (EventID=4725) or (EventID=4726) or (EventID=4727) or (EventID=4728)]]",
+                    "Security!*[System[(EventID=4729) or (EventID=4733) or (EventID=4732) or (EventID=4735) or (EventID=4737) or (EventID=4738) or (EventID=4739) or (EventID=4740) or (EventID=4742) or (EventID=4744) or (EventID=4745) or (EventID=4746) or (EventID=4750) or (EventID=4751) or (EventID=4752)]]",
+                    "Security!*[System[(EventID=4754) or (EventID=4755) or (EventID=4756) or (EventID=4757) or (EventID=4760) or (EventID=4761) or (EventID=4762) or (EventID=4764) or (EventID=4767) or (EventID=4768) or (EventID=4771) or (EventID=4774) or (EventID=4778) or (EventID=4779) or (EventID=4781)]]",
+                    "Security!*[System[(EventID=4793) or (EventID=4797) or (EventID=4798) or (EventID=4799) or (EventID=4800) or (EventID=4801) or (EventID=4802) or (EventID=4803) or (EventID=4825) or (EventID=4826) or (EventID=4870) or (EventID=4886) or (EventID=4887) or (EventID=4888) or (EventID=4893)]]",
+                    "Security!*[System[(EventID=4898) or (EventID=4902) or (EventID=4904) or (EventID=4905) or (EventID=4907) or (EventID=4931) or (EventID=4932) or (EventID=4933) or (EventID=4946) or (EventID=4948) or (EventID=4956) or (EventID=4985) or (EventID=5024) or (EventID=5033) or (EventID=5059)]]",
+                    "Security!*[System[(EventID=5136) or (EventID=5137) or (EventID=5140) or (EventID=5145) or (EventID=5632) or (EventID=6144) or (EventID=6145) or (EventID=6272) or (EventID=6273) or (EventID=6278) or (EventID=6416) or (EventID=6423) or (EventID=6424) or (EventID=8001) or (EventID=8002)]]",
+                    "Security!*[System[(EventID=8003) or (EventID=8004) or (EventID=8005) or (EventID=8006) or (EventID=8007) or (EventID=8222) or (EventID=26401) or (EventID=30004)]]",
+                    "Microsoft-Windows-AppLocker/EXE and DLL!*[System[(EventID=8001) or (EventID=8002) or (EventID=8003) or (EventID=8004)]]",
+                    "Microsoft-Windows-AppLocker/MSI and Script!*[System[(EventID=8005) or (EventID=8006) or (EventID=8007)]]"
+                  ],
+                  "Minimal": [
+                    "Security!*[System[(EventID=1102) or (EventID=4624) or (EventID=4625) or (EventID=4657) or (EventID=4663) or (EventID=4688) or (EventID=4700) or (EventID=4702) or (EventID=4719) or (EventID=4720) or (EventID=4722) or (EventID=4723) or (EventID=4724) or (EventID=4727) or (EventID=4728)]]",
+                    "Security!*[System[(EventID=4732) or (EventID=4735) or (EventID=4737) or (EventID=4739) or (EventID=4740) or (EventID=4754) or (EventID=4755) or (EventID=4756) or (EventID=4767) or (EventID=4799) or (EventID=4825) or (EventID=4946) or (EventID=4948) or (EventID=4956) or (EventID=5024)]]",
+                    "Security!*[System[(EventID=5033) or (EventID=8222)]]",
+                    "Microsoft-Windows-AppLocker/EXE and DLL!*[System[(EventID=8001) or (EventID=8002) or (EventID=8003) or (EventID=8004)]]",
+                    "Microsoft-Windows-AppLocker/MSI and Script!*[System[(EventID=8005) or (EventID=8006) or (EventID=8007)]]"
+                  ]
+                }
+              },
+              "resources": [
+                {
+                  "type": "Microsoft.Resources/resourceGroups",
+                  "name": "[parameters('dcrResourceGroup')]",
+                  "apiVersion": "2019-05-01",
+                  "location": "[parameters('dcrRegion')]"
+                },
+                {
+                  "type": "Microsoft.Resources/deployments",
+                  "name": "[variables('deployDefaultAmaDcrResourceGroup')]",
+                  "apiVersion": "2020-06-01",
+                  "resourceGroup": "[parameters('dcrResourceGroup')]",
+                  "properties": {
+                    "mode": "Incremental",
+                    "expressionEvaluationOptions": {
+                      "scope": "inner"
+                    },
+                    "parameters": {
+                      "dcrRegion": {
+                        "value": "[parameters('dcrRegion')]"
+                      },
+                      "workspaceResourceId": {
+                        "value": "[variables('workspaceResourceId')]"
+                      },
+                      "dcrName": {
+                        "value": "[variables('dcrName')]"
+                      },
+                      "dcrId": {
+                        "value": "[variables('dcrId')]"
+                      },
+                      "xPathQueries": {
+                        "value": "[if(equals(parameters('eventFilter'),'AllEvents'),variables('xpathQueries').AllEvents,if(equals(parameters('eventFilter'),'Common'),variables('xpathQueries').Common,if(equals(parameters('eventFilter'),'Minimal'),variables('xpathQueries').Minimal,parameters('listOfCustomEventFilters'))))]"
+                      }
+                    },
+                    "template": {
+                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                      "contentVersion": "1.0.0.0",
+                      "parameters": {
+                        "dcrRegion": {
+                          "type": "string"
+                        },
+                        "workspaceResourceId": {
+                          "type": "string"
+                        },
+                        "dcrName": {
+                          "type": "string"
+                        },
+                        "dcrId": {
+                          "type": "string"
+                        },
+                        "xPathQueries": {
+                          "type": "array"
+                        }
+                      },
+                      "variables": {},
+                      "resources": [
+                        {
+                          "type": "Microsoft.Insights/dataCollectionRules",
+                          "name": "[parameters('dcrName')]",
+                          "apiVersion": "2021-04-01",
+                          "location": "[parameters('dcrRegion')]",
+                          "properties": {
+                            "description": "Data collection rule for Microsoft Defender for Cloud. Deleting this rule will break the detection of security vulnerabilities.",
+                            "dataSources": {
+                              "windowsEventLogs": [
+                                {
+                                    "streams": [
+                                        "Microsoft-SecurityEvent"
+                                    ],
+                                    "xPathQueries": "[parameters('xPathQueries')]",
+                                    "name": "eventLogsDataSource"
+                                }
+                            ]
+                            },
+                            "destinations": {
+                              "logAnalytics": [
+                                {
+                                  "workspaceResourceId": "[parameters('workspaceResourceId')]",
+                                  "name": "DataCollectionEvent"
+                                }
+                              ]
+                            },
+                            "dataFlows": [
+                              {
+                                  "streams": [
+                                      "Microsoft-SecurityEvent"
+                                  ],
+                                  "destinations": [
+                                      "DataCollectionEvent"
+                                  ]
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "dependsOn": [
+                    "[resourceId('Microsoft.Resources/resourceGroups', parameters('dcrResourceGroup'))]"
+                  ]
+                },
+                {
+                  "type": "Microsoft.Resources/deployments",
+                  "name": "[variables('deployDataCollectionRulesAssociation')]",
+                  "apiVersion": "2020-06-01",
+                  "resourceGroup": "[parameters('resourceGroup')]",
+                  "dependsOn": [
+                    "[variables('deployDefaultAmaDcrResourceGroup')]"
+                  ],
+                  "properties": {
+                    "mode": "Incremental",
+                    "expressionEvaluationOptions": {
+                      "scope": "inner"
+                    },
+                    "parameters": {
+                      "vmName": {
+                        "value": "[parameters('vmName')]"
+                      },
+                      "dcrId": {
+                        "value": "[variables('dcrId')]"
+                      },
+                      "dcraName": {
+                        "value": "[variables('dcraName')]"
+                      }
+                    },
+                    "template": {
+                      "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                      "contentVersion": "1.0.0.0",
+                      "parameters": {
+                        "vmName": {
+                          "type": "string"
+                        },
+                        "dcrId": {
+                          "type": "string"
+                        },
+                        "dcraName": {
+                          "type": "string"
+                        }
+                      },
+                      "variables": {},
+                      "resources": [
+                        {
+                          "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
+                          "name": "[parameters('dcraName')]",
+                          "apiVersion": "2021-04-01",
+                          "properties": {
+                            "description": "Association of data collection rule for Microsoft Defender for Cloud. Deleting this association will break the collection of Security Events for this virtual machine.",
+                            "dataCollectionRuleId": "[parameters('dcrId')]"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "parameters": {
+    "effect": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Effect",
+        "description": "Enable or disable the execution of the policy"
+      },
+      "allowedValues": [
+        "DeployIfNotExists",
+        "Disabled"
+      ],
+      "defaultValue": "DeployIfNotExists"
+    },
+    "userWorkspaceResourceId": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Workspace Resource Id",
+        "description": "Select the Log Analytics workspace to which the virtual machines in scope will send their logs. If this workspace is outside of the scope of the assignment you must manually grant 'Log Analytics Contributor' permissions (or similar) to the policy assignment's principal ID.",
+        "strongType": "omsWorkspace"
+      }
+    },
+    "dcrRegion": {
+      "type": "String",
+      "metadata": {
+        "displayName": "DCR region",
+        "description": "Region from which the virtual machines in scope will send their logs. Needed to create the Data Collection Rule in the same region",
+        "strongType": "location"
+      }
+    },
+    "dcrResourceGroup": {
+      "type": "String",
+      "metadata": {
+        "displayName": "DCR Resource Group",
+        "description": "Resource Group for the Security Events Data Collection Rule"
+      }
+    },
+    "eventFilter": {
+      "type": "String",
+      "metadata": {
+        "displayName": "Security Events Filter",
+        "description": "Security Events Filter (all events, common, minimal, or custom)"
+      },
+      "allowedValues": [ "AllEvents", "Common", "Minimal", "Custom" ]
+    },
+    "listOfCustomEventFilters": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Custom xPath Queries",
+        "description": "List of xPath queries to filter the Security Events. Example values: 'Security!*[System[(EventID=4624 or EventID=4625)]]'"
+      },
+      "defaultValue": []
+    },
+    "listOfWindowsImageIdToInclude": {
+      "type": "Array",
+      "metadata": {
+        "displayName": "Additional Virtual Machine Images",
+        "description": "List of virtual machine images that have supported Windows OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+      },
+      "defaultValue": []
+    }
+  }
+}

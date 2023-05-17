@@ -102,21 +102,34 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 4.	You will find the list of VMs with high severity Vulnerabilities.
 5.	Select a predefined query Template **“Internet exposed SQL servers with managed identity”** and click on **Search**
 6.	You will find the list of SQL servers with managed identity.
-7.	You can also explore and build your own queries using query builder as shown below: In the dropdown select ->Virtual machines ->Insight ->Title -> vulnerable to remote code execution.
+7.	You can also explore and build your own queries using query builder as shown below: In the dropdown select Compute -> Virtual machines -> Azure Virtual Machines
 
- ![image](https://user-images.githubusercontent.com/102209701/215829274-f268ffbd-2da6-4692-98d7-db11f05e6013.png)
+![image](https://user-images.githubusercontent.com/102209701/230957007-478bf8c3-eb3e-4c04-908b-514710d30967.png)
+
+ Click on + and under select condition, select Security -> vulnerable to remote code execution.
+
+ ![image](https://user-images.githubusercontent.com/102209701/230956384-cee04cd8-8a49-4345-a9a4-4b0e8e619ca9.png)
 
 8.	Explore your Environment for Virtual Machines with a specific vulnerability 
 
- ![image](https://user-images.githubusercontent.com/102209701/215829372-74895012-7beb-4a09-b34d-cd4ad18d2fa8.png)
+ ![image](https://user-images.githubusercontent.com/102209701/230958117-60a425b1-ded4-443c-a11c-001fc3f51b17.png)
+ 
+ Search for Virtual Machines that has a specific Vulnerability
+ 
+ ![image](https://user-images.githubusercontent.com/102209701/230958614-cdc86d27-a4a9-4622-a137-f695af2cb37a.png)
+
 
 9.	Explore your Environment for Storage Accounts exposed to the Internet
 
- ![image](https://user-images.githubusercontent.com/102209701/215829437-b12e741d-48e1-43e8-834f-71996fcf6645.png)
+ ![image](https://user-images.githubusercontent.com/102209701/230959026-54412825-60ce-4b53-957f-21d5d17afd53.png)
 
-10.	Explore your Environment for Virtual machines with a managed identity 
+![image](https://user-images.githubusercontent.com/102209701/230959308-d2256f43-1413-4c6d-8d4a-381f706f903d.png)
 
-![image](https://user-images.githubusercontent.com/102209701/215829494-1cb52fc0-1844-437a-aee0-d194d03049ea.png)
+
+10.	Explore your Environment for Storage Accounts with a Sensitive Data 
+
+![image](https://user-images.githubusercontent.com/102209701/230960239-65feb795-4ab7-47e1-8f0e-fff3e8ef2085.png)
+
 
  
 ## Exercise 5: Assign Governance Rule
