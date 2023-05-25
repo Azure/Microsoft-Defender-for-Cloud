@@ -96,6 +96,6 @@ Once you have deployed the Logic App, it is essential to verify and configure th
 
 8. If the test runs successfully without any errors, it indicates that the API connections are properly configured and functional. <br/><br/>
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Azure%2FAzure-Security-Center%2Fmain%2FWorkflow%20automation%2Notify-NewAttackPath%2FFazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Microsoft-Defender-for-Cloud%2Fmain%2FWorkflow%20automation%2Notify-NewAttackPath%2FFazuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
