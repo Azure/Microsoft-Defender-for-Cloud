@@ -37,7 +37,7 @@ az aks update -n <myAKSCluster> -g <your-ResourceGroup> --attach-acr <your-acr-n
 
 Ex: 
 ```
-az aks update -n asclab-aks -g labgroup --attach-acr -asclabacr123
+az aks update -n asclab-aks -g labgroup --attach-acr asclabacr123
 ```
 
 
