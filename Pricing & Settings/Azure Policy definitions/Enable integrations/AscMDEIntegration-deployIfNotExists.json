@@ -30,7 +30,7 @@
           ],
           "existenceCondition": {
             "field": "Microsoft.Security/settings/DataExportSetting.enabled",
-            "equals": true
+            "notEquals": true
           },
           "deployment": {
             "location": "westeurope",
@@ -49,7 +49,7 @@
                           "name": "WDATP",
                           "kind": "DataExportSettings",
                           "properties":{
-                              "enabled": true
+                              "enabled": false
                           }
                       }
                   ],
