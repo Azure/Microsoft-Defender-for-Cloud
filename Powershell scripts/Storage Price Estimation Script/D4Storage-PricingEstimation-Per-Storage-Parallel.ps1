@@ -54,7 +54,7 @@ try{
             SubscriptionId = $sub.Id
             NumberOfStorageAccounts = $StorageAccounts.Length
             SubScriptionBaseStorageCost = $storageAccounts.Length * $CostPerStorageAccount
-            SubscriptionOverageCost = $$overageTransactionsPerSub
+            SubscriptionOverageCost = $overageTransactionsPerSub
             TotalCostForSub = $totalCostPerSub 
             OldPlanEstimate = $oldEstimate
         }
