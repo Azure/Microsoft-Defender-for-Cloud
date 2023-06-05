@@ -60,7 +60,7 @@ In Exercise 4 we will create an EICAR file in your computer. If you have an anti
 ![Add exclusion](../Images/windowssecurity3.png?raw=true)
 5. In **Exclusions** click **Add an exclusion** and select **Folder**
 ![Exclusions](../Images/windowssecurity4.png?raw=true)
-6. Choose the folder you create in step 1. 
+6. Choose the folder you created in step 1. 
 
 ## 📝 Exercise 4: Create EICAR File
 Now that you have the excluded folder, create a malicious test file (EICAR) for testing purposes in your lab environment. 
@@ -85,7 +85,7 @@ Now that you have the excluded folder, create a malicious test file (EICAR) for 
 6. A side screen will appear on the right. Click **Browse for files** or drag and drop the files there.
 ![Browse file](../Images/BrowseFile.png?raw=true)
 7. Choose the file created in *Exercise 3* and then click **Upload**.
-![Upload file](../Images/UploadFile.png?raw=true)
+![Upload file](../Images/uploadfile.png?raw=true)
 ![Upload file](../Images/upload1.png?raw=true)
 8. Click on the uploaded file to see its settings. 
 9. Scroll down until you see **Blob index tags**. The file was detected as **Malicious**.
