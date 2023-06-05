@@ -7,7 +7,7 @@ Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided t
 -	**Overview:** summary view of all your network security and networking resources for selected subscription(s)
 -	**Public IPs & exposed ports:** ports exposed to the internet and mapping of public IPs to asset types
 -	**Network security services:** DDoS protections plans, Azure Firewall and Firewall policies, Azure WAF policies and NSG views
--	**Internal networking mapping:** network interfaces, route tables, private links, DDoS protection status, peerings and DNS Servers
+-	**Internal networking mapping:** network interfaces, route tables, private links, DDoS protection status, peerings and DNS Servers, Subnets view of all subnets, Private DNS VNET Links, IP Forwarding
 -	**Gateway and VPN services:** consolidated view of Bastion hosts, VPN gateways, Virtual Network Gateways and Express Route circuits
 -	**Traffic Manager** details of all your traffic manager profiles
 -	**Virtual WAN (vWAN)** consolidated view of Virtual WANs (inlcuding VPN/ExpressRoute/P2S)
