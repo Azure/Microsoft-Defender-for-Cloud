@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## Guest Configuration Result v1.7\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n| v1.6|h.wache|2023-01| fixed failed query because of added value on GC assignment name, (multiple assignments support availability)|\n| v.1.7|h.wache|2023-03| added parameter to filter for Azure VM \"timeCreated\" attribute in \"By Policy\" and \"By Computer\" tab\n\n---"
+        "json": "## Guest Configuration Result v1.9\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n---"
       },
       "name": "head"
     },
@@ -14,43 +14,61 @@
         "version": "KqlParameterItem/1.0",
         "parameters": [
           {
-            "id": "c8b0b43b-1ca1-4f00-a421-edea20010918",
+            "id": "209ac061-8f56-4f6e-b656-b8314244fb7f",
             "version": "KqlParameterItem/1.0",
-            "name": "ManagementGroups",
-            "label": "Management Groups",
-            "type": 2,
+            "name": "ShowChangeHistory",
+            "label": "Show Change History",
+            "type": 10,
+            "description": "Display Versions and Changes",
             "isRequired": true,
-            "multiSelect": true,
-            "quote": "'",
-            "delimiter": ",",
-            "query": "ResourceContainers\r\n| where type =~ 'microsoft.management/managementgroups'\r\n| project mgname = name\r\n",
-            "crossComponentResources": [
-              "value::tenant"
-            ],
             "typeSettings": {
-              "additionalResourceOptions": [
-                "value::all"
-              ],
+              "additionalResourceOptions": [],
               "showDefault": false
             },
-            "defaultValue": "value::all",
-            "queryType": 1,
-            "resourceType": "microsoft.resources/tenants",
-            "value": [
-              "value::all"
-            ]
-          },
+            "jsonData": "[\r\n { \"value\": \"true\", \"label\": \"Yes\" },\r\n { \"value\": \"false\", \"label\": \"No\", \"selected\":true }\r\n ]",
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "value": "true"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "name": "parameters - 12"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n| v1.6|h.wache|2023-01| fixed failed query because of added value on GC assignment name, (multiple assignments support availability)|\n| v.1.7|h.wache|2023-03| added parameter to filter for Azure VM \"timeCreated\" attribute in \"By Policy\" and \"By Computer\" tab\n| v.1.8|h.wache|2023-05| added Tenant filter to include Lighthouse connected Subscriptions\n| v.1.9|h.wache|2023-06| added a helper to find correct policy with regards to the jobscript which is assigned in the \"localscript\" paramter, see _[custom policy solution](https://aka.ms/machineconfig)_\n\n---"
+      },
+      "conditionalVisibility": {
+        "parameterName": "ShowChangeHistory",
+        "comparison": "isEqualTo",
+        "value": "true"
+      },
+      "name": "head - Copy"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
           {
             "id": "5bb86d1c-e81a-4e65-a105-1bf63e495a75",
             "version": "KqlParameterItem/1.0",
-            "name": "Subscription",
-            "type": 6,
-            "description": "Select Subscription",
+            "name": "Tenant",
+            "type": 2,
+            "description": "Select Tenant",
             "isRequired": true,
             "multiSelect": true,
             "quote": "'",
             "delimiter": ",",
-            "query": "ResourceContainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| extend  mgParent = properties.managementGroupAncestorsChain\r\n| mv-expand with_itemindex=MGHierarchy mgParent\r\n| where tostring(mgParent.name) in ({ManagementGroups})\r\n| summarize by id",
+            "query": "ResourceContainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| summarize by tenantId",
             "crossComponentResources": [
               "value::all"
             ],
@@ -68,7 +86,219 @@
             "resourceType": "microsoft.resourcegraph/resources"
           },
           {
-            "id": "89752a41-a363-48e7-8424-7e3e1159f9ad",
+            "id": "c8b0b43b-1ca1-4f00-a421-edea20010918",
+            "version": "KqlParameterItem/1.0",
+            "name": "ManagementGroups",
+            "label": "Management Groups",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "ResourceContainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| where tenantId in ({Tenant})\r\n| extend  mgParent = properties.managementGroupAncestorsChain\r\n| mv-expand with_itemindex=MGHierarchy mgParent\r\n| summarize by tenantId, tostring(mgParent.displayName), tostring(mgParent.name)\r\n| project mgParent_name, display = strcat(tenantId,\" | \",mgParent_displayName)\r\n| sort by display asc",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "description": "Select Subscription",
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "ResourceContainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| where tenantId in ({Tenant})\r\n| extend  mgParent = properties.managementGroupAncestorsChain\r\n| mv-expand with_itemindex=MGHierarchy mgParent\r\n| where tostring(mgParent.name) in ({ManagementGroups})\r\n| summarize by id",
+            "crossComponentResources": [
+              "value::all"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "id": "cd135236-a791-40f5-b425-6dc0ce037823",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "0128d22f-72fc-4810-bf64-54da1c942f94",
+            "version": "KqlParameterItem/1.0",
+            "name": "GCPolicy3",
+            "type": 2,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| summarize by name\r\n| sort by name asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "isHiddenWhenLocked": true,
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          }
+        ],
+        "style": "above",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "parameters - 3"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "#### Policy Helper\nin case you use _[custom policy solution](https://aka.ms/machineconfig)_, you can enable the helper to filter policies. It shows policies which have the \"localscript\" parameter\n",
+        "style": "success"
+      },
+      "customWidth": "30",
+      "name": "policy helper"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "version": "KqlParameterItem/1.0",
+            "name": "custom_solution",
+            "label": "Enable Policy Helper",
+            "type": 10,
+            "description": "https://aka.ms/machineconfig",
+            "isRequired": true,
+            "typeSettings": {
+              "additionalResourceOptions": []
+            },
+            "jsonData": "[\r\n { \"value\": \"true\", \"label\": \"Yes\" },\r\n { \"value\": \"false\", \"label\": \"No\", \"selected\":true }\r\n ]",
+            "timeContext": {
+              "durationMs": 86400000
+            },
+            "id": "32d7c350-0ba9-403d-91c9-5194b91dd75e",
+            "value": "true"
+          }
+        ],
+        "style": "above",
+        "queryType": 0,
+        "resourceType": "microsoft.operationalinsights/workspaces"
+      },
+      "customWidth": "50",
+      "name": "parameters - 12 - Copy"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| mv-expand  parameter = properties.guestConfiguration.configurationParameter\r\n| extend pname = parameter.name\r\n| where pname endswith \"PowershellScript;localscript\"\r\n| extend Script = parameter.value\r\n| summarize by name, tostring(Script)\r\n| extend ParentId = Script\r\n| extend newpar=strcat('\"',name,'\"')\r\n| sort by name\r\n| union ( guestconfigurationresources\r\n    | where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n    | mv-expand  parameter = properties.guestConfiguration.configurationParameter\r\n    | extend pname = tostring(parameter.name)\r\n    | where pname endswith \"PowershellScript;localscript\"\r\n    | extend Script = tostring(parameter.value)\r\n    | summarize Policies=dcount(name), newpar=tostring(make_set(name)) by tostring(Script)\r\n    | extend ParentId = \"root\"\r\n    | project ParentId, name=Script, Policies,newpar=substring(newpar,1,strlen(newpar)-2))",
+        "size": 3,
+        "title": "Jobscript to Assignment (Policy + $pid)",
+        "exportMultipleValues": true,
+        "exportedParameters": [
+          {
+            "fieldName": "newpar",
+            "parameterName": "GCPolicy3",
+            "parameterType": 1,
+            "quote": ""
+          },
+          {
+            "parameterType": 1
+          },
+          {
+            "parameterType": 1
+          },
+          {
+            "parameterType": 1
+          }
+        ],
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "visualization": "table",
+        "showExpandCollapseGrid": true,
+        "gridSettings": {
+          "formatters": [
+            {
+              "columnMatch": "Script",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "ParentId",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "newpar",
+              "formatter": 5
+            },
+            {
+              "columnMatch": "Policies",
+              "formatter": 8,
+              "formatOptions": {
+                "palette": "blue"
+              }
+            }
+          ],
+          "hierarchySettings": {
+            "idColumn": "name",
+            "parentColumn": "ParentId",
+            "treeType": 0,
+            "expanderColumn": "name",
+            "expandTopLevel": false
+          },
+          "labelSettings": [
+            {
+              "columnId": "name",
+              "label": "Name"
+            }
+          ]
+        },
+        "sortBy": []
+      },
+      "conditionalVisibility": {
+        "parameterName": "custom_solution",
+        "comparison": "isEqualTo",
+        "value": "true"
+      },
+      "name": "Jobscript2PolicyMapping"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "{Subscription}"
+        ],
+        "parameters": [
+          {
+            "id": "53867a3c-9fd3-4aab-8065-44276fff8280",
             "version": "KqlParameterItem/1.0",
             "name": "GCPolicy",
             "label": "GC Policy",
@@ -77,7 +307,7 @@
             "multiSelect": true,
             "quote": "'",
             "delimiter": ",",
-            "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| summarize by name\r\n | sort by name asc",
+            "query": "guestconfigurationresources\r\n| where type == \"microsoft.guestconfiguration/guestconfigurationassignments\"\r\n| summarize by name\r\n| where name in ({GCPolicy3})\r\n| sort by name asc\r\n",
             "crossComponentResources": [
               "{Subscription}"
             ],
@@ -93,12 +323,10 @@
             "defaultValue": "value::all",
             "queryType": 1,
             "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "value::all"
-            ]
+            "value": null
           },
           {
-            "id": "b4e8a3d4-982a-49d8-9b5e-aee446d99299",
+            "id": "f9eb4365-d94c-4c77-8206-1d10f4839fad",
             "version": "KqlParameterItem/1.0",
             "name": "ComplianceStatus",
             "label": "Compliance Status",
@@ -121,13 +349,10 @@
             },
             "defaultValue": "value::all",
             "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "value::all"
-            ]
+            "resourceType": "microsoft.resourcegraph/resources"
           },
           {
-            "id": "b2b0f6c1-22af-4055-9041-6bc5591a61a5",
+            "id": "38291792-2ac7-4af0-aefc-f5a7fcc3b2e8",
             "version": "KqlParameterItem/1.0",
             "name": "PowerStatus",
             "label": "Power Status",
@@ -152,10 +377,10 @@
           }
         ],
         "style": "above",
-        "queryType": 0,
-        "resourceType": "microsoft.operationalinsights/workspaces"
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
       },
-      "name": "parameters - 3"
+      "name": "parameters - 3 - Copy"
     },
     {
       "type": 11,
@@ -249,8 +474,7 @@
                   "jsonData": "[\r\n { \"value\": \"startofyear(datetime(now), -20)\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-7d)\", \"label\": \"Last 7 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
                   "timeContext": {
                     "durationMs": 86400000
-                  },
-                  "value": "now(-90d)"
+                  }
                 }
               ],
               "style": "above",
@@ -2023,8 +2247,7 @@
                   "jsonData": "[\r\n { \"value\": \"startofyear(datetime(now), -20)\", \"label\": \"All (unfiltered)\", \"selected\":true  },\r\n { \"value\": \"now(-1h)\", \"label\": \"Last Hour\"},\r\n { \"value\": \"now(-4h)\", \"label\": \"Last 4 Hour\"},\r\n { \"value\": \"now(-8h)\", \"label\": \"Last 8 Hour\"},\r\n { \"value\": \"now(-12h)\", \"label\": \"Last 12 Hour\"},\r\n { \"value\": \"now(-1d)\", \"label\": \"Last Day\"},\r\n { \"value\": \"now(-3d)\", \"label\": \"Last 3 Days\"},\r\n { \"value\": \"now(-7d)\", \"label\": \"Last 7 Days\"},\r\n { \"value\": \"now(-12d)\", \"label\": \"Last 12 Days\"},\r\n { \"value\": \"now(-30d)\", \"label\": \"Last 30 Days\"},\r\n { \"value\": \"now(-90d)\", \"label\": \"Last 90 Days\"}\r\n ]",
                   "timeContext": {
                     "durationMs": 86400000
-                  },
-                  "value": "now(-90d)"
+                  }
                 }
               ],
               "style": "above",
@@ -2995,11 +3218,7 @@
                   },
                   "defaultValue": "value::all",
                   "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources",
-                  "value": [
-                    "GC.3.5.2.AutoApplyScript102_SplunkForwarder01",
-                    "GC.4.2.0.AutoApplyScript103Win"
-                  ]
+                  "resourceType": "microsoft.resourcegraph/resources"
                 }
               ],
               "style": "above",
@@ -3179,9 +3398,6 @@
             "type": 9,
             "content": {
               "version": "KqlParameterItem/1.0",
-              "crossComponentResources": [
-                "{Subscription}"
-              ],
               "parameters": [
                 {
                   "id": "6b832bd9-3c52-4af8-baf8-6eda52f2bf38",
@@ -3233,7 +3449,10 @@
                     "durationMs": 86400000
                   },
                   "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": [
+                    "value::all"
+                  ]
                 },
                 {
                   "id": "80b3f18f-5136-480f-9a03-2a070a0e581d",
@@ -3248,9 +3467,7 @@
                   "crossComponentResources": [
                     "{Subscription}"
                   ],
-                  "value": [
-                    "value::all"
-                  ],
+                  "value": null,
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
@@ -3279,8 +3496,8 @@
                 }
               ],
               "style": "above",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources"
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
             },
             "name": "ExtIdentity Parameter"
           },
