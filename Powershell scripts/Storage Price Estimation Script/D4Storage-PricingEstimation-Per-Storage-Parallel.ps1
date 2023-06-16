@@ -11,15 +11,15 @@ if ($null -eq $(Get-AzContext)){Connect-AzAccount}
 $Subscriptions = Get-AzSubscription
 try{
     foreach($sub in $Subscriptions){
-        Set-AzContext -subscription $sub.id -ErrorAction Stop
+        $null = Set-AzContext -subscription $sub.id -ErrorAction Stop
         $StorageAccounts = Get-AzStorageAccount -ErrorAction Stop
         $threadSafeDict = [System.Collections.Concurrent.ConcurrentDictionary[string, int]]::New()
-        Write-Host "Estimating Defender For Storage monthly price for $($StorageAccounts.Length) accounts in $($Sub.Name)"
+        Write-Verbose "Estimating Defender For Storage monthly price for $($StorageAccounts.Length) accounts in $($Sub.Name)"
         $StorageAccounts | ForEach-Object -ThrottleLimit 15 -Parallel{
-            Import-Module Az.Accounts
+            # Import-Module Az.Accounts
             $now = $USING:now
             $lastMonth = $USING:lastMonth
-            $dict = $using:threadSafeDict
+            $dict = $USING:threadSafeDict
             $body = "{
                 'requests':[
                     {
@@ -36,20 +36,28 @@ try{
             $totalTransactionsPerSA += (($resp.Content | Convertfrom-json).responses.content.value.timeseries.data | measure-object -sum 'total').sum
             $null = $dict.TryAdd($_.Id, $totalTransactionsPerSA)
         }
+        
+        # Calculate the total number of transations in the subscription
         $totalTransactionsPerSub = ($threadSafeDict.Values | Measure-Object -Sum).Sum
+        
+        # Calculate the number of transactions above the ceiling
         $overageTransactionsPerSub = (($totalTransactionsPerSub - $overageBar) -ge 0) ? ($totalTransactionsPerSub - $overageBar) : 0
+        
+        # If the ceiling was exceeded, calculate the overage cost
         $overageCostPerSub = $(($overageTransactionsPerSub) / 1000000 * $PricePer1MOverageTransactions)
         $totalCostPerSub = $overageCostPerSub + ($CostPerStorageAccount * $StorageAccounts.Length)
-        $totalCost += $overageCostPerSub
-        $subscriptionOverageCost += $overageCostPerSub
+        $totalCost += $totalCostPerSub
+        
+        $oldEstimate = ($totalTransactionsPerSub / 10000) * .02
+        
         $subscriptionTotalCostArray += New-Object PSObject -Property @{
             SubscriptionId = $sub.Id
             NumberOfStorageAccounts = $StorageAccounts.Length
             SubScriptionBaseStorageCost = $storageAccounts.Length * $CostPerStorageAccount
-            SubscriptionOverageCost = $subscriptionOverageCost
+            SubscriptionOverageCost = $overageTransactionsPerSub
             TotalCostForSub = $totalCostPerSub 
+            OldPlanEstimate = $oldEstimate
         }
-        $totalCost += $CostPerStorageAccount * $StorageAccounts.Length
     }
 }
 catch{

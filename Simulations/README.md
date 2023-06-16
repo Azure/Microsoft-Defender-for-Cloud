@@ -58,6 +58,11 @@ If you are testing the integration with MDE, use [this article](https://docs.mic
 
 - [Defender for SQL on Machine](https://docs.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage)
 
+## Alert Simulation for Defender for APIs
+- [This article](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/validating-microsoft-defender-for-apis-alerts/ba-p/3803874) covers the steps to simulate an attack on an API endpoint that can be identified by Defender for APIs.
+
+- [Defender for APIs](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-apis-introduction)
+
 ## Threat Hunting in Microsoft Defender for Cloud and Log Analytics Workspace
 
 - This simulation playbook go over a threat hunting scenario using Microsoft Defender for Cloud and searching for evidences of attack in Log Analtyics workspace.

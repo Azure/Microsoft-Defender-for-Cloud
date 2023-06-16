@@ -81,13 +81,19 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Create an AWS account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-1-create-an-aws-account)
 - [Create an AWS connector for the new AWS account in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md#exercise-2-create-an-aws-connector-for-the-new-aws-account-in-microsoft-defender-for-cloud)
 
-[**Module 12 – Defender for Azure Cosmos DB (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md)
-- [Enable database protection on your subscription](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-1-enable-database-protection-on-your-subscription)
-- [Create an Azure Cosmos DB account and protect it using Microsoft Defender for Azure Cosmos DB](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Defender-for-Azure-Comos-DB.md#exercise-2-create-an-azure-cosmos-db-account-and-protect-it-using-microsoft-defender-for-azure-cosmos-db)
+[**Module 12 – Defender for Azure Cosmos DB (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Microsoft-Defender-for-Cloud-database-protection.md)
+- [Enable Defender for SQL servers on machines plan](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Microsoft-Defender-for-Cloud-database-protection.md#exercise-1-enable-defender-for-sql-servers-on-machines-plan)
+- [Enable and protect your Azure SQL Databases using Microsoft Defender for Azure SQL Databases](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Microsoft-Defender-for-Cloud-database-protection.md#exercise-2-enable-and-protect-your-azure-sql-databases-using-microsoft-defender-for-azure-sql-databases)
+- [Enable and protect your Azure Cosmos DB accounts using Microsoft Defender for Azure Cosmos DB](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Microsoft-Defender-for-Cloud-database-protection.md#exercise-3-enable-and-protect-your-azure-cosmos-db-accounts-using-microsoft-defender-for-azure-cosmos-db)
+- [Enable and protect your OSS RDBs using Microsoft Defender for Open-source relational databases](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-12-Microsoft-Defender-for-Cloud-database-protection.md#exercise-4-enable-and-protect-your-oss-rdbs-using-microsoft-defender-for-open-source-relational-databases)
 
-[**Module 13 – Governance (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md)
-- [Add a new Governance Rule in Microsoft Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-1-add-a-new-governance-rule-in-microsoft-defender-for-cloud)
-- [See recommendations that you're the owner of](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Governance.md#exercise-2-see-recommendations-that-youre-the-owner-of)
+[**Module 13 – Defender for APIs (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md)
+- [Create Azure API Mamanegement Service](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-1-create-azure-api-management-service)
+- [Publish an API within API Managament](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-2-publish-an-api-within-api-management)
+- [Enable Defender for API](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-3-enable-defender-for-api)
+- [Onboard APIs to Defender for APIs](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-4-onboard-apis-to-defender-for-apis)
+- [Explore the Defender for API tile and look at API recommendations in Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-5-explore-the-defender-for-api-tile-and-look-at-api-recommendations-in-defender-for-cloud)
+- [Trigger an alert "Suspicious user agent detected"](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-6-trigger-an-alert-suspicious-user-agent-detected)
 
 [**Module 14 – Configuring Azure ADO Connector in Defender for DevOps (L200)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md)
 - [Preparing the environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-1-preparing-the-environment)
@@ -120,6 +126,11 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 3: Explore Attack Paths in your Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-3-explore-attack-paths-in-your-environment)
 - [Exercise 4: Build query with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-4-build-query-with-cloud-security-explorer)
 - [Exercise 5: Assign Governance Rule](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2017%20%E2%80%93Defender%20CSPM.md#exercise-5-assign-governance-rule)
+
+[**Module 18 - Agentless container posture through Defender CSPM (L200)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-18-%20Agentless-container-posture-through-Defender-DCSPM.md#module-18---agentless-container-posture-through-defender-cspm)
+- [Exercise 1: Prepare your environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-18-%20Agentless-container-posture-through-Defender-DCSPM.md#exercise-1-prepare-your-environment)
+- [Exercise 2: Investigate internet exposed Kubernetes pods through the Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-18-%20Agentless-container-posture-through-Defender-DCSPM.md#exercise-2-investigate-internet-exposed-kubernetes-pods-through-the-cloud-security-explorer)
+- [Exercise 3: Investigate attack paths](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-18-%20Agentless-container-posture-through-Defender-DCSPM.md#exercise-3-investigate-attack-paths)
 
 
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)

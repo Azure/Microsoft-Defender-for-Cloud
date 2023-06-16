@@ -1,0 +1,347 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "metadata":  {
+        "title":  "",
+        "description":  "",
+        "prerequisites":  "",
+        "postDeployment":  [
+        ],
+        "prerequisitesDeployTemplateFile":  "",
+        "lastUpdateTime":  "",
+        "entities":  [
+        ],
+        "tags":  [
+        ],
+        "support":  {
+            "tier":  "community",
+            "armtemplate":  "Generated from https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Playbook-ARM-Template-Generator"
+        },
+        "author":  {
+            "name":  ""
+        }
+    },
+    "parameters":  {
+        "PlaybookName":  {
+            "defaultValue":  "attackPathNotification",
+            "type":  "string"
+        },
+        "EmailAddress": {
+            "type": "string",
+            "metadata": {
+                "description": "The email address to send notifications to."
+            }
+        }
+    },
+    "variables":  {
+        "AzuretablesConnectionName":  "[concat('Azuretables-', parameters('PlaybookName'))]",
+        "Office365ConnectionName":  "[concat('Office365-', parameters('PlaybookName'))]"
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Disabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "Recurrence":  {
+                            "recurrence":  {
+                                "frequency":  "Day",
+                                "interval":  1
+                            },
+                            "evaluatedRecurrence":  {
+                                "frequency":  "Day",
+                                "interval":  1
+                            },
+                            "type":  "Recurrence"
+                        }
+                    },
+                    "actions":  {
+                        "For_each_Attack_Path":  {
+                            "foreach":  "@variables('attack_path_array')",
+                            "actions":  {
+                                "Condition":  {
+                                    "actions":  {
+                                        "Merge_Entity_(V2)_2":  {
+                                            "runAfter":  {
+                                            },
+                                            "type":  "ApiConnection",
+                                            "inputs":  {
+                                                "body":  {
+                                                    "LastUpdate":  "@{formatDateTime(utcNow(), 'yyyy-MM-ddTHH:mm:ssZ')}"
+                                                },
+                                                "headers":  {
+                                                    "If-Match":  "*"
+                                                },
+                                                "host":  {
+                                                    "connection":  {
+                                                        "name":  "@parameters('$connections')['azuretables']['connectionId']"
+                                                    }
+                                                },
+                                                "method":  "patch",
+                                                "path":  "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('attackPaths')}/entities/etag(PartitionKey='@{encodeURIComponent('AttackPath')}',RowKey='@{encodeURIComponent(items('For_each_Attack_Path')[0])}')"
+                                            }
+                                        }
+                                    },
+                                    "runAfter":  {
+                                        "Get_entity_(V2)":  [
+                                            "Succeeded",
+                                            "Failed",
+                                            "Skipped"
+                                        ]
+                                    },
+                                    "else":  {
+                                        "actions":  {
+                                            "Insert_Entity_(V2)":  {
+                                                "runAfter":  {
+                                                },
+                                                "type":  "ApiConnection",
+                                                "inputs":  {
+                                                    "body":  {
+                                                        "DisplayName":  "@{items('For_each_Attack_Path')[1]}",
+                                                        "LastUpdate":  "@{formatDateTime(utcNow(), 'yyyy-MM-ddTHH:mm:ssZ')}",
+                                                        "Notified":  "False",
+                                                        "PartitionKey":  "AttackPath",
+                                                        "RowKey":  "@{items('For_each_Attack_Path')[0]}",
+                                                        "TimeGenerated":  "@{formatDateTime(utcNow(), 'yyyy-MM-ddTHH:mm:ssZ')}"
+                                                    },
+                                                    "host":  {
+                                                        "connection":  {
+                                                            "name":  "@parameters('$connections')['azuretables']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method":  "post",
+                                                    "path":  "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('attackPaths')}/entities"
+                                                }
+                                            },
+                                            "Merge_Entity_(V2)":  {
+                                                "runAfter":  {
+                                                    "Send_an_email_(V2)":  [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type":  "ApiConnection",
+                                                "inputs":  {
+                                                    "body":  {
+                                                        "Notified":  "True"
+                                                    },
+                                                    "headers":  {
+                                                        "If-Match":  "*"
+                                                    },
+                                                    "host":  {
+                                                        "connection":  {
+                                                            "name":  "@parameters('$connections')['azuretables']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method":  "patch",
+                                                    "path":  "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('attackPaths')}/entities/etag(PartitionKey='@{encodeURIComponent('AttackPath')}',RowKey='@{encodeURIComponent(items('For_each_Attack_Path')[0])}')"
+                                                }
+                                            },
+                                            "Send_an_email_(V2)":  {
+                                                "runAfter":  {
+                                                    "Set_variable_-_Notification_Body":  [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type":  "ApiConnection",
+                                                "inputs":  {
+                                                    "body":  {
+                                                        "Body":  "\u003cp\u003e\u003cbr\u003e\n@{variables('notificationBody')}\u003cbr\u003e\n\u003cbr\u003e\n\u003c/p\u003e",
+                                                        "Importance":  "Normal",
+                                                        "Subject":  "New Attack Path",
+                                                        "To":  "[parameters('EmailAddress')]"
+                                                    },
+                                                    "host":  {
+                                                        "connection":  {
+                                                            "name":  "@parameters('$connections')['office365']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method":  "post",
+                                                    "path":  "/v2/Mail"
+                                                }
+                                            },
+                                            "Set_variable_-_Notification_Body":  {
+                                                "runAfter":  {
+                                                    "Insert_Entity_(V2)":  [
+                                                        "Succeeded"
+                                                    ]
+                                                },
+                                                "type":  "SetVariable",
+                                                "inputs":  {
+                                                    "name":  "notificationBody",
+                                                    "value":  "\u003cstyle type=\"text/css\"\u003e\n\th1 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 32px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 30px;\n\t}\n\n\th2 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 20px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 15px;\n\t}\n\n\th3 {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 22px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 700;\n\t\tline-height: 23.1px;\n\t}\n\n\tp {\n\t\tfont-family: \"Segoe UI\";\n\t\tfont-size: 16px;\n\t\tfont-style: normal;\n\t\tfont-variant: normal;\n\t\tfont-weight: 400;\n\t\tline-height: 20px;\n\t}\n\u003c/style\u003e\n\u003ctable align=\"center\" border=\"0\" cellpadding=\"1\" cellspacing=\"1\" style=\"width:800px;\"\u003e\n\t\u003ctbody\u003e\n\t\t\u003ctr\u003e\n\t\t\t\u003cth style=\"text-align:center; width:735px\"\u003e\n\t\t\t\t\u003ctable align=\"left\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 650px;\"\u003e\n\t\t\t\t\t\u003ctbody\u003e\n\t\t\t\t\t\t\u003ctr\u003e\n\t\t\t\t\t\t\t\u003ctd\u003e\u003cimg src=\"https://raw.githubusercontent.com/Azure/Azure-Security-Center/master/.github/images/asc.png\" alt=\"\" width=\"100\" height=\"100\" /\u003e\u003c/td\u003e\n\t\t\t\t\t\t\t\u003ctd\u003e\n\t\t\t\t\t\t\t\t\u003ch1 style=\"text-align: left;\"\u003eMicrosoft Defender for Cloud\u003c/h1\u003e\n\t\t\t\t\t\t\t\u003c/td\u003e\n\t\t\t\t\t\t\u003c/tr\u003e\n\t\t\t\t\t\u003c/tbody\u003e\n\t\t\t\t\u003c/table\u003e\n\t\t\t\u003c/th\u003e\n\t\t\u003c/tr\u003e\n\t\t\u003ctr\u003e\n\t\t\t\u003ctd style=\"width:735px\"\u003e\n\t\t\t\t\u003cp style=\"text-align: left;\"\u003e \u003cbr\u003e\u003ch3\u003eDefender for Cloud has detected a new Attack Path\u003c/h3\u003e\n\t\t\t\u003c/td\u003e\n\t\t\u003c/tr\u003e\n\n\u003ctr\u003e\u003ctd\u003e\u0026nbsp;\u003c/td\u003e\u003c/tr\u003e\n\t\t\u003ctr\u003e\n\t\t\t\u003ctd style=\"width: 735px; border-color: rgb(221, 221, 221); border-bottom-style: solid;\"\u003e\n\t\t\t\t\u003ch2\u003eAttack Path Information\u003c/h2\u003e\n\t\t\t\u003c/td\u003e\n\t\t\u003c/tr\u003e\n\t\t\u003ctr\u003e\n\t\t\t\u003ctd style=\"width:735px\"\u003e\n\t\t\t\t\u003ctable align=\"center\" border=\"0\" cellpadding=\"0\" cellspacing=\"0\" style=\"width: 750px;\"\u003e\n\t\t\t\t\t\u003ctbody\u003e\u003cbr\u003e\n\t\t\t\t\t\t\u003ctr\u003e\n\t\t\t\t\t\t\t\u003ctd style=\"width: 200px;\"\u003e\n\t\t\t\t\t\t\t\t\u003cp\u003e\u003cstrong\u003eAttack Path ID\u003c/strong\u003e\u003c/p\u003e\n                                \u003cp\u003e@{items('For_each_Attack_Path')[0]}\u003c/p\u003e \n\t\t\t\t\t\t\t\u003c/td\u003e\n\t\t\t\t\t\t\u003ctr\u003e\n\t\t\t\t\t\t\t\u003ctd style=\"width: 200px;\"\u003e\n\t\t\t\t\t\t\t\t\u003cbr\u003e\u003cp\u003e\u003cstrong\u003eDisplay Name\u003c/strong\u003e\u003c/p\u003e\n                                \u003cp\u003e@{items('For_each_Attack_Path')[1]}\u003c/p\u003e \n\t\t\t\t\t\t\t\u003c/td\u003e\n\t\t\t\t\t\t\u003c/tr\u003e\n                        \u003ctr\u003e\n\t\t\t\t\t\t\t\u003ctd style=\"width: 200px;\"\u003e\n\t\t\t\t\t\t\t\t\u003cbr\u003e\u003cp\u003e\u003cstrong\u003eDescription\u003c/strong\u003e\u003c/p\u003e\n                                \u003cp\u003e@{items('For_each_Attack_Path')[2]}\u003c/p\u003e \n\t\t\t\t\t\t\t\u003c/td\u003e\n\t\t\t\t\t\t\u003c/tr\u003e\n\t\t\t\t\t\t\u003ctr\u003e\n\t\t\t\t\t\t\t\u003ctd style=\"width: 1200px;\"\u003e\n\t\t\t\t\t\t\t\t\u003cbr\u003e\u003cp\u003eClick \u003ca href=\"@{concat('https://portal.azure.com/#view/Microsoft_Azure_Security_Orion/AttackPathTypeBlade/attackPathTypeId/', items('For_each_Attack_Path')[3])}\"\u003ehere\u003c/a\u003e to open the Attack Path\u0026rsquo;s details page in Microsoft Defender for Cloud\u003c/p\u003e\n\t\t\t\t\t\t\t\u003c/td\u003e\n\t\t\t\t\t\t\u003c/tr\u003e\n\t\t\t\t\t\t\n\t\t\t\t\t\u003c/tbody\u003e\n\t\t\t\t\u003c/table\u003e\n\t\t\t\u003c/td\u003e\n\t\t\u003c/tr\u003e\n\u003ctr\u003e\u003ctd\u003e\u0026nbsp;\u003c/td\u003e\u003c/tr\u003e\n\n\t\u003c/tbody\u003e\n\u003c/table\u003e"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "expression":  {
+                                        "and":  [
+                                            {
+                                                "equals":  [
+                                                    "@body('Get_entity_(V2)')?['RowKey']",
+                                                    "@items('For_each_Attack_Path')[0]"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type":  "If"
+                                },
+                                "Get_entity_(V2)":  {
+                                    "runAfter":  {
+                                    },
+                                    "type":  "ApiConnection",
+                                    "inputs":  {
+                                        "host":  {
+                                            "connection":  {
+                                                "name":  "@parameters('$connections')['azuretables']['connectionId']"
+                                            }
+                                        },
+                                        "method":  "get",
+                                        "path":  "/v2/storageAccounts/@{encodeURIComponent(encodeURIComponent('AccountNameFromSettings'))}/tables/@{encodeURIComponent('attackPaths')}/entities(PartitionKey='@{encodeURIComponent('AttackPath')}',RowKey='@{encodeURIComponent(items('For_each_Attack_Path')[0])}')"
+                                    }
+                                }
+                            },
+                            "runAfter":  {
+                                "Set_variable_-_Attack_Path_-_Array":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Foreach"
+                        },
+                        "HTTP-AttackPaths":  {
+                            "runAfter":  {
+                                "Initialize_-_Attack_Path_-_Array":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                },
+                                "body":  {
+                                    "query":  "securityresources | where type == 'microsoft.security/attackpaths' | project name, display=tostring(properties.displayName), description=tostring(properties.description), aptype=tostring(properties.attackPathType)"
+                                },
+                                "method":  "POST",
+                                "uri":  "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2020-04-01-preview"
+                            }
+                        },
+                        "Initialize_-_Attack_Path_-_Array":  {
+                            "runAfter":  {
+                                "Initialize_-_Notification_Body":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "attack_path_array",
+                                        "type":  "array"
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_-_Notification_Body":  {
+                            "runAfter":  {
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "notificationBody",
+                                        "type":  "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Set_variable_-_Attack_Path_-_Array":  {
+                            "runAfter":  {
+                                "HTTP-AttackPaths":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "SetVariable",
+                            "inputs":  {
+                                "name":  "attack_path_array",
+                                "value":  "@body('HTTP-AttackPaths')?['data']?['rows']"
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                            "azuretables":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('AzuretablesConnectionName'))]",
+                                "connectionName":  "[variables('AzuretablesConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Azuretables')]"
+                            },
+                            "office365":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]",
+                                "connectionName":  "[variables('Office365ConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Office365')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('PlaybookName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "tags":  {
+                "hidden-SentinelTemplateName":  "attackPathNotification",
+                "hidden-SentinelTemplateVersion":  "1.0"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+                "[resourceId('Microsoft.Web/connections', variables('AzuretablesConnectionName'))]",
+                "[resourceId('Microsoft.Web/connections', variables('Office365ConnectionName'))]"
+            ]
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('AzuretablesConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('AzuretablesConnectionName')]",
+                "customParameterValues":  {
+                },
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Azuretables')]"
+                }
+            }
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('Office365ConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('Office365ConnectionName')]",
+                "customParameterValues":  {
+                },
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Office365')]"
+                }
+            }
+        }
+    ]
+}

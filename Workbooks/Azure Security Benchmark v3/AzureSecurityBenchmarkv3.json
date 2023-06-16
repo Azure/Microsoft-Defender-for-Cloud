@@ -17,7 +17,7 @@
               "additionalResourceOptions": [],
               "showDefault": false
             },
-            "jsonData": "[\r\n    {\"value\": \"Yes\", \"label\": \"Yes\", \"selected\":true},\r\n    {\"value\": \"No\", \"label\": \"No\"}\r\n]",
+            "jsonData": "[[\r\n    {\"value\": \"Yes\", \"label\": \"Yes\", \"selected\":true},\r\n    {\"value\": \"No\", \"label\": \"No\"}\r\n]",
             "value": "No"
           },
           {
@@ -30,7 +30,7 @@
               "additionalResourceOptions": [],
               "showDefault": false
             },
-            "jsonData": "[\r\n    {\"value\": \"Yes\", \"label\": \"Yes\", \"selected\":true},\r\n    {\"value\": \"No\", \"label\": \"No\"}\r\n]",
+            "jsonData": "[[\r\n    {\"value\": \"Yes\", \"label\": \"Yes\", \"selected\":true},\r\n    {\"value\": \"No\", \"label\": \"No\"}\r\n]",
             "id": [],
             "value": "No"
           },
@@ -905,7 +905,7 @@
                     "formatter": 22,
                     "formatOptions": {
                       "compositeBarSettings": {
-                        "labelText": "[\"Passed\"]/[\"Total\"]",
+                        "labelText": "[[\"Passed\"]/[\"Total\"]",
                         "columnSettings": [
                           {
                             "columnName": "Passed",
@@ -1016,7 +1016,7 @@
                     "formatter": 22,
                     "formatOptions": {
                       "compositeBarSettings": {
-                        "labelText": "[\"Passed\"]/[\"Total\"]",
+                        "labelText": "[[\"Passed\"]/[\"Total\"]",
                         "columnSettings": [
                           {
                             "columnName": "Passed",
@@ -1111,7 +1111,7 @@
                     "formatter": 22,
                     "formatOptions": {
                       "compositeBarSettings": {
-                        "labelText": "[\"Passed\"]/[\"Total\"]",
+                        "labelText": "[[\"Passed\"]/[\"Total\"]",
                         "columnSettings": [
                           {
                             "columnName": "Passed",
@@ -1974,7 +1974,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               }
@@ -2023,7 +2023,7 @@
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId ==  \"Microsoft Cloud Security Benchmark\"\r\n    | join kind = leftouter(\r\n    securityresources\r\n    | where type == \"microsoft.security/assessments\") on subscriptionId, name\r\n    | extend complianceState = properties.state\r\n    | extend resourceSource = tolower(tostring(properties1.resourceDetails.Source))\r\n    | extend recommendationId = id1\r\n    | extend resourceId = trim(' ', tolower(tostring(case(resourceSource =~ 'azure', properties1.resourceDetails.Id,\r\n                                                        resourceSource =~ 'gcp', properties1.resourceDetails.GcpResourceId,\r\n                                                        resourceSource =~ 'aws', properties1.resourceDetails.AwsResourceId,\r\n                                                        extract('^(.+)/providers/Microsoft.Security/assessments/.+$',1,recommendationId)))))\r\n    | extend regexResourceId = extract_all(@\"/providers/[^/]+(?:/([^/]+)/[^/]+(?:/[^/]+/[^/]+)?)?/([^/]+)/([^/]+)$\", resourceId)[0]\r\n    | extend resourceType = iff(regexResourceId[1] != \"\", regexResourceId[1], iff(regexResourceId[0] != \"\", regexResourceId[0], \"subscriptions\"))\r\n    | extend resourceName = regexResourceId[2]\r\n    | extend recommendationName = name\r\n    | extend RecommendationName = properties1.displayName\r\n    | extend description = properties1.metadata.description\r\n    | extend remediationSteps = properties1.metadata.remediationDescription\r\n    | extend severity = properties1.metadata.severity\r\n    | extend state = properties1.status.code\r\n    | extend notApplicableReason = properties1.status.cause\r\n    | extend RecommendationLink = properties1.links.azurePortal\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | extend complianceControlId = extract(@\"/regulatoryComplianceControls/([^/]*)\", 1, id)\r\n    | join kind = leftouter (securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId == \"Microsoft cloud security benchmark\"\r\n    | extend  controlName = tostring(properties.description)\r\n    | project controlId = name, controlName\r\n    | distinct  *) on $right.controlId == $left.complianceControlId\r\n    | extend RecommendationName = tostring(properties.description)\r\n    | summarize Failed = countif(state == \"Unhealthy\"), Passed = countif(state == \"Healthy\" or complianceState == \"Passed\"), Total = countif(state == \"Unhealthy\" or state == \"Healthy\" or complianceState == \"Passed\") by RecommendationName, ControlID = controlId\r\n    | extend PassedControls = (Passed/todouble(Total))*100\r\n| join kind = leftouter (securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId ==  \"Microsoft Cloud Security Benchmark\"\r\n    | extend RecommendationName = tostring(properties.description)\r\n    | extend RecommendationLink = tostring(properties.assessmentDetailsLink)\r\n    | project RecommendationName, RecommendationLink, name) on RecommendationName \r\n| extend Remediate=RecommendationLink\r\n| where ControlID == \"NS.1\"\r\n| parse Remediate with * '/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/' assessmentKey '/' *\r\n| distinct RecommendationName, Total, Remediate, PassedControls, Passed, Failed, assessmentKey\r\n| sort by Total, Passed desc\r\n| limit 250",
+                    "query": "securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId ==  \"Microsoft cloud security benchmark\"\r\n    | join kind = leftouter(\r\n    securityresources\r\n    | where type == \"microsoft.security/assessments\") on subscriptionId, name\r\n    | extend complianceState = properties.state\r\n    | extend resourceSource = tolower(tostring(properties1.resourceDetails.Source))\r\n    | extend recommendationId = id1\r\n    | extend resourceId = trim(' ', tolower(tostring(case(resourceSource =~ 'azure', properties1.resourceDetails.Id,\r\n                                                        resourceSource =~ 'gcp', properties1.resourceDetails.GcpResourceId,\r\n                                                        resourceSource =~ 'aws', properties1.resourceDetails.AwsResourceId,\r\n                                                        extract('^(.+)/providers/Microsoft.Security/assessments/.+$',1,recommendationId)))))\r\n    | extend regexResourceId = extract_all(@\"/providers/[^/]+(?:/([^/]+)/[^/]+(?:/[^/]+/[^/]+)?)?/([^/]+)/([^/]+)$\", resourceId)[0]\r\n    | extend resourceType = iff(regexResourceId[1] != \"\", regexResourceId[1], iff(regexResourceId[0] != \"\", regexResourceId[0], \"subscriptions\"))\r\n    | extend resourceName = regexResourceId[2]\r\n    | extend recommendationName = name\r\n    | extend RecommendationName = properties1.displayName\r\n    | extend description = properties1.metadata.description\r\n    | extend remediationSteps = properties1.metadata.remediationDescription\r\n    | extend severity = properties1.metadata.severity\r\n    | extend state = properties1.status.code\r\n    | extend notApplicableReason = properties1.status.cause\r\n    | extend RecommendationLink = properties1.links.azurePortal\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | extend complianceControlId = extract(@\"/regulatoryComplianceControls/([^/]*)\", 1, id)\r\n    | join kind = leftouter (securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId == \"Microsoft cloud security benchmark\"\r\n    | extend  controlName = tostring(properties.description)\r\n    | project controlId = name, controlName\r\n    | distinct  *) on $right.controlId == $left.complianceControlId\r\n    | extend RecommendationName = tostring(properties.description)\r\n    | summarize Failed = countif(state == \"Unhealthy\"), Passed = countif(state == \"Healthy\" or complianceState == \"Passed\"), Total = countif(state == \"Unhealthy\" or state == \"Healthy\" or complianceState == \"Passed\") by RecommendationName, ControlID = controlId\r\n    | extend PassedControls = (Passed/todouble(Total))*100\r\n| join kind = leftouter (securityresources\r\n    | where type == \"microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments\"\r\n    | extend complianceStandardId = replace( \"-\", \" \", extract(@'/regulatoryComplianceStandards/([^/]*)', 1, id))\r\n    | where complianceStandardId ==  \"Microsoft cloud security benchmark\"\r\n    | extend RecommendationName = tostring(properties.description)\r\n    | extend RecommendationLink = tostring(properties.assessmentDetailsLink)\r\n    | project RecommendationName, RecommendationLink, name) on RecommendationName \r\n| extend Remediate=RecommendationLink\r\n| where ControlID == \"NS.1\"\r\n| parse Remediate with * '/#blade/Microsoft_Azure_Security/RecommendationsBlade/assessmentKey/' assessmentKey '/' *\r\n| distinct RecommendationName, Total, Remediate, PassedControls, Passed, Failed, assessmentKey\r\n| sort by Total, Passed desc\r\n| limit 250",
                     "size": 0,
                     "showAnalytics": true,
                     "title": "Security Policy Recommendations ",
@@ -2056,7 +2056,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -2285,7 +2285,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -2368,7 +2368,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -2530,7 +2530,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -2613,7 +2613,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -2866,7 +2866,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -3124,7 +3124,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -3207,7 +3207,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -3486,7 +3486,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -3569,7 +3569,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -3854,7 +3854,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -3937,7 +3937,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -4072,7 +4072,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -4155,7 +4155,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -4449,7 +4449,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -4607,7 +4607,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -4690,7 +4690,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -5359,7 +5359,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -5442,7 +5442,7 @@
                                 "formatter": 22,
                                 "formatOptions": {
                                   "compositeBarSettings": {
-                                    "labelText": "[\"Passed\"]/[\"Total\"]",
+                                    "labelText": "[[\"Passed\"]/[\"Total\"]",
                                     "columnSettings": [
                                       {
                                         "columnName": "Passed",
@@ -5668,7 +5668,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -5964,7 +5964,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -6047,7 +6047,7 @@
                                 "formatter": 22,
                                 "formatOptions": {
                                   "compositeBarSettings": {
-                                    "labelText": "[\"Passed\"]/[\"Total\"]",
+                                    "labelText": "[[\"Passed\"]/[\"Total\"]",
                                     "columnSettings": [
                                       {
                                         "columnName": "Passed",
@@ -6409,7 +6409,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -6492,7 +6492,7 @@
                                 "formatter": 22,
                                 "formatOptions": {
                                   "compositeBarSettings": {
-                                    "labelText": "[\"Passed\"]/[\"Total\"]",
+                                    "labelText": "[[\"Passed\"]/[\"Total\"]",
                                     "columnSettings": [
                                       {
                                         "columnName": "Passed",
@@ -6627,7 +6627,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -6827,7 +6827,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -6910,7 +6910,7 @@
                                 "formatter": 22,
                                 "formatOptions": {
                                   "compositeBarSettings": {
-                                    "labelText": "[\"Passed\"]/[\"Total\"]",
+                                    "labelText": "[[\"Passed\"]/[\"Total\"]",
                                     "columnSettings": [
                                       {
                                         "columnName": "Passed",
@@ -7140,7 +7140,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -7329,7 +7329,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -7650,7 +7650,7 @@
                                       "additionalResourceOptions": [],
                                       "showDefault": false
                                     },
-                                    "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                                    "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                                     "timeContext": {
                                       "durationMs": 86400000
                                     },
@@ -8225,7 +8225,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -8308,7 +8308,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -8561,7 +8561,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -8644,7 +8644,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -8779,7 +8779,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -8985,7 +8985,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -9068,7 +9068,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -9311,7 +9311,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -9525,7 +9525,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -9645,7 +9645,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -9728,7 +9728,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -10079,7 +10079,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -10606,7 +10606,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -10997,7 +10997,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -11080,7 +11080,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -11323,7 +11323,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -11406,7 +11406,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -11541,7 +11541,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -11624,7 +11624,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -11759,7 +11759,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -11842,7 +11842,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -11977,7 +11977,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -12060,7 +12060,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -12215,7 +12215,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -12298,7 +12298,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -12541,7 +12541,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -12624,7 +12624,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -13264,7 +13264,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -13511,7 +13511,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -13594,7 +13594,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -13801,7 +13801,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -13960,7 +13960,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -14160,7 +14160,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -14243,7 +14243,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -14719,7 +14719,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -14802,7 +14802,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -15269,7 +15269,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -15352,7 +15352,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -15741,7 +15741,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -15980,7 +15980,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -16317,7 +16317,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -16400,7 +16400,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -16877,7 +16877,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -16960,7 +16960,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -17165,7 +17165,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -17691,7 +17691,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -17808,7 +17808,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -17891,7 +17891,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -18086,7 +18086,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -18169,7 +18169,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -18420,7 +18420,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -18818,7 +18818,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -19128,7 +19128,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -19312,7 +19312,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -19994,7 +19994,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               }
@@ -20134,7 +20134,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -20217,7 +20217,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -20352,7 +20352,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -20584,7 +20584,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -20667,7 +20667,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -20802,7 +20802,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -20885,7 +20885,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -21359,7 +21359,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -21442,7 +21442,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -21577,7 +21577,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -21878,7 +21878,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -21961,7 +21961,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -22204,7 +22204,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -22287,7 +22287,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -22530,7 +22530,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -22613,7 +22613,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -23136,7 +23136,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -23219,7 +23219,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -23442,7 +23442,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -23525,7 +23525,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -23655,7 +23655,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -23868,7 +23868,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -24324,7 +24324,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -24548,7 +24548,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -24631,7 +24631,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -24766,7 +24766,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -25126,7 +25126,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -25238,7 +25238,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -25434,7 +25434,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -25517,7 +25517,7 @@
                           "formatter": 22,
                           "formatOptions": {
                             "compositeBarSettings": {
-                              "labelText": "[\"Passed\"]/[\"Total\"]",
+                              "labelText": "[[\"Passed\"]/[\"Total\"]",
                               "columnSettings": [
                                 {
                                   "columnName": "Passed",
@@ -25652,7 +25652,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -26451,7 +26451,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -26571,7 +26571,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -26686,7 +26686,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -26801,7 +26801,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -26921,7 +26921,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -27036,7 +27036,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -27151,7 +27151,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -27266,7 +27266,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -27381,7 +27381,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
@@ -27496,7 +27496,7 @@
                                 "additionalResourceOptions": [],
                                 "showDefault": false
                               },
-                              "jsonData": "[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
+                              "jsonData": "[[\r\n    {\"value\": \"Not Implemented\", \"label\": \"Not Implemented\", \"selected\":true},\r\n    {\"value\": \"Implemented\", \"label\": \"Implemented\"},\r\n    {\"value\": \"Alternate Implementation\", \"label\": \"Alternate Implementation\"},\r\n    {\"value\": \"Planned\", \"label\": \"Planned\"},\r\n    {\"value\": \"Out of Scope\", \"label\": \"Out of Scope\"}\r\n]",
                               "timeContext": {
                                 "durationMs": 86400000
                               },
