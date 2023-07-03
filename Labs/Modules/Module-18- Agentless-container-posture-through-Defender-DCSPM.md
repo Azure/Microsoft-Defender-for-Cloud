@@ -148,4 +148,5 @@ In exercise one, we exposed our Kubernetes Service to the internet and ran a hig
 In the attach path, you will notice it detected the namespace “mdc-dcspm-demo”, container “hello-contoso” and the image “mdc-mock-001”, all of which we deployed in Exercise 1. With the attack path, you can see all the resource types involved in this path as well as how they are related. For example, the attack path shows you that the “mdc-dcspm-demo” is contained inside the asclab cluster and routes traffic to the service we deployed for internet exposure.
 To see how to remediate the attack path, scroll down to the “Remediation Steps” and navigate to the “Recommendations” tab. 
 
-![](../Images/remediateattackpath.png?raw=true)
+![](../Images/attackpathVArecommendation.png?raw=true)
+
