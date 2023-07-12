@@ -10,14 +10,14 @@ This exercise guides you how to use the vulnerability assessment for virtual mac
 
 ### Exercise 1: Vulnerability assessment for VMs
 
-With Microsoft Defender for Cloud for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs. Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Microsoft Defender for Cloud console. When a machine is found that doesn't have *vulnerability* assessment solution deployed, Microsoft Defender for Cloud generates a recommendation: *A vulnerability assessment solution should be enabled on your virtual machines*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
+With Microsoft Defender for Cloud for servers, you can quickly deploy the integrated vulnerability assessment solution (powered by Qualys) with no additional configuration or extra costs. Once the vulnerability assessment scanner is deployed, it continually assesses all the installed applications on a virtual machine to find vulnerabilities and presents its findings in the Microsoft Defender for Cloud console. When a machine is found that doesn't have *vulnerability* assessment solution deployed, Microsoft Defender for Cloud generates a recommendation: *Machines should have a vulnerability assessment solution*. To remediate a resource, you can click on the Quick Fix button to deploy the necessary VM extension.
 
 **Explore vulnerability assessment recommendations:**
 
 1.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
 2.	Expend **Remediate vulnerabilities** security control (which contains all recommendations related to security vulnerabilities).
-3.	Make sure you have *A vulnerability assessment solution should be enabled on your virtual machines* recommendation. If you don’t have this recommendation on the list, you will probably need 24 hours to have the recommendation with the assessment.
-4.	Open the **A vulnerability assessment solution should be enabled on your virtual machines” recommendation** – this recommendation is a Quick Fix one which allows you to deploy the VM extension on the desired VMs.
+3.	Make sure you have *Machines should have a vulnerability assessment solution* recommendation. If you don’t have this recommendation on the list, you will probably need 24 hours to have the recommendation with the assessment.
+4.	Open the **Machines should have a vulnerability assessment solution” recommendation** – this recommendation is a Quick Fix one which allows you to deploy the VM extension on the desired VMs.
 5.	Expend **Remediation steps** – in addition to the Quick Fix remediation option, you can also use the **view quick fix logic** option to expose an automatic remediation script content (ARM template). **Close this window.**
 6.	From the unhealthy tab, select both *asclab-win* and *aslab-linux* virtual machines. Click **Fix**.
 7.	On the **Choose a vulnerability assessment solution** select **Recommended: Deploy ASC integrated vulnerability scanner powered by Qualys (included in Microsoft Defender for Cloud for servers)**. Click **Proceed**.
@@ -30,8 +30,8 @@ With Microsoft Defender for Cloud for servers, you can quickly deploy the integr
     - From Azure Portal, open **Virtual Machines**.
     - Select **asclab-win**.
     - From the sidebar, click on **Extensions**.
-    - Make sure to have `WindowsAgent.AzureSecurityCenter` extension installed and successfully provisioned.
-    - Repeat the process for **asclab-linux** – you should expect to see a different name for the extension on Linux platform: LinuxAgent.AzureSecurityCenter.
+    - Make sure to have `MDE.Windows` extension installed and successfully provisioned.
+    - Repeat the process for **asclab-linux** – you should expect to see a different name for the extension on Linux platform: `MDE.Linux`.
 
 > Note: There are multiple ways you can automate the process where you need to achieve at scale deployment. More details are available on our [documentation](https://docs.microsoft.com/en-us/azure/security-center/deploy-vulnerability-assessment-vm#automate-at-scale-deployments) and on [blog](https://techcommunity.microsoft.com/t5/azure-security-center/built-in-vulnerability-assessment-for-vms-in-azure-security/ba-p/1577947).
 
@@ -41,7 +41,7 @@ With Microsoft Defender for Cloud for servers, you can quickly deploy the integr
 
 1.	From Microsoft Defender for Cloud sidebar, click on **Recommendations**.
 2.	Expend **Remediate vulnerabilities** security control (which contains all recommendations related to security vulnerabilities).
-3.	Search for **Vulnerabilities in your virtual machines should be remediated**.
+3.	Search for **Machines should have vulnerability findings resolved**.
 4.	On the Security Checks, you should see a list of vulnerabilities found on the affected resources.
 5.	On the recommendation, expend **Affected resources**. You should see two unhealthy resources (asclab-win and asclab-linux) and not applicable resources.
 6.	From the **Unhealthy resources**, select **asclab-win** resource. Here you can view all relevant recommendations for that resource.
