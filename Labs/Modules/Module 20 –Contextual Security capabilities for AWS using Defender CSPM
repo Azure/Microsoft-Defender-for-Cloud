@@ -1,0 +1,24 @@
+# Module 20 –Contextual Security capabilities for AWS using Defender CSPM  
+
+<p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
+
+#### 💁 Authors: 
+Vasavi Pasula [Github](https://github.com/vapasula), [Linkedin](https://www.linkedin.com/in/pasulavasavi/)
+
+#### 🎓 Level: 200 (Intermediate)
+#### ⌛ Estimated time to complete this lab: 60 minutes
+<br />
+
+## Objectives
+In this exercise, you will learn how to enable Defender for CSPM for onboarded AWS accounts and leverage Defender for CSPM Capabilities 
+
+## Scenario for this Lab: 
+
+Contoso company operates a platform that deals with its customers' sensitive data, such as personal information, financial details, and medical records. 
+The company prioritizes data privacy and security to protect its customers' sensitive information from unauthorized access and data breaches. 
+
+The company conducts regular internal and external security audits and vulnerability assessments to identify potential weaknesses in their systems. 
+These assessments help in identifying and addressing security vulnerabilities proactively. 
+As part of the regular security Audit, contoso company can proactively identify and address potential security risks in their AWS environment. 
+The security team enabled Defender CSPM plan for their AWS environment to proactively identify common vulnerabilities, misconfigurations, and potential weaknesses 
+in their AWS environment. 
