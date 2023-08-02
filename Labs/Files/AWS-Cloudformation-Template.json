@@ -128,8 +128,7 @@
                 "mysql-libs"   : [],
                 "httpd"        : [],
                 "php"          : [],
-                "php-mysql"    : [],
-		"git"          : []
+                "php-mysql"    : []
               }
             },
 
