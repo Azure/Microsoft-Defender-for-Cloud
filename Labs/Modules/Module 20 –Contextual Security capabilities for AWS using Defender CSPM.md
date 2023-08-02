@@ -101,6 +101,12 @@ Note: Updating plan selection requires an update of the CloudFormation template 
 
 ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/39eaa344-e447-42fd-800a-001a38addb57)
 
+## Clean up AWS Resources
+1.	In the AWS Console, Go to Cloud Formation console, select the Stack you deployed and click on Delete to delete the resources created in the AWS account
+   
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/4acc0b99-9b6f-43e7-a07c-04da8597f22a)
+
+
 
 
 
