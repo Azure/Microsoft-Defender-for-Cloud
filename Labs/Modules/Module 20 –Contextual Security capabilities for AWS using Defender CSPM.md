@@ -58,8 +58,28 @@ Note: Updating plan selection requires an update of the CloudFormation template 
 16. Click Edit and Uncheck **Block Public Access** and click on **Save Changes**
     ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/8c820bcd-2a2c-4182-a442-1630ee12040e)
 
-18.	In the AWS Console deploy the AWS Resources required for the Lab Scenario using the [Cloud Formation Template](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/AWS-Cloudformation-Template.json). Repeat Steps 10 to 13. Once the stack is deployed, wait for **24 hours** and come back to the setup
+18.	In the AWS Console deploy the AWS Resources required for the Lab Scenario using the [Cloud Formation Template](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/AWS-Cloudformation-Template.json). Repeat Steps 10 to 13. wait till the stack is deployed.
+19. Go to S3 console, select the S3 Bucket created and upload the sample data file to your S3 Bucket
+    ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/d9111229-b765-419d-9b6c-0f4ea35629b4)
 
+    ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/7390c4b4-85d2-4706-820b-e46674b3cba9)
+
+21. Wait for **24 hours** and come back to the setup
+
+## Exercise 2: Explore Attack Paths in your AWS Environment
+1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
+2.	From **Defender for Cloud**'s menu, open the **Attack Path Analysis** page
+3.	You will find the Attack Paths in your AWS Environment. Click on **“Internet exposed AWS S3 Bucket with sensitive data is publicly accessible”**
+   
+   ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/7355af25-6b4e-4a7e-8229-144e3e96003c)
+  	
+4.	You can observe the risk involved is **Sensitive Data Exposure** and Potential Impact. Click on the S3 bucket to drill down the sensitive data stored in the S3 bucket.
+   
+   ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/b4b4dc7e-186d-46c2-9812-e0cb1a013b8e)
+
+5.	The **Insights** tab provides the detailed insights of the Attack path. You can observe the Insights **Exposed to the Internet, Allows Public access, Contains Sensitive Data**. You can drill down further on Contains Sensitive Data, to check what files contains sensitive data and Sensitive Info Types.
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/cda2bb60-dfb7-428c-a040-6e004375fadf)
 
 
 
