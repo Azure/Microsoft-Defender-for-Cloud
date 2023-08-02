@@ -22,3 +22,14 @@ These assessments help in identifying and addressing security vulnerabilities pr
 As part of the regular security Audit, contoso company can proactively identify and address potential security risks in their AWS environment. 
 The security team enabled Defender CSPM plan for their AWS environment to proactively identify common vulnerabilities, misconfigurations, and potential weaknesses 
 in their AWS environment. 
+
+## Exercise 1: Preparing the AWS Environment for Defender CSPM plan 
+
+If you already finished Module 11 of this lab, (Module 11 – Connecting an AWS Account, Preparing the Environment), you will deploy an extended environment for Defender CSPM plan. 
+
+Sign in to the Azure portal. 
+
+Navigate to Defender for Cloud, then go to Environment settings. 
+
+Select an onboarded AWS Connector 
+
