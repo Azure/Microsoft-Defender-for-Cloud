@@ -59,7 +59,7 @@ Note: Updating plan selection requires an update of the CloudFormation template 
     ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/8c820bcd-2a2c-4182-a442-1630ee12040e)
 
 18.	In the AWS Console deploy the AWS Resources required for the Lab Scenario using the [Cloud Formation Template](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/AWS-Cloudformation-Template.json). Repeat Steps 10 to 13. wait till the stack is deployed.
-19. Go to S3 console, select the S3 Bucket created and upload the sample data file to your S3 Bucket
+19. Go to S3 console, select the S3 Bucket created and upload the [sample data](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/sample-data.docx) file to your S3 Bucket
     ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/d9111229-b765-419d-9b6c-0f4ea35629b4)
 
     ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/7390c4b4-85d2-4706-820b-e46674b3cba9)
@@ -80,6 +80,27 @@ Note: Updating plan selection requires an update of the CloudFormation template 
 5.	The **Insights** tab provides the detailed insights of the Attack path. You can observe the Insights **Exposed to the Internet, Allows Public access, Contains Sensitive Data**. You can drill down further on Contains Sensitive Data, to check what files contains sensitive data and Sensitive Info Types.
 
 ![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/cda2bb60-dfb7-428c-a040-6e004375fadf)
+
+6.	Remediate the recommendations to resolve the attack path
+7.	Explore the rest of the Attack paths found in your Environment and remidiate
+
+
+## Exercise 3: Build query with Cloud Security Explorer
+1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
+2.	From **Defender for Cloud**'s menu, open the **Cloud Security Explorer** page, build the query as shown below and click **Done** and **search**
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/35f2fff2-80b0-4437-9ef8-6e9a09c498f1)
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/309e904b-0868-49b5-b3c7-0c7758a0af01)
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/5246ca77-4455-4e5d-8c99-ee3c1d6d2f8f)
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/74a8af18-9593-4489-a59f-65e1c547a5a0)
+
+3.	You can drill down further to observe the Insights and secrets file stored on the EC2 Instance 
+
+![image](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/102209701/39eaa344-e447-42fd-800a-001a38addb57)
+
 
 
 
