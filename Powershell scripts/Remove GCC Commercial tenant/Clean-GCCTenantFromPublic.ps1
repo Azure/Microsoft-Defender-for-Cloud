@@ -1,3 +1,28 @@
+<#
+.SYNOPSIS
+This script invokes a REST API against an Azure subscription to remove the Tenant from Public tenants list.
+
+.DESCRIPTION
+This PowerShell script prompts for the subscription ID, checks the user's roles, and then uses an authentication token to invoke a PUT command against a specified URI.
+
+.PARAMETER SubscriptionId
+The ID of the Azure subscription to target.
+
+.NOTES
+File Name      : Clean-GCCTenantFromPublic.ps1
+Author         : Eli Sagie
+Prerequisite   : Azure PowerShell Modules (Az, Az.Accounts, Az.Resources)
+                 Install using: 'Install-Module -Name Az -Scope CurrentUser'
+
+.EXAMPLE
+.\Clean-GCCTenantFromPublic.ps1 -SubscriptionId "<Your_Subscription_ID>"
+
+Description
+-----------
+This example runs the script with the specified SubscriptionId. Replace <Your_Subscription_ID> with the actual ID of the subscription you want to target.
+
+#>
+
 param(
     [Parameter(Mandatory=$true)]
     [string]$SubscriptionId
