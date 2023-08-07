@@ -20,7 +20,6 @@ Prerequisite   : Azure PowerShell Modules (Az, Az.Accounts, Az.Resources)
 Description
 -----------
 This example runs the script with the specified SubscriptionId. Replace <Your_Subscription_ID> with the actual ID of the subscription you want to target.
-
 #>
 
 param(
