@@ -1,18 +1,18 @@
 <#
 .SYNOPSIS
-This script invokes a REST API against an Azure subscription to remove the Tenant from Public tenants list.
+This script invokes a WebRequest API against an Azure subscription to clear the Tenant ID from the Public tenants list.
 
 .DESCRIPTION
-This PowerShell script prompts for the subscription ID, checks the user's roles, and then uses an authentication token to invoke a PUT command against a specified URI.
+This PowerShell script prompts for the subscription ID, checks the user's roles, required PowerShell modules, and then uses an authentication token to invoke a PUT command against a specified URI.
 
 .PARAMETER SubscriptionId
-The ID of the Azure subscription to target.
+The ID of the Azure subscription with required RBAC role permissions.
 
 .NOTES
 File Name      : Migrate-GCCTenantFromPublic.ps1
-Author         : Eli Sagie
 Prerequisite   : Azure PowerShell Modules (Az, Az.Accounts, Az.Resources)
-                 Install using: 'Install-Module -Name Az -Scope CurrentUser'
+                Install using: 'Install-Module -Name Az -Scope CurrentUser'
+				Azure subscription RBAC Role:"Owner" or "Contributor" or "Security Admin"
 
 .EXAMPLE
 .\Migrate-GCCTenantFromPublic.ps1 -SubscriptionId "<Your_Subscription_ID>"
@@ -59,7 +59,7 @@ if (!($subContext.Subscription.Id) -OR $subContext.Subscription.Id -ne $subscrip
 
 
 ## Output subscription/Tenant in Context
-write-host "You are successfully logged on to Azure subscription Id: $($subContext.Subscription.Id), unter Tenant Id: $($subContext.Subscription.TenantId)" -ForegroundColor Green
+write-host "You are successfully logged on to `n`tMicrosoft Tenant Id: `t$($subContext.Subscription.TenantId)`n`tAzure subscription Id: `t$($subContext.Subscription.Id)" -ForegroundColor Green
 
 # Get the current user's object ID
 $currentUserObjectId = (Get-AzADUser -UserPrincipalName (Get-AzContext).Account.Id).Id
@@ -96,30 +96,28 @@ $accessToken = $token.Token
 # Construct the URI
 $apiUri = "https://management.azure.com/subscriptions/$SubscriptionId/providers/Microsoft.Security/mdeOnboardings/RemoveTenantFromGccPublic?api-version=2021-10-01-preview"
 
-
-# Display the PUT command
-$putCommand = "Invoke-RestMethod -Uri $apiUri -Method PUT -Headers @{""Authorization"" = ""Bearer `$accessToken""}"
-Write-Verbose "`nFinal PUT Command: $putCommand`n"
-
 # Invoke the PUT command
 $headers = @{
     "Authorization" = "Bearer $accessToken"
 }
 
+# Display the PUT command
+$putCommand = "Invoke-WebRequest -Uri $apiUri -Method PUT -Headers '$headers'"
+Write-Verbose "`nFinal PUT Command: $putCommand`n"
+
 try { 
-$response = Invoke-RestMethod -Uri $apiUri -Method PUT -Headers $headers -output "$env:TEMP\Migrate GCC Tenant.log" 
+	Write-Host "Executing the migration web request" -ForegroundColor yello
+	$response = Invoke-WebRequest -Uri $apiUri -Method PUT -Headers $headers
+	$response
+	$response | ConvertTo-Json -Depth 100 | Out-File $env:TEMP\Migrate-GCCTenantFromPublic.log
+	write-verbose "status code: $($response.StatusCode)" 
+	if ($($response.StatusCode) -eq 200)
+	{
+		write-host "`nMigration request was sent successfully (Return code: $($response.StatusCode)). 
+		`nLog file: $env:TEMP\Migrate-GCCTenantFromPublic.log" -ForegroundColor Green
+	}
 } 
 catch {
-Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__ 
-Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription 
+	Write-Host "Exception! `nStatusCode:" $_.Exception.Response.StatusCode.value__ 
+	Write-Host "StatusDescription:" $_.Exception.Response.StatusDescription 
 }
-
-#Capture return code aletenative
-# $responseHeaders = $null
-# $statusCode = $null
-# $response = Invoke-RestMethod -Uri $apiUri -Method PUT -Headers $headers -output "$env:TEMP\Migrate GCC Tenant.log" -ResponseHeadersVariable responseHeaders -StatusCodeVariable statusCode
-
-
-# Output the response
-write-host "Response: $response"
-$response
