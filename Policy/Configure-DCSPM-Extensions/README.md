@@ -1,4 +1,4 @@
-# Fine Grained Control of Defender CSPM (DCSPM)
+# Fine Grain Control of Defender CSPM (DCSPM)
 
 Configure DCSPM and all of it's capabilities through Azure Policy
 
@@ -12,8 +12,8 @@ Configure DCSPM and all of it's capabilities through Azure Policy
 $definition = New-AzPolicyDefinition -Name "$(New-Guid)" `
                                     -DisplayName 'Configure Microsoft Defender CSPM to be enabled - fine grain' `
                                     -Description 'Defender Cloud Security Posture Management (CSPM) provides enhanced posture capabilities and a new intelligent cloud security graph to help identify, prioritize, and reduce risk. Defender CSPM is available in addition to the free foundational security posture capabilities turned on by default in Defender for Cloud.' `
-                                    -Policy 'EDIT ME'
-                                    -Parameter 'EDIT ME'`
+                                    -Policy 'https://raw.githubusercontent.com/Azure/Microsoft-Defender-For-Cloud/main/Policy/Configure-DCSPM-Extensions/azurepolicy.rules.json'`
+                                    -Parameter 'https://raw.githubusercontent.com/Azure/Microsoft-Defender-For-Cloud/main/Policy/Configure-DCSPM-Extensions/azurepolicy.parameters.json'`
                                     -Mode Indexed
 $definition
 $assignment = New-AzPolicyAssignment -Name <assignmentName>`

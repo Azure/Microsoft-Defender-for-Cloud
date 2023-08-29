@@ -10,54 +10,54 @@
             "Disabled",
             "AuditIfNotExists"
         ],
-        "defaultValue": "DeployIfNotExists"
+        "defaultValue": "AuditIfNotExists"
     },
-    "AgentlessVmScanning":{
-        "type":"String",
-        "metadata":{
-            "displayName":"AgentlessVMScanningEnabled",
-            "description":"Enable or disable Agentless VM Scanning"
+    "AgentlessVmScanning": {
+        "type": "String",
+        "metadata": {
+            "displayName": "AgentlessVMScanningEnabled",
+            "description": "Enable or disable Agentless VM Scanning"
         },
-        "allowedValues":[
+        "allowedValues": [
             "true",
             "false"
         ],
-        "defaultValue": "true" 
+        "defaultValue": "true"
     },
-    "AgentlessDiscoveryForKubernetes":{
-        "type":"String",
-        "metadata":{
-            "displayName":"AgentlessDiscoveryForKubernetes",
-            "description":"Enable or disable Agentless Discovery For Kubernetes"
+    "AgentlessDiscoveryForKubernetes": {
+        "type": "String",
+        "metadata": {
+            "displayName": "AgentlessDiscoveryForKubernetes",
+            "description": "Enable or disable Agentless Discovery For Kubernetes"
         },
-        "allowedValues":[
+        "allowedValues": [
             "true",
             "false"
         ],
-        "defaultValue": "true" 
+        "defaultValue": "true"
     },
-    "ContainerRegistriesVulnerabilityAssessments":{
-        "type":"String",
-        "metadata":{
-            "displayName":"ContainerRegistriesVulnerabilityAssessments",
-            "description":"Enable or disable Container Registries Vulnerabilit yAssessments"
+    "ContainerRegistriesVulnerabilityAssessments": {
+        "type": "String",
+        "metadata": {
+            "displayName": "ContainerRegistriesVulnerabilityAssessments",
+            "description": "Enable or disable Container Registries Vulnerabilit yAssessments"
         },
-        "allowedValues":[
+        "allowedValues": [
             "true",
             "false"
         ],
-        "defaultValue": "true" 
+        "defaultValue": "true"
     },
-    "SensitiveDataDiscovery":{
-        "type":"String",
-        "metadata":{
-            "displayName":"SensitiveDataDiscovery",
-            "description":"Enable or disable Sensitive Data Discovery"
+    "SensitiveDataDiscovery": {
+        "type": "String",
+        "metadata": {
+            "displayName": "SensitiveDataDiscovery",
+            "description": "Enable or disable Sensitive Data Discovery"
         },
-        "allowedValues":[
+        "allowedValues": [
             "true",
             "false"
         ],
-        "defaultValue": "true" 
+        "defaultValue": "true"
     }
 }

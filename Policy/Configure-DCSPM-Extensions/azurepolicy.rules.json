@@ -14,56 +14,64 @@
                 "/providers/Microsoft.Authorization/roleDefinitions/8e3af657-a8ff-443c-a75c-2fe8c4bcb635"
             ],
             "existenceCondition": {
-                "allOf":[
+                "allOf": [
                     {
                         "field": "Microsoft.Security/pricings/pricingTier",
                         "equals": "Standard"
                     },
                     {
-                        "allOf":[
+                        "allOf": [
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].name",
-                                "in":["AgentlessVmScanning"]
+                                "field": "Microsoft.Security/pricings/extensions[*].name",
+                                "in": [
+                                    "AgentlessVmScanning"
+                                ]
                             },
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].isEnabled",
-                                "equals":"[parameters('AgentlessVmScanning')]"
+                                "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                "equals": "[parameters('AgentlessVmScanning')]"
                             }
                         ]
                     },
                     {
-                        "allOf":[
+                        "allOf": [
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].name",
-                                "in":["AgentlessDiscoveryForKubernetes"]
+                                "field": "Microsoft.Security/pricings/extensions[*].name",
+                                "in": [
+                                    "AgentlessDiscoveryForKubernetes"
+                                ]
                             },
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].isEnabled",
-                                "equals":"[parameters('AgentlessDiscoveryForKubernetes')]"
+                                "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                "equals": "[parameters('AgentlessDiscoveryForKubernetes')]"
                             }
                         ]
                     },
                     {
-                        "allOf":[
+                        "allOf": [
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].name",
-                                "in":["ContainerRegistriesVulnerabilityAssessments"]
+                                "field": "Microsoft.Security/pricings/extensions[*].name",
+                                "in": [
+                                    "ContainerRegistriesVulnerabilityAssessments"
+                                ]
                             },
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].isEnabled",
-                                "equals":"[parameters('ContainerRegistriesVulnerabilityAssessments')]"
+                                "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                "equals": "[parameters('ContainerRegistriesVulnerabilityAssessments')]"
                             }
                         ]
                     },
                     {
-                        "allOf":[
+                        "allOf": [
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].name",
-                                "in":["SensitiveDataDiscovery"]
+                                "field": "Microsoft.Security/pricings/extensions[*].name",
+                                "in": [
+                                    "SensitiveDataDiscovery"
+                                ]
                             },
                             {
-                                "field":"Microsoft.Security/pricings/extensions[*].isEnabled",
-                                "equals":"[parameters('SensitiveDataDiscovery')]"
+                                "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                "equals": "[parameters('SensitiveDataDiscovery')]"
                             }
                         ]
                     }
@@ -74,16 +82,16 @@
                 "properties": {
                     "mode": "incremental",
                     "parameters": {
-                        "AgentlessVmScanning":{
+                        "AgentlessVmScanning": {
                             "value": "[parameters('AgentlessVmScanning')]"
                         },
-                        "AgentlessDiscoveryForKubernetes":{
+                        "AgentlessDiscoveryForKubernetes": {
                             "value": "[parameters('AgentlessDiscoveryForKubernetes')]"
                         },
-                        "ContainerRegistriesVulnerabilityAssessments":{
+                        "ContainerRegistriesVulnerabilityAssessments": {
                             "value": "[parameters('ContainerRegistriesVulnerabilityAssessments')]"
                         },
-                        "SensitiveDataDiscovery":{
+                        "SensitiveDataDiscovery": {
                             "value": "[parameters('SensitiveDataDiscovery')]"
                         }
                     },
@@ -91,17 +99,17 @@
                         "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                         "contentVersion": "1.0.0.0",
                         "parameters": {
-                            "AgentlessVmScanning":{
-                                "type":"String"
+                            "AgentlessVmScanning": {
+                                "type": "String"
                             },
-                            "AgentlessDiscoveryForKubernetes":{
-                                "type":"String"
+                            "AgentlessDiscoveryForKubernetes": {
+                                "type": "String"
                             },
-                            "ContainerRegistriesVulnerabilityAssessments":{
-                                "type":"String"
+                            "ContainerRegistriesVulnerabilityAssessments": {
+                                "type": "String"
                             },
-                            "SensitiveDataDiscovery":{
-                                "type":"String"
+                            "SensitiveDataDiscovery": {
+                                "type": "String"
                             }
                         },
                         "variables": {},
