@@ -1,0 +1,63 @@
+{
+    "effect": {
+        "type": "String",
+        "metadata": {
+            "displayName": "Effect",
+            "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+            "DeployIfNotExists",
+            "Disabled",
+            "AuditIfNotExists"
+        ],
+        "defaultValue": "AuditIfNotExists"
+    },
+    "AgentlessVmScanning": {
+        "type": "String",
+        "metadata": {
+            "displayName": "AgentlessVMScanningEnabled",
+            "description": "Enable or disable Agentless VM Scanning"
+        },
+        "allowedValues": [
+            "true",
+            "false"
+        ],
+        "defaultValue": "true"
+    },
+    "AgentlessDiscoveryForKubernetes": {
+        "type": "String",
+        "metadata": {
+            "displayName": "AgentlessDiscoveryForKubernetes",
+            "description": "Enable or disable Agentless Discovery For Kubernetes"
+        },
+        "allowedValues": [
+            "true",
+            "false"
+        ],
+        "defaultValue": "true"
+    },
+    "ContainerRegistriesVulnerabilityAssessments": {
+        "type": "String",
+        "metadata": {
+            "displayName": "ContainerRegistriesVulnerabilityAssessments",
+            "description": "Enable or disable Container Registries Vulnerabilit yAssessments"
+        },
+        "allowedValues": [
+            "true",
+            "false"
+        ],
+        "defaultValue": "true"
+    },
+    "SensitiveDataDiscovery": {
+        "type": "String",
+        "metadata": {
+            "displayName": "SensitiveDataDiscovery",
+            "description": "Enable or disable Sensitive Data Discovery"
+        },
+        "allowedValues": [
+            "true",
+            "false"
+        ],
+        "defaultValue": "true"
+    }
+}
