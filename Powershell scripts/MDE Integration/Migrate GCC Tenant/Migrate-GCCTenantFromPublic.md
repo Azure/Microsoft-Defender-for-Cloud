@@ -16,13 +16,15 @@ This PowerShell script allows you to invoke a WebRequest API against an Azure su
 ## Usage
 1. `Login-AzAccount` - To log in the tenant 
 2. Open an elevated PowerShell terminal.
-3. Have the target **Azure subscription ID** which you have one of the require RBAC. 
-4. Run the script:  
+3. Have the target **Azure subscription ID** which you have one of the require RBAC.
+      - To list all Azure Subscriptions under the tenant run `Get-AzSubscription`
+      - To set the subscription to work on run `Set-AzContext -SubscriptionId <subscription Id>`
+5. Run the script:  
 `.\Migrate-GCCTenantFromPublic.ps1 -SubscriptionId "<Your_Subscription_ID>"`
    - **Mandatory**: Replace `<Your_Subscription_ID>` with the actual ID of the subscription you want to target.   
    - If the required modules are not installed, stop the script and install them as instructed above.
-5. Return output is written to the console output and to *$env:TEMP\Migrate-GCCTenantFromPublic.log* file with high verbosity.
-6. The script will verify your role in the specified subscription and then invoke the PUT command against the specified REST API.
+6. Return output is written to the console output and to *$env:TEMP\Migrate-GCCTenantFromPublic.log* file with high verbosity.
+7. The script will verify your role in the specified subscription and then invoke the PUT command against the specified REST API.
 
 
 
