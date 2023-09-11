@@ -1,0 +1,210 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "metadata":{
+        "comments": "Some cloud admin teams want to filter and search in the Aure Portal and MDC via AWS EC2 hostname rather than by instance name. This Logic App can be set to run daily,weekly. Upon scheduled trigger it will search the Azure Resource Graph for AWS Arc Connected EC2 instances that are connected within the last 3 days and that do not have a Azure Tag for Host name. This will add the EC2 instance host name and fqdn as an additional tag. The tag can then be used in Defender for Cloud Inventory view to filter by hostname. The tag also can be used to search and filter in the Arc - Connected Servers blade of the Arc service.",
+        "author": "Nathan Swift"
+    },    
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Add-HostNameTagEC2Arc",
+            "type": "string"
+        }
+    },
+    "variables": {     
+    },
+    "resources": [      
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "eastus",
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {},
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                },
+                                "timeZone": "Eastern Standard Time"
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                },
+                                "timeZone": "Eastern Standard Time"
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Condition": {
+                            "actions": {
+                                "For_each": {
+                                    "foreach": "@body('GetEC2')?['data']",
+                                    "actions": {
+                                        "Set_variable": {
+                                            "runAfter": {
+                                                "Set_variable_hostname": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "TagPackage",
+                                                "value": "@addProperty(variables('Tags'), 'host', variables('hostname'))"
+                                            }
+                                        },
+                                        "Set_variable_Tag": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "Tags",
+                                                "value": "@items('For_each')?['tags']"
+                                            }
+                                        },
+                                        "Set_variable_hostname": {
+                                            "runAfter": {
+                                                "Set_variable_Tag": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "hostname",
+                                                "value": "@{items('For_each')?['Properties']?['dnsFqdn']}"
+                                            }
+                                        },
+                                        "UpdateArcTag": {
+                                            "runAfter": {
+                                                "Set_variable": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Http",
+                                            "inputs": {
+                                                "authentication": {
+                                                    "audience": "https://management.azure.com",
+                                                    "type": "ManagedServiceIdentity"
+                                                },
+                                                "body": {
+                                                    "properties": {
+                                                        "tags": "@variables('TagPackage')"
+                                                    }
+                                                },
+                                                "method": "PUT",
+                                                "uri": "https://management.azure.com/@{items('For_each')?['id']}/providers/Microsoft.Resources/tags/default?api-version=2021-04-01"
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "type": "Foreach"
+                                }
+                            },
+                            "runAfter": {
+                                "Initialize_variable_TagPackage": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "greaterOrEquals": [
+                                            "@body('GetEC2')?['count']",
+                                            1
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "GetEC2": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "query": "resources | where type == 'microsoft.hybridcompute/machines' | where properties.lastStatusChange >= ago(3d) | extend Status = properties.status  | where Status == 'Connected' | extend cloud = ['tags'].Cloud | where cloud == 'AWS' | extend hostname = ['tags'].host | where hostname == ''"
+                                },
+                                "method": "POST",
+                                "uri": "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01"
+                            }
+                        },
+                        "Initialize_variable_TagPackage": {
+                            "runAfter": {
+                                "Initialize_variable_hostname": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "TagPackage",
+                                        "type": "object",
+                                        "value": {}
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_Tags": {
+                            "runAfter": {
+                                "GetEC2": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "Tags",
+                                        "type": "object",
+                                        "value": {}
+                                    }
+                                ]
+                            }
+                        },
+                        "Initialize_variable_hostname": {
+                            "runAfter": {
+                                "Initialize_variable_Tags": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "hostname",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {}
+            }
+        }
+    ]
+}
