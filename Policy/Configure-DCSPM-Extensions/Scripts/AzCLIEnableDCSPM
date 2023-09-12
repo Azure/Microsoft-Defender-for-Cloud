@@ -1,12 +1,11 @@
-# Get a list of all subscription IDs
-subs=$(az account list --query "[].id" --output tsv)
+# Define your variables by entering subscriptionId and whether extensions should be enabled using "True" to enable and "False" to not enable
+subscriptionId="SubscriptionId"
+AgentlessVmScanning="True"
+AgentlessDiscoveryForKubernetes="True"
+SensitiveDataDiscovery="True"
+ContainerRegistriesVulnerabilityAssessments="True"
 
-# Loop through each subscription ID and run the az rest command
-for sub in $subs
-do
-  echo "Setting for subscription: $sub"
-  
-  az rest --method put \
-  --uri "https://management.azure.com/subscriptions/$sub/providers/Microsoft.Security/pricings/CloudPosture?api-version=2023-01-01" \
-  --body '{"properties": {"pricingTier": "Standard", "extensions": [{"name": "AgentlessVmScanning", "isEnabled": "True"},{"name": "AgentlessDiscoveryForKubernetes","isEnabled": "True"},{"name": "SensitiveDataDiscovery", "isEnabled": "True"},{"name": "ContainerRegistriesVulnerabilityAssessments","isEnabled": "True"}]}}'
-done
+# Use the variables in the az rest command
+az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Security/pricings/CloudPosture?api-version=2023-01-01" \
+  --body "{\"properties\": {\"pricingTier\": \"Standard\", \"extensions\": [{\"name\": \"AgentlessVmScanning\", \"isEnabled\": \"$AgentlessVmScanning\"},{\"name\": \"AgentlessDiscoveryForKubernetes\",\"isEnabled\": \"$AgentlessDiscoveryForKubernetes\"},{\"name\": \"SensitiveDataDiscovery\", \"isEnabled\": \"$SensitiveDataDiscovery\"},{\"name\": \"ContainerRegistriesVulnerabilityAssessments\",\"isEnabled\": \"$ContainerRegistriesVulnerabilityAssessments\"}]}}"
