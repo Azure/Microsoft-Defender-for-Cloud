@@ -1,4 +1,4 @@
-# Welcome to the Microsoft Defender for Cloud Enterprise Onboarding Guide
+# Welcome to the Microsoft Defender for Cloud Enterprise Onboarding Guide 
 
 <p align="center">
 <img src="./Images/mdc-logo.jpeg?raw=true">
