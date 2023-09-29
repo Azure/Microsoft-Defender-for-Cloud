@@ -16,6 +16,21 @@ Dick Lake [Github](https://github.com/dickLake-msft), [Linkedin](https://www.lin
 ## Objectives
 In these exercises, you will learn how to enable Defender for Storage and leverage its capabilities.
 
+# Table of Contents
+- [Exercise 1: Preparing the Environment for Defender for Storage Plan](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#exercise-1-preparing-the-environment-for-defender-for-storage-plan)
+- [Exercise 2: Create a Storage Account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#exercise-2-create-a-storage-account)
+- [Optional Exercise 3: Exclude Folder in Windows Security](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#optional--exercise-3-exclude-folder-in-windows-security)
+- [Exercise 4: Create EICAR File](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-4-create-eicar-file)
+- [Exercise 5: Upload Malware to a Storage Account](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-5-upload-malware-to-a-storage-account)
+- [Exercise 6: Security Alert](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-6-security-alert)
+- [Exercise 7: Configure Automation to Delete the Malicious File](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-7-configure-automation-to-delete-the-malicious-file-based-on-security-alert)
+- [Exercise 8: Code to Upload Files to Storage Account and Monitor the Blob Index Tag](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-8-code-to-upload-files-to-storage-account-and-monitor-the-blob-index-tag-itself)
+- [Exercise 9: Set up "Send Scan Results to Log Analytics" and Read It](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-9-set-up-send-scan-results-to-log-analytics-and-read-it)
+- [Exercise 10: Function App Based on Event Grid Events](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-10-function-app-based-on-event-grid-events)
+- [Exercise 11: ABAC for users not to read malicious files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#exercise-11-ABAC-for-users-not-to-read-malicious-files)
+- [Appendix: Grant Storage Blob Data Owner to a User in a Storage Account Container](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-appendix)
+
+
 ## 👩🏽‍🍳Exercise 1: Preparing the Environment for Defender for Storage plan
 
 To enable the Defender for Storage plan on a specific subscription:
@@ -60,7 +75,7 @@ In Exercise 4 we will create an EICAR file in your computer. If you have an anti
 ![Add exclusion](../Images/windowssecurity3.png?raw=true)
 5. In **Exclusions** click **Add an exclusion** and select **Folder**
 ![Exclusions](../Images/windowssecurity4.png?raw=true)
-6. Choose the folder you created in step 1. 
+6. Choose the folder you create in step 1. 
 
 ## 📝 Exercise 4: Create EICAR File
 Now that you have the excluded folder, create a malicious test file (EICAR) for testing purposes in your lab environment. 
@@ -85,7 +100,7 @@ Now that you have the excluded folder, create a malicious test file (EICAR) for 
 6. A side screen will appear on the right. Click **Browse for files** or drag and drop the files there.
 ![Browse file](../Images/BrowseFile.png?raw=true)
 7. Choose the file created in *Exercise 3* and then click **Upload**.
-![Upload file](../Images/uploadfile.png?raw=true)
+![Upload file](../Images/UploadFile.png?raw=true)
 ![Upload file](../Images/upload1.png?raw=true)
 8. Click on the uploaded file to see its settings. 
 9. Scroll down until you see **Blob index tags**. The file was detected as **Malicious**.
@@ -392,6 +407,76 @@ In this exercise we will use an Azure Function App based on Event Grid events. T
 ![Function App code](../Images/codefunctionapp47.png?raw=true)
 ![Function App code](../Images/codefunctionapp48.png?raw=true)
 
+## 👮‍♀️ Exercise 11: ABAC for users not to read malicious files
+To make sure that your apps and users can only read non-malicious files, which means that Defender for Storage found without threats, you can implement Azure Based Access Control (ABAC). In this exercise we will explore how you can have roles that have a condition to only read the files that have no threats found. 
+
+1. In the **Azure portal**, navigate to your Storage Account you are testing. 
+![ABAC](../Images/abac1.png?raw=true)
+
+2. Click on **Access Control (IAM)**, navigate to **Role Assignments** and click on **+ Add** that is on the top.
+![ABAC](../Images/abac2.png?raw=true)
+
+3. Select **Add role assignment**.
+![ABAC](../Images/abac3.png?raw=true)
+
+4. In roles, type **Blob data contributor** and select it. Note: make sure to give only the necessary role your users need. In this example I want the user to have read, write and delete access. 
+![ABAC](../Images/abac4.png?raw=true)
+
+5. Once you selected it, navigate to the next tab **Members**. Select **User, group, or service principal** and then click on **+ Select members**. On the right side of the screen, type your user or group test and select it from the list. 
+![ABAC](../Images/abac5.png?raw=true)
+![ABAC](../Images/abac6.png?raw=true)
+![ABAC](../Images/abac7.png?raw=true)
+
+6. Navigate to the next tab **Conditions (optional)** and click on **+ Add condition**.
+![ABAC](../Images/abac8.png?raw=true)
+
+7. You can do it in the Visual or in the Code editor type. For this step we will do it using the Visual editor type. In the **Condition** section, click on **+ Add action**.
+![ABAC](../Images/abac9.png?raw=true)
+
+8. On the right, you will see a screen that has all the actions you can condition. Select **Read blob**. This is the most dangerous action; storage is not compute, which means that a malicious file cannot be invoked in it, so you are not infected. But if a human user or an app reads that file, its game over. This is why we want to restrict this action. 
+![ABAC](../Images/abac10.png?raw=true)
+![ABAC](../Images/abac11.png?raw=true)
+
+9. Now, let's build the expression. Navigate to that section and select **+ Add expression**. 
+![ABAC](../Images/abac12.png?raw=true)
+
+10. In **Attribute source** select **Resource**. Then, the **Attribute** we are looking to condition is **Blob index tags [Values in key]**. In the **Key** make sure to copy and paste **Malware scanning scan result**, this is a caps sensitive. In the **Operator** the **value** should be **StringEqualsIgnoreCase**. And finally, the value should be **No threats found** which is also caps sensitive.
+![ABAC](../Images/abac13.png?raw=true)
+
+11. Before you save this, you can scroll up and select the **Code** editor type so that next time you want to implement this specific expression, you can do it in a faster way. In the code you can see that the user/group will be able to do blob listing but not read it, unless the condition 'No threats found' is fulfilled. 
+![ABAC](../Images/abac14.png?raw=true)
+
+12. The generated code is the following:
+    ```KQL
+    (
+        (
+            !(ActionMatches{'Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read'} AND NOT SubOperationMatches{'Blob.List'})
+        )
+        OR 
+        (
+            @Resource[Microsoft.Storage/storageAccounts/blobServices/containers/blobs/tags:Malware scanning scan result<$key_case_sensitive$>] StringEqualsIgnoreCase 'No threats found'
+        )
+    )
+    ```
+
+13. Click **Save** and then click twice in **Review + assign**. 
+![ABAC](../Images/abac15.png?raw=true)
+
+14. Wait for a little until this change applies. 
+![ABAC](../Images/abac16.png?raw=true)
+
+15. To test this out, go to your Storage Account container to upload an EICAR file like in the exercise 5. 
+![ABAC](../Images/abac17.png?raw=true)
+![ABAC](../Images/abac18.png?raw=true)
+
+16. Once you upload it and refresh the screen (click on the refresh icon in the Azure portal), you will see a result like this: 
+![ABAC](../Images/abac19.png?raw=true)
+
+17. If the result was not the one like in the image, you will probably need to navigate to your Storage Account and then click on **Configuration**. As a best practice and for this exercise to work, you have to disable SAS keys and only enable **Default to Azure Active Directory authorization in the Azure portal**. The settings would look like this: 
+![ABAC](../Images/abac20.png?raw=true)
+
+18. Then, in your **Storage Account container** you would have to change your authentication method to **Azure AD User Account** Active Directory
+![ABAC](../Images/abac21.png?raw=true)
 
 # 🦉 Appendix
 ## Grant Storage Blob Data Owner to a user in a Storage Account Container
