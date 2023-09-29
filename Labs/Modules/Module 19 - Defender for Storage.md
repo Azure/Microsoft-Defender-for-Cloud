@@ -27,7 +27,7 @@ In these exercises, you will learn how to enable Defender for Storage and levera
 - [Exercise 8: Code to Upload Files to Storage Account and Monitor the Blob Index Tag](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-8-code-to-upload-files-to-storage-account-and-monitor-the-blob-index-tag-itself)
 - [Exercise 9: Set up "Send Scan Results to Log Analytics" and Read It](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-9-set-up-send-scan-results-to-log-analytics-and-read-it)
 - [Exercise 10: Function App Based on Event Grid Events](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-10-function-app-based-on-event-grid-events)
-- [Exercise 11: ABAC for users not to read malicious files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#exercise-11-ABAC-for-users-not-to-read-malicious-files)
+- [Exercise 11: ABAC for users not to read malicious files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-11-abac-for-users-not-to-read-malicious-files)
 - [Appendix: Grant Storage Blob Data Owner to a User in a Storage Account Container](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-appendix)
 
 
