@@ -67,7 +67,6 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 2: Using JIT to reduce attack surface](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-2-using-jit-to-reduce-attack-surface)
 - [Exercise 3: Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-adaptive-application-control)
 - [Exercise 4: File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-4-file-integrity-monitoring)
-- [Exercise 5: Microsoft Defender for Endpoint integration](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-5-enable-the-integration-with-Microsoft-defender-for-endpoint)
 
 [**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
 - [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
@@ -146,11 +145,17 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 9: Set up "Send scan results to Log Analytics" and read it](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-9-set-up-send-scan-results-to-log-analytics-and-read-it)
 - [Exercise 10: Function App based on Event Grid events](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-10-function-app-based-on-event-grid-events)
 
-[**Module 20 –Contextual Security capabilities for AWS using Defender CSPM**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md)
+[**Module 20 – Contextual Security capabilities for AWS using Defender CSPM**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md)
 - [Exercise 1: Preparing the AWS Environment for Defender CSPM plan](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md#exercise-1-preparing-the-aws-environment-for-defender-cspm-plan)
 - [Exercise 2: Explore Attack Paths in your AWS Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md#exercise-2-explore-attack-paths-in-your-aws-environment)
 - [Exercise 3: Build query with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md#exercise-3-build-query-with-cloud-security-explorer)
 
+**Module 21 - tba**
+
+[**Module 22 - Integration with Microsoft Defender for Endpoint**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-22-MDE-integration.md)
+- [Exercise 1: Enable the integration with Microsoft Defender for Endpoint](./Modules/Module-22-MDE-integration.md#exercise-1-enable-the-integration-with-microsoft-defender-for-endpoint)
+- [Exercise 2: Connect your on-premises servers via direct onboarding](./Modules/Module-22-MDE-integration.md#exercise-2-connect-your-on-premises-servers-via-direct-onboarding)
+ 
 
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
