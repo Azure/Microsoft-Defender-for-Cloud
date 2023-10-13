@@ -6,7 +6,8 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-In this exercise, you will understand how to use just-in-time (JIT) for virtual machines to reduce your attack surface. Moreover, you will understand the benefits of file integrity monitoring (FIM).
+Defender for Servers offers threat detection and advanced cloud defense capabilities for compute workloads. This includes Just In Time (JIT) VM Access to protect a machine's management ports, File Integrity Monitoring (FIM) and Adaptive Application Controls to track changes and running applications on machines, but also OS-level threat detection offered by Microsoft Defender for Endpoint, and network layer threat detection for Azure VMs, including DNS- and network-based attacks.
+In this exercise, you will understand how some of these enhanced capabilities in Defender for Servers Plan 2 are enabled to help you protect compute workloads in cloud environments.
 
 ### Exercise 1: Enable Microsoft Defender for Servers Plan 2
 To enable the Defender plan on a specific subscription:
