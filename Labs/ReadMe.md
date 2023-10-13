@@ -63,11 +63,11 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Integration with Microsoft Sentinel](./Modules/Module-7-Exporting-ASC-information-to-a-SIEM.md#exercise-2-integration-with-azure-sentinel)
 
 [**Module 8 – Enhanced Security (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-8-Advance-Cloud-Defense.md)
-- [Enable Defender for Servers Plan 2](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-1-enable-microsoft-defender-for-servers-plan-2)
-- [Using JIT to reduce attack surface](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-2-using-jit-to-reduce-attack-surface)
-- [Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-adaptive-application-control)
-- [File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-4-file-integrity-monitoring)
-- [Microsoft Defender for Endpoint integration](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-5-enable-the-integration-with-Microsoft-defender-for-endpoint)
+- [Exercise 1: Enable Defender for Servers Plan 2](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-1-enable-microsoft-defender-for-servers-plan-2)
+- [Exercise 2: Using JIT to reduce attack surface](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-2-using-jit-to-reduce-attack-surface)
+- [Exercise 3: Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-adaptive-application-control)
+- [Exercise 4: File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-4-file-integrity-monitoring)
+- [Exercise 5: Microsoft Defender for Endpoint integration](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-5-enable-the-integration-with-Microsoft-defender-for-endpoint)
 
 [**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
 - [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
