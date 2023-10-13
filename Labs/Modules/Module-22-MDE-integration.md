@@ -47,3 +47,10 @@ In case Defender for Servers has not already been enabled on the designated subs
 4. Select your server's operating system and follow the installation instructions.
 
 As soon as your machine is successfully onboarded to Microsoft Defender for Endpoint, it will be connected to Defender for Cloud. Security alerts, Software inventory and vulnerability assessment findings will now be available in Defender for Cloud and Microsoft 365 Defender.
+
+### Exercise 3: Analyze vulnerability assessment findings in custom workbooks
+As soon as Microsoft Defender Vulnerability Management (MDVM) will report vulnerability assessment results for your machine, Defender for Cloud will show them in the **Machines should have vulnerability findings resolved** security recommendation. At the same time, these results will also be available via Azure Resource Graph (ARG), where you can query them using Kusto Query Language (KQL). We have released a custom [CVE Dashboard](https://aka.ms/CVEDashboard) that you can deploy from this Github repository by following the link and clicking on **Deploy to Azure**.
+
+The workbook will show vulnerability assessment results based on CVE IDs, including information about affected machines and software. You can also filter by using the plain text search bar on top of every table.
+
+![](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Workbooks/CVE%20Dashboard/tab1.png)
