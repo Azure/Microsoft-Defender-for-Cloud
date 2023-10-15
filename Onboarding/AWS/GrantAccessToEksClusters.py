@@ -121,7 +121,7 @@ def parse_arguments() -> argparse.Namespace:
 
     parser.add_argument("--profile", help=f"AWS profile name (default: {DEFAULT_PROFILE_NAME})", type=str, default=DEFAULT_PROFILE_NAME, required=False)
     parser.add_argument("--output-file", help=f"A path to a txt file which will contain the script summary (In addition to showing the summary in the console)\n"
-                                              f"Please note: if the file does not exist, hte script would create it in the specified location", type=str, default=DEFAULT_PROFILE_NAME, required=False)
+                                              f"Please note: if the file does not exist, hte script would create it in the specified location", type=str, required=False)
     args = parser.parse_args()
     return args
 
