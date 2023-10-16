@@ -2,7 +2,7 @@
 
 The Python script automates the process of granting MDC (Microsoft Defender for Cloud) permissions to query your EKS (Amazon Elastic Kubernetes Service) clusters. It is designed to be run within the context of an AWS account, which means **you should execute the script from a CLI (Command Line Interface) that is properly configured to access your AWS account**. Please refer to the details below for more information on AWS account configuration.
 
-The script grants access by adding to the `aws-auth ConfigMap` an IAM identity mapping between MDC role (`arn:aws:iam::<account id>:role/MDCAgentlessDiscoveryForKubernetesRole`) to the `system:masters` group.
+The script grants access by adding to the `aws-auth ConfigMap` an IAM identity mapping between MDC role (`arn:aws:iam::<account id>:role/MDCContainersAgentlessDiscoverK8sRole`) to the `system:masters` group.
 Therefore, the script requires a list of roles among other parameters, which should have permissions to update the `aws-auth` configuration of the EKS clusters you intend to onboard. For instance, the roles used to create the EKS clusters typically possess these required permissions.
 **If you don't know/have the roles that created the EKS clusters, unfortunately you can't use this script**.
 
@@ -43,7 +43,7 @@ If you want to install those packages using another package manager, then you do
 Before running the script, you will need to have AWS API credentials configured. What works for AWS CLI should be sufficient.
 This guide does not explain how to configure AWS credentials. Here, we'll list two ways the script supports:
 
-1. **AWS Credentials **
+1. **AWS Credentials**
    Configure your AWS credentials by creating a profile in the [.aws/credentials file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html).
 
 2. **Environment Variables**
