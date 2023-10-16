@@ -88,13 +88,12 @@ def parse_file_parameter(file_name: str) -> List[str]:
 def set_credentials(credentials: Dict[str, str]) -> None:
     os.environ["AWS_ACCESS_KEY_ID"] = credentials['AccessKeyId']
     os.environ["AWS_SECRET_ACCESS_KEY"] = credentials['SecretAccessKey']
-    os.environ["AWS_SESSION_TOKEN"] = credentials['SessionToken']
+   
 
 
 def get_original_credentials() -> Dict[str, str]:
     return {"AccessKeyId": os.environ.get("AWS_ACCESS_KEY_ID", ""),
             "SecretAccessKey": os.environ.get('AWS_SECRET_ACCESS_KEY', ""),
-            "SessionToken": os.environ.get('AWS_SESSION_TOKEN', ""),
             "DefaultRegion": os.environ.get('AWS_DEFAULT_REGION', "")}
 
 
