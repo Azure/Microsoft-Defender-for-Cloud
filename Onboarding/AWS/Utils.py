@@ -9,7 +9,7 @@ RED = "\033[91m"
 RESET = '\033[0m'  # Reset color to default
 IAM_ROLE_ARN_PATTERN = r'^arn:aws:iam::\d{12}:role/[a-zA-Z_0-9+=,.@-]+$'
 CUSTOM_BAR_FORMAT = "{desc} {percentage:3.0f}%|{bar}| {n_fmt}/{total_fmt}"
-ROLE_ARN_TO_MAP = "arn:aws:iam::{}:role/MDCContainersAgentlessDiscoverK8sRole"
+ROLE_ARN_TO_MAP = "arn:aws:iam::{}:role/MDCContainersAgentlessDiscoveryK8sRole"
 DEFAULT_REGION = "us-west-1"
 DEFAULT_PROFILE_NAME = "default"
 
