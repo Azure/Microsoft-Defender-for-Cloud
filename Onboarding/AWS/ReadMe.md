@@ -10,14 +10,14 @@ In addition, the script acquires temporary credentials by assuming the provided 
 
 ## Prerequisites
 
-Before you can run the script, make sure you have the following prerequisites installed on your system:
+Before you can run the script, make sure you have the following prerequisites (or higher) installed on your system:
 
 - **Python 3.4**
 - **Windows: pip 23.0 | Linux: pip 21.3 (optional)**
 - **eksctl 0.155**
 - Packages listed in `requirements.txt`
 
-**Note**: You can install the Python packages used by this script using:
+**Note**: The recommended way is to *first create a venv* (virtual environment) and *then* install the packages using:
 - Windows
 ```cmd:
 pip install -r requirements.txt
