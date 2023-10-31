@@ -3,12 +3,13 @@ param (
     [Object]$RecoveryPlanContext,
     
     [parameter(Mandatory=$true)]
-    [Object]$VaultId
+    [Object]$VaultId,
+	
+	[parameter(Mandatory=$true)]
+    [Object]$ChangePit
 )
 
 # ToDo: Alerts detection conditions need to update.
-# Auto trigger the Change recovery point.
-$changePit = "yes"
 
 <#
 .SYNOPSIS
@@ -105,7 +106,7 @@ Function ChangeRecoveryPoint {
                         Write-Output "Changing the recovery point."
                         $ChangeRP
                         
-                        if (($ChangeRP -ne $null) -and ($changePit -eq "yes"))
+                        if (($ChangeRP -ne $null) -and ($ChangePit -eq $True))
                         {
                             #Retry the failover with new recovery point.
                             $asrJob = Start-AzRecoveryServicesAsrApplyRecoveryPoint -ReplicationProtectedItem $protectedItem -RecoveryPoint $ChangeRP
