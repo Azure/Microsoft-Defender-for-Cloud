@@ -7,6 +7,7 @@ param (
 $VaultSubscriptionIdVariable = "VaultSubscriptionId"
 $VaultResourceGroupVariable = "VaultResourceGroup"
 $VaultNameVariable = "VaultName"
+$ChangePitVariable = "ChangePit"
 
 # Runbook name for the schedule runbook.
 $RunbookName = "RansomwareDetector"
@@ -192,8 +193,11 @@ $VaultVariable = Get-AzAutomationVariable -AutomationAccountName $AutomationInfo
     
 $VaultName = $VaultVariable.value
 
+$CpVariable = Get-AzAutomationVariable -AutomationAccountName $AutomationInformation.AutomationAccountName -ResourceGroupName $AutomationInformation.ResourceGroupName -Name $ChangePitVariable
+    
+$ChangePit = $CpVariable.value
 
-if (($VaultName -eq $null) -or ($VaultName -eq "") -or ($VaultSubscriptionId -eq $null) -or ($VaultSubscriptionId -eq "") -or ($VaultResourceGroup -eq $null) -or ($VaultResourceGroup -eq ""))
+if (($VaultName -eq $null) -or ($VaultName -eq "") -or ($VaultSubscriptionId -eq $null) -or ($VaultSubscriptionId -eq "") -or ($VaultResourceGroup -eq $null) -or ($VaultResourceGroup -eq "") -or ($ChangePit -eq $null) -or ($ChangePit -eq ""))
 {
     Write-Output "Either VaultSubscriptionId, VaultResourceGroup or VaultName variables not found."
     exit
@@ -215,7 +219,7 @@ $Schedule = New-AzAutomationSchedule -AutomationAccountName $AutomationInformati
 $Schedule
 
 Start-Sleep -Seconds 10
-$params = @{"RecoveryPlanContext" = $RecoveryPlanContext;"VaultId" = $VaultId}
+$params = @{"RecoveryPlanContext" = $RecoveryPlanContext;"VaultId" = $VaultId;"ChangePit" = $ChangePit}
 
 # Registering the runbook to scheduler.
 $JobSchedule = Register-AzAutomationScheduledRunbook -AutomationAccountName $AutomationInformation.AutomationAccountName -ResourceGroupName $AutomationInformation.ResourceGroupName -RunbookName $RunbookName -ScheduleName $SchedulerName -Parameters $params

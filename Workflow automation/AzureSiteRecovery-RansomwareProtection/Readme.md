@@ -30,7 +30,9 @@ For virtual machines protected using ASR, follow the steps mentioned below to re
 1. Create a automation account using the template azuredeploy.json.
 1. Post deployment of Automation account, Update the both the runbooks with the PowerShell scripts.
 1. Update the Automation account variables with the Recovery service vault details.
-1. Create a recovery plan, and add a post action that would define the above script to run on the machine after failover. 
+1. Create the User identity or System identity and add the Identity to the automation account.
+1. Provide the Subscription access to the Identity with the onwer rights.
+1. Create a recovery plan in ASR, and add a post action that would define the above script to run on the machine after failover. Provide the SchedulerForRansomwareDetection runbook in ASR recovery plan.
 
 
 
@@ -46,7 +48,7 @@ The scheduler script is used to monitor the alerts created by Defender on the fa
 
 If the new virtual machine is infected with malware, an alert is created by Defender. which is detected in the automation account. Details regarding the infection can be viewed in the ‘Jobs’ section. 
 
-Post this, the script will start identifying the Replicated item for which this alert was raised. It will automatically perform a 'Change PIT' operation to failover to a previous recovery point that created before the one failed over to. This is by default this is 1 day old; however, you can configure it as per your needs. 
+Post this, the script will start identifying the Replicated item for which this alert was raised. Change Recovery point is disable for now. We can enable in future to automatically perform a 'Change PIT' operation to failover to a previous recovery point that created before the one failed over to. This is by default this is 1 day old; however, you can configure it as per your needs. 
 
 The newly created VM will once again be scanned and checked for any ransomware and the script will continue to iterate until we find a secure recovery point and create a ransomware free VM.  
 
