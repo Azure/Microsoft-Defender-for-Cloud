@@ -9,7 +9,9 @@
 This exercise guides you on how to validate and use agentless container image vulnerability assessment scanning for Azure Container Registries. 
 
 ### Prerequisites
-In order to use this capability, Defender for Containers or Defender Cloud Security Posture Management must be enabled on the subscription. The below extension should be turned on..
+In order to use this capability, Defender for Containers or Defender Cloud Security Posture Management must be enabled on the subscription. The below extension should be turned on:
+
+![ContainerVA Extemsopm](../Images/enablecontainerva.png?raw=true)
 
 ### Exercise 1: Install Docker Desktop
 
@@ -104,14 +106,14 @@ Once a vulnerable image has been pushed to the Azure Container Registry registry
 
  ![Recommendation for vulnerabilities in ACR](../Images/9recommendation.png?raw=true)
  4. Click on the recommendation **Container registry images should have vulnerability findings resolved (powered by Microsoft Defender Vulnerability Management)** to get more details about it. <br />
- ![Recommendation for vulnerabilities in ACR More details](../Images/10recommendationmoreinfo.png?raw=true)
+ ![Recommendation for vulnerabilities in ACR More details](../Images/mdvmregistryrecommendation.png?raw=true)
  <br />
  5. Look around at what's available in the recommendation. Take note of the Remediation Steps.
 <br />
-  ![Remediation Steps](../Images/remsteps.png?raw=true)
+  ![Remediation Steps](../Images/rems.png?raw=true)
   <br />
  6. Select a vulnerability to get more details about the patch available for it and how to remediate it.
  <br />
- ![Debian](../Images/11debian.png?raw=true)
+ ![View results](../Images/viewvaresults?raw=true)
  
 
