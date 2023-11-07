@@ -1,4 +1,4 @@
-# Module 9 - Defender for Containers
+# Module 9 - Agentless container vulnerability assessment scanning
 
 <p align="left"><img src="../Images/asc-labs-advanced.gif?raw=true"></p>
 
@@ -6,7 +6,12 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-This exercise guides you on how to validate and use Defender for Containers.
+This exercise guides you on how to validate and use agentless container image vulnerability assessment scanning powered by Microsoft Defender Vulnerability Management for Azure Container Registries. 
+
+### Prerequisites
+In order to use this capability, Defender for Containers or Defender Cloud Security Posture Management must be enabled on the subscription. The below extension should be turned on:
+
+![ContainerVA Extemsopm](../Images/enablecontainerva.png?raw=true)
 
 ### Exercise 1: Install Docker Desktop
 
@@ -93,22 +98,22 @@ docker push secteach365.azurecr.io/vulnerables/web-dvwa
 
 ### Exercise 3: Investigate the recommendation for vulnerabilities in ACR
 
-Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Containers will start scanning the image for vulnerabilities, by using Qualys. You will now look into the recommendation in Microsoft Defender for Cloud for this. 
+Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Cloud will start scanning the image for vulnerabilities using Microsoft Defender Vulnerability Management. You will now look into the recommendation in Microsoft Defender for Cloud for this. 
  
  1. Go to **Microsoft Defender for Cloud** in the **Azure Portal**.
  2. Go to the **Recommendations** tab in Defender for Cloud.
  3. In the **Resource type** filter, have it equal **Container registries**. <br />
 
  ![Recommendation for vulnerabilities in ACR](../Images/9recommendation.png?raw=true)
- 4. Click on the recommendation **Container registry images should have vulnerability findings resolved** to get more details about it. <br />
- ![Recommendation for vulnerabilities in ACR More details](../Images/10recommendationmoreinfo.png?raw=true)
+ 4. Click on the recommendation **Container registry images should have vulnerability findings resolved (powered by Microsoft Defender Vulnerability Management)** to get more details about it. <br />
+ ![Recommendation for vulnerabilities in ACR More details](../Images/registryvarecommendation.png?raw=true)
  <br />
  5. Look around at what's available in the recommendation. Take note of the Remediation Steps.
 <br />
-  ![Remediation Steps](../Images/remsteps.png?raw=true)
+  ![Remediation Steps](../Images/overviewmdvmregistry.png?raw=true)
   <br />
  6. Select the vulnerability **Container registry images should have vulnerability findings resolved** to get more details about the patch available for it and how to remediate it.
  <br />
- ![Debian](../Images/11debian.png?raw=true)
+ ![View results](../Images/viewvaresults.png?raw=true)
  
 
