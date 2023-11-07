@@ -2,7 +2,7 @@
 
 The Python script automates the process of granting MDC (Microsoft Defender for Cloud) permissions to query your EKS (Amazon Elastic Kubernetes Service) clusters. It is designed to be run within the context of an AWS account, which means **you should execute the script from a CLI (Command Line Interface) that is properly configured to access your AWS account**. Please refer to the details below for more information on AWS account configuration.
 
-The script grants access by adding to the `aws-auth ConfigMap` an IAM identity mapping between MDC role (`arn:aws:iam::<account id>:role/MDCContainersAgentlessDiscoveryK8sRole`) to the `system:masters` group.
+The script grants access by adding to the `aws-auth ConfigMap` an IAM identity mapping between MDC role (`arn:aws:iam::<account id>:role/MDCContainersAgentlessDiscoveryK8sRole` by default) to the `system:masters` group.
 Therefore, the script requires a list of roles among other parameters, which should have permissions to update the `aws-auth` configuration of the EKS clusters you intend to onboard. For instance, the roles used to create the EKS clusters typically possess these required permissions.
 **If you don't know/have the roles that created the EKS clusters, unfortunately you can't use this script**.
 
@@ -92,6 +92,12 @@ You can specify the AWS profile name that has permissions to assume the provided
 ### Output file (optional):
 You can specify a path to an output file to which a summary would be written (in addition to writing it to the console).
 - `----output-file`: A path to a txt file which will contain the script summary (In addition to showing the summary in the console). **Please note**: if the file does not exist, the script would create it in the specified location.
+
+### Role to Map (optional):
+You can specify the role arn to map to system:masters group in aws-auth ConfigMap. If you don't specify any role, the script will map arn:aws:iam::<account id>:role/MDCContainersAgentlessDiscoveryK8sRole role.<br>
+**Note**: The role arn should match exactly the role created by the cloudFormation script you ran during the creation of the Connector. The default role arn here, is the same as the cloudFormation script default.
+- `--role-arn`: The role arn to map to system:masters group in aws-auth ConfigMap (default: arn:aws:iam::<account>:role/MDCContainersAgentlessDiscoveryK8sRole).
+
 
 # Examples (Windows):
 Note: the commands assume you navigated to the script directory.

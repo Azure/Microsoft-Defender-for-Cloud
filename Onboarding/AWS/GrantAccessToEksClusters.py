@@ -104,7 +104,7 @@ def validate_output_file(output_file: str) -> bool:
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=f"Granting access to MDC to query EKS clusters."
-                                                 f"\nThe script adds MDC role {ROLE_ARN_TO_MAP.format('<account id>')} to the aws-auth of specified EKS clusters.")
+                                                 f"\nThe script adds MDC role {DEFAULT_ROLE_ARN_TO_MAP.format('<account id>')} to the aws-auth of specified EKS clusters.")
     regions_group = parser.add_mutually_exclusive_group(required=True)
     regions_group.add_argument("--regions", nargs='+', help="List of AWS regions, separated by space", type=str)
     regions_group.add_argument("--all-regions", help="Run for all available AWS regions (if there is a region with no EKS clusters, the script would skip it)", action="store_true")
@@ -122,6 +122,9 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("--profile", help=f"AWS profile name (default: {DEFAULT_PROFILE_NAME})", type=str, default=DEFAULT_PROFILE_NAME, required=False)
     parser.add_argument("--output-file", help=f"A path to a txt file which will contain the script summary (In addition to showing the summary in the console)\n"
                                               f"Please note: if the file does not exist, hte script would create it in the specified location", default="", type=str, required=False)
+
+    parser.add_argument("--role-arn", help=f"The role arn to map to system:masters group in aws-auth ConfigMap (default: {DEFAULT_ROLE_ARN_TO_MAP.format('account')})", type=str,
+                        default=DEFAULT_ROLE_ARN_TO_MAP, required=False)
     args = parser.parse_args()
     return args
 
@@ -144,14 +147,14 @@ def get_role_credentials(session: boto3.Session, role_to_assume: str) -> Dict[st
         sys.exit(str(ex))
 
 
-def create_iamidentitymapping(cluster_name: str, region: str, account_id: str) -> int:
+def create_iamidentitymapping(cluster_name: str, region: str, role_to_map: str) -> int:
     command = [
         'eksctl',
         'create',
         'iamidentitymapping',
         '--cluster', cluster_name,
         '--region', region,
-        '--arn', ROLE_ARN_TO_MAP.format(account_id),
+        '--arn', role_to_map,
         '--group', 'system:masters',
         '--no-duplicate-arns'
     ]
@@ -170,10 +173,10 @@ def get_all_eks_clusters(eks_client) -> List[str]:
         sys.exit(str(ex))
 
 
-def update_clusters(clusters: List[str], region: str, pbar: tqdm, account_id: str) -> List[str]:
+def update_clusters(clusters: List[str], region: str, pbar: tqdm, role_to_map: str) -> List[str]:
     clusters_to_retry = []
     for cluster in clusters:
-        return_code = create_iamidentitymapping(cluster, region, account_id)
+        return_code = create_iamidentitymapping(cluster, region, role_to_map)
         if return_code != 0:
             clusters_to_retry.append(cluster)
         else:
@@ -206,15 +209,14 @@ def get_account_id(session: boto3.Session) -> str:
         sys.exit(str(ex))
 
 
-def update_aws_auth_for_region(session: boto3.Session, clusters: Set[str], region: str, roles: List[str]) -> List[str]:
+def update_aws_auth_for_region(session: boto3.Session, clusters: Set[str], region: str, roles: List[str], role_to_map: str) -> List[str]:
     print(f"Attempting to create iamidentitymapping for {len(clusters)} EKS clusters in {region} region")
-    account_id = get_account_id(session)
     with tqdm(clusters, total=len(clusters), bar_format=CUSTOM_BAR_FORMAT, desc=f"Progress in {region}", unit=" cluster", ncols=100, file=sys.stdout, colour="GREEN") as pbar:
         for role in roles:
             role_credentials = get_role_credentials(session, role)
             set_credentials(role_credentials)
 
-            clusters = update_clusters(clusters, region, pbar, account_id)
+            clusters = update_clusters(clusters, region, pbar, role_to_map)
             if not clusters:
                 break
     return clusters
@@ -230,7 +232,7 @@ def update_aws_auth_for_all_regions(session: boto3.Session, args: argparse.Names
         if not clusters_to_onboard:
             continue
 
-        left_clusters = update_aws_auth_for_region(session, clusters_to_onboard, region, args.roles)
+        left_clusters = update_aws_auth_for_region(session, clusters_to_onboard, region, args.roles, args.role_arn)
 
         successful_clusters = list(set(clusters_to_onboard) - set(left_clusters))
         if successful_clusters:
@@ -303,6 +305,12 @@ def init_output_file(args: argparse.Namespace) -> str:
     return args.output_file
 
 
+def init_role_arn(session: boto3.Session, args: argparse.Namespace) -> str:
+    role_to_map = args.role_arn.format(get_account_id(session))
+    print(f"The script will create iamidentitymapping between {role_to_map} to system:masters group")
+    return role_to_map
+
+
 def init(original_credentials: Dict[str, str]) -> Tuple[boto3.Session, argparse.Namespace]:
     args = parse_arguments()
     print_title()
@@ -312,6 +320,7 @@ def init(original_credentials: Dict[str, str]) -> Tuple[boto3.Session, argparse.
     args.clusters = init_clusters(args)
     args.roles = init_roles(session, args)
     args.regions = init_regions(session, args)
+    args.role_arn = init_role_arn(session, args)
 
     # Those function doesn't exist when error occurs:
     args.output_file = init_output_file(args)
