@@ -1,4 +1,4 @@
-# Module 15 – Integrating Defender for DevOps with GitHub Advanced Security
+# Module 15 – Onboarding GitHub to Defender for Cloud
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
