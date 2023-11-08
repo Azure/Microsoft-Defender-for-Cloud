@@ -6,7 +6,7 @@
 #### ⌛ Estimated time to complete this lab: 30 minutes
 
 ## Objectives
-In this exercise, you will learn how to connect Azure DevOps repositories to Defender for Cloud for DevOps security.
+In this exercise, you will learn how to connect Azure DevOps repositories to Defender for Cloud.
 
 ### Exercise 1: Preparing the Environment
 
