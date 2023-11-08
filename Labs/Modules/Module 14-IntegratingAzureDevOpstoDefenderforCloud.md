@@ -1,4 +1,4 @@
-# Module 14 – I Azure DevOps to Defender for Cloud
+# Module 14 – Onboarding Azure DevOps to Defender for Cloud
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
