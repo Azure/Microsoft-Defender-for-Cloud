@@ -84,12 +84,6 @@ jobs:
       
     steps:
     - uses: actions/checkout@v3
-    
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: |
-          5.0.x
-          6.0.x
           
     - name: Run Microsoft Security DevOps
       uses: microsoft/security-devops-action@preview
