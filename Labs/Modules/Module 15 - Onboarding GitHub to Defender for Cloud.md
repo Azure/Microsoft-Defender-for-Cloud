@@ -1,4 +1,4 @@
-# Module 15 – Integrating Defender for DevOps with GitHub Advanced Security
+# Module 15 – Onboarding GitHub to Defender for Cloud
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
@@ -6,7 +6,7 @@
 #### ⌛ Estimated time to complete this lab: 30 minutes
 
 ## Objectives
-In this exercise, you will learn how to configure GitHub Connector in Defender for DevOps.
+In this exercise, you will learn how to create a GitHub Connector in Defender for Cloud.
 
 ### Exercise 1: Preparing the Environment
 
@@ -31,32 +31,14 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 1.	Login to your Azure Portal and navigate to Defender for Cloud dashboard
 2.	In the left navigation pane, click **Environment settings** option
 3.	Click the **Add environment** button and click **GitHub (preview)** option. The **Create GitHub connection** page appears as shown the sample below.
-
-![Azure ADO Connector](../Images/Picture1.png?raw=true)
-
 4.	Type the name for the connector, select the subscription, select the Resource Group, which can be the same you used in this lab and the region. 
 5.	Click **Next:select plans >** button to continue.
-6.	In the next page leave the default selection with **DevOps** selected and click **Next: Authorize connection >** button to continue. The following page appears:
+6.	In the next page, enable **Defender CSPM**, click **Next: Authorize connection >** button to continue. T
+7.	Click **Authorize** button. Now Click **Install** button under Install Defender for Cloud app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
+8 Back to the Azure portal, you’ll notice that the extension is installed > Click on **Review and Create** button to continue.  
+9. Navigating to the **Environment Settings** under **Microsoft Defender for Cloud**, you’ll notice the GitHub Connection was successfully created. 
 
-![Azure ADO Connector - Authorize](../Images/Pic2.png?raw=true)
-
-
-7.	Click **Authorize** button. Now Click **Install** button under Install Defender for DevOps app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
-
-![Azure ADO Connector - Install](../Images/Pic3.png?raw=true)
-
-![Azure ADO Connector - Choose Repository](../Images/Pic4.png?raw=true)
-
-8. Choose **All repositories** or **only select repositories** as per your choice and click on **Install**
-
-![Azure ADO Connector - Install](../Images/Pic5.png?raw=true)
-
-9. Once you click on install, you’ll receive another pop-up window requesting to enter the password inorder to confirm access   
-
-10. Back to the Azure portal, you’ll notice that the extension is installed > Click on **Review and Create** button to continue.  
-11. Navigating to the **Environment Settings** under **Microsoft Defender for Cloud**, you’ll notice the GitHub Connection was successfully created. 
-
-![Azure ADO Connector - Confirming the connector](../Images/Pic6.png?raw=true)
+![GitHub Connector - Confirming the connector](../Images/Pic6.png?raw=true)
 
 ### Exercise 5: Configure the Microsoft Security DevOps GitHub action:
 
@@ -69,16 +51,16 @@ To setup GitHub action:
 
 4.	Select **New Workflow**
 
-![Azure GitHub - New workflow](../Images/Pic8.png?raw=true)
+![GitHub - New workflow](../Images/Pic8.png?raw=true)
 
 5.	In the text box, enter a name for your workflow file. For example **msdevopssec.yml**
 
-![Azure GitHub - New workflow](../Images/Pic9.png?raw=true)
+![GitHub - New workflow](../Images/Pic9.png?raw=true)
 
 6.	Copy and paste the following sample action workflow into the **Edit new file** tab. 
 
 ~~~~~~
-name: MSDO IaC Scan
+name: MSDO Scan
 
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
@@ -99,19 +81,11 @@ jobs:
       
     steps:
     - uses: actions/checkout@v3
-    
-    - uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: |
-          5.0.x
-          6.0.x
           
     - name: Run Microsoft Security DevOps
       uses: microsoft/security-devops-action@preview
       continue-on-error: false
       id: msdo
-      with:
-        categories: 'IaC'
 
     - name: Upload alerts to Security tab
       uses: github/codeql-action/upload-sarif@v2
@@ -138,7 +112,7 @@ A workflow gets created in your repositories github folder with the above copied
 
 NOTE: if you don’t see anything is because your code scanning feature is disabled in GitHub. Refer to the prerequisites section of this lab to review the instructions to enable. 
 
-10.	If you see No code scanning alerts here, In the filter of Code scanning tab, choose is:open tool: Notice the available tools Defender for DevOps uses.
+10.	If you see No code scanning alerts here, In the filter of Code scanning tab, choose is:open tool: Notice the available tools Defender for Cloud uses.
 
 ![Azure GitHub - Code Scanning](../Images/Picture13.png?raw=true)
 
