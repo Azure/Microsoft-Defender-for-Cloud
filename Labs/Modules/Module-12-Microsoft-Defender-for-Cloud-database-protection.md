@@ -15,8 +15,11 @@ To enable the Defender plan on a specific subscription:
 2.	Navigate to **Microsoft Defender for Cloud**, then **Environment settings**.
 3.	Select the relevant subscription.
 4. Locate Databases. 
-5.	Click on **Select types** and ensure **SQL servers on machines** is toggled **On**.
-6.	Click on **Settings** and ensure Status is toggled **On**.
+5.	Click on **Select types** and ensure **SQL servers on machines** is toggled `On`.
+6.	In the Monitoring Coverage column, click on **Settings**:
+    >It is strongly recommended to use the new Azure Monitoring Agent for SQL server on machines experience over the legacy Log Analytics/AMA option.
+    1. Ensure that `Azure Monitoring Agent for SQL server on machines` is toggled to `On`  
+    2. (Optional): In the `Configuration` column, you have the option of configuring which Log Analytic Workspace to use as well as the ability to register Azure SQL server instances by enabling SQL IaaS extension automatic registration.  
 7. Click **Continue** and **Save**. 
 
 Now all your existing and upcoming Azure SQL servers on machines are protected.
