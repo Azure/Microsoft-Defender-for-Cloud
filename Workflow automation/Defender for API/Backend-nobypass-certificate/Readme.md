@@ -13,10 +13,10 @@ The LogicApp uses a system-assigned Managed Identity to update the API Managemen
 
 **To assign Managed Identity to the Logic App:**
 Make sure you have User Access Administrator permissions for this scope.
-Go to the Logic App deployed.
-Under 'settings' select 'Identity' 
-Select 'System Assigned'.
-Press 'Azure role assignments'.
-Select '+Add role Assignment'
-Select the scope as 'Subscription' and under subscription select your subscription
-Under Role select 'API Management Service Contributor' and click 'Save'
+- Go to the Logic App deployed.
+- Under 'settings' select 'Identity' 
+- Select 'System Assigned'.
+- Press 'Azure role assignments'.
+- Select '+Add role Assignment'
+- Select the scope as 'Subscription' and under subscription select your subscription
+- Under Role select 'API Management Service Contributor' and click 'Save'
