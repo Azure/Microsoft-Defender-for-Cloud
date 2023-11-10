@@ -1,5 +1,5 @@
 # API backends should not bypass certificate thumbprint or name validation 
-author: Vasavi Pasula
+Author: Vasavi Pasula
 
 The ARM template will create the LogicApp to configure API Management validate the backend server certificate and enable SSL certificate thumbprint and name validation.
 The LogicApp uses a system-assigned Managed Identity to update the API Management.You need to make sure to grant the Logic App a System Assigned Managed Identity with a role "API Management Service Contributor" at the Azure subscription scope.
