@@ -2,6 +2,7 @@
 Author: Vasavi Pasula
 
 The ARM template will create the LogicApp to configure API Management subscriptions that are scoped to all APIs will be suspended.
+
 The LogicApp uses a system-assigned Managed Identity to update the API Management.You need to make sure to grant the Logic App a System Assigned Managed Identity with a role "API Management Service Contributor" at the Azure subscription scope.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%20automation%2FDefender%20for%20API%2FBackend-nobypass-certificate%2Fazuredeploy.json" target="_blank">
