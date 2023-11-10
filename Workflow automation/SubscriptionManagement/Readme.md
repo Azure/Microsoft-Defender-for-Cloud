@@ -1,4 +1,4 @@
-# Identifying Subscriptions that are not Managed by Azure Security Center
+# Identifying Subscriptions that are not Managed by Microsoft Defender for Cloud
 **Author: Safeena Begum**
 
 Azure Management Groups provide the ability to effeiciently manage access, policies and reporting on groups of subscriptions as well as effectively manage the entire Azure estate by performing actions on the root management group. Organizations can organize subscriptions into management groups and apply governance policies to the management groups so that all subscriptions within a management group automatically inherit the policies applied to the management group and that would help monitor Secure Score percentage.
@@ -18,8 +18,8 @@ c. Enable and add the above created User assigned Identity to the Logic App. Fol
 
 ## How it works: 
 By default this automation runs weekly and queries the Root Management group to identify any new subscription(s) that are directly assigned to the root management group. 
-If one or more subscriptions are found in the Root management group, the Logic App will send an email with the following details: Subscription Name, Subscription ID, Action, Status of the subscription (If ASC is enabled or disabled). Image 1 has an example of how this email look like:
-Make sure to add the subscription(s) to the Management Groups in order to start monitoring using Azure Security Center.
+If one or more subscriptions are found in the Root management group, the Logic App will send an email with the following details: Subscription Name, Subscription ID, Action, Status of the subscription (If MDC is enabled or disabled). Image 1 has an example of how this email look like:
+Make sure to add the subscription(s) to the Management Groups in order to start monitoring using Microsoft Defender for Cloud.
 The automation artifact also creates a Storage account with a table storage in it during the deployment of the template. If the intent of assigning the subscription to the root management group was on purpose, you could exclude the subscription from being displayed in the email on next run by just clicking on the hyperlink ‘Exclude <subscriptionname>’ under the Action column of Image 1. 
 In the next run (weekly) it will not display the subscriptions you added to the Exclusion list (table storage) and notifies only newly added subscription(s) via email. 
 

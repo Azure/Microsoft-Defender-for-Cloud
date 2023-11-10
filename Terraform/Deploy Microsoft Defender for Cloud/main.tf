@@ -1,32 +1,100 @@
 data "azurerm_subscription" "current" {}
 
-resource "azurerm_subscription_policy_assignment" "asb_assignment" {
-  name                 = "azuresecuritybenchmark"
-  display_name         = "Azure Security Benchmark"
+# Assign the Microsoft Cloud Security Benchmark Policy initiative to the subscription (Foundational CSPM)
+resource "azurerm_subscription_policy_assignment" "mcsb_assignment" {
+  name                 = "mcsb"
+  display_name         = "Microsoft Cloud Security Benchmark"
   policy_definition_id = "/providers/Microsoft.Authorization/policySetDefinitions/1f3afdf9-d0c9-4c3d-847f-89da613e70a8"
   subscription_id      = data.azurerm_subscription.current.id
 }
 
+# Enable Defender for Azure Resource Manager
 resource "azurerm_security_center_subscription_pricing" "mdc_arm" {
   tier          = "Standard"
   resource_type = "Arm"
+  subplan       = "PerApiCall"
 }
 
+# Enable Defender for Servers P2
 resource "azurerm_security_center_subscription_pricing" "mdc_servers" {
   tier          = "Standard"
   resource_type = "VirtualMachines"
+  subplan       = "P2"
 }
 
-resource "azurerm_security_center_setting" "setting_mcas" {
-  setting_name = "MCAS"
-  enabled      = false
+# Enable Defender CSPM
+resource "azurerm_security_center_subscription_pricing" "mdc_cspm" {
+  tier          = "Standard"
+  resource_type = "CloudPosture"
 }
 
+# Enable Defender for Storage (v2)
+resource "azurerm_security_center_subscription_pricing" "mdc_storage" {
+  tier          = "Standard"
+  resource_type = "StorageAccounts"
+  subplan       = "DefenderForStorageV2"
+}
+
+# Enable integration with and auto-provisioning of Microsoft Defender for Endpoint (in the context of Defender for Servers)
 resource "azurerm_security_center_setting" "setting_mde" {
   setting_name = "WDATP"
   enabled      = true
 }
 
+# Enabling Microsoft Defender Vulnerability Management as the Vulnerability Assessment provider for Defender for Servers
+resource "azapi_resource" "DfSMDVMSettings" {
+  type = "Microsoft.Security/serverVulnerabilityAssessmentsSettings@2022-01-01-preview"
+  name = "AzureServersSetting"
+  parent_id = data.azurerm_subscription.current.id
+  body = jsonencode({
+    properties = {
+      selectedProvider = "MdeTvm"
+    }
+	kind = "AzureServersSetting"
+  })
+  schema_validation_enabled = false
+}
+
+# Enabling agentless Virtual Machine scanning
+resource "azapi_resource" "setting_agentless_vm" {
+  type = "Microsoft.Security/vmScanners@2022-03-01-preview"
+  name = "default"
+  parent_id = data.azurerm_subscription.current.id
+  body = jsonencode({
+    properties = {
+      scanningMode = "Default"
+    }
+  })
+  schema_validation_enabled = false
+}
+
+# Enabling sensitive data discovery and container registries vulnerability assessments while keeping agentless discovery for Kubernetes disabled
+resource "azapi_update_resource" "setting_cspm" {
+  type = "Microsoft.Security/pricings@2023-01-01"
+  name = "CloudPosture"
+  parent_id = data.azurerm_subscription.current.id
+  body = jsonencode({
+    properties = {
+      pricingTier = "Standard"
+      extensions = [
+         {
+             name = "SensitiveDataDiscovery"
+             isEnabled = "True"
+         },
+         {
+             name = "ContainerRegistriesVulnerabilityAssessments"
+             isEnabled = "True"
+         },
+         {
+             name = "AgentlessDiscoveryForKubernetes"
+             isEnabled = "False"
+         }
+      ]
+    }
+  })
+}
+
+# Setting up the Security contacts
 resource "azurerm_security_center_contact" "mdc_contact" {
   email = "john.doe@contoso.com"
   phone = "+351123456789"
@@ -35,15 +103,18 @@ resource "azurerm_security_center_contact" "mdc_contact" {
   alerts_to_admins    = true
 }
 
+# Turning on Log Analytics agent auto-provisioning
 resource "azurerm_security_center_auto_provisioning" "auto-provisioning" {
   auto_provision = "On"
 }
 
+# Creating the Resource Group for the Log Analytics workspace
 resource "azurerm_resource_group" "security_rg" { 
   name = "security-rg" 
   location = "West Europe" 
 } 
 
+# Creating the Log Analytics workspace
 resource "azurerm_log_analytics_workspace" "la_workspace" { 
   name = "mdc-security-workspace" 
   location = azurerm_resource_group.security_rg.location 
@@ -51,31 +122,13 @@ resource "azurerm_log_analytics_workspace" "la_workspace" {
   sku = "PerGB2018" 
 }
 
+# Associating the Log Analytics workspace with Microsoft Defender for Cloud
 resource "azurerm_security_center_workspace" "la_workspace" {
   scope        = data.azurerm_subscription.current.id
   workspace_id = azurerm_log_analytics_workspace.la_workspace.id
 }
 
-resource "azurerm_subscription_policy_assignment" "va-auto-provisioning" {
-  name                 = "mdc-va-autoprovisioning"
-  display_name         = "Configure machines to receive a vulnerability assessment provider"
-  policy_definition_id = "/providers/Microsoft.Authorization/policyDefinitions/13ce0167-8ca6-4048-8e6b-f996402e3c1b"
-  subscription_id      = data.azurerm_subscription.current.id
-  identity {
-    type = "SystemAssigned"
-  }
-  location = "West Europe"
-  parameters = <<PARAMS
-{ "vaType": { "value": "mdeTvm" } }
-PARAMS
-}
-
-resource "azurerm_role_assignment" "va-auto-provisioning-identity-role" {
-  scope              = data.azurerm_subscription.current.id
-  role_definition_id = "/providers/Microsoft.Authorization/roleDefinitions/fb1c8493-542b-48eb-b624-b4c8fea62acd"
-  principal_id       = azurerm_subscription_policy_assignment.va-auto-provisioning.identity[0].principal_id
-}
-
+# Enabling Defender for Servers P2 on the Log Analytics workspace (to benefit from 500 MB of free data ingestion per day)
 resource "azurerm_log_analytics_solution" "la_workspace_security" {
   solution_name         = "Security"
   location              = "West Europe"
@@ -89,6 +142,7 @@ resource "azurerm_log_analytics_solution" "la_workspace_security" {
   }
 }
 
+# Enabling Defender for Cloud Foundational CSPM on the Log Analytics workspace
 resource "azurerm_log_analytics_solution" "la_workspace_securityfree" {
   solution_name         = "SecurityCenterFree"
   location              = "West Europe"
@@ -102,6 +156,7 @@ resource "azurerm_log_analytics_solution" "la_workspace_securityfree" {
   }
 }
 
+# Configuring continuous export to the Log Analytics workspace
 resource "azurerm_security_center_automation" "la-exports" {
   name                = "ExportToWorkspace"
   location            = azurerm_resource_group.security_rg.location

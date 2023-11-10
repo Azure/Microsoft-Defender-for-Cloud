@@ -1,0 +1,357 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "metadata":  {
+        "title":  "",
+        "description":  "",
+        "prerequisites":  "",
+        "postDeployment":  [
+        ],
+        "prerequisitesDeployTemplateFile":  "",
+        "lastUpdateTime":  "",
+        "entities":  [
+        ],
+        "tags":  [
+        ],
+        "support":  {
+            "tier":  "community",
+            "armtemplate":  "Generated from https://github.com/Azure/Azure-Sentinel/tree/master/Tools/Playbook-ARM-Template-Generator"
+        },
+        "author":  {
+            "name":  ""
+        }
+    },
+    "parameters":  {
+        "PlaybookName":  {
+            "defaultValue":  "attack-path-sentinel-incident-enrich",
+            "type":  "string"
+        }
+    },
+    "variables":  {
+        "MicrosoftSentinelConnectionName":  "[concat('MicrosoftSentinel-', parameters('PlaybookName'))]"
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Enabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "Microsoft_Sentinel_incident":  {
+                            "type":  "ApiConnectionWebhook",
+                            "inputs":  {
+                                "body":  {
+                                    "callback_url":  "@{listCallbackUrl()}"
+                                },
+                                "host":  {
+                                    "connection":  {
+                                        "name":  "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "path":  "/incident-creation"
+                            }
+                        }
+                    },
+                    "actions":  {
+                        "Array__init_-_arr_attackpathlist":  {
+                            "runAfter":  {
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "arr_attackpathlist",
+                                        "type":  "array",
+                                        "value":  "@null"
+                                    }
+                                ]
+                            }
+                        },
+                        "Entities_-_Get_Hosts":  {
+                            "runAfter":  {
+                                "Integer_init_-_int_index":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "ApiConnection",
+                            "inputs":  {
+                                "body":  "@triggerBody()?['object']?['properties']?['relatedEntities']",
+                                "host":  {
+                                    "connection":  {
+                                        "name":  "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                    }
+                                },
+                                "method":  "post",
+                                "path":  "/entities/host"
+                            }
+                        },
+                        "For_each":  {
+                            "foreach":  "@body('Entities_-_Get_Hosts')?['Hosts']",
+                            "actions":  {
+                                "Condition":  {
+                                    "actions":  {
+                                        "Add_comment_to_incident_(V3)":  {
+                                            "runAfter":  {
+                                                "For_each_Attack_Path":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "ApiConnection",
+                                            "inputs":  {
+                                                "body":  {
+                                                    "incidentArmId":  "@triggerBody()?['object']?['id']",
+                                                    "message":  "\u003cp\u003eDefender for Cloud has identified the following posible Attack Paths where the resource @{items('For_each')?['HostName']} is a node of:\u003cbr\u003e\n@{variables('str_attackpathlist')}\u003c/p\u003e"
+                                                },
+                                                "host":  {
+                                                    "connection":  {
+                                                        "name":  "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                                    }
+                                                },
+                                                "method":  "post",
+                                                "path":  "/Incidents/Comment"
+                                            }
+                                        },
+                                        "For_each_Attack_Path":  {
+                                            "foreach":  "@variables('arr_attackpathlist')",
+                                            "actions":  {
+                                                "Append_to_str_attackpathlist":  {
+                                                    "runAfter":  {
+                                                    },
+                                                    "type":  "AppendToStringVariable",
+                                                    "inputs":  {
+                                                        "name":  "str_attackpathlist",
+                                                        "value":  "@{if(equals(variables('int_index'), 1), '\u003col\u003e', '') } \u003cli\u003e \u003ca href=\"@{concat('https://portal.azure.com/#view/Microsoft_Azure_Security_Orion/AttackPathTypeBlade/attackPathTypeId/',items('For_each_Attack_Path')[1])}\"\u003e@{items('For_each_Attack_Path')[0]}\u003c/a\u003e \u003c/li\u003e \u003cbr\u003e @{if(equals(variables('int_index'), length(variables('arr_attackpathlist'))), '\u003c/ol\u003e', '')}"
+                                                    }
+                                                },
+                                                "Increment_variable":  {
+                                                    "runAfter":  {
+                                                        "Append_to_str_attackpathlist":  [
+                                                            "Succeeded"
+                                                        ]
+                                                    },
+                                                    "type":  "IncrementVariable",
+                                                    "inputs":  {
+                                                        "name":  "int_index",
+                                                        "value":  1
+                                                    }
+                                                }
+                                            },
+                                            "runAfter":  {
+                                                "Set_variable_-_arr_attackpathlist":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "Foreach"
+                                        },
+                                        "Reset_arr_attakpathlist":  {
+                                            "runAfter":  {
+                                                "Update_incident":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "SetVariable",
+                                            "inputs":  {
+                                                "name":  "arr_attackpathlist",
+                                                "value":  "@null"
+                                            }
+                                        },
+                                        "Reset_int_index":  {
+                                            "runAfter":  {
+                                                "Rest_str_attackpathlist":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "SetVariable",
+                                            "inputs":  {
+                                                "name":  "int_index",
+                                                "value":  1
+                                            }
+                                        },
+                                        "Rest_str_attackpathlist":  {
+                                            "runAfter":  {
+                                                "Reset_arr_attakpathlist":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "SetVariable",
+                                            "inputs":  {
+                                                "name":  "str_attackpathlist",
+                                                "value":  "@{null}"
+                                            }
+                                        },
+                                        "Set_variable_-_arr_attackpathlist":  {
+                                            "runAfter":  {
+                                            },
+                                            "type":  "SetVariable",
+                                            "inputs":  {
+                                                "name":  "arr_attackpathlist",
+                                                "value":  "@body('HTTP-GetAttackPaths')?['data']?['rows']"
+                                            }
+                                        },
+                                        "Update_incident":  {
+                                            "runAfter":  {
+                                                "Add_comment_to_incident_(V3)":  [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type":  "ApiConnection",
+                                            "inputs":  {
+                                                "body":  {
+                                                    "incidentArmId":  "@triggerBody()?['object']?['id']",
+                                                    "tagsToAdd":  {
+                                                        "TagsToAdd":  [
+                                                            {
+                                                                "Tag":  "AttackPathFound"
+                                                            }
+                                                        ]
+                                                    }
+                                                },
+                                                "host":  {
+                                                    "connection":  {
+                                                        "name":  "@parameters('$connections')['azuresentinel_1']['connectionId']"
+                                                    }
+                                                },
+                                                "method":  "put",
+                                                "path":  "/Incidents"
+                                            }
+                                        }
+                                    },
+                                    "runAfter":  {
+                                        "HTTP-GetAttackPaths":  [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "expression":  {
+                                        "and":  [
+                                            {
+                                                "not":  {
+                                                    "equals":  [
+                                                        "@length(body('HTTP-GetAttackPaths')?['data']?['rows'])",
+                                                        0
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "type":  "If"
+                                },
+                                "HTTP-GetAttackPaths":  {
+                                    "runAfter":  {
+                                    },
+                                    "type":  "Http",
+                                    "inputs":  {
+                                        "authentication":  {
+                                            "type":  "ManagedServiceIdentity"
+                                        },
+                                        "body":  {
+                                            "query":  "securityresources | where type == 'microsoft.security/attackpaths'  | where properties.description has '@{items('For_each')?['HostName']}' | project description=tostring(properties.description), aptype=tostring(properties.attackPathType)"
+                                        },
+                                        "method":  "POST",
+                                        "uri":  "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2020-04-01-preview"
+                                    }
+                                }
+                            },
+                            "runAfter":  {
+                                "Entities_-_Get_Hosts":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Foreach"
+                        },
+                        "Integer_init_-_int_index":  {
+                            "runAfter":  {
+                                "String_init_-_str_attackpathlist":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "int_index",
+                                        "type":  "integer",
+                                        "value":  1
+                                    }
+                                ]
+                            }
+                        },
+                        "String_init_-_str_attackpathlist":  {
+                            "runAfter":  {
+                                "Array__init_-_arr_attackpathlist":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "str_attackpathlist",
+                                        "type":  "string",
+                                        "value":  "@{null}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                            "azuresentinel_1":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('MicrosoftSentinelConnectionName'))]",
+                                "connectionName":  "[variables('MicrosoftSentinelConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Azuresentinel')]",
+                                "connectionProperties":  {
+                                    "authentication":  {
+                                        "type":  "ManagedServiceIdentity"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('PlaybookName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "tags":  {
+                "hidden-SentinelTemplateName":  "attack-path-sentinel-incident-enrich",
+                "hidden-SentinelTemplateVersion":  "1.0"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+                "[resourceId('Microsoft.Web/connections', variables('MicrosoftSentinelConnectionName'))]"
+            ]
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('MicrosoftSentinelConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('MicrosoftSentinelConnectionName')]",
+                "customParameterValues":  {
+                },
+                "parameterValueType":  "Alternative",
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Azuresentinel')]"
+                }
+            }
+        }
+    ]
+}

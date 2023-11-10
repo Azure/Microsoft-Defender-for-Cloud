@@ -1,0 +1,57 @@
+{
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "workbookDisplayName": {
+      "type": "string",
+      "defaultValue": "Governance assignment deletion",
+      "metadata": {
+        "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
+      }
+    },
+    "workbookType": {
+      "type": "string",
+      "defaultValue": "workbook",
+      "metadata": {
+        "description": "The gallery that the workbook will been shown under. Supported values include workbook, tsg, etc. Usually, this is 'workbook'"
+      }
+    },
+    "workbookSourceId": {
+      "type": "string",
+      "defaultValue": "Azure Security Center",
+      "metadata": {
+        "description": "The id of resource instance to which the workbook will be associated"
+      }
+    },
+    "workbookId": {
+      "type": "string",
+      "defaultValue": "[newGuid()]",
+      "metadata": {
+        "description": "The unique guid for this workbook instance"
+      }
+    }
+  },
+  "resources": [
+    {
+      "name": "[parameters('workbookId')]",
+      "type": "microsoft.insights/workbooks",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2022-04-01",
+      "dependsOn": [],
+      "kind": "shared",
+      "properties": {
+        "displayName": "[parameters('workbookDisplayName')]",
+        "serializedData": "{\"version\":\"Notebook/1.0\",\"items\":[{\"type\":1,\"content\":{\"json\":\"## Governance assignment deletion\\nWith this workbook, you can view all governance assignments on scope(s) and delete them with REST API\"},\"name\":\"Title\"},{\"type\":9,\"content\":{\"version\":\"KqlParameterItem/1.0\",\"parameters\":[{\"id\":\"c2cfc2fb-8a68-43cc-8ebc-08cb34a324da\",\"version\":\"KqlParameterItem/1.0\",\"name\":\"Subscriptions\",\"type\":6,\"multiSelect\":true,\"quote\":\"'\",\"delimiter\":\",\",\"value\":[\"value::all\"],\"typeSettings\":{\"additionalResourceOptions\":[\"value::all\"],\"includeAll\":false},\"timeContext\":{\"durationMs\":86400000}}],\"style\":\"above\",\"queryType\":0,\"resourceType\":\"microsoft.operationalinsights/workspaces\"},\"name\":\"Parameters\"},{\"type\":3,\"content\":{\"version\":\"KqlItem/1.0\",\"query\":\"securityresources\\r\\n| where type == \\\"microsoft.security/assessments/governanceassignments\\\"\\r\\n| extend splitedId = split(tolower(id), \\\"microsoft.security/securityconnectors\\\")\\r\\n| extend Scope = iff(tolower(id) has \\\"securityconnectors\\\", strcat(splitedId[0], \\\"microsoft.security/securityconnectors\\\", split(splitedId[1], \\\"/securityentitydata\\\")[0]), tostring(subscriptionId))\\r\\n| extend  assignedResourceId = tostring(todynamic(properties).assignedResourceId)\\r\\n| extend owner = tostring(properties.owner)\\r\\n| extend owner = iif(isnull(owner) == false and isempty(owner) == false , owner, \\\"Unspecified\\\")\\r\\n| extend remediationDueDate = todatetime(properties.remediationDueDate)\\r\\n| extend assignmentStatus = iif(bin(remediationDueDate, 1d) < bin(now(), 1d), \\\"Overdue\\\", \\\"Ontime\\\")\\r\\n| extend isGrace = properties.isGracePeriod\\r\\n| extend Resource = tostring(split(assignedResourceId, \\\"/providers/Microsoft.Security/\\\")[0])\\r\\n| project Scope, AssignmentId = id, Owner = owner, Resource, [\\\"Due date\\\"] = remediationDueDate, Status = assignmentStatus, [\\\"Grace period enabled\\\"] = isGrace, Action = id\",\"size\":2,\"title\":\"Assignments\",\"exportedParameters\":[{\"fieldName\":\"AssignmentId\",\"parameterName\":\"AssignmentId\",\"parameterType\":1},{\"fieldName\":\"Owner\",\"parameterName\":\"Owner\",\"parameterType\":1}],\"queryType\":1,\"resourceType\":\"microsoft.resourcegraph/resources\",\"crossComponentResources\":[\"{Subscriptions}\"],\"gridSettings\":{\"formatters\":[{\"columnMatch\":\"Scope\",\"formatter\":13,\"formatOptions\":{\"linkTarget\":\"Resource\",\"showIcon\":true}},{\"columnMatch\":\"Due date\",\"formatter\":6},{\"columnMatch\":\"Status\",\"formatter\":18,\"formatOptions\":{\"thresholdsOptions\":\"icons\",\"thresholdsGrid\":[{\"operator\":\"==\",\"thresholdValue\":\"Overdue\",\"representation\":\"3\",\"text\":\"{0}{1}\"},{\"operator\":\"==\",\"thresholdValue\":\"Ontime\",\"representation\":\"1\",\"text\":\"{0}{1}\"},{\"operator\":\"Default\",\"thresholdValue\":null,\"representation\":\"success\",\"text\":\"{0}{1}\"}]}},{\"columnMatch\":\"Grace period enabled\",\"formatter\":18,\"formatOptions\":{\"thresholdsOptions\":\"icons\",\"thresholdsGrid\":[{\"operator\":\"==\",\"thresholdValue\":\"true\",\"representation\":\"success\",\"text\":\"\"},{\"operator\":\"==\",\"thresholdValue\":\"false\",\"representation\":\"3\",\"text\":\"\"},{\"operator\":\"Default\",\"thresholdValue\":null,\"representation\":\"Blank\",\"text\":\"{0}{1}\"}]}},{\"columnMatch\":\"Action\",\"formatter\":7,\"formatOptions\":{\"linkTarget\":\"ArmAction\",\"linkLabel\":\"Delete assignment\",\"linkIsContextBlade\":true,\"armActionContext\":{\"path\":\"{AssignmentId}?api-version=2021-06-01\",\"headers\":[],\"params\":[],\"httpMethod\":\"DELETE\",\"title\":\"Delete assignment:\",\"description\":\"You are about to delete an assignment **{AssignmentId}** assigned to **{Owner}**\",\"actionName\":\"Delete assignment\",\"runLabel\":\"Delete\"}}}],\"rowLimit\":1000,\"labelSettings\":[{\"columnId\":\"AssignmentId\",\"label\":\"Assignment Id\"}]}},\"name\":\"Assignments\"}],\"isLocked\":false,\"fallbackResourceIds\":[\"Azure Security Center\"]}",
+        "version": "1.0",
+        "sourceId": "[parameters('workbookSourceId')]",
+        "category": "[parameters('workbookType')]"
+      }
+    }
+  ],
+  "outputs": {
+    "workbookId": {
+      "type": "string",
+      "value": "[resourceId( 'microsoft.insights/workbooks', parameters('workbookId'))]"
+    }
+  },
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#"
+}

@@ -1,0 +1,342 @@
+{
+    "mode": "Indexed",
+    "policyRule": {
+      "if": {
+        "allOf": [
+          {
+            "field": "type",
+            "equals": "Microsoft.Compute/virtualMachines"
+          },
+          {
+            "field": "location",
+            "in": [
+              "australiacentral",
+              "australiaeast",
+              "australiasoutheast",
+              "brazilsouth",
+              "canadacentral",
+              "canadaeast",
+              "centralindia",
+              "centralus",
+              "eastasia",
+              "eastus2euap",
+              "eastus",
+              "eastus2",
+              "francecentral",
+              "germanywestcentral",
+              "japaneast",
+              "japanwest",
+              "jioindiawest",
+              "koreacentral",
+              "koreasouth",
+              "northcentralus",
+              "northeurope",
+              "norwayeast",
+              "southafricanorth",
+              "southcentralus",
+              "southeastasia",
+              "southindia",
+              "switzerlandnorth",
+              "uaenorth",
+              "uksouth",
+              "ukwest",
+              "westcentralus",
+              "westeurope",
+              "westindia",
+              "westus",
+              "westus2"
+            ]
+          },
+          {
+            "anyOf": [
+              {
+                "field": "Microsoft.Compute/imageId",
+                "in": "[parameters('listOfWindowsImageIdToInclude')]"
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftWindowsServer"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "WindowsServer"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "2008-R2-SP1*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "2012-*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "2016-*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "2019-*"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageSku",
+                        "like": "2022-*"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftWindowsServer"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "WindowsServerSemiAnnual"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "in": [
+                      "Datacenter-Core-1709-smalldisk",
+                      "Datacenter-Core-1709-with-Containers-smalldisk",
+                      "Datacenter-Core-1803-with-Containers-smalldisk"
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftWindowsServerHPCPack"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "WindowsServerHPCPack"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftSQLServer"
+                  },
+                  {
+                    "anyOf": [
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2022"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2022-BYOL"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2019"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2019-BYOL"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2016"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2016-BYOL"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2012R2"
+                      },
+                      {
+                        "field": "Microsoft.Compute/imageOffer",
+                        "like": "*-WS2012R2-BYOL"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftRServer"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "MLServer-WS2016"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftVisualStudio"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "in": [
+                      "VisualStudio",
+                      "Windows"
+                    ]
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftDynamicsAX"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "Dynamics"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageSKU",
+                    "equals": "Pre-Req-AX7-Onebox-U8"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "microsoft-ads"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "windows-data-science-vm"
+                  }
+                ]
+              },
+              {
+                "allOf": [
+                  {
+                    "field": "Microsoft.Compute/imagePublisher",
+                    "equals": "MicrosoftWindowsDesktop"
+                  },
+                  {
+                    "field": "Microsoft.Compute/imageOffer",
+                    "equals": "Windows-10"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      "then": {
+        "effect": "[parameters('effect')]",
+        "details": {
+          "type": "Microsoft.Insights/dataCollectionRuleAssociations",
+          "name": "SecurityEvents-RulesAssociation",
+          "roleDefinitionIds": [
+            "/providers/microsoft.authorization/roleDefinitions/749f88d5-cbae-40b8-bcfc-e573ddc772fa",
+            "/providers/microsoft.authorization/roleDefinitions/92aaf0da-9dab-42b6-94a3-d43ce8d16293"
+          ],
+          "deployment": {
+            "properties": {
+              "mode": "incremental",
+              "parameters": {
+                "resourceGroup": {
+                  "value": "[resourceGroup().name]"
+                },
+                "vmName": {
+                  "value": "[field('name')]"
+                },
+                "dcrResourceGroup": {
+                  "value": "[parameters('dcrResourceGroup')]"
+                },
+                "dcrRegion": {
+                  "value": "[parameters('dcrRegion')]"
+                }
+              },
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "resourceGroup": {
+                    "type": "string"
+                  },
+                  "vmName": {
+                    "type": "string"
+                  },
+                  "dcrResourceGroup": {
+                    "type": "string"
+                  },
+                  "dcrRegion": {
+                    "type": "string"
+                  }
+                },
+                "variables": {
+                  "subscriptionId": "[subscription().subscriptionId]",
+                  "dcrName": "[concat('Microsoft-SecurityEvents-', parameters('dcrRegion'), '-dcr')]",
+                  "dcrId": "[concat('/subscriptions/', variables('subscriptionId'), '/resourceGroups/', parameters('dcrResourceGroup'), '/providers/Microsoft.Insights/dataCollectionRules/', variables('dcrName'))]",
+                  "dcraName": "[concat(parameters('vmName'),'/Microsoft.Insights/SecurityEvents-RulesAssociation')]"
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Compute/virtualMachines/providers/dataCollectionRuleAssociations",
+                    "name": "[variables('dcraName')]",
+                    "apiVersion": "2021-04-01",
+                    "properties": {
+                      "description": "Association of data collection rule for Microsoft Defender for Cloud. Deleting this association will break the detection of security vulnerabilities for this virtual machine.",
+                      "dataCollectionRuleId": "[variables('dcrId')]"
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    "parameters": {
+      "effect": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Effect",
+          "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+          "DeployIfNotExists",
+          "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+      },
+      "dcrResourceGroup": {
+        "type": "String",
+        "metadata": {
+          "displayName": "DCR Resource Group",
+          "description": "Resource Group for the Security Events Data Collection Rule"
+        }
+      },
+      "dcrRegion": {
+        "type": "String",
+        "metadata": {
+          "displayName": "DCR region",
+          "description": "Region from which the virtual machines in scope will send their logs. Needed to create the Data Collection Rule in the same region",
+          "strongType": "location"
+        }
+      },
+      "listOfWindowsImageIdToInclude": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "Additional Virtual Machine Images",
+          "description": "List of virtual machine images that have supported Windows OS to add to scope. Example values: '/subscriptions/<subscriptionId>/resourceGroups/YourResourceGroup/providers/Microsoft.Compute/images/ContosoStdImage'"
+        },
+        "defaultValue": []
+      }
+    }
+  }

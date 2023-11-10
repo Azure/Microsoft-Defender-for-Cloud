@@ -12,7 +12,7 @@ This exercise guides you through the current Microsoft Defender for Cloud polici
 
 1.	From **Microsoft Defender for Cloud main dashboard**, select **Regulatory Compliance** tile (this pilar is also available from the sidebar under Cloud Security).
 2.	Regulatory Compliance dashboard opens. On this page, you can see the compliance standards currently assigned to your subscription.
-3.	On the top strip, notice the number of **passed controls** for Azure Security Benchmark.
+3.	On the top strip, notice the number of **passed controls** for Microsoft cloud security benchmark.
 
 ### Exercise 2: Adding new standards
 
@@ -35,7 +35,7 @@ You can add additional industry standards (represented as compliance packages) s
 ### Exercise 3: Exploring a benchmark 
 1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies** which can be found next to **Download report**, above the **Lowest compliance regulatory standards** tile.
 2. Then select your subscription and choose **Security Policy** from the sidebar.
-3.	On the **Industry & regulatory standards** section, notice the out of the box standards like Azure Security Benchmark, PCI DSS 3.2.1 and ISO 27001.
+3.	On the **Industry & regulatory standards** section, notice the out of the box standards like Microsoft cloud security benchmark, PCI DSS 3.2.1 and ISO 27001.
 4.	Locate the **PCI DSS 3.2.1** standard and select **Enable**.
 ![Regulatory compliance assessment and standards](../Images/mdfc-pci.png?raw=true)
 5. Select **yes** to the pop-up asking you to enable PCI DSS.

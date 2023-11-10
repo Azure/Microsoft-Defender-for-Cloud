@@ -72,7 +72,7 @@
                         }
                     },
                     "triggers": {
-                        "When_an_Microsoft_Defender_for_Cloud_Recommendation_is_created_or_triggered": {
+                        "When_a_Microsoft_Defender_for_Cloud_recommendation_is_created_or_triggered": {
                             "type": "ApiConnectionWebhook",
                             "inputs": {
                                 "body": {
@@ -103,180 +103,391 @@
                         "For_each": {
                             "foreach": "@body('Filter_array_severity_medium_or_high')",
                             "actions": {
-                                "Create_Record": {
-                                    "runAfter": {
-                                        "Parse_JSON": [
-                                            "Succeeded"
-                                        ]
-                                    },
-                                    "type": "ApiConnection",
-                                    "inputs": {
-                                        "body": {
-                                            "comments": "To find all vulnerabiltites for @{variables('VM')} please go to URL: @{triggerBody()?['properties']?['links']?['azurePortalUri']}\n\nSeverity: @{body('Parse_JSON')?['properties']?['status']?['severity']}\nCVSS: @{body('Parse_JSON')?['properties']?['additionalData']?['cvss']}\nCVE: @{body('Parse_JSON')?['properties']?['additionalData']?['CVE']}\n\nImpact: @{body('Parse_JSON')?['properties']?['impact']}\n\nThreat: @{body('Parse_JSON')?['properties']?['additionalData']?['threat']}\n\nRemediation: @{body('Parse_JSON')?['properties']?['remediation']}\n\n",
-                                            "short_description": "@{variables('VM')} - @{body('Parse_JSON')?['properties']?['displayName']}",
-                                            "sys_created_by": "Vuln GRC Team"
-                                        },
-                                        "host": {
-                                            "connection": {
-                                                "name": "@parameters('$connections')['service-now']['connectionId']"
+                                "Condition": {
+                                    "actions": {
+                                        "Create_Record_2": {
+                                            "runAfter": {
+                                                "ParseMDVM": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "ApiConnection",
+                                            "inputs": {
+                                                "body": {
+                                                    "comments": "To find all vulnerabiltites for @{variables('VM')} please go to URL: @{triggerBody()?['properties']?['links']?['azurePortalUri']}\n\nSeverity: @{body('ParseMDVM')?['properties']?['status']?['severity']}\nCVSS: @{body('ParseMDVM')?['properties']?['additionalData']?['cvssV30Score']}\nCVE: @{body('ParseMDVM')?['properties']?['additionalData']?['cve']}",
+                                                    "short_description": "@{variables('VM')} - @{body('ParseMDVM')?['properties']?['displayName']}",
+                                                    "sys_created_by": "Vuln GRC Team"
+                                                },
+                                                "host": {
+                                                    "connection": {
+                                                        "name": "@parameters('$connections')['service-now']['connectionId']"
+                                                    }
+                                                },
+                                                "method": "post",
+                                                "path": "/api/now/v2/table/@{encodeURIComponent('incident')}",
+                                                "queries": {
+                                                    "sysparm_display_value": false,
+                                                    "sysparm_exclude_reference_link": true
+                                                }
                                             }
                                         },
-                                        "method": "post",
-                                        "path": "/api/now/v2/table/@{encodeURIComponent('incident')}",
-                                        "queries": {
-                                            "sysparm_display_value": false,
-                                            "sysparm_exclude_reference_link": true
-                                        }
-                                    }
-                                },
-                                "Parse_JSON": {
-                                    "runAfter": {},
-                                    "type": "ParseJson",
-                                    "inputs": {
-                                        "content": "@item()",
-                                        "schema": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "string"
-                                                },
-                                                "name": {
-                                                    "type": "string"
-                                                },
-                                                "properties": {
+                                        "ParseMDVM": {
+                                            "runAfter": {},
+                                            "type": "ParseJson",
+                                            "inputs": {
+                                                "content": "@item()",
+                                                "schema": {
                                                     "properties": {
-                                                        "additionalData": {
+                                                        "id": {
+                                                            "type": "string"
+                                                        },
+                                                        "name": {
+                                                            "type": "string"
+                                                        },
+                                                        "properties": {
                                                             "properties": {
-                                                                "assessedResourceType": {
-                                                                    "type": "string"
-                                                                },
-                                                                "cve": {
-                                                                    "items": {
-                                                                        "properties": {
-                                                                            "link": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "title": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "required": [
-                                                                            "title",
-                                                                            "link"
-                                                                        ],
-                                                                        "type": "object"
-                                                                    },
-                                                                    "type": "array"
-                                                                },
-                                                                "cvss": {
+                                                                "additionalData": {
                                                                     "properties": {
-                                                                        "2.0": {
-                                                                            "properties": {
-                                                                                "base": {
-                                                                                    "type": "number"
-                                                                                }
-                                                                            },
-                                                                            "type": "object"
+                                                                        "assessedResourceType": {
+                                                                            "type": "string"
                                                                         },
-                                                                        "3.0": {
-                                                                            "properties": {
-                                                                                "base": {
-                                                                                    "type": "number"
-                                                                                }
+                                                                        "cve": {
+                                                                            "items": {
+                                                                                "properties": {
+                                                                                    "cvssScore": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "cvssVectorString": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "cvssVersion": {
+                                                                                        "type": "integer"
+                                                                                    },
+                                                                                    "description": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "exploitTypes": {
+                                                                                        "type": "array"
+                                                                                    },
+                                                                                    "exploitUris": {
+                                                                                        "type": "array"
+                                                                                    },
+                                                                                    "exploitabilityLevel": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "hasPublicExploit": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "isExploitInKit": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "isExploitVerified": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "isZeroDay": {
+                                                                                        "type": "boolean"
+                                                                                    },
+                                                                                    "lastModifiedDate": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "publishedDate": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "severity": {
+                                                                                        "type": "string"
+                                                                                    },
+                                                                                    "title": {
+                                                                                        "type": "string"
+                                                                                    }
+                                                                                },
+                                                                                "required": [
+                                                                                    "title",
+                                                                                    "cvssScore",
+                                                                                    "cvssVersion",
+                                                                                    "severity",
+                                                                                    "description",
+                                                                                    "exploitTypes",
+                                                                                    "exploitUris",
+                                                                                    "exploitabilityLevel",
+                                                                                    "hasPublicExploit",
+                                                                                    "isExploitVerified",
+                                                                                    "isExploitInKit",
+                                                                                    "lastModifiedDate",
+                                                                                    "publishedDate",
+                                                                                    "isZeroDay",
+                                                                                    "cvssVectorString"
+                                                                                ],
+                                                                                "type": "object"
                                                                             },
-                                                                            "type": "object"
+                                                                            "type": "array"
+                                                                        },
+                                                                        "cvssV30Score": {
+                                                                            "type": "integer"
+                                                                        },
+                                                                        "recommendedProgram": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "recommendedVendor": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "recommendedVersion": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "softwareName": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "softwareVendor": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "softwareVersion": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "source": {
+                                                                            "type": "string"
                                                                         }
                                                                     },
                                                                     "type": "object"
                                                                 },
-                                                                "patchable": {
-                                                                    "type": "boolean"
-                                                                },
-                                                                "publishedTime": {
+                                                                "category": {
                                                                     "type": "string"
                                                                 },
-                                                                "source": {
+                                                                "description": {
                                                                     "type": "string"
                                                                 },
-                                                                "threat": {
+                                                                "displayName": {
                                                                     "type": "string"
                                                                 },
-                                                                "type": {
-                                                                    "type": "string"
-                                                                },
-                                                                "vendorReferences": {
-                                                                    "items": {
-                                                                        "properties": {
-                                                                            "link": {
-                                                                                "type": "string"
-                                                                            },
-                                                                            "title": {
-                                                                                "type": "string"
-                                                                            }
-                                                                        },
-                                                                        "required": [
-                                                                            "title",
-                                                                            "link"
-                                                                        ],
-                                                                        "type": "object"
-                                                                    },
-                                                                    "type": "array"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "category": {
-                                                            "type": "string"
-                                                        },
-                                                        "description": {
-                                                            "type": "string"
-                                                        },
-                                                        "displayName": {
-                                                            "type": "string"
-                                                        },
-                                                        "id": {
-                                                            "type": "string"
-                                                        },
-                                                        "impact": {
-                                                            "type": "string"
-                                                        },
-                                                        "remediation": {
-                                                            "type": "string"
-                                                        },
-                                                        "resourceDetails": {
-                                                            "properties": {
                                                                 "id": {
                                                                     "type": "string"
                                                                 },
-                                                                "source": {
-                                                                    "type": "string"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        },
-                                                        "status": {
-                                                            "properties": {
-                                                                "code": {
-                                                                    "type": "string"
+                                                                "resourceDetails": {
+                                                                    "properties": {
+                                                                        "id": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "source": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
                                                                 },
-                                                                "severity": {
+                                                                "status": {
+                                                                    "properties": {
+                                                                        "code": {
+                                                                            "type": "string"
+                                                                        },
+                                                                        "severity": {
+                                                                            "type": "string"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                },
+                                                                "timeGenerated": {
                                                                     "type": "string"
                                                                 }
                                                             },
                                                             "type": "object"
                                                         },
-                                                        "timeGenerated": {
+                                                        "type": {
                                                             "type": "string"
                                                         }
                                                     },
                                                     "type": "object"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter": {},
+                                    "else": {
+                                        "actions": {
+                                            "Create_Record": {
+                                                "runAfter": {
+                                                    "ParseQualys": [
+                                                        "Succeeded"
+                                                    ]
                                                 },
-                                                "type": {
-                                                    "type": "string"
+                                                "type": "ApiConnection",
+                                                "inputs": {
+                                                    "body": {
+                                                        "comments": "To find all vulnerabiltites for @{variables('VM')} please go to URL: @{triggerBody()?['properties']?['links']?['azurePortalUri']}\n\nSeverity: @{body('ParseQualys')?['properties']?['status']?['severity']}\nCVSS: @{body('ParseQualys')?['properties']?['additionalData']?['cvss']}\nCVE: @{body('ParseQualys')?['properties']?['additionalData']?['cve']}\n\nImpact: @{body('ParseQualys')?['properties']?['impact']}\n\nThreat: @{body('ParseQualys')?['properties']?['additionalData']?['threat']}\n\nRemediation: @{body('ParseQualys')?['properties']?['remediation']}",
+                                                        "short_description": "@{variables('VM')} - @{body('ParseQualys')?['properties']?['displayName']}",
+                                                        "sys_created_by": "Vuln GRC Team"
+                                                    },
+                                                    "host": {
+                                                        "connection": {
+                                                            "name": "@parameters('$connections')['service-now']['connectionId']"
+                                                        }
+                                                    },
+                                                    "method": "post",
+                                                    "path": "/api/now/v2/table/@{encodeURIComponent('incident')}",
+                                                    "queries": {
+                                                        "sysparm_display_value": false,
+                                                        "sysparm_exclude_reference_link": true
+                                                    }
                                                 }
                                             },
-                                            "type": "object"
+                                            "ParseQualys": {
+                                                "runAfter": {},
+                                                "type": "ParseJson",
+                                                "inputs": {
+                                                    "content": "@item()",
+                                                    "schema": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "string"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "properties": {
+                                                                "properties": {
+                                                                    "additionalData": {
+                                                                        "properties": {
+                                                                            "assessedResourceType": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "cve": {
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "link": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "title": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "title",
+                                                                                        "link"
+                                                                                    ],
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": "array"
+                                                                            },
+                                                                            "cvss": {
+                                                                                "properties": {
+                                                                                    "2.0": {
+                                                                                        "properties": {
+                                                                                            "base": {
+                                                                                                "type": "number"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    },
+                                                                                    "3.0": {
+                                                                                        "properties": {
+                                                                                            "base": {
+                                                                                                "type": "number"
+                                                                                            }
+                                                                                        },
+                                                                                        "type": "object"
+                                                                                    }
+                                                                                },
+                                                                                "type": "object"
+                                                                            },
+                                                                            "patchable": {
+                                                                                "type": "boolean"
+                                                                            },
+                                                                            "publishedTime": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "source": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "threat": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "type": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "vendorReferences": {
+                                                                                "items": {
+                                                                                    "properties": {
+                                                                                        "link": {
+                                                                                            "type": "string"
+                                                                                        },
+                                                                                        "title": {
+                                                                                            "type": "string"
+                                                                                        }
+                                                                                    },
+                                                                                    "required": [
+                                                                                        "title",
+                                                                                        "link"
+                                                                                    ],
+                                                                                    "type": "object"
+                                                                                },
+                                                                                "type": "array"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "category": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "description": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "displayName": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "id": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "impact": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "remediation": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "resourceDetails": {
+                                                                        "properties": {
+                                                                            "id": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "source": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "status": {
+                                                                        "properties": {
+                                                                            "code": {
+                                                                                "type": "string"
+                                                                            },
+                                                                            "severity": {
+                                                                                "type": "string"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    },
+                                                                    "timeGenerated": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            },
+                                                            "type": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            }
                                         }
-                                    }
+                                    },
+                                    "expression": {
+                                        "and": [
+                                            {
+                                                "contains": [
+                                                    "@items('For_each')?['properties']?['additionalData']?['source']",
+                                                    "Microsoft Defender vulnerability management"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type": "If"
                                 }
                             },
                             "runAfter": {

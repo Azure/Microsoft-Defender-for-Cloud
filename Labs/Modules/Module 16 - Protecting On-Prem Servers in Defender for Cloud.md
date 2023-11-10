@@ -13,6 +13,9 @@ Liana Tomescu [Github](https://github.com/LianaT), [Linkedin](https://www.linked
 ## Objectives
 In this exercise, you will learn how to deploy an server on your personal client machine using Hyper-V (which will act as the "on-premise server"), and then deploy Azure Arc on it in order to protect it using Microsoft Defender for Cloud.
 
+## Prerequisites
+For server protection of on-premises machines, Defender for Servers (Plan 1, or Plan 2) needs to be enabled. To enable the plan, follow the instruction in [Exercise 1 of module 8](./Module-8-Advance-Cloud-Defense.md#exercise-1-enable-microsoft-defender-for-servers-plan-2).
+
 ## Exercise 1: Install Hyper-V which will be used to create the server on your own machine
 
 Pre-requisites: Windows 10/11

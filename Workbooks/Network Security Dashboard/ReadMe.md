@@ -7,7 +7,7 @@ Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided t
 -	**Overview:** summary view of all your network security and networking resources for selected subscription(s)
 -	**Public IPs & exposed ports:** ports exposed to the internet and mapping of public IPs to asset types
 -	**Network security services:** DDoS protections plans, Azure Firewall and Firewall policies, Azure WAF policies and NSG views
--	**Internal networking mapping:** network interfaces, route tables, private links, DDoS protection status, peerings and DNS Servers
+-	**Internal networking mapping:** network interfaces, route tables, private links, DDoS protection status, peerings and DNS Servers, Subnets view of all subnets, Private DNS VNET Links, IP Forwarding
 -	**Gateway and VPN services:** consolidated view of Bastion hosts, VPN gateways, Virtual Network Gateways and Express Route circuits
 -	**Traffic Manager** details of all your traffic manager profiles
 -	**Virtual WAN (vWAN)** consolidated view of Virtual WANs (inlcuding VPN/ExpressRoute/P2S)
@@ -19,7 +19,7 @@ Informational options: using the action bars at the top section, select FAQ butt
 ## Try it on the Azure Portal
 
 To deploy the new workbook into your Microsoft Defender for Cloud console, click on *Deploy to Azure* for Azure Public cloud or *Deploy to Azure Gov* for government cloud.
-During the deployment, you must select a subscription and resource group to store the report. Once the workbook is successfully deployed, however to Security Center to start using it.
+During the deployment, you must select a subscription and resource group to store the report. Once the workbook is successfully deployed, hover to Security Center to start using it.
 
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FNetwork%2520Security%2520Dashboard%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 <a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmain%2FWorkbooks%2FNetwork%2520Security%2520Dashboard%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>

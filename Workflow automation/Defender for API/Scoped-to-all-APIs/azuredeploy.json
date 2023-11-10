@@ -1,0 +1,273 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    
+    "parameters":  {
+        "PlaybookName":  {
+            "defaultValue":  "scope-to-all-apis",
+            "type":  "string"
+        }
+    },
+    "variables":  {
+        "AscassessmentConnectionName":  "[concat('Ascassessment-', parameters('PlaybookName'))]"
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Enabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "When_a_Microsoft_Defender_for_Cloud_recommendation_is_created_or_triggered":  {
+                            "type":  "ApiConnectionWebhook",
+                            "inputs":  {
+                                "host":  {
+                                    "connection":  {
+                                        "name":  "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "body":  {
+                                    "callback_url":  "@{listCallbackUrl()}"
+                                },
+                                "path":  "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions":  {
+                        "For_each":  {
+                            "foreach":  "@outputs('Parse_JSON')?['body']?['data']",
+                            "actions":  {
+                                "HTTP_1":  {
+                                    "type":  "Http",
+                                    "inputs":  {
+                                        "uri":  "https://management.azure.com@{items('For_each')?['resourceId']}?api-version=2022-08-01",
+                                        "method":  "GET",
+                                        "headers":  {
+                                            "APIMResourceId":  "@{item()?['resourceId']}"
+                                        },
+                                        "authentication":  {
+                                            "type":  "ManagedServiceIdentity"
+                                        }
+                                    }
+                                },
+                                "Condition":  {
+                                    "actions":  {
+                                        "HTTP_2":  {
+                                            "type":  "Http",
+                                            "inputs":  {
+                                                "uri":  "https://management.azure.com@{items('For_each')?['resourceId']}?api-version=2022-08-01",
+                                                "method":  "PATCH",
+                                                "headers":  {
+                                                    "APIMResourceId":  "@{item()?['resourceId']}"
+                                                },
+                                                "body":  {
+                                                    "properties":  {
+                                                        "state":  "suspended"
+                                                    }
+                                                },
+                                                "authentication":  {
+                                                    "type":  "ManagedServiceIdentity"
+                                                }
+                                            }
+                                        }
+                                    },
+                                    "runAfter":  {
+                                        "Parse_JSON_1":  [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "else":  {
+                                        "actions":  {
+                                        }
+                                    },
+                                    "expression":  {
+                                        "and":  [
+                                            {
+                                                "endsWith":  [
+                                                    "@body('Parse_JSON_1')?['properties']?['scope']",
+                                                    "apis"
+                                                ]
+                                            }
+                                        ]
+                                    },
+                                    "type":  "If"
+                                },
+                                "Parse_JSON_1":  {
+                                    "runAfter":  {
+                                        "HTTP_1":  [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type":  "ParseJson",
+                                    "inputs":  {
+                                        "content":  "@body('HTTP_1')",
+                                        "schema":  {
+                                            "type":  "object",
+                                            "properties":  {
+                                                "id":  {
+                                                    "type":  "string"
+                                                },
+                                                "type":  {
+                                                    "type":  "string"
+                                                },
+                                                "name":  {
+                                                    "type":  "string"
+                                                },
+                                                "properties":  {
+                                                    "type":  "object",
+                                                    "properties":  {
+                                                        "ownerId":  {
+                                                            "type":  "string"
+                                                        },
+                                                        "scope":  {
+                                                            "type":  "string"
+                                                        },
+                                                        "displayName":  {
+                                                        },
+                                                        "state":  {
+                                                            "type":  "string"
+                                                        },
+                                                        "createdDate":  {
+                                                            "type":  "string"
+                                                        },
+                                                        "startDate":  {
+                                                        },
+                                                        "expirationDate":  {
+                                                        },
+                                                        "endDate":  {
+                                                        },
+                                                        "notificationDate":  {
+                                                        },
+                                                        "stateComment":  {
+                                                        },
+                                                        "allowTracing":  {
+                                                            "type":  "boolean"
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter":  {
+                                "Parse_JSON":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Foreach"
+                        },
+                        "HTTP":  {
+                            "runAfter":  {
+                            },
+                            "trackedProperties":  {
+                                "resourceId":  "resourceId"
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "uri":  "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01",
+                                "method":  "POST",
+                                "body":  {
+                                    "query":  "securityresources | where type == 'microsoft.security/assessments' | extend source = trim(' ', tolower(tostring(properties.resourceDetails.Source)))| extend resourceId = trim(' ', tolower(tostring(case( source =~ 'azure', properties.resourceDetails.Id,source =~ 'aws' and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,source =~ 'gcp' and isnotempty(tostring(properties.resourceDetails.ConnectorId)), properties.resourceDetails.Id,source =~ 'aws', properties.resourceDetails.AzureResourceId,source =~ 'gcp', properties.resourceDetails.AzureResourceId,extract('^(.+)/providers/Microsoft.Security/assessments/.+$',1,id) ))))| extend status = trim(' ', tostring(properties.status.code))| extend cause = trim(' ', tostring(properties.status.cause))| extend assessmentKey = tostring(name)| where assessmentKey == '44aae697-8cc1-4ed1-a136-44a644bfd51f' | project resourceId"
+                                },
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                }
+                            }
+                        },
+                        "Parse_JSON":  {
+                            "runAfter":  {
+                                "HTTP":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "ParseJson",
+                            "inputs":  {
+                                "content":  "@body('HTTP')",
+                                "schema":  {
+                                    "properties":  {
+                                        "count":  {
+                                            "type":  "integer"
+                                        },
+                                        "data":  {
+                                            "items":  {
+                                                "properties":  {
+                                                    "resourceId":  {
+                                                        "type":  "string"
+                                                    }
+                                                },
+                                                "required":  [
+                                                    "resourceId"
+                                                ],
+                                                "type":  "object"
+                                            },
+                                            "type":  "array"
+                                        },
+                                        "facets":  {
+                                            "type":  "array"
+                                        },
+                                        "resultTruncated":  {
+                                            "type":  "string"
+                                        },
+                                        "totalRecords":  {
+                                            "type":  "integer"
+                                        }
+                                    },
+                                    "type":  "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                            "ascassessment":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]",
+                                "connectionName":  "[variables('AscassessmentConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('PlaybookName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+            
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+                "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]"
+            ]
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('AscassessmentConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('AscassessmentConnectionName')]",
+                "customParameterValues":  {
+                },
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                }
+            }
+        }
+    ]
+}

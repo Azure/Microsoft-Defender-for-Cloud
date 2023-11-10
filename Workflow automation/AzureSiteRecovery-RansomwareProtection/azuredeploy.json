@@ -1,0 +1,117 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "AutomationAccountName": {
+      "type": "string",
+	  "metadata": {
+        "description": "Specifies the name of the automation account."
+      }
+    },
+    "location": {
+	  "type": "string",
+      "defaultValue": "[resourceGroup().location]",      
+      "metadata": {
+        "description": "Specifies the Azure location where the automation account should be created."
+      }
+    }
+  },
+  "variables": {},
+  "resources": [
+    {
+      "type": "Microsoft.Automation/automationAccounts",
+      "apiVersion": "2022-08-08",
+      "name": "[parameters('AutomationAccountName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "publicNetworkAccess": true,
+        "disableLocalAuth": false,
+        "sku": {
+          "name": "Basic"
+        },
+        "encryption": {
+          "keySource": "Microsoft.Automation",
+          "identity": {}
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/RansomwareDetector')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": false,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/runbooks",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/SchedulerForRansomwareDetection')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "runbookType": "PowerShell",
+        "logVerbose": false,
+        "logProgress": false,
+        "logActivityTrace": 0
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/VaultSubscriptionId')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"VaultSubscriptionId\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/VaultResourceGroup')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"VaultResourceGroup\""
+      }
+    },
+    {
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/VaultName')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "\"VaultName\""
+      }
+    },
+	{
+      "type": "Microsoft.Automation/automationAccounts/variables",
+      "apiVersion": "2022-08-08",
+      "name": "[concat(parameters('AutomationAccountName'), '/ChangePit')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Automation/automationAccounts', parameters('AutomationAccountName'))]"
+      ],
+      "properties": {
+        "isEncrypted": false,
+        "value": "false"
+      }
+    }
+  ]
+}

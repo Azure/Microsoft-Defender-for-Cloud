@@ -1,0 +1,433 @@
+
+{
+  "AWSTemplateFormatVersion" : "2010-09-09",
+  
+  "Description" : "AWS CloudFormation Sample Template LAMP_Single_Instance: Create a LAMP stack using a single EC2 instance and a local MySQL database for storage. This template demonstrates using the AWS CloudFormation bootstrap scripts to install the packages and files necessary to deploy the Apache web server, PHP and MySQL at instance launch time. **WARNING** This template creates an Amazon EC2 instance. You will be billed for the AWS resources used if you create a stack from this template.",
+  
+  "Parameters" : {
+      
+      "DBName": {
+      "Default": "MyDatabase",
+      "Description" : "MySQL database name",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "64",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBUser": {
+      "Default": "admin",
+      "Description" : "Username for MySQL database access",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "16",
+      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
+      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+    },
+
+    "DBPassword": {
+      "Default": "HelloWorld",
+      "Description" : "Password for MySQL database access",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+
+    "DBRootPassword": {
+      "Default": "HelloWorld",
+      "Description" : "Root password for MySQL",
+      "Type": "String",
+      "MinLength": "1",
+      "MaxLength": "41",
+      "AllowedPattern" : "[a-zA-Z0-9]*",
+      "ConstraintDescription" : "must contain only alphanumeric characters."
+    },
+
+    "InstanceType" : {
+      "Description" : "WebServer EC2 instance type",
+      "Type" : "String",
+      "Default" : "t2.micro"
+      
+    },
+
+    "SSHLocation" : {
+      "Description" : " The IP address range that can be used to SSH to the EC2 instances",
+      "Type": "String",
+      "MinLength": "9",
+      "MaxLength": "18",
+      "Default": "0.0.0.0/0",
+      "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
+      "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
+    } 
+  },
+  
+  "Mappings" : {
+    "AWSInstanceType2Arch" : {
+      "t1.micro"    : { "Arch" : "HVM64"  },
+      "t2.nano"     : { "Arch" : "HVM64"  },
+      "t2.micro"    : { "Arch" : "HVM64"  }
+      
+    },
+
+    "AWSInstanceType2NATArch" : {
+      "t1.micro"    : { "Arch" : "NATHVM64"  },
+      "t2.nano"     : { "Arch" : "NATHVM64"  },
+      "t2.micro"    : { "Arch" : "NATHVM64"  }
+    },
+    "AWSRegionArch2AMI" : {
+      "af-south-1"       : {"HVM64" : "ami-064cc455f8a1ef504", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-east-1"        : {"HVM64" : "ami-f85b1989", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-northeast-1"   : {"HVM64" : "ami-0b2c2a754d5b4da22", "HVMG2" : "ami-09d0e0e099ecabba2"},
+      "ap-northeast-2"   : {"HVM64" : "ami-0493ab99920f410fc", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-northeast-3"   : {"HVM64" : "ami-01344f6f63a4decc1", "HVMG2" : "NOT_SUPPORTED"},
+      "ap-south-1"       : {"HVM64" : "ami-03cfb5e1fb4fac428", "HVMG2" : "ami-0244c1d42815af84a"},
+      "ap-southeast-1"   : {"HVM64" : "ami-0ba35dc9caf73d1c7", "HVMG2" : "ami-0e46ce0d6a87dc979"},
+      "ap-southeast-2"   : {"HVM64" : "ami-0ae99b503e8694028", "HVMG2" : "ami-0c0ab057a101d8ff2"},
+      "ca-central-1"     : {"HVM64" : "ami-0803e21a2ec22f953", "HVMG2" : "NOT_SUPPORTED"},
+      "cn-north-1"       : {"HVM64" : "ami-07a3f215cc90c889c", "HVMG2" : "NOT_SUPPORTED"},
+      "cn-northwest-1"   : {"HVM64" : "ami-0a3b3b10f714a0ff4", "HVMG2" : "NOT_SUPPORTED"},
+      "eu-central-1"     : {"HVM64" : "ami-0474863011a7d1541", "HVMG2" : "ami-0aa1822e3eb913a11"},
+      "eu-north-1"       : {"HVM64" : "ami-0de4b8910494dba0f", "HVMG2" : "ami-32d55b4c"},
+      "eu-south-1"       : {"HVM64" : "ami-08427144fe9ebdef6", "HVMG2" : "NOT_SUPPORTED"},
+      "eu-west-1"        : {"HVM64" : "ami-015232c01a82b847b", "HVMG2" : "ami-0d5299b1c6112c3c7"},
+      "eu-west-2"        : {"HVM64" : "ami-0765d48d7e15beb93", "HVMG2" : "NOT_SUPPORTED"},
+      "eu-west-3"        : {"HVM64" : "ami-0caf07637eda19d9c", "HVMG2" : "NOT_SUPPORTED"},
+      "me-south-1"       : {"HVM64" : "ami-0744743d80915b497", "HVMG2" : "NOT_SUPPORTED"},
+      "sa-east-1"        : {"HVM64" : "ami-0a52e8a6018e92bb0", "HVMG2" : "NOT_SUPPORTED"},
+      "us-east-1"        : {"HVM64" : "ami-032930428bf1abbff", "HVMG2" : "ami-0aeb704d503081ea6"},
+      "us-east-2"        : {"HVM64" : "ami-027cab9a7bf0155df", "HVMG2" : "NOT_SUPPORTED"},
+      "us-west-1"        : {"HVM64" : "ami-088c153f74339f34c", "HVMG2" : "ami-0a7fc72dc0e51aa77"},
+      "us-west-2"        : {"HVM64" : "ami-01fee56b22f308154", "HVMG2" : "ami-0fe84a5b4563d8f27"}
+    }
+
+  },
+    
+  "Resources" : {   
+	"MyKey": {
+            "Type": "AWS::EC2::KeyPair",
+            "Properties": {
+                "KeyName": "MyKey"
+            }
+        },
+        
+      "WebServerInstance": {  
+      "Type": "AWS::EC2::Instance",
+      "Metadata" : {
+        "AWS::CloudFormation::Init" : {
+          "configSets" : {
+            "InstallAndRun" : [ "Install", "Configure" ]
+          },
+
+          "Install" : {
+            "packages" : {
+              "yum" : {
+                "mysql"        : [],
+                "mysql-server" : [],
+                "mysql-libs"   : [],
+                "httpd"        : [],
+                "php"          : [],
+                "php-mysql"    : []
+              }
+            },
+
+            "files" : {
+              "/var/www/html/index.php" : {
+                "content" : { "Fn::Join" : [ "", [
+                  "<html>\n",
+                  "  <head>\n",
+                  "    <title>AWS CloudFormation PHP Sample</title>\n",
+                  "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=ISO-8859-1\">\n",
+                  "  </head>\n",
+                  "  <body>\n",
+                  "    <h1>Welcome to the AWS CloudFormation PHP Sample</h1>\n",
+                  "    <p/>\n",
+                  "    <?php\n",
+                  "      // Print out the current data and time\n",
+                  "      print \"The Current Date and Time is: <br/>\";\n",
+                  "      print date(\"g:i A l, F j Y.\");\n",
+                  "    ?>\n",
+                  "    <p/>\n",
+                  "    <?php\n",
+                  "      // Setup a handle for CURL\n",
+                  "      $curl_handle=curl_init();\n",
+                  "      curl_setopt($curl_handle,CURLOPT_CONNECTTIMEOUT,2);\n",
+                  "      curl_setopt($curl_handle,CURLOPT_RETURNTRANSFER,1);\n",
+                  "      // Get the hostname of the intance from the instance metadata\n",
+                  "      curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/public-hostname');\n",
+                  "      $hostname = curl_exec($curl_handle);\n",
+                  "      if (empty($hostname))\n",
+                  "      {\n",
+                  "        print \"Sorry, for some reason, we got no hostname back <br />\";\n",
+                  "      }\n",
+                  "      else\n",
+                  "      {\n",
+                  "        print \"Server = \" . $hostname . \"<br />\";\n",
+                  "      }\n",
+                  "      // Get the instance-id of the intance from the instance metadata\n",
+                  "      curl_setopt($curl_handle,CURLOPT_URL,'http://169.254.169.254/latest/meta-data/instance-id');\n",
+                  "      $instanceid = curl_exec($curl_handle);\n",
+                  "      if (empty($instanceid))\n",
+                  "      {\n",
+                  "        print \"Sorry, for some reason, we got no instance id back <br />\";\n",
+                  "      }\n",
+                  "      else\n",
+                  "      {\n",
+                  "        print \"EC2 instance-id = \" . $instanceid . \"<br />\";\n",
+                  "      }\n",
+                  "      $Database   = \"localhost\";\n",
+                  "      $DBUser     = \"", {"Ref" : "DBUser"}, "\";\n",
+                  "      $DBPassword = \"", {"Ref" : "DBPassword"}, "\";\n",
+                  "      print \"Database = \" . $Database . \"<br />\";\n",
+                  "      $dbconnection = mysql_connect($Database, $DBUser, $DBPassword)\n",
+                  "                      or die(\"Could not connect: \" . mysql_error());\n",
+                  "      print (\"Connected to $Database successfully\");\n",
+                  "      mysql_close($dbconnection);\n",
+                  "    ?>\n",
+                  "    <h2>PHP Information</h2>\n",
+                  "    <p/>\n",
+                  "    <?php\n",
+                  "      phpinfo();\n",
+                  "    ?>\n",
+                  "  </body>\n",
+                  "</html>\n"
+                ]]},
+                "mode"  : "000600",
+                "owner" : "apache",
+                "group" : "apache"
+              },
+
+              "/tmp/setup.mysql" : {
+                "content" : { "Fn::Join" : ["", [
+                  "CREATE DATABASE ", { "Ref" : "DBName" }, ";\n",
+                  "GRANT ALL ON ", { "Ref" : "DBName" }, ".* TO '", { "Ref" : "DBUser" }, "'@localhost IDENTIFIED BY '", { "Ref" : "DBPassword" }, "';\n"
+                  ]]},
+                "mode"  : "000400",
+                "owner" : "root",
+                "group" : "root"
+              },
+              "/etc/cfn/cfn-hup.conf" : {
+                "content" : { "Fn::Join" : ["", [
+                  "[main]\n",
+                  "stack=", { "Ref" : "AWS::StackId" }, "\n",
+                  "region=", { "Ref" : "AWS::Region" }, "\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+
+              "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
+                "content": { "Fn::Join" : ["", [
+                  "[cfn-auto-reloader-hook]\n",
+                  "triggers=post.update\n",
+                  "path=Resources.WebServerInstance.Metadata.AWS::CloudFormation::Init\n",
+                  "action=/opt/aws/bin/cfn-init -v ",
+                  "         --stack ", { "Ref" : "AWS::StackName" },
+                  "         --resource WebServerInstance ",
+                  "         --configsets InstallAndRun ",
+                  "         --region ", { "Ref" : "AWS::Region" }, "\n",
+                  "runas=root\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+	"/tmp/sample.txt" : {
+                "content": { "Fn::Join" : ["", [
+                  "AWS_ACCESS_KEY_ID=AKIAUOSFODNM7EXAMAAA\n",
+                  "AWS_SECRET_ACCESS_KEY=wJalrXUanTEMI/K7MDENG/bPxRfiCYEXAMAAAKEY\n",
+                  "AWS_ACCESS_KEY_ID=AKYAIOSFODNN7EXANAAA\n",
+                  "AWS_SECRET_ACCESS_KEY=tJalrXUtnFEMI/K7NDENG/bPxRfiCYEXAMAAAKEY\n",
+		  "AWS_ACCESS_KEY_ID=ASIA54BL6PJR2L75XHVS\n",
+                  "AWS_SECRET_ACCESS_KEY=j72eTy+WHgIbO6zpe2DnfjEhbObuTBKcemfrIygt\n",
+		  "Gilobert Aragon 489-36-8350 4929-3813-3266-4295\n",
+		  "Ashley Borden 514-14-8905 5370-4638-8881-3020\n",
+		  "Thomas Conley 690-05-5315 4916-4811-5814-8111\n",
+		  "Susan Davis 421-37-1396 4916-4034-9269-8783\n",
+	  	  "Christopher Diaz 458-02-6127 5299-1561-5689-1941\n",
+		  "Rick Edwards 612-20-6832 5293-8502-0071-3058\n",
+		  "Victor Faulkner 300-62-3268 5548-0246-6336-5666\n",
+		  "Lisa Garrison  660-03-8360  4539-5385-7425-5825\n",
+		  "Mireille Townsend  404-12-2154  4539-8219-0484-7598\n",
+		  "Danny Reyes  624-84-9181  4532-0065-1968-5602\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+		"/home/root/mysecrets.txt" : {
+                "content": { "Fn::Join" : ["", [
+                  "idXD6ZsdN6GV4TvQSDhXhSo+9oc2J0l6wgKO2+VPASdbqgY55DiZ9zkRtvEokvhFmegt3SluvbpU59D1ZcWjVw==\n",
+		  "wVJAbVspHO/Sb8YynNoNtmKZSJ4X8xIkev0iQ2xaAp55gnLOC2Q8mkco1Y4ysLBsMs8i8OKqcgwWv5yshBwcSQ==\n",
+		  "rTFAbVspHO/Sb8YynNoNtgKZSJ4X7xIkev0iQ2xaAp55gnLOC3Q8mkco1Y4ysUBsMs8i8OYqcgwWv5yshBwjDA==\n",
+		  "5EBWPn1VSpraI0NyvDcKnsLiIb9wp6RkPGw52ORdHyRFbz0jXCeqYnMrkZPcci4bJ2TqjWTsFqsR+ASt9xuHCA==\n",
+		  "V/71Ky3Ef+XiLyklk1b01kEjaZ5KXCvCxGJe64by7IOE495JeBMACdI9DkxgzdgaPssoquPw6GRg+AStx5jDag==\n",
+		  "4Ni2olzX3X8RM5xgc7f7vMBykZdbHKRok412wt084Ce6VYVId3977dQxKxGcGTPp/nbup9hKztm1+AStYj38Hw==\n",
+		  "uJVGfoXHl70XWNcJMeQkeNvZvfsWbT60Hwuek7pOr2E2byVg3unQpsLgVWgsSuj7eeFQrTwXDsln4OZdgO7AEg==\n",
+		  "S25x3LqMeRPboLGRqrblkRzTygNJZVNgmSLpLLaeAEezWu48XpvMKn+ugj+M8XLB1c6nTr9AEoZta73wb77hVg==\n"
+		  
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+"/home/root/contacts.txt" : {
+                "content": { "Fn::Join" : ["", [
+                  "Christopher Anderson 94523 5370-4638-8881-3020 1/16/2022\n",
+		  "Ronald Clark 80233 4916-4811-5814-8111 1/17/2022\n",
+		  "Mary Wright 80916 4916-4034-9269-8783 1/18/2022\n",
+		  "Lisa Mitchell 78247 5299-1561-5689-1938 1/19/2022\n",
+	  	  "Michelle Johnson 94954 5293-8502-0071-3058 1/20/2022\n",
+		  "John Thomas 2176 5548-0246-6336-5664 1/21/2022\n",
+		  "Daniel Rodriguez 63126 4539-5385-7425-5825 1/22/2022\n",
+		  "Anthony Lopez 97222 4916-9766-5240-6147 5/13/2023\n",
+		  "Patricia Perez 92104 4556-0072-1294-7415 5/14/2023\n",
+		  "Nancy Williams 40242 4532-4220-6922-9909 5/15/2022\n",
+		  "James Smith 1/2/1981 JamesSmith@gmail.com\n",
+		  "Ronald Clark 3/4/1981 RonaldClark@gmail.com\n",
+		  "Mary Wright 4/5/1981 MaryWright@gmail.com\n"
+                ]]},
+                "mode"    : "000400",
+                "owner"   : "root",
+                "group"   : "root"
+               }
+
+
+            },
+
+            "services" : {
+              "sysvinit" : {  
+                "mysqld"  : { "enabled" : "true", "ensureRunning" : "true" },
+                "httpd"   : { "enabled" : "true", "ensureRunning" : "true" },
+                "cfn-hup" : { "enabled" : "true", "ensureRunning" : "true",
+                              "files" : ["/etc/cfn/cfn-hup.conf", "/etc/cfn/hooks.d/cfn-auto-reloader.conf"]}
+              }
+            }
+          },
+
+          "Configure" : {
+            "commands" : {
+              "01_set_mysql_root_password" : {
+                "command" : { "Fn::Join" : ["", ["mysqladmin -u root password '", { "Ref" : "DBRootPassword" }, "'"]]},
+                "test" : { "Fn::Join" : ["", ["$(mysql ", { "Ref" : "DBName" }, " -u root --password='", { "Ref" : "DBRootPassword" }, "' >/dev/null 2>&1 </dev/null); (( $? != 0 ))"]]}
+              },
+              "02_create_database" : {
+                "command" : { "Fn::Join" : ["", ["mysql -u root --password='", { "Ref" : "DBRootPassword" }, "' < /tmp/setup.mysql"]]},
+                "test" : { "Fn::Join" : ["", ["$(mysql ", { "Ref" : "DBName" }, " -u root --password='", { "Ref" : "DBRootPassword" }, "' >/dev/null 2>&1 </dev/null); (( $? != 0 ))"]]}
+              }
+            }
+          }
+        }
+      },
+      "Properties": {
+        "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
+                          { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
+        "InstanceType"   : { "Ref" : "InstanceType" },
+        "SecurityGroups" : [ {"Ref" : "WebServerSecurityGroup"} ],
+        "KeyName"        : { "Ref" : "MyKey" },
+        "UserData"       : { "Fn::Base64" : { "Fn::Join" : ["", [
+             "#!/bin/bash -xe\n",
+             "yum update -y aws-cfn-bootstrap\n",
+
+             "# Install the files and packages from the metadata\n",
+             "/opt/aws/bin/cfn-init -v ",
+             "         --stack ", { "Ref" : "AWS::StackName" },
+             "         --resource WebServerInstance ",
+             "         --configsets InstallAndRun ",
+             "         --region ", { "Ref" : "AWS::Region" }, "\n",
+
+             "# Signal the status from cfn-init\n",
+             "/opt/aws/bin/cfn-signal -e $? ",
+             "         --stack ", { "Ref" : "AWS::StackName" },
+             "         --resource WebServerInstance ",
+             "         --region ", { "Ref" : "AWS::Region" }, "\n"
+        ]]}}        
+      },
+      "CreationPolicy" : {
+        "ResourceSignal" : {
+          "Timeout" : "PT5M"
+        }
+      }
+    },
+    
+    "WebServerSecurityGroup" : {
+      "Type" : "AWS::EC2::SecurityGroup",
+      "Properties" : {
+        "GroupDescription" : "Enable HTTP access via port 80",
+        "SecurityGroupIngress" : [
+          {"IpProtocol" : "tcp", "FromPort" : "80", "ToPort" : "80", "CidrIp" : "0.0.0.0/0"},
+          {"IpProtocol" : "tcp", "FromPort" : "22", "ToPort" : "22", "CidrIp" : { "Ref" : "SSHLocation"}}
+        ]
+      }      
+    },
+"MyS3Bucket": {
+            "Type": "AWS::S3::Bucket",
+            "Properties": {
+		"OwnershipControls": {
+                    "Rules": [
+                        {
+                            "ObjectOwnership": "ObjectWriter"
+                        }
+                    ]
+			},
+		
+		"PublicAccessBlockConfiguration": {
+                  "BlockPublicAcls": false,
+                  "BlockPublicPolicy": false,
+                  "IgnorePublicAcls": false,
+                  "RestrictPublicBuckets": false
+                  
+                }
+            }
+        },
+"MyBucketPolicy2": {
+        "Type": "AWS::S3::BucketPolicy",
+        "Properties": {
+            "Bucket": {
+                "Ref": "MyS3Bucket"
+            },
+            "PolicyDocument": {
+                "Version": "2012-10-17",
+                "Statement": [
+                    {
+                        "Action": [
+                            "s3:GetObject"
+                        ],
+                        "Effect": "Allow",
+                        "Resource": {
+                            "Fn::Join": [
+                                "",
+                                [
+                                    "arn:aws:s3:::",
+                                    {
+                                        "Ref": "MyS3Bucket"
+                                    },
+                                    "/*"
+                                ]
+                            ]
+                        },
+                        "Principal": "*"
+                        
+                    }
+                ]
+            }
+        }
+    }        
+  },
+  
+  "Outputs" : {
+	"BucketName": {
+            "Value": {
+                "Ref": "MyS3Bucket"
+            },
+            "Description": "Name of S3 bucket to hold website content"
+        },
+    "WebsiteURL" : {
+      "Description" : "URL for newly created LAMP stack",
+      "Value" : { "Fn::Join" : ["", ["http://", { "Fn::GetAtt" : [ "WebServerInstance", "PublicDnsName" ]}]] }
+    }
+  }
+}

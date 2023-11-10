@@ -1,0 +1,634 @@
+{
+    "properties": {
+        "displayName": "Deploy export to Event Hub for Microsoft Defender for Cloud data - Filtered by Defender Plan",
+        "policyType": "Custom",
+        "mode": "All",
+        "description": "Enable export to Event Hub of Microsoft Defender for Cloud data. This policy deploys an export to Event Hub configuration with your conditions and target Event Hub on the assigned scope. To deploy this policy on newly created subscriptions, open the Compliance tab, select the relevant non-compliant assignment and create a remediation task.",
+        "metadata": {
+            "version": "1.0.0",
+            "category": "Security Center"
+        },
+        "parameters": {
+            "resourceGroupName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Resource group name",
+                    "description": "The resource group name where the export to Event Hub configuration is created. If you enter a name for a resource group that doesn't exist, it'll be created in the subscription. Note that each resource group can only have one export to Event Hub configured."
+                }
+            },
+            "resourceGroupLocation": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Resource group location",
+                    "description": "The location where the resource group and the export to Event Hub configuration are created.",
+                    "strongType": "location"
+                }
+            },
+            "createResourceGroup": {
+                "type": "Boolean",
+                "metadata": {
+                    "displayName": "Create resource group",
+                    "description": "If a resource group does not exists in the scope, a new resource group will be created. If the resource group exists and this flag is set to 'true' the policy will re-deploy the resource group. Please note this will reset any Azure Tag on the resource group."
+                },
+                "allowedValues": [
+                    true,
+                    false
+                ],
+                "defaultValue": true
+            },
+            "exportedDataTypes": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Exported data types",
+                    "description": "The data types to be exported. To export a snapshot (preview) of the data once a week, choose the data types which contains 'snapshot', other data types will be sent in real-time streaming."
+                },
+                "allowedValues": [
+                    "Security recommendations",
+                    "Security alerts",
+                    "Overall secure score",
+                    "Secure score controls",
+                    "Regulatory compliance",
+                    "Overall secure score - snapshot",
+                    "Secure score controls - snapshot",
+                    "Regulatory compliance - snapshot",
+                    "Security recommendations - snapshot",
+                    "Security findings - snapshot"
+                ],
+                "defaultValue": [
+                    "Security recommendations",
+                    "Security alerts",
+                    "Overall secure score",
+                    "Secure score controls",
+                    "Regulatory compliance",
+                    "Overall secure score - snapshot",
+                    "Secure score controls - snapshot",
+                    "Regulatory compliance - snapshot",
+                    "Security recommendations - snapshot",
+                    "Security findings - snapshot"
+                ]
+            },
+            "recommendationNames": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Recommendation IDs",
+                    "description": "Applicable only for export of security recommendations. To export all recommendations, leave this empty. To export specific recommendations, enter a list of recommendation IDs separated by semicolons (';'). Recommendation IDs are available through the Assessments API (https://docs.microsoft.com/rest/api/securitycenter/assessments), or Azure Resource Graph Explorer, choose securityresources and microsoft.security/assessments."
+                },
+                "defaultValue": []
+            },
+            "recommendationSeverities": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Recommendation severities",
+                    "description": "Applicable only for export of security recommendations. Determines recommendation severities. Example: High;Medium;Low;"
+                },
+                "allowedValues": [
+                    "High",
+                    "Medium",
+                    "Low"
+                ],
+                "defaultValue": [
+                    "High",
+                    "Medium",
+                    "Low"
+                ]
+            },
+            "isSecurityFindingsEnabled": {
+                "type": "Boolean",
+                "metadata": {
+                    "displayName": "Include security findings",
+                    "description": "Security findings are results from vulnerability assessment solutions, and can be thought of as 'sub' recommendations grouped into a 'parent' recommendation."
+                },
+                "allowedValues": [
+                    true,
+                    false
+                ],
+                "defaultValue": true
+            },
+            "secureScoreControlsNames": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Secure Score Controls IDs",
+                    "description": "Applicable only for export of secure score controls. To export all secure score controls, leave this empty. To export specific secure score controls, enter a list of secure score controls IDs separated by semicolons (';'). Secure score controls IDs are available through the Secure score controls API (https://docs.microsoft.com/rest/api/securitycenter/securescorecontrols), or Azure Resource Graph Explorer, choose securityresources and microsoft.security/securescores/securescorecontrols."
+                },
+                "defaultValue": []
+            },
+            "alertsFilterProductName": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Alerts filter by Product Component Name",
+                    "description": "Applicable only for export of security alerts. Determines alert Product Component Name. Example: Containers"
+                },
+                "allowedValues": [
+                    "Default",
+                    "Containers",
+                    "ResourceManager",
+                    "DNS",
+                    "AppServices",
+                    "KeyVaults",
+                    "VirtualMachines",
+                    "Databases",
+                    "Storage"
+                ],
+                "defaultValue": [
+                    "Default",
+                    "Containers",
+                    "ResourceManager",
+                    "DNS",
+                    "AppServices",
+                    "KeyVaults",
+                    "VirtualMachines",
+                    "Databases",
+                    "Storage"
+                ]
+            },
+            "regulatoryComplianceStandardsNames": {
+                "type": "Array",
+                "metadata": {
+                    "displayName": "Regulatory compliance standards names",
+                    "description": "Applicable only for export of regulatory compliance. To export all regulatory compliance, leave this empty. To export specific regulatory compliance standards, enter a list of these standards names separated by semicolons (';'). Regulatory compliance standards names are available through the regulatory compliance standards API (https://docs.microsoft.com/rest/api/securitycenter/regulatorycompliancestandards), or Azure Resource Graph Explorer, choose securityresources and microsoft.security/regulatorycompliancestandards."
+                },
+                "defaultValue": []
+            },
+            "eventHubDetails": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "Event Hub details",
+                    "description": "The Event Hub details of where the data should be exported to: Subscription, Event Hub Namespace, Event Hub, and Authorizations rules with 'Send' claim.",
+                    "strongType": "Microsoft.EventHub/namespaces/eventhubs/authorizationrules",
+                    "assignPermissions": true
+                }
+            }
+        },
+        "policyRule": {
+            "if": {
+                "field": "type",
+                "equals": "Microsoft.Resources/subscriptions"
+            },
+            "then": {
+                "effect": "deployIfNotExists",
+                "details": {
+                    "type": "Microsoft.Security/automations",
+                    "name": "ExportToEventHub",
+                    "existenceScope": "resourcegroup",
+                    "ResourceGroupName": "[parameters('resourceGroupName')]",
+                    "deploymentScope": "subscription",
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    ],
+                    "existenceCondition": {
+                        "allOf": [
+                            {
+                                "field": "Microsoft.Security/automations/isEnabled",
+                                "equals": true
+                            },
+                            {
+                                "count": {
+                                    "field": "Microsoft.Security/automations/sources[*]"
+                                },
+                                "equals": "[if(parameters('isSecurityFindingsEnabled'),add(length(parameters('exportedDataTypes')),1),length(parameters('exportedDataTypes')))]"
+                            },
+                            {
+                                "count": {
+                                    "value": "[parameters('exportedDataTypes')]",
+                                    "name": "dataType",
+                                    "where": {
+                                        "count": {
+                                            "field": "Microsoft.Security/automations/sources[*]",
+                                            "where": {
+                                                "anyOf": [
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "Assessments"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Security recommendations"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "Alerts"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Security alerts"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "SecureScores"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Overall secure score"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "SecureScoreControls"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Secure score controls"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "RegulatoryComplianceAssessment"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Regulatory compliance"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "SecureScoresSnapshot"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Overall secure score - snapshot"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "SecureScoreControlsSnapshot"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Secure score controls - snapshot"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "RegulatoryComplianceAssessmentSnapshot"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Regulatory compliance - snapshot"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "AssessmentsSnapshot"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Security recommendations - snapshot"
+                                                            }
+                                                        ]
+                                                    },
+                                                    {
+                                                        "allOf": [
+                                                            {
+                                                                "field": "Microsoft.Security/automations/sources[*].eventSource",
+                                                                "equals": "SubAssessmentsSnapshot"
+                                                            },
+                                                            {
+                                                                "value": "[current('dataType')]",
+                                                                "equals": "Security findings - snapshot"
+                                                            }
+                                                        ]
+                                                    }
+                                                ]
+                                            }
+                                        },
+                                        "equals": 1
+                                    }
+                                },
+                                "equals": "[length(parameters('exportedDataTypes'))]"
+                            }
+                        ]
+                    },
+                    "deployment": {
+                        "location": "westeurope",
+                        "properties": {
+                            "mode": "incremental",
+                            "template": {
+                                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                                "contentVersion": "1.0.0.0",
+                                "parameters": {
+                                    "resourceGroupName": {
+                                        "type": "string"
+                                    },
+                                    "resourceGroupLocation": {
+                                        "type": "string"
+                                    },
+                                    "createResourceGroup": {
+                                        "type": "bool"
+                                    },
+                                    "exportedDataTypes": {
+                                        "type": "array"
+                                    },
+                                    "isSecurityFindingsEnabled": {
+                                        "type": "bool"
+                                    },
+                                    "recommendationNames": {
+                                        "type": "array"
+                                    },
+                                    "secureScoreControlsNames": {
+                                        "type": "array"
+                                    },
+                                    "regulatoryComplianceStandardsNames": {
+                                        "type": "array"
+                                    },
+                                    "recommendationSeverities": {
+                                        "type": "array"
+                                    },
+                                    "alertsFilterProductName": {
+                                        "type": "array"
+                                    },
+                                    "eventHubDetails": {
+                                        "type": "string"
+                                    },
+                                    "guidValue": {
+                                        "type": "string",
+                                        "defaultValue": "[newGuid()]"
+                                    }
+                                },
+                                "variables": {
+                                    "scopeDescription": "scope for subscription {0}",
+                                    "subAssessmentRuleExpectedValue": "/assessments/{0}/",
+                                    "recommendationNamesLength": "[length(parameters('recommendationNames'))]",
+                                    "secureScoreControlsNamesLength": "[length(parameters('secureScoreControlsNames'))]",
+                                    "secureScoreControlsLengthIfEmpty": "[if(equals(variables('secureScoreControlsNamesLength'), 0), 1, variables('secureScoreControlsNamesLength'))]",
+                                    "regulatoryComplianceStandardsNamesLength": "[length(parameters('regulatoryComplianceStandardsNames'))]",
+                                    "regulatoryComplianceStandardsNamesLengthIfEmpty": "[if(equals(variables('regulatoryComplianceStandardsNamesLength'), 0), 1, variables('regulatoryComplianceStandardsNamesLength'))]",
+                                    "recommendationSeveritiesLength": "[length(parameters('recommendationSeverities'))]",
+                                    "recommendationNamesLengthIfEmpty": "[if(equals(variables('recommendationNamesLength'), 0), 1, variables('recommendationNamesLength'))]",
+                                    "recommendationSeveritiesLengthIfEmpty": "[if(equals(variables('recommendationSeveritiesLength'), 0), 1, variables('recommendationSeveritiesLength'))]",
+                                    "alertFilterProductNameLength": "[length(parameters('alertsFilterProductName'))]",
+                                    "alertFilterProductNameLengthIfEmpty": "[if(equals(variables('alertFilterProductNameLength'), 0), 1, variables('alertFilterProductNameLength'))]",
+                                    "totalRuleCombinationsForOneRecommendationName": "[variables('recommendationSeveritiesLengthIfEmpty')]",
+                                    "totalRuleCombinationsForOneRecommendationSeverity": 1,
+                                    "exportedDataTypesLength": "[length(parameters('exportedDataTypes'))]",
+                                    "exportedDataTypesLengthIfEmpty": "[if(equals(variables('exportedDataTypesLength'), 0), 1, variables('exportedDataTypesLength'))]",
+                                    "SeperatedEventHubDetails": "[split(parameters('eventHubDetails'),'/')]",
+                                    "dataTypeMap": {
+                                        "Security recommendations": "Assessments",
+                                        "Security alerts": "Alerts",
+                                        "Overall secure score": "SecureScores",
+                                        "Secure score controls": "SecureScoreControls",
+                                        "Regulatory compliance": "RegulatoryComplianceAssessment",
+                                        "Overall secure score - snapshot": "SecureScoresSnapshot",
+                                        "Secure score controls - snapshot": "SecureScoreControlsSnapshot",
+                                        "Regulatory compliance - snapshot": "RegulatoryComplianceAssessmentSnapshot",
+                                        "Security recommendations - snapshot": "AssessmentsSnapshot",
+                                        "Security findings - snapshot": "SubAssessmentsSnapshot"
+                                    },
+                                    "ruleSetsForAssessmentsObj": {
+                                        "copy": [
+                                            {
+                                                "name": "ruleSetsForAssessmentsArr",
+                                                "count": "[mul(variables('recommendationNamesLengthIfEmpty'),variables('recommendationSeveritiesLengthIfEmpty'))]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "[if(equals(variables('recommendationNamesLength'),0),'type','name')]",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[if(equals(variables('recommendationNamesLength'),0),'Microsoft.Security/assessments',parameters('recommendationNames')[mod(div(copyIndex('ruleSetsForAssessmentsArr'),variables('totalRuleCombinationsForOneRecommendationName')),variables('recommendationNamesLength'))])]",
+                                                            "operator": "Contains"
+                                                        },
+                                                        {
+                                                            "propertyJPath": "properties.metadata.severity",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[parameters('recommendationSeverities')[mod(div(copyIndex('ruleSetsForAssessmentsArr'),variables('totalRuleCombinationsForOneRecommendationSeverity')),variables('recommendationSeveritiesLength'))]]",
+                                                            "operator": "Equals"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "customRuleSetsForSubAssessmentsObj": {
+                                        "copy": [
+                                            {
+                                                "name": "ruleSetsForSubAssessmentsArr",
+                                                "count": "[variables('recommendationNamesLengthIfEmpty')]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "id",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[if(equals(variables('recommendationNamesLength'), 0), json('null'), replace(variables('subAssessmentRuleExpectedValue'),'{0}', parameters('recommendationNames')[copyIndex('ruleSetsForSubAssessmentsArr')]))]",
+                                                            "operator": "Contains"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "ruleSetsForAlertsFilterObj": {
+                                        "copy": [
+                                            {
+                                                "name": "ruleSetsForAlertsFilterArr",
+                                                "count": "[variables('alertFilterProductNameLengthIfEmpty')]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "ProductComponentName",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[parameters('alertsFilterProductName')[mod(copyIndex('ruleSetsForAlertsFilterArr'), variables('alertFilterProductNameLength'))]]",
+                                                            "operator": "Equals"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "customRuleSetsForSecureScoreControlsObj": {
+                                        "copy": [
+                                            {
+                                                "name": "ruleSetsForSecureScoreControlsArr",
+                                                "count": "[variables('secureScoreControlsLengthIfEmpty')]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "name",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[if(equals(variables('secureScoreControlsNamesLength'), 0), json('null'), parameters('secureScoreControlsNames')[copyIndex('ruleSetsForSecureScoreControlsArr')])]",
+                                                            "operator": "Equals"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "customRuleSetsForRegulatoryComplianceObj": {
+                                        "copy": [
+                                            {
+                                                "name": "ruleSetsForRegulatoryCompliancArr",
+                                                "count": "[variables('regulatoryComplianceStandardsNamesLengthIfEmpty')]",
+                                                "input": {
+                                                    "rules": [
+                                                        {
+                                                            "propertyJPath": "id",
+                                                            "propertyType": "string",
+                                                            "expectedValue": "[if(equals(variables('regulatoryComplianceStandardsNamesLength'), 0), json('null'), parameters('regulatoryComplianceStandardsNames')[copyIndex('ruleSetsForRegulatoryCompliancArr')])]",
+                                                            "operator": "Contains"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "ruleSetsForSecureScoreControlsObj": "[if(equals(variables('secureScoreControlsNamesLength'), 0), json('null'), variables('customRuleSetsForSecureScoreControlsObj').ruleSetsForSecureScoreControlsArr)]",
+                                    "ruleSetsForSecureRegulatoryComplianceObj": "[if(equals(variables('regulatoryComplianceStandardsNamesLength'), 0), json('null'), variables('customRuleSetsForRegulatoryComplianceObj').ruleSetsForRegulatoryCompliancArr)]",
+                                    "ruleSetsForSubAssessmentsObj": "[if(equals(variables('recommendationNamesLength'), 0), json('null'), variables('customRuleSetsForSubAssessmentsObj').ruleSetsForSubAssessmentsArr)]",
+                                    "subAssessmentSource": [
+                                        {
+                                            "eventSource": "SubAssessments",
+                                            "ruleSets": "[variables('ruleSetsForSubAssessmentsObj')]"
+                                        }
+                                    ],
+                                    "ruleSetsMap": {
+                                        "Security recommendations": "[variables('ruleSetsForAssessmentsObj').ruleSetsForAssessmentsArr]",
+                                        "Security alerts": "[variables('ruleSetsForAlertsFilterObj').ruleSetsForAlertsFilterArr]",
+                                        "Overall secure score": null,
+                                        "Secure score controls": "[variables('ruleSetsForSecureScoreControlsObj')]",
+                                        "Regulatory compliance": "[variables('ruleSetsForSecureRegulatoryComplianceObj')]",
+                                        "Overall secure score - snapshot": null,
+                                        "Secure score controls - snapshot": "[variables('ruleSetsForSecureScoreControlsObj')]",
+                                        "Regulatory compliance - snapshot": "[variables('ruleSetsForSecureRegulatoryComplianceObj')]",
+                                        "Security recommendations - snapshot": "[variables('ruleSetsForSecureRegulatoryComplianceObj')]",
+                                        "Security findings - snapshot": "[variables('ruleSetsForSubAssessmentsObj')]"
+                                    },
+                                    "sourcesWithoutSubAssessments": {
+                                        "copy": [
+                                            {
+                                                "name": "sources",
+                                                "count": "[variables('exportedDataTypesLengthIfEmpty')]",
+                                                "input": {
+                                                    "eventSource": "[variables('dataTypeMap')[parameters('exportedDataTypes')[copyIndex('sources')]]]",
+                                                    "ruleSets": "[variables('ruleSetsMap')[parameters('exportedDataTypes')[copyIndex('sources')]]]"
+                                                }
+                                            }
+                                        ]
+                                    },
+                                    "sourcesWithSubAssessments": "[concat(variables('subAssessmentSource'),variables('sourcesWithoutSubAssessments').sources)]",
+                                    "sources": "[if(equals(parameters('isSecurityFindingsEnabled'),bool('true')),variables('sourcesWithSubAssessments'),variables('sourcesWithoutSubAssessments').sources)]"
+                                },
+                                "resources": [
+                                    {
+                                        "condition": "[parameters('createResourceGroup')]",
+                                        "name": "[parameters('resourceGroupName')]",
+                                        "type": "Microsoft.Resources/resourceGroups",
+                                        "apiVersion": "2019-10-01",
+                                        "location": "[parameters('resourceGroupLocation')]"
+                                    },
+                                    {
+                                        "type": "Microsoft.Resources/deployments",
+                                        "apiVersion": "2019-10-01",
+                                        "name": "[concat('nestedAutomationDeployment', '_', parameters('guidValue'))]",
+                                        "resourceGroup": "[parameters('resourceGroupName')]",
+                                        "dependsOn": [
+                                            "[resourceId('Microsoft.Resources/resourceGroups/', parameters('resourceGroupName'))]"
+                                        ],
+                                        "properties": {
+                                            "mode": "Incremental",
+                                            "template": {
+                                                "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+                                                "contentVersion": "1.0.0.0",
+                                                "parameters": {},
+                                                "variables": {},
+                                                "resources": [
+                                                    {
+                                                        "tags": {},
+                                                        "apiVersion": "2019-01-01-preview",
+                                                        "location": "[parameters('resourceGroupLocation')]",
+                                                        "name": "exportToEventHub",
+                                                        "type": "Microsoft.Security/automations",
+                                                        "dependsOn": [],
+                                                        "properties": {
+                                                            "description": "Export Microsoft Defender for Cloud data to Event Hub via policy",
+                                                            "isEnabled": true,
+                                                            "scopes": [
+                                                                {
+                                                                    "description": "[replace(variables('scopeDescription'),'{0}', subscription().subscriptionId)]",
+                                                                    "scopePath": "[subscription().id]"
+                                                                }
+                                                            ],
+                                                            "sources": "[variables('sources')]",
+                                                            "actions": [
+                                                                {
+                                                                    "actionType": "EventHub",
+                                                                    "eventHubResourceId": "[concat('/', variables('SeperatedEventHubDetails')[1], '/', variables('SeperatedEventHubDetails')[2], '/', variables('SeperatedEventHubDetails')[3], '/', variables('SeperatedEventHubDetails')[4], '/', variables('SeperatedEventHubDetails')[5], '/', variables('SeperatedEventHubDetails')[6], '/', variables('SeperatedEventHubDetails')[7], '/', variables('SeperatedEventHubDetails')[8], '/', variables('SeperatedEventHubDetails')[9], '/', variables('SeperatedEventHubDetails')[10])]",
+                                                                    "connectionString": "[listkeys(parameters('eventHubDetails'),'2017-04-01').primaryConnectionString]"
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            },
+                            "parameters": {
+                                "resourceGroupName": {
+                                    "value": "[parameters('resourceGroupName')]"
+                                },
+                                "resourceGroupLocation": {
+                                    "value": "[parameters('resourceGroupLocation')]"
+                                },
+                                "createResourceGroup": {
+                                    "value": "[parameters('createResourceGroup')]"
+                                },
+                                "exportedDataTypes": {
+                                    "value": "[parameters('exportedDataTypes')]"
+                                },
+                                "recommendationNames": {
+                                    "value": "[parameters('recommendationNames')]"
+                                },
+                                "isSecurityFindingsEnabled": {
+                                    "value": "[parameters('isSecurityFindingsEnabled')]"
+                                },
+                                "secureScoreControlsNames": {
+                                    "value": "[parameters('secureScoreControlsNames')]"
+                                },
+                                "recommendationSeverities": {
+                                    "value": "[parameters('recommendationSeverities')]"
+                                },
+                                "alertsFilterProductName": {
+                                    "value": "[parameters('alertsFilterProductName')]"
+                                },
+                                "regulatoryComplianceStandardsNames": {
+                                    "value": "[parameters('regulatoryComplianceStandardsNames')]"
+                                },
+                                "eventHubDetails": {
+                                    "value": "[parameters('eventHubDetails')]"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
