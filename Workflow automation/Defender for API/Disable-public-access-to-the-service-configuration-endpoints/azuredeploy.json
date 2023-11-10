@@ -1,0 +1,127 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    
+    "parameters":  {
+        "PlaybookName":  {
+            "defaultValue":  "Disable-public-access",
+            "type":  "string"
+        }
+    },
+    "variables":  {
+        "AscassessmentConnectionName":  "[concat('Ascassessment-', parameters('PlaybookName'))]"
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Enabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "When_a_Microsoft_Defender_for_Cloud_recommendation_is_created_or_triggered":  {
+                            "type":  "ApiConnectionWebhook",
+                            "inputs":  {
+                                "host":  {
+                                    "connection":  {
+                                        "name":  "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "body":  {
+                                    "callback_url":  "@{listCallbackUrl()}"
+                                },
+                                "path":  "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions":  {
+                        "Management_API_Endpoint_Access":  {
+                            "runAfter":  {
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "uri":  "https://management.azure.com@{triggerBody()?['properties']?['resourceDetails']?['id']}/tenant/access?api-version=2022-08-01",
+                                "method":  "PATCH",
+                                "body":  {
+                                    "properties":  {
+                                        "enabled":  false
+                                    }
+                                },
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                }
+                            }
+                        },
+                        "Git_Configuration_Endpoint_Access":  {
+                            "runAfter":  {
+                                "Management_API_Endpoint_Access":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "uri":  "https://management.azure.com@{triggerBody()?['properties']?['resourceDetails']?['id']}/tenant/gitAccess?api-version=2022-08-01",
+                                "method":  "PATCH",
+                                "body":  {
+                                    "properties":  {
+                                        "enabled":  false
+                                    }
+                                },
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                }
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                            "ascassessment":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]",
+                                "connectionName":  "[variables('AscassessmentConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('PlaybookName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+            
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+                "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]"
+            ]
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('AscassessmentConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('AscassessmentConnectionName')]",
+                "customParameterValues":  {
+                },
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                }
+            }
+        }
+    ]
+}
