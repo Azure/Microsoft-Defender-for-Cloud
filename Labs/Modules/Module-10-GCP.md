@@ -51,40 +51,28 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 ![Create GCP connector](../Images/4creategcpconnector.png?raw=true)
 
 5.  After filling everything in, click **Next: Select plans**.
-6. In **Select plans**, ensure the following are **On**:
-Security posture management (**On** by default)
-Severs
-Containers
+6. In **Select plans**, the Foundational CSPM plan is enabled by default.
+
+7. Ensure that the Defender CSPM, Servers, Containers and Database plans are set to **On**. 
 
 ![GCP plans](../Images/5gcpplans.png?raw=true)
 
-7. Select **Next: Configure access**.
-8. Copy the GCP Cloud Shell script. 
+8. Select **Next: Configure access**.
+9. Copy the GCP Cloud Shell script. 
 ![GCP script](../Images/6scpscript.png?raw=true)
-9. Click **GCP Cloud Shell** button which will open up the GCP console with Cloud Shell.
-10. Paste the script into the Cloud Shell.
+10. Click **GCP Cloud Shell** button which will open up the GCP console with Cloud Shell.
+11. Paste the script into the Cloud Shell.
 
 ![GCP console with Cloud Shell](../Images/7gcpconsole.png?raw=true)
-11. let the script run and when it finishes, copy the Service account unique numeric ID.
-
-12. Back in the **Configure access** page in **Defender for Cloud**, have the follwing as:
-
-**Security posture management**: leave as default
-
-**Containers**: leave as default
-
-**Servers**: leave as default
-
-**Service account unique numeric ID**: paste it in after running the script.
-
-13. Click **Next: review and Generate**.
-14. In the next screen, after validation completes succesfully, click **create**
+12. Let the script run and after it finishes successfully return to Defender for Cloud. 
+13. Back in the **Configure access** page click **Next: review and Generate**.
+14. In the next screen, after validation completes succesfully, click **Create**
 
 Now, you have successfully created a GCP connector in Microsoft Defender for Cloud. Now you'll be able to get GCP recommendations and alerts.
 
 ### Exercise 3: Investigate the GCP recommendations 
 
-Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Containers will start scanning the image for vulnerabilities, by using Qualys. You will now look into the recommendations in Microsoft Defender for Cloud for this. 
+Once a vulnerable image has been pushed to the Azure Container Registry registry, then Microsoft Defender for Containers will start scanning the image for vulnerabilities. You will now look into the recommendations in Microsoft Defender for Cloud for this. 
 
 > [!NOTE]
 > You will need to create some GCP resources in order to see recommendations for GCP in Microsoft Defender for Cloud.
