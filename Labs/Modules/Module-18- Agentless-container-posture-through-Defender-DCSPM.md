@@ -19,7 +19,7 @@ Learn how to enable how to enable agentless container security posture: [One cli
 
 ## **Exercise 1: Prepare your environment.**
 
-Before we set up the resources to be used for this lab, we first need to turn on agentless discovery of Kubernetes and agentless container image scanning in Defender CSPM. You can do this in the Defender for Cloud portal by going to Environment Settings. Once you select your Azure Subscription, make sure Defender CSPM is turned on, click monitoring coverage and turn on “Agentless discovery for Kubernetes” and “Container registries vulnerability assessments”.
+Before we set up the resources to be used for this lab, we first need to turn on agentless discovery of Kubernetes and agentless container image scanning in Defender CSPM. Note that Defender for Containers also provides agentless container image scanning but does not include attack paths. You can enable agentless container posture in the Defender for Cloud portal by going to Environment Settings. Once you select your Azure Subscription, make sure Defender CSPM is turned on, click monitoring coverage and turn on “Agentless discovery for Kubernetes” and “Container registries vulnerability assessments”.
 
 ![](../Images/enablecontainersdcspm.png?raw=true)
 
