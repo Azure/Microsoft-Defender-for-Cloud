@@ -2,6 +2,13 @@
     "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "contentVersion": "1.0.0.0",
     "parameters": {
+        // parmaters for Linux Server Name
+        "linuxServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Linux Server Virtual Machine."
+            }
+        },
         //parmaeters for user name
         "adminUsername": {
             "type": "string",
@@ -67,7 +74,7 @@
         //"vnetID": "[resourceId('Microsoft.Network/virtualNetworks',parameters('virtualNetworkName'))]",
         "publicIPAddressName": "[concat(variables('vmName'), '-pip')]",
         "publicIPAddressType": "Dynamic",
-        "vmName": "dcspmlab-nix",
+        "vmName": "[parameters('linuxServerName')]",
         "vmSize": "Standard_D2s_v3",
         //"virtualNetworkName": "asclab-vnet",
         //"networkSecurityGroupName": "myNSG",
