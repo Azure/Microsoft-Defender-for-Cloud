@@ -1,0 +1,188 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "metadata":  {
+        "title":  "",
+        "description":  "",
+        "prerequisites":  "",
+        "postDeployment":  [
+        ],
+        "prerequisitesDeployTemplateFile":  "",
+        "lastUpdateTime":  "",
+        "entities":  [
+        ],
+        "tags":  [
+        ],
+        "author":  {
+            "name":  "Giulio Astori  - Microsoft"
+        }
+    },
+    "parameters":  {
+        "LogicAppName":  {
+            "defaultValue":  "rec-api-mgt-min-api-ver-2019-12-01-higher",
+            "type":  "string"
+        }
+    },
+    "variables":  {
+        "AscassessmentConnectionName":  "[concat('Ascassessment-', parameters('LogicAppName'))]"
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Enabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "When_a_Microsoft_Defender_for_Cloud_recommendation_is_created_or_triggered":  {
+                            "type":  "ApiConnectionWebhook",
+                            "inputs":  {
+                                "body":  {
+                                    "callback_url":  "@{listCallbackUrl()}"
+                                },
+                                "host":  {
+                                    "connection":  {
+                                        "name":  "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "path":  "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions":  {
+                        "Condition_-_Evaluate_if_minApiVersion_is_null":  {
+                            "actions":  {
+                                "HTTP":  {
+                                    "runAfter":  {
+                                    },
+                                    "type":  "Http",
+                                    "inputs":  {
+                                        "authentication":  {
+                                            "type":  "ManagedServiceIdentity"
+                                        },
+                                        "body":  {
+                                            "properties":  {
+                                                "apiVersionConstraint":  {
+                                                    "minApiVersion":  "2019-12-01"
+                                                }
+                                            }
+                                        },
+                                        "method":  "PATCH",
+                                        "uri":  "https://management.azure.com@{triggerBody()?['properties']?['resourceDetails']?['id']}?api-version=2022-08-01"
+                                    }
+                                }
+                            },
+                            "runAfter":  {
+                                "Parse_JSON_-_Parse_minApiVersion":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "expression":  {
+                                "and":  [
+                                    {
+                                        "equals":  [
+                                            "@body('Parse_JSON_-_Parse_minApiVersion')?['properties']?['apiVersionConstraint']?['minApiVersion']",
+                                            ""
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type":  "If"
+                        },
+                        "HTTP_-_Get_API_Properties":  {
+                            "runAfter":  {
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                },
+                                "method":  "GET",
+                                "uri":  "https://management.azure.com@{triggerBody()?['properties']?['resourceDetails']?['id']}?api-version=2022-08-01"
+                            }
+                        },
+                        "Parse_JSON_-_Parse_minApiVersion":  {
+                            "runAfter":  {
+                                "HTTP_-_Get_API_Properties":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "ParseJson",
+                            "inputs":  {
+                                "content":  "@body('HTTP_-_Get_API_Properties')",
+                                "schema":  {
+                                    "properties":  {
+                                        "properties":  {
+                                            "properties":  {
+                                                "apiVersionConstraint":  {
+                                                    "properties":  {
+                                                        "minApiVersion":  {
+                                                            "type":  "string"
+                                                        }
+                                                    },
+                                                    "type":  "object"
+                                                }
+                                            },
+                                            "type":  "object"
+                                        }
+                                    },
+                                    "type":  "object"
+                                }
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                            "ascassessment":  {
+                                "connectionId":  "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]",
+                                "connectionName":  "[variables('AscassessmentConnectionName')]",
+                                "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                            }
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('LogicAppName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "tags":  {
+                "LogicAppName":  "rec-api-mgt-min-api-ver-2019-12-01-higher",
+                "ogicAppVersion":  "1.0"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+                "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]"
+            ]
+        },
+        {
+            "type":  "Microsoft.Web/connections",
+            "apiVersion":  "2016-06-01",
+            "name":  "[variables('AscassessmentConnectionName')]",
+            "location":  "[resourceGroup().location]",
+            "kind":  "V1",
+            "properties":  {
+                "displayName":  "[variables('AscassessmentConnectionName')]",
+                "customParameterValues":  {
+                },
+                "api":  {
+                    "id":  "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                }
+            }
+        }
+    ]
+}
