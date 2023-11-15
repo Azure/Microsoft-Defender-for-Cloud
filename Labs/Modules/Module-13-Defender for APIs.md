@@ -229,9 +229,9 @@ After some time, Defender for APIs will trigger an alert with detailed informati
 Now you have successfully tested out Defender for API and triggered an alert.
 
 ### Exercise 7: EXPLORE THE DATA CLASSIFICATIONS COMING FROM MICROSOFT PURVIEW IN THE DEFENDER FOR API TILE
-PREQUISITE: Follow the [Microsoft Purview guidance](https://learn.microsoft.com/en-us/purview/sensitivity-insights) to enable sensitive data labels and data classifications for the API **API labs-test** in Microsoft Purview.
+PREREQUISITE: Follow the [Microsoft Purview guidance](https://learn.microsoft.com/en-us/purview/sensitivity-insights) to enable sensitive data labels and data classifications for the API **API labs-test** in Microsoft Purview.
 
-11.	Navigate to the Microsoft Defender for Cloud’s **Workload Protections** pane (from the left-hand navigation bar). 
+1.	Navigate to the Microsoft Defender for Cloud’s **Workload Protections** pane (from the left-hand navigation bar). 
 
 ![](../Images/api10.png?raw=true)
  
@@ -262,9 +262,9 @@ PREQUISITE: Follow the [Microsoft Purview guidance](https://learn.microsoft.com/
 
 ## Exercise 8: Build query with Cloud Security Explorer
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
-2.	From Defender for Cloud's menu, open the **Cloud Security Explorer(preview)** page
+2.	From Defender for Cloud's menu, open the **Cloud Security Explorer** page
 
- ![image](https://user-images.githubusercontent.com/102209701/215828929-98a0e9fe-1f0e-4ac8-97f5-4bed96d0d174.png)
+![](../Images/apidcspm.png?raw=true)
 
 3.	Under Query templates, select a predefined query template **APIs communicating over unencrypted protocols with unauthenticated API endpoints** and click on **Open query**.
 
