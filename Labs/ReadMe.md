@@ -95,6 +95,8 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Onboard APIs to Defender for APIs](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-4-onboard-apis-to-defender-for-apis)
 - [Explore the Defender for API tile and look at API recommendations in Defender for Cloud](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-5-explore-the-defender-for-api-tile-and-look-at-api-recommendations-in-defender-for-cloud)
 - [Trigger an alert "Suspicious user agent detected"](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-6-trigger-an-alert-suspicious-user-agent-detected)
+- [Explore the Data Classifications coming from Microsoft Purview in the Defender for API tile](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-7-explore-the-data-classifications-coming-from-microsoft-purview-in-the-defender-for-api-tile)
+- [Build query with Cloud Security Explorer with Defender CSPM](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md#exercise-8-build-query-with-cloud-security-explorer)
 
 [**Module 14 – Configuring Azure ADO Connector in Defender for DevOps (L200)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md)
 - [Preparing the environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2014-Config%20Azure%20ADO%20in%20DfD.md#exercise-1-preparing-the-environment)
