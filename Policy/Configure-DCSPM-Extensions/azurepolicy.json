@@ -67,6 +67,18 @@
                 "false"
             ],
             "defaultValue": "true"
+        }, 
+        "EntraPermissionsManagement":{
+            "type":"String",
+            "metadata":{
+                "displayName":"EntraPermissionsManagement",
+                "description":"Enable or disable Entra Permissions Management"
+            },
+            "allowedValues":[
+                "true",
+                "false"
+            ],
+            "defaultValue":"true"
         }
     },
     "policyRule": {
@@ -91,60 +103,104 @@
                             "equals": "Standard"
                         },
                         {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].name",
-                                    "in": [
-                                        "AgentlessVmScanning"
+                            "count":{
+                                "field":"Microsoft.Security/pricings/extensions[*]",
+                                "where":{
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].name",
+                                            "in": [
+                                                "AgentlessVmScanning"
+                                            ]
+                                        },
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                            "equals": "[parameters('AgentlessVmScanning')]"
+                                        }
                                     ]
                                 },
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
-                                    "equals": "[parameters('AgentlessVmScanning')]"
-                                }
-                            ]
+                                "equals": 1
+                            }
                         },
                         {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].name",
-                                    "in": [
-                                        "AgentlessDiscoveryForKubernetes"
+                            "count":{
+                                "field":"Microsoft.Security/pricings/extensions[*]",
+                                "where":{
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].name",
+                                            "in": [
+                                                "AgentlessDiscoveryForKubernetes"
+                                            ]
+                                        },
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                            "equals": "[parameters('AgentlessDiscoveryForKubernetes')]"
+                                        }
                                     ]
                                 },
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
-                                    "equals": "[parameters('AgentlessDiscoveryForKubernetes')]"
-                                }
-                            ]
+                                "equals": 1
+                            }
                         },
                         {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].name",
-                                    "in": [
-                                        "ContainerRegistriesVulnerabilityAssessments"
+                            "count":{
+                                "field":"Microsoft.Security/pricings/extensions[*]",
+                                "where":{
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].name",
+                                            "in": [
+                                                "ContainerRegistriesVulnerabilityAssessments"
+                                            ]
+                                        },
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                            "equals": "[parameters('ContainerRegistriesVulnerabilityAssessments')]"
+                                        }
                                     ]
                                 },
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
-                                    "equals": "[parameters('ContainerRegistriesVulnerabilityAssessments')]"
-                                }
-                            ]
+                                "equals": 1
+                            }
                         },
                         {
-                            "allOf": [
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].name",
-                                    "in": [
-                                        "SensitiveDataDiscovery"
+                            "count":{
+                                "field":"Microsoft.Security/pricings/extensions[*]",
+                                "where":{
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].name",
+                                            "in": [
+                                                "SensitiveDataDiscovery"
+                                            ]
+                                        },
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                            "equals": "[parameters('SensitiveDataDiscovery')]"
+                                        }
                                     ]
                                 },
-                                {
-                                    "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
-                                    "equals": "[parameters('SensitiveDataDiscovery')]"
-                                }
-                            ]
+                                "equals": 1
+                            }
+                        },
+                        {
+                            "count":{
+                                "field":"Microsoft.Security/pricings/extensions[*]",
+                                "where":{
+                                    "allOf": [
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].name",
+                                            "in": [
+                                                "EntraPermissionsManagement"
+                                            ]
+                                        },
+                                        {
+                                            "field": "Microsoft.Security/pricings/extensions[*].isEnabled",
+                                            "equals": "[parameters('EntraPermissionsManagement')]"
+                                        }
+                                    ]
+                                },
+                                "equals": 1
+                            }
                         }
                     ]
                 },
@@ -164,6 +220,9 @@
                             },
                             "SensitiveDataDiscovery": {
                                 "value": "[parameters('SensitiveDataDiscovery')]"
+                            },
+                            "EntraPermissionsManagement": {
+                                "value": "[parameters('EntraPermissionsManagement')]"
                             }
                         },
                         "template": {
@@ -180,6 +239,9 @@
                                     "type": "String"
                                 },
                                 "SensitiveDataDiscovery": {
+                                    "type": "String"
+                                },
+                                "EntraPermissionsManagement": {
                                     "type": "String"
                                 }
                             },
@@ -207,6 +269,10 @@
                                             {
                                                 "name": "SensitiveDataDiscovery",
                                                 "isEnabled": "[parameters('SensitiveDataDiscovery')]"
+                                            },
+                                            {
+                                                "name": "SensitiveDataDiscovery",
+                                                "isEnabled": "[parameters('EntraPermissionsManagement')]"
                                             }
                                         ]
                                     }
