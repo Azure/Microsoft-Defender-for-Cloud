@@ -87,7 +87,7 @@ Note: It will take up to 45 minutes for the API you just created to appear in De
 4.	Under Cloud Workload protections, ensure that the APIs plan is switched **On**.
  
 
- ![](../Images/api7.png?raw=true)
+ ![](../Images/api7new.png?raw=true)
 
 ### Exercise 4: ONBOARD APIS TO DEFENDER FOR APIS
 Next, you will onboard that API to be protected by Defender for API.
@@ -227,3 +227,52 @@ After some time, Defender for APIs will trigger an alert with detailed informati
 ![](../Images/api28.png?raw=true)
   
 Now you have successfully tested out Defender for API and triggered an alert.
+
+### Exercise 7: EXPLORE THE DATA CLASSIFICATIONS COMING FROM MICROSOFT PURVIEW IN THE DEFENDER FOR API TILE
+PREQUISITE: Follow the [Microsoft Purview guidance](https://learn.microsoft.com/en-us/purview/sensitivity-insights) to enable sensitive data labels and data classifications for the API **API labs-test** in Microsoft Purview.
+
+11.	Navigate to the Microsoft Defender for Cloud’s **Workload Protections** pane (from the left-hand navigation bar). 
+
+![](../Images/api10.png?raw=true)
+ 
+2.	In the bottom part of the blade, under Advanced protection section, click the **API Security** tile at the bottom right.
+ 
+
+![](../Images/api11.png?raw=true)
+
+3.	Select the **API labs-test**.
+
+ 
+![](../Images/api12.png?raw=true)
+
+
+4. Notice how the data sensitivity labels and data classification is now coming from what you enabled in Microsoft Purview.
+
+![](../Images/purviewlabels.png?raw=true)
+
+
+5.	Select **GetSessions** endpoint name that you tested in Exercise 2 to see this endpoint’s **Resource Health** page.
+
+![](../Images/api13.png?raw=true)
+ 
+5.	Explore the **Resource Health** page. Notice how the information available is the same as the information obtained from Microsoft Purview. 
+
+![](../Images/api14.png?raw=true)
+ 
+
+## Exercise 8: Build query with Cloud Security Explorer
+1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
+2.	From Defender for Cloud's menu, open the **Cloud Security Explorer(preview)** page
+
+ ![image](https://user-images.githubusercontent.com/102209701/215828929-98a0e9fe-1f0e-4ac8-97f5-4bed96d0d174.png)
+
+3.	Under Query templates, select a predefined query template **APIs communicating over unencrypted protocols with unauthenticated API endpoints** and click on **Open query**.
+
+![](../Images/api29.png?raw=true)
+
+4. Scroll to the top of the page, and hit **Search**.
+
+![](../Images/api30.png?raw=true)
+
+5.	You will find the list of APIs that do not use TLS/SSL encryption, which are communicating with API endpoints that do not have any detected authentication.    
+
