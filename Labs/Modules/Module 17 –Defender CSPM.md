@@ -58,7 +58,7 @@ To gain access to the capabilities provided by Defender CSPM, you'll need to <a 
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From Defender for Cloud's menu, open the **Environment Settings** page and select the relevant subscription.
 3.	In the Defender plans page, select **Defender CSPM** turn the status to **ON** and select **Settings** under Monitoring Coverage.
-4.	Turn **ON** the **Agentless scanning for machines (preview)** and click **continue**
+4.	Turn **ON** the **Agentless scanning for machines ** and click **continue**
 5.	Click on **Save** to save the changes 
 Agentless scanning for VMs provides vulnerability assessment and software inventory in 24 hours. Leave the setup and comeback after 24 hours.
  
@@ -94,7 +94,7 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 
 ## Exercise 4: Build query with Cloud Security Explorer
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
-2.	From Defender for Cloud's menu, open the **Cloud Security Explorer(preview)** page
+2.	From Defender for Cloud's menu, open the **Cloud Security Explorer** page
 
  ![image](https://user-images.githubusercontent.com/102209701/215828929-98a0e9fe-1f0e-4ac8-97f5-4bed96d0d174.png)
 
@@ -136,7 +136,7 @@ Next exercise will show how to leverage the Attack Path feature of Defender for 
 
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From Defender for Cloud's menu, open the **Environment Settings** page and select the relevant subscription.
-3.	Under **settings** Select **Governance Rules(Preview)**
+3.	Under **settings** Select **Governance Rules**
 4.	Click on **+Create governance rule**
 5.	Give a **rule name**, select **scope** at subscription level, **priority** 100
 6.	Under **conditions**, select **By severity -> High**, **Owner -> By email address**, specify the email address of the workload owner to receive notification email, **Remediation timeframe -> 90 days**
