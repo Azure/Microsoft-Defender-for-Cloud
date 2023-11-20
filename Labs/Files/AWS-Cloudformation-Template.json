@@ -236,63 +236,13 @@
                 "group"   : "root"
               },
 	"/tmp/sample.txt" : {
-                "content": { "Fn::Join" : ["", [
-                  "AWS_ACCESS_KEY_ID=AKIAUOSFODNM7EXAMAAA\n",
-                  "AWS_SECRET_ACCESS_KEY=wJalrXUanTEMI/K7MDENG/bPxRfiCYEXAMAAAKEY\n",
-                  "AWS_ACCESS_KEY_ID=AKYAIOSFODNN7EXANAAA\n",
-                  "AWS_SECRET_ACCESS_KEY=tJalrXUtnFEMI/K7NDENG/bPxRfiCYEXAMAAAKEY\n",
-		  "AWS_ACCESS_KEY_ID=ASIA54BL6PJR2L75XHVS\n",
-                  "AWS_SECRET_ACCESS_KEY=j72eTy+WHgIbO6zpe2DnfjEhbObuTBKcemfrIygt\n",
-		  "Gilobert Aragon 489-36-8350 4929-3813-3266-4295\n",
-		  "Ashley Borden 514-14-8905 5370-4638-8881-3020\n",
-		  "Thomas Conley 690-05-5315 4916-4811-5814-8111\n",
-		  "Susan Davis 421-37-1396 4916-4034-9269-8783\n",
-	  	  "Christopher Diaz 458-02-6127 5299-1561-5689-1941\n",
-		  "Rick Edwards 612-20-6832 5293-8502-0071-3058\n",
-		  "Victor Faulkner 300-62-3268 5548-0246-6336-5666\n",
-		  "Lisa Garrison  660-03-8360  4539-5385-7425-5825\n",
-		  "Mireille Townsend  404-12-2154  4539-8219-0484-7598\n",
-		  "Danny Reyes  624-84-9181  4532-0065-1968-5602\n"
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                
               },
 		"/home/root/mysecrets.txt" : {
-                "content": { "Fn::Join" : ["", [
-                  "idXD6ZsdN6GV4TvQSDhXhSo+9oc2J0l6wgKO2+VPASdbqgY55DiZ9zkRtvEokvhFmegt3SluvbpU59D1ZcWjVw==\n",
-		  "wVJAbVspHO/Sb8YynNoNtmKZSJ4X8xIkev0iQ2xaAp55gnLOC2Q8mkco1Y4ysLBsMs8i8OKqcgwWv5yshBwcSQ==\n",
-		  "rTFAbVspHO/Sb8YynNoNtgKZSJ4X7xIkev0iQ2xaAp55gnLOC3Q8mkco1Y4ysUBsMs8i8OYqcgwWv5yshBwjDA==\n",
-		  "5EBWPn1VSpraI0NyvDcKnsLiIb9wp6RkPGw52ORdHyRFbz0jXCeqYnMrkZPcci4bJ2TqjWTsFqsR+ASt9xuHCA==\n",
-		  "V/71Ky3Ef+XiLyklk1b01kEjaZ5KXCvCxGJe64by7IOE495JeBMACdI9DkxgzdgaPssoquPw6GRg+AStx5jDag==\n",
-		  "4Ni2olzX3X8RM5xgc7f7vMBykZdbHKRok412wt084Ce6VYVId3977dQxKxGcGTPp/nbup9hKztm1+AStYj38Hw==\n",
-		  "uJVGfoXHl70XWNcJMeQkeNvZvfsWbT60Hwuek7pOr2E2byVg3unQpsLgVWgsSuj7eeFQrTwXDsln4OZdgO7AEg==\n",
-		  "S25x3LqMeRPboLGRqrblkRzTygNJZVNgmSLpLLaeAEezWu48XpvMKn+ugj+M8XLB1c6nTr9AEoZta73wb77hVg==\n"
-		  
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                
               },
 "/home/root/contacts.txt" : {
-                "content": { "Fn::Join" : ["", [
-                  "Christopher Anderson 94523 5370-4638-8881-3020 1/16/2022\n",
-		  "Ronald Clark 80233 4916-4811-5814-8111 1/17/2022\n",
-		  "Mary Wright 80916 4916-4034-9269-8783 1/18/2022\n",
-		  "Lisa Mitchell 78247 5299-1561-5689-1938 1/19/2022\n",
-	  	  "Michelle Johnson 94954 5293-8502-0071-3058 1/20/2022\n",
-		  "John Thomas 2176 5548-0246-6336-5664 1/21/2022\n",
-		  "Daniel Rodriguez 63126 4539-5385-7425-5825 1/22/2022\n",
-		  "Anthony Lopez 97222 4916-9766-5240-6147 5/13/2023\n",
-		  "Patricia Perez 92104 4556-0072-1294-7415 5/14/2023\n",
-		  "Nancy Williams 40242 4532-4220-6922-9909 5/15/2022\n",
-		  "James Smith 1/2/1981 JamesSmith@gmail.com\n",
-		  "Ronald Clark 3/4/1981 RonaldClark@gmail.com\n",
-		  "Mary Wright 4/5/1981 MaryWright@gmail.com\n"
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                
                }
 
 
