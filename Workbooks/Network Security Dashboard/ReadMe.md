@@ -5,14 +5,44 @@ The new network security dashboard for Microsoft Defender for Cloud provides you
 Our newly dashboard is based on Azure Resource Graph (ARG) queries and divided to several sections such as:
 
 -	**Overview:** summary view of all your network security and networking resources for selected subscription(s)
--	**Public IPs & exposed ports:** ports exposed to the internet and mapping of public IPs to asset types
--	**Network security services:** DDoS protections plans, Azure Firewall and Firewall policies, Azure WAF policies and NSG views
--	**Internal networking mapping:** network interfaces, route tables, private links, DDoS protection status, peerings and DNS Servers, Subnets view of all subnets, Private DNS VNET Links, IP Forwarding
--	**Gateway and VPN services:** consolidated view of Bastion hosts, VPN gateways, Virtual Network Gateways and Express Route circuits
--	**Traffic Manager** details of all your traffic manager profiles
--	**Virtual WAN (vWAN)** consolidated view of Virtual WANs (inlcuding VPN/ExpressRoute/P2S)
--	**Security Center recommendations:** filtered view of all Microsoft Defender for Cloud network related recommendations including resource count, severity, and security control
--	**PaaS Services:** ipRules, virtualNetworkRules and privateEndpointConnections for Databases, Storage Accounts, Web Apps, Key Vaults & Event Hubs
+-	**Internal Networking:**
+    -	Network Interfaces
+    -	Network Security Groups
+    -	Route Tables
+    -	Subnets
+    -	Private Links
+    -	Peerings
+    -	DNS
+    -	Private DNS Resolver
+    -	Private DNS Zones
+    -	IP Forwarding
+    -	Route Server
+    -	Bastion
+- **External Networking:**
+    - VPN/ExpressRoute
+    - Virtual WAN (vWAN)
+    - Traffic Manager
+    - Front Door
+    - Application Gateway
+    - NAT Gateway
+    - Public IPs & Exposed Ports 
+-	**Network Security Services:**
+    -	DDoS protections plans
+    -	Azure Firewall and Firewall policies
+    -	Azure WAF policies
+    -	Network Security Groups
+- **PaaS Services:**
+    - Databases
+    - Storage Accounts
+    - Web Apps
+    - Key Vaults
+    - Event Hubs
+    - AKS
+-	**Microsoft Defender for Cloud recommendations:**
+    -	Filtered view of all Microsoft Defender for Cloud network related recommendations including resource count, severity, and security control
+-	**Azure Policy:**
+    -	Overall compliance overview / applied policies
+  
 
 Informational options: using the action bars at the top section, select FAQ button to show the frequently asked questions. You can also see recent changes documented on the change log option.
 
