@@ -118,9 +118,9 @@
                                             "equals": "[parameters('AgentlessVmScanning')]"
                                         }
                                     ]
-                                },
-                                "equals": 1
-                            }
+                                }
+                            },
+                            "equals": 1
                         },
                         {
                             "count":{
@@ -138,9 +138,9 @@
                                             "equals": "[parameters('AgentlessDiscoveryForKubernetes')]"
                                         }
                                     ]
-                                },
-                                "equals": 1
-                            }
+                                }
+                            },
+                            "equals": 1
                         },
                         {
                             "count":{
@@ -158,9 +158,9 @@
                                             "equals": "[parameters('ContainerRegistriesVulnerabilityAssessments')]"
                                         }
                                     ]
-                                },
-                                "equals": 1
-                            }
+                                }
+                            },
+                            "equals": 1
                         },
                         {
                             "count":{
@@ -178,9 +178,9 @@
                                             "equals": "[parameters('SensitiveDataDiscovery')]"
                                         }
                                     ]
-                                },
-                                "equals": 1
-                            }
+                                }
+                            },
+                            "equals": 1
                         },
                         {
                             "count":{
@@ -198,9 +198,9 @@
                                             "equals": "[parameters('EntraPermissionsManagement')]"
                                         }
                                     ]
-                                },
-                                "equals": 1
-                            }
+                                }
+                            },
+                            "equals": 1
                         }
                     ]
                 },
