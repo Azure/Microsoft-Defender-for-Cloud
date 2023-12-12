@@ -75,7 +75,8 @@ $role.Actions.Add("Microsoft.Security/policies/read")
 $role.Actions.Add("Microsoft.Network/publicIPAddresses/read")
 if (!($forApiOnly))
 {
-	$role.Actions.Add("Microsoft.Compute/virtualMachines/write")
+	# $role.Actions.Add("Microsoft.Compute/virtualMachines/write")
+       	$role.Actions.Add("Microsoft.Compute/virtualMachines/read")
 	$role.Actions.Add("Microsoft.Network/*/read")
 }
 $role.AssignableScopes.Clear()
