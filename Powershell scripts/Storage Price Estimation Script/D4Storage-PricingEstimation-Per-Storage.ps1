@@ -1,5 +1,6 @@
 #Requires -Version 7.0
 #Requires -Modules Az.Monitor
+#Requires -Module Az.Storage
 
 $OverageBar = 73000000
 $PricePer1MOverageTransactions = 0.1492
