@@ -40,6 +40,7 @@ if ($needLogin)
 
 # get token
 $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+$expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
 # Define variables for authentication and resource group
 $SubscriptionId = Read-Host "Enter your SubscriptionId"
@@ -54,18 +55,27 @@ if ($mode.ToLower() -eq "rg") {
 	try
 	{
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group
-		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + 
-		"/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachines?api-version=2021-04-01"
-		$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$vmResponseMachines = $vmResponse.value 
-		
+		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachines?api-version=2021-04-01"
+		do{
+			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmResponseMachines += $vmResponse.value 
+			$vmUrl = $vmResponse.nextLink
+		} while (![string]::IsNullOrEmpty($vmUrl))
+
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets?api-version=2021-04-01"
-		$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$vmssResponseMachines = $vmssResponse.value
+		do{
+			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmssResponseMachines += $vmssResponse.value
+			$vmssUrl = $vmssResponse.nextLink
+		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
-		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.HybridCompute/machines?api-version=2023-10-03-preview"
-		$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$arcResponseMachines = $arcResponse.value
+		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.HybridCompute/machines?api-version=2022-12-27"
+		do{
+			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$arcResponseMachines += $arcResponse.value
+			write-host $arcUrl
+			$arcUrl = $arcResponse.nextLink
+		} while (![string]::IsNullOrEmpty($arcUrl))
 	}
 	catch 
 	{
@@ -83,16 +93,25 @@ if ($mode.ToLower() -eq "rg") {
 	{
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group based on the given tag
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachines'&api-version=2021-04-01"
-		$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$vmResponseMachines = $vmResponse.value | where {$_.tags.$tagName -eq $tagValue}
+		do{
+			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmResponseMachines += $vmResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$vmUrl = $vmResponse.nextLink
+		} while (![string]::IsNullOrEmpty($vmUrl))
 		
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachineScaleSets'&api-version=2021-04-01"
-		$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$vmssResponseMachines = $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
+		do{
+			$vmssResponse += Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmssResponseMachines = $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$vmssUrl = $vmssResponse.nextLink
+		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.HybridCompute/machines'&api-version=2023-07-01"
-		$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
-		$arcResponseMachines = $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
+		do{
+			$arcResponse += Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$arcResponseMachines = $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$arcUrl = $arcResponse.nextLink
+		} while (![string]::IsNullOrEmpty($arcUrl))
 	}
 	catch 
 	{
@@ -150,7 +169,20 @@ write-host "`n"
 Write-Host "-------------------"
 Write-Host "Setting Virtual Machines:"
 foreach ($machine in $vmResponseMachines) {
-    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2023-08-01-preview"
+	# Check if need to renew the token	
+    $currentTime = Get-Date
+    
+    Write-host "Token expires on: $expireson - currentTime: $currentTime"
+    if ((get-date $currentTime) -ge (get-date $expireson)) {
+		Start-Sleep -Seconds 2
+        Write-host "Token expired - refreshing token:"
+        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
+
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+    }
+	
+    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
     if($PricingTier.ToLower() -eq "free")
 	{
 		$pricingBody = @{
@@ -190,7 +222,20 @@ foreach ($machine in $vmResponseMachines) {
 Write-Host "-------------------"
 Write-Host "Setting Virtual Machine Scale Sets:"
 foreach ($machine in $vmssResponseMachines) {
-    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2023-08-01-preview"
+	# Check if need to renew the token
+    $currentTime = Get-Date
+    
+    Write-host "Token expires on: $expireson - currentTime: $currentTime"
+    if ((get-date $currentTime) -ge (get-date $expireson)) {
+		Start-Sleep -Seconds 2
+        Write-host "Token expired - refreshing token:"
+        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
+
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+    }
+	
+    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
     if($PricingTier.ToLower() -eq "free")
 	{
 		$pricingBody = @{
@@ -230,7 +275,20 @@ foreach ($machine in $vmssResponseMachines) {
 Write-Host "-------------------"
 Write-Host "Setting ARC Machine:"
 foreach ($machine in $arcResponseMachines) {
-    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2023-08-01-preview"
+	# Check if need to renew the token
+    $currentTime = Get-Date
+    
+    Write-host "Token expires on: $expireson - currentTime: $currentTime"
+    if ((get-date $currentTime) -ge (get-date $expireson)) {
+		Start-Sleep -Seconds 2
+        Write-host "Token expired - refreshing token:"
+        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
+
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+    }
+	
+    $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
     if($PricingTier.ToLower() -eq "free")
 	{
 		$pricingBody = @{
