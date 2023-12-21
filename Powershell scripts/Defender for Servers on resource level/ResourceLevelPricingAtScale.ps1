@@ -152,16 +152,16 @@ foreach ($machine in $arcResponseMachines) {
 Write-Host "-----------------------------------------------------------------------"
 write-host "`n"
 
-$continue = Read-Host "Continue? (enter n/N to exit)"
+$continue = Read-Host "Press any key to proceed or press 'N' to exit"
 
 if ($continue.ToLower() -eq "n") {
 	exit 0
 }
 
 Write-Host "-------------------"
-$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' ('P1' subplan for standard)"
+$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' (choosing 'Standard' will enable the machines with 'P1' subplan)"
 while($PricingTier.ToLower() -ne "free" -and $PricingTier.ToLower() -ne "standard"){
-	$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' ('P1' subplan for standard)"
+$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' (choosing 'Standard' will enable the machines with 'P1' subplan)"
 }
 
 # Loop through each machine and update the pricing configuration
