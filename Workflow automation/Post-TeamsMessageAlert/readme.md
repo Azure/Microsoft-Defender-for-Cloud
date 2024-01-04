@@ -1,7 +1,7 @@
 # Post-TeamsMessageAlert
 author: Nicholas DiCola
 
-This playbook is for workflow automation.  It will post a teams message when and ASC alert if triggered.
+This playbook is for workflow automation.  It will post a teams message when an ASC alert is triggered.
 
 Note: You will need to udpate the Teams team and channel in the action after deployment.
 
