@@ -24,7 +24,7 @@ The security team enabled Defender CSPM plan for their GCP environment to proact
 
 ## Exercise 1: Preparing the GCP Environment for Defender CSPM plan 
 
-To enable Defender CSPM during onborading of new GCP projects or organizations, perform the steps outlined at [Module 10 – Connecting a GCP Project](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md). 
+To enable Defender CSPM during onboarding of new GCP projects or organizations, perform the steps outlined at [Module 10 – Connecting a GCP Project](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md). 
 
 To enable Defender CSPM on already onboarded GCP projects or organizations, perform the following steps in sequence: 
 1. Sign in to the **Azure portal**. 
