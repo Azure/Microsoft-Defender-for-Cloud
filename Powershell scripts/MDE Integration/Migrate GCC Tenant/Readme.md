@@ -32,4 +32,10 @@ This PowerShell script allows you to invoke a WebRequest API against an Azure su
 
 - Make sure you have the necessary permissions to perform the operation specified by the REST API.
 - The script checks for the subscription's "Owner" or "Contributor" roles. Ensure you have either of these roles in the specified subscription.
+- The subscription to run the script agains must be enabled with 'Defender for Servers Plan 2'.
+   - To identify such subscription use this snippet in Powershell console:
+     ```
+     $subscriptions = Get-AzSubscription
+     foreach ($subscription in $subscriptions) {Select-AzSubscription -Subscription $subscription;     $enabledServersPlan = Get-AzSecurityPricing | Where-Object {$_.Name -eq "VirtualMachines" -and $_.PricingTier -eq "Standard"} ; if ($enabledServersPlan) {  Write-host "Subscription $subscription.Id is enabled" -ForegroundColor Green}}
+     ```
 
