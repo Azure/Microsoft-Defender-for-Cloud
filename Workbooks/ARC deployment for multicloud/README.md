@@ -13,3 +13,8 @@ Both of them will present lists:
 *  first list - shows machines with Azure Arc Connected Machine agent and the status of the Agent
 *  second list - shows machines without Azure Arc Connected Machine agent
 
+Workbook overview:
+
+![Overview](./overview.png)
+
+
