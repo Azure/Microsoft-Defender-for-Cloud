@@ -13,10 +13,3 @@ Both of them will present lists:
 *  first list - shows machines with Azure Arc Connected Machine agent and the status of the Agent
 *  second list - shows machines without Azure Arc Connected Machine agent
 
-
-## Try it on the Azure Portal
-
-You can deploy the workbook by clicking on the buttons below:
-
-<a href="https://aka.ms/AAi9ipn" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://aka.ms/AAi9yam" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
