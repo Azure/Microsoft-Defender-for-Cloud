@@ -1,10 +1,10 @@
-{
+ver{
   "version": "Notebook/1.0",
   "items": [
     {
       "type": 1,
       "content": {
-        "json": "# Azure Arc Connected Agent - for Defender for Cloud with multi-cloud deployments\r\n### Microsoft Defender for Servers plans require Azure Arc deployment on AWS/GCP machines. \r\nThis interactive workbook provides an overview of machines in your environment showing their Azure ARC Connected Machine agent deployment status."
+        "json": "# Azure Arc Connected Agent - for Defender for Server with multi-cloud deployments\r\n### Microsoft Defender for Servers plans require Azure Arc deployment on AWS/GCP machines. \r\nThis interactive workbook provides an overview of machines in your environment showing their Azure ARC Connected Machine agent deployment status."
       },
       "name": "textDescriptionOfWorkbook"
     },
