@@ -2,7 +2,7 @@
 
 **Author: Inbal Silis**
 
-Microsoft Defender for Servers plans require Azure Arc deployment on AWS/GCP machines. This interactive workbook provides an overview of machines in your environment showing their Azure ARC Connected Machine agent deployment status.
+Microsoft Defender for Servers plans require Azure Arc deployment on AWS/GCP machines. This interactive workbook provides an overview of machines in your environment showing their Azure Arc Connected Machine agent deployment status.
 
 There are 2 tabs:
 *  AWS Account
