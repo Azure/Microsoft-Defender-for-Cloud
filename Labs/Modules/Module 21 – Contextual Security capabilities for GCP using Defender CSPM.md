@@ -48,7 +48,7 @@ To enable Defender CSPM on already onboarded GCP projects or organizations, perf
 1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
 2.	From **Defender for Cloud**'s menu, elect open the **Attack Path Analysis** page.
 3.	To filter for attack paths related to GCP only, click **Add filter**, select **Environment**, then choose **GCP** and click **Apply**.
-4.	You will find the Attack Paths in your GCP Environment. Select a particulat attack path to investigate it further, like **Publicly accessible GCP storage bucket with sensitive data (Preview)”**
+4.	You will find the Attack Paths in your GCP Environment. Select a particulat attack path to investigate it further, like **”Publicly accessible GCP storage bucket with sensitive data (Preview)”**
    
    ![image](../Images/module21AttackPathsGCP.png?raw=true)
   	
