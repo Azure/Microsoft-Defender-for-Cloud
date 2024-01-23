@@ -17,4 +17,9 @@ Workbook overview:
 
 ![Overview](./overview.png)
 
+## Try on Portal
+You can deploy the workbook by clicking on the buttons below:
+
+<a href="https://aka.ms/AAopem3" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://aka.ms/AAopem3" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 

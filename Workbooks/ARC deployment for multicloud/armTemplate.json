@@ -3,7 +3,7 @@
   "parameters": {
     "workbookDisplayName": {
       "type": "string",
-      "defaultValue": "Arc deployment on AWS/GCP",
+      "defaultValue": "Arc deployment on AWS/GCP machines",
       "metadata": {
         "description": "The friendly name for the workbook that is used in the Gallery or Saved List.  This name must be unique within a resource group."
       }
@@ -17,7 +17,7 @@
     },
     "workbookSourceId": {
       "type": "string",
-      "defaultValue": "azure monitor",
+      "defaultValue": "Azure Security Center",
       "metadata": {
         "description": "The id of resource instance to which the workbook will be associated"
       }
