@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "## Guest Configuration Result v1.9\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n---"
+        "json": "## Guest Configuration Result v1.10\n---\nThis workbook shows Guest Configuration assessment details and reasons from the Resource Graph\nIncludes Azure Arc connected machines\n\n---"
       },
       "name": "head"
     },
@@ -28,8 +28,7 @@
             "jsonData": "[\r\n { \"value\": \"true\", \"label\": \"Yes\" },\r\n { \"value\": \"false\", \"label\": \"No\", \"selected\":true }\r\n ]",
             "timeContext": {
               "durationMs": 86400000
-            },
-            "value": "true"
+            }
           }
         ],
         "style": "above",
@@ -41,7 +40,7 @@
     {
       "type": 1,
       "content": {
-        "json": "### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n| v1.6|h.wache|2023-01| fixed failed query because of added value on GC assignment name, (multiple assignments support availability)|\n| v.1.7|h.wache|2023-03| added parameter to filter for Azure VM \"timeCreated\" attribute in \"By Policy\" and \"By Computer\" tab\n| v.1.8|h.wache|2023-05| added Tenant filter to include Lighthouse connected Subscriptions\n| v.1.9|h.wache|2023-06| added a helper to find correct policy with regards to the jobscript which is assigned in the \"localscript\" paramter, see _[custom policy solution](https://aka.ms/machineconfig)_\n\n---"
+        "json": "### Change History\n---\n\n| Version        | Who      | Date  | What |\n| ------------- |-------------| -----| -----|\n| v1.4|h.wache|2022-11| added Resource View tab, also show machines that have not reported to GC backend |\n| v1.5|h.wache|2022-11| added offer/sku exclude filter to Resource View tab|\n| v1.6|h.wache|2023-01| fixed failed query because of added value on GC assignment name, (multiple assignments support availability)|\n| v.1.7|h.wache|2023-03| added parameter to filter for Azure VM \"timeCreated\" attribute in \"By Policy\" and \"By Computer\" tab\n| v.1.8|h.wache|2023-05| added Tenant filter to include Lighthouse connected Subscriptions\n| v.1.9|h.wache|2023-06| added a helper to find correct policy with regards to the jobscript which is assigned in the \"localscript\" paramter, see _[custom policy solution](https://aka.ms/machineconfig)_\n| v.1.10|h.wache|2024-02| fixed policy helper issue, when exceed > 250 entires\n\n---"
       },
       "conditionalVisibility": {
         "parameterName": "ShowChangeHistory",
@@ -107,10 +106,7 @@
             },
             "defaultValue": "value::all",
             "queryType": 1,
-            "resourceType": "microsoft.resourcegraph/resources",
-            "value": [
-              "value::all"
-            ]
+            "resourceType": "microsoft.resourcegraph/resources"
           },
           {
             "version": "KqlParameterItem/1.0",
@@ -266,6 +262,7 @@
               }
             }
           ],
+          "rowLimit": 10000,
           "hierarchySettings": {
             "idColumn": "name",
             "parentColumn": "ParentId",
@@ -3218,7 +3215,10 @@
                   },
                   "defaultValue": "value::all",
                   "queryType": 1,
-                  "resourceType": "microsoft.resourcegraph/resources"
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "value": [
+                    "value::all"
+                  ]
                 }
               ],
               "style": "above",
@@ -3467,7 +3467,9 @@
                   "crossComponentResources": [
                     "{Subscription}"
                   ],
-                  "value": null,
+                  "value": [
+                    "value::all"
+                  ],
                   "typeSettings": {
                     "additionalResourceOptions": [
                       "value::all"
