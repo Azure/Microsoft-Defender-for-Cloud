@@ -159,9 +159,9 @@ if ($continue.ToLower() -eq "n") {
 }
 
 Write-Host "-------------------"
-$PricingTier = Read-Host "Enter the command set these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any existing inheriting exception; 'Read' will read the current inheriting configuration)"
+$PricingTier = Read-Host "Enter the command set these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any explicitly set configuration (the resource will inherit the parent's configuration); 'Read' will read the current configuration)"
 while($PricingTier.ToLower() -ne "free" -and $PricingTier.ToLower() -ne "standard" -and $PricingTier.ToLower() -ne "delete" -and $PricingTier.ToLower() -ne "read"){
-$PricingTier = Read-Host "Enter the command for these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any existing inheriting exception; 'Read' will read the current inheriting configuration)"
+$PricingTier = Read-Host "Enter the command for these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any explicitly set configuration (the resource will inherit the parent's configuration); 'Read' will read the current configuration)"
 }
 
 # Loop through each machine and update the pricing configuration
