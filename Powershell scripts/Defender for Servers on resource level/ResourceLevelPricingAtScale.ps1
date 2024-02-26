@@ -159,15 +159,15 @@ if ($continue.ToLower() -eq "n") {
 }
 
 Write-Host "-------------------"
-$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' (choosing 'Standard' will enable the machines with 'P1' subplan)"
-while($PricingTier.ToLower() -ne "free" -and $PricingTier.ToLower() -ne "standard"){
-$PricingTier = Read-Host "Enter the pricing tier to set these resources - 'Free' or 'Standard' (choosing 'Standard' will enable the machines with 'P1' subplan)"
+$PricingTier = Read-Host "Enter the command set these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any explicitly set configuration (the resource will inherit the parent's configuration); 'Read' will read the current configuration)"
+while($PricingTier.ToLower() -ne "free" -and $PricingTier.ToLower() -ne "standard" -and $PricingTier.ToLower() -ne "delete" -and $PricingTier.ToLower() -ne "read"){
+$PricingTier = Read-Host "Enter the command for these resources - 'Free' or 'Standard' or 'Delete' or 'Read' (choosing 'Free' will remove the Defender protection; 'Standard' will enable the 'P1' subplan; 'Delete' will remove any explicitly set configuration (the resource will inherit the parent's configuration); 'Read' will read the current configuration)"
 }
 
 # Loop through each machine and update the pricing configuration
 write-host "`n"
 Write-Host "-------------------"
-Write-Host "Setting Virtual Machines:"
+Write-Host "Processing (setting or reading) Virtual Machines:"
 foreach ($machine in $vmResponseMachines) {
 	# Check if need to renew the token	
     $currentTime = Get-Date
@@ -200,13 +200,30 @@ foreach ($machine in $vmResponseMachines) {
 			}
 		}
 	}
-	Write-Host "Updateing pricing configuration for '$($machine.name)':"
+	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
-		$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
-		Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
-		$successCount++
-		$vmSuccessCount++
+		if($PricingTier.ToLower() -eq "delete")
+		{
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
+			$successCount++
+			$vmSuccessCount++
+		} elseif ($PricingTier.ToLower() -eq "read")
+        {
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
+            Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
+			$successCount++
+			$vmSuccessCount++
+        }
+		else
+		{
+			$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
+			$successCount++
+			$vmSuccessCount++
+		}
 	}
 	catch {
 		$failureCount++
@@ -220,7 +237,7 @@ foreach ($machine in $vmResponseMachines) {
 }
 
 Write-Host "-------------------"
-Write-Host "Setting Virtual Machine Scale Sets:"
+Write-Host "Processing (setting or reading) Virtual Machine Scale Sets:"
 foreach ($machine in $vmssResponseMachines) {
 	# Check if need to renew the token
     $currentTime = Get-Date
@@ -253,13 +270,31 @@ foreach ($machine in $vmssResponseMachines) {
 			}
 		}
 	}
-	Write-Host "Updateing pricing configuration for '$($machine.name)':"
+	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
-		$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
-		Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
-		$successCount++
-		$vmssSuccessCount++
+		
+		if($PricingTier.ToLower() -eq "delete")
+		{
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
+			$successCount++
+			$vmssSuccessCount++
+		} elseif ($PricingTier.ToLower() -eq "read")
+        {
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
+            Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
+			$successCount++
+			$vmssSuccessCount++
+        }
+		else
+		{
+            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+            Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
+            $successCount++
+            $vmssSuccessCount++
+        }
 	}
 	catch {
 		$failureCount++
@@ -273,7 +308,7 @@ foreach ($machine in $vmssResponseMachines) {
 }
 
 Write-Host "-------------------"
-Write-Host "Setting ARC Machine:"
+Write-Host "Processing (setting or reading) ARC Machine:"
 foreach ($machine in $arcResponseMachines) {
 	# Check if need to renew the token
     $currentTime = Get-Date
@@ -306,13 +341,31 @@ foreach ($machine in $arcResponseMachines) {
 			}
 		}
 	}
-	Write-Host "Updateing pricing configuration for '$($machine.name)':"
+	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
-		$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
-		Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
-		$successCount++
-		$arcSuccessCount++
+		
+		if($PricingTier.ToLower() -eq "delete")
+		{
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
+			$successCount++
+			$arcSuccessCount++
+		} elseif ($PricingTier.ToLower() -eq "read")
+        {
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
+            Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
+			$successCount++
+			$arcSuccessCount++
+        }
+		else
+		{
+            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+            Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
+            $successCount++
+            $arcSuccessCount++
+        }
 	}
 	catch {
 		$failureCount++
@@ -333,18 +386,18 @@ write-host "`n"
 Write-Host "Summary of Pricing API results:"
 Write-Host "-------------------"
 Write-Host "Found Virtual Machines count:" $vmCount
-Write-Host "Successfully set Virtual Machines count:" $vmSuccessCount -ForegroundColor Green
-Write-Host "Failed setting Virtual Machines count:" $($vmCount - $vmSuccessCount) -ForegroundColor $(if ($($vmCount - $vmSuccessCount) -gt 0) {'Red'} else {'Green'})
+Write-Host "Successfully processed (set or read) Virtual Machines count:" $vmSuccessCount -ForegroundColor Green
+Write-Host "Failed processing (setting or reading) Virtual Machines count:" $($vmCount - $vmSuccessCount) -ForegroundColor $(if ($($vmCount - $vmSuccessCount) -gt 0) {'Red'} else {'Green'})
 write-host "`n"
 Write-Host "Found Virtual Machine Scale Sets count:" $vmssCount
-Write-Host "Successfully set Virtual Machine Scale Sets result:" $vmssSuccessCount -ForegroundColor Green
-Write-Host "Failed setting Virtual Machine Scale Sets count:" $($vmssCount - $vmssSuccessCount) -ForegroundColor $(if ($($vmssCount - $vmssSuccessCount) -gt 0) {'Red'} else {'Green'})
+Write-Host "Successfully processed (set or read) Virtual Machine Scale Sets result:" $vmssSuccessCount -ForegroundColor Green
+Write-Host "Failed processing (setting or reading) Virtual Machine Scale Sets count:" $($vmssCount - $vmssSuccessCount) -ForegroundColor $(if ($($vmssCount - $vmssSuccessCount) -gt 0) {'Red'} else {'Green'})
 write-host "`n"
 Write-Host "Found ARC machines count:" $arcCount
-Write-Host "Successfully set ARC Machines count:" $arcSuccessCount -ForegroundColor Gray #
-Write-Host "Failed setting ARC Machines count:" $($arcCount - $arcSuccessCount) -ForegroundColor $(if ($($arcCount - $arcSuccessCount) -gt 0) {'Red'} else {'Green'})
+Write-Host "Successfully processed (set or read) ARC Machines count:" $arcSuccessCount -ForegroundColor Green
+Write-Host "Failed processing (setting or reading) ARC Machines count:" $($arcCount - $arcSuccessCount) -ForegroundColor $(if ($($arcCount - $arcSuccessCount) -gt 0) {'Red'} else {'Green'})
 write-host "`n"
 Write-Host "-------------------"
 Write-Host "Overall"
-Write-Host "Successfully set resources: $successCount" -ForegroundColor Green
-Write-Host "Failures setting resources: $failureCount" -ForegroundColor $(if ($failureCount -gt 0) {'Red'} else {'Green'})
+Write-Host "Successfully processed (set or read) resources: $successCount" -ForegroundColor Green
+Write-Host "Failures processing (setting or reading) resources: $failureCount" -ForegroundColor $(if ($failureCount -gt 0) {'Red'} else {'Green'})
