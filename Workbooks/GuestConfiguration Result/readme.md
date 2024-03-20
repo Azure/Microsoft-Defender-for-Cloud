@@ -1,4 +1,4 @@
-# GuestConfiguration Result v1.9
+# GuestConfiguration Result v1.10
 
 This workbook gives an overview to GuestConfiguration results and machine configuration. Azure Arc is fully included.
 All data is queried by the Azure Resource Graph (ARG) and has no dependencies to Microsoft Defender for Cloud generated data. 
@@ -15,6 +15,8 @@ All data is queried by the Azure Resource Graph (ARG) and has no dependencies to
 | v.1.7|h.wache|2023-03| added parameter to filter for Azure VM "timeCreated" attribute in "By Policy" and "By Computer" tab
 | v.1.8|h.wache|2023-05| added Tenant filter to include Lighthouse connected Subscriptions
 | v.1.9|h.wache|2023-06| added a helper to find correct policy with regards to the jobscript which is assigned in the "localscript" paramter, see _[custom policy solution](https://aka.ms/machineconfig)_
+| v.1.10|h.wache|2024-02| fixed policy helper issue, when exceed > 250 entires
+
 
 ---
 
