@@ -52,7 +52,7 @@
         "windowsSku": "2016-Datacenter",
         "windowsPublisher": "MicrosoftWindowsServer",
         "linuxOffer": "UbuntuServer",
-        "linuxSku": "16.04-LTS",
+        "linuxSku": "18.04-LTS",
         "linuxPublisher": "Canonical",
         "windowsMgmtType": "MicrosoftMonitoringAgent",
         "windowsMgmtVersion": "1.0",
@@ -74,7 +74,7 @@
         "sqlServerName": "[toLower(concat('asclab-sql-',uniqueString(subscription().subscriptionId)))]",
         "sqlDatabaseName": "asclab-db",
         "aksClusterName": "asclab-aks",
-        "aksVersion": "1.26.6",
+        "aksVersion": "1.27.9",
         "aksDNSPrefix": "asclab-aks",
         "aksNetworkPlugin": "kubenet"
     },
