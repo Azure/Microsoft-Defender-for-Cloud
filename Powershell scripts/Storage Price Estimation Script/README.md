@@ -14,6 +14,8 @@ These PowerShell scripts allow you to estimate the cost of the new per-storage p
 
 D4Storage-PricingEstimation-Per-Storage.ps1 executes in serial across each subscription and storage account whereas D4Storage-PricingEstimation-Per-Storage-Parallel.ps1 iterates over each subscription and storage account in parallel.
 
+**DefenderForStorage-CostEstimation-ResourceLevelVisibility.ps1** is the recently updated script; it has logic fixes to have a more accurate estimation; and also shows the resource level cost and their transactions. This runs in parallel. We recommend running this script for estimating your Defender for Storage costs. 
+
 The results are derived from data extracted from the past month, and the estimation is for the monthly cost. 
 >At the end of the script execution CSV file (DefenderEstimatedCostBySubscription.csv) will be saved in the current directory. 
 
@@ -22,7 +24,7 @@ You can also try the [Microsoft Defender for Storage pricing estimation workbook
 
 
 
-> **Credits:** [Aviv Shitrit](https://github.com/t-ashitrit), [Eitan Shteinberg](https://www.linkedin.com/in/eitan-shteinberg/), [Fernanda Vela](https://www.linkedin.com/in/mfvelah/), [Shay Amar](https://www.linkedin.com/in/shay-amar/), [Dick Lake](https://www.linkedin.com/in/richard-lake-b3797394/)
+> **Credits:** [Fernanda Vela](https://www.linkedin.com/in/mfvelah/), [Aviv Shitrit](https://github.com/t-ashitrit), [Eitan Shteinberg](https://www.linkedin.com/in/eitan-shteinberg/), [Shay Amar](https://www.linkedin.com/in/shay-amar/), [Dick Lake](https://www.linkedin.com/in/richard-lake-b3797394/)
 
 
 # Instructions for running DefenderForStorage-CostEstimation-ResourceLevelVisibility.ps1
