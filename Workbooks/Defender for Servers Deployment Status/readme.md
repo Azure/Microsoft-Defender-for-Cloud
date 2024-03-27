@@ -1,10 +1,10 @@
-#Defender for Servers Deployment Status
+# Defender for Servers Deployment Status
 
 | Version | Description | Author | Date |
 | ------ | ------ | ------ | ------ |
 | 1.0 | Initial release | [Tom Janetscheck](https://github.com/tomjanetscheck) | 2/9/2024 |
 
-Log Analytics agent and the integrated Qualys vulnerability assessment solution will be deprecated by summer 2024. At the same time, we will provide updated server protection capabilities on top of agentless scanning and Microsoft Defender for Endpoint (MDE) as a single security agent. To be prepared for these upcoming changes, Defender for Servers customers are encouraged to enable both, MDE integration and agentless scanning as part of their Defender for Servers deployments across multicloud environments. This workbook provides insights into the deployment status of agentless scanning, MDE, Qualys VA and Log Analytics agent.
+Log Analytics agent and the integrated Qualys vulnerability assessment solution in Defender for Servers Plan 2 will be deprecated by summer 2024. At the same time, we will provide updated server protection capabilities on top of agentless scanning and Microsoft Defender for Endpoint (MDE) as a single security agent. To be prepared for these upcoming changes, Defender for Servers customers should enable both, MDE integration and agentless scanning as part of their Defender for Servers deployments across multicloud environments. This workbook provides insights into the deployment status of agentless scanning, MDE, Qualys VA and Log Analytics agent. Please also see [this blog](https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/prepare-for-upcoming-transitions-in-defender-for-servers/ba-p/4098135) for further reference.
 
 **Section 1 - Defender for Servers coverage across subscriptions**  provides an overview of all subscriptions and their Defender for Servers status. In case Defender for Servers Plan 2 is enabled, it also shows if agentless scanning is active.
 
