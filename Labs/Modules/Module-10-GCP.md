@@ -79,8 +79,8 @@ Once a vulnerable image has been pushed to the Azure Container Registry registry
  
  1. Go to **Microsoft Defender for Cloud** in the **Azure Portal**.
  2. Go to the **Recommendations** tab in Defender for Cloud.
- 3. In the upper right corner, select **GCP**. 
- 8gcprecommendations
- ![GCP console with Cloud Shell](../Images/8gcprecommendations.png?raw=true)
+ 3. In the upper taskbar, under **Scope**, select **GCP** only. 
+ 
+![GCP console with Cloud Shell](../Images/8gcprecommendations.png?raw=true)
 
 If you have existing GCP resources, then you'll be able to see recommendations associated with them.
