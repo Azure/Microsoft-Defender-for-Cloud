@@ -52,5 +52,18 @@ The Foundational CSPM plan is enabled by default.
 22. In Defender for Cloud, click **Next: Review and Generate**.
 23. Select **Create**.
 
-Defender for Cloud will immediately start scanning your AWS resources and you'll see security recommendations in the Recommendations blade in Microsoft Defender for Cloud within a few hours. 
+Now, you have successfully onboarded AWS to Microsoft Defender for Cloud, you'll be able to get AWS recommendations and alerts.
+
+### Exercise 3: Investigate the AWS recommendations 
+
+> [!NOTE]
+> You will need to create some AWS resources in order to see recommendations for AWS in Microsoft Defender for Cloud.
+ 
+ 1. Go to **Microsoft Defender for Cloud** in the **Azure Portal**.
+ 2. Go to the **Recommendations** tab in Defender for Cloud.
+ 3. In the upper taskbar, under **Scope**, select **AWS** only. 
+ 
+![AWS Recommendations](../Images/8awsrecommendations.png?raw=true)
+
+If you have existing AWS resources, then you'll be able to see recommendations associated with them.
 
