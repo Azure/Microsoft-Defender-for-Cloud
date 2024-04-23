@@ -6,7 +6,7 @@
 #### ⌛ Estimated time to complete this lab: 60 minutes
 
 ## Objectives
-This exercise guides you through the current Microsoft Defender for Cloud policies, based on Azure Policy, and shows you where to enable or disable Microsoft Defender for Cloud polices.
+This exercise guides you through the current Microsoft Defender for Cloud's Regulatory Compliance feature. Defender for Cloud helps customers meet such requirements by assessing their resources' posture against a particular standard through the Regulatory Compliance dashboard. This exercise will walk you through this feature, but for official documentation visit this [page](https://learn.microsoft.com/en-us/azure/defender-for-cloud/regulatory-compliance-dashboard).  
 
 ### Exercise 1: Understanding Regulatory Compliance dashboard
 
@@ -14,85 +14,58 @@ This exercise guides you through the current Microsoft Defender for Cloud polici
 2.	Regulatory Compliance dashboard opens. On this page, you can see the compliance standards currently assigned to your subscription.
 3.	On the top strip, notice the number of **passed controls** for Microsoft cloud security benchmark.
 
-### Exercise 2: Adding new standards
+### Exercise 2: Adding new standards in Azure and multicloud
 
 You can add additional industry standards (represented as compliance packages) such as IST SP 800-53 R4, SWIFT CSP CSCF-v2020, UK Official and more.
 
 1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies**.
-2.	Select a scope to assign the new package: **Azure subscription 1**.
-3.	On the **Industry & regulatory standards** section, notice the out of the box standards. Click on **Add more standards**.
-4.	On the **Add regulatory compliance standards**, locate the **Azure CIS 1.1.0** standard and select **Add**.
-![Regulatory compliance assessment and standards](../Images/module4_addingnewstandards_addAzCIS_yl.png?raw=true)
-5.	Click **Assign the Policy**. For scope, select azure subscription 1, and leave all other options as default.
-6.	Click **Review + create** and then **Create**.
-![Add CIS 1.1.0 (New) Standard](../Images/asc-azure-cis-new-standard.gif?raw=true)
-
+2.	Select your subsciption.
+<br> Note: <br>
+If you want to assign a standard in AWS or GCP, choose an AWS or GCP connection and then go directly to **Security policies** on the left. Available compliance standards in all three clouds are documented [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-regulatory-compliance-standards#available-compliance-standards). 
+<br> Another note: <br>
+Modules [10](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md) and [11](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-11-AWS.md) will walk through creating those multicloud connectors. Feel free to skip to those modules and then come back. 
+3.  Select **Security policies**. 
+4.	Under the **Standards** tab, look for *CIS Microsoft Azure Foundations Benchmark v2.0.0*.
+5.  Select the standard. 
+6.  Notice the number of **audit** and **manual** policy definitions. 
+**Audit effect**: When a resource does not adhere to the specific policy definition, Policy will mark said resource as **non-compliant** and create a warning in the activity log but it won't take action on the actual resource. Visit this[page](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-audit) to learn more about the audit effect. 
+**Manual effect**: Sometimes, when some operations or tasks cannot be automated or requires updating of resource's compliance state, manual attestation is required. To learn more about this, check out this [page](https://learn.microsoft.com/en-us/azure/governance/policy/concepts/effect-manual). 
+7.  Search for **rotation** in the search box. **Keys should have a rotation policy ensuring that their rotation is scheduled within the specified number of days after creation.** should come up. Notice **Additional parameters** is set to **Configured**. 
+8.  Click on the ellipses to **view policy definition**. 
+When assigning this standard to your scope (subscription or management group), you will be asked to input a value of the maximum days to rotate keys, per this policy definition. 
+9.  Navigate back to the **Standards** page and click toggle **On** for *CIS Microsoft Azure Foundations Benchmark v2.0.0*. 
+10.  Input the value that adheres to your organization's policy or, for this lab purpose only, input **30**. 
+11.  In a few hours, this new standard will display in the **Regulatory Compliance** dashbard, next to the default MCSB. 
 > ❗ Important: <br>
 > It will take a while until the change takes an effect (2-3 hours).
-
-7.	**Azure CIS 1.1.0** should now be listed on the standards list.
-   
+  
 ### Exercise 3: Exploring a benchmark 
-1.	From the top menu bar in Regulatory Compliance, select **Manage compliance policies** which can be found next to **Download report**, above the **Lowest compliance regulatory standards** tile.
-2. Then select your subscription and choose **Security Policy** from the sidebar.
-3.	On the **Industry & regulatory standards** section, notice the out of the box standards like Microsoft cloud security benchmark, PCI DSS 3.2.1 and ISO 27001.
-4.	Locate the **PCI DSS 3.2.1** standard and select **Enable**.
-![Regulatory compliance assessment and standards](../Images/mdfc-pci.png?raw=true)
-5. Select **yes** to the pop-up asking you to enable PCI DSS.
-6.	**PCI DSS 3.2.1** should now be listed as enabled.
-
-Once you have enabled PCI DSS 3.2.1, now we will explore a particular control included in it.
-
-1. From the **regulatory compliance** page, select **PCI DSS 3.2.1.**. Notice the different compliance controls mapped to assessments.
-![Regulatory compliance assessment and standards](https://user-images.githubusercontent.com/45104504/192821604-cdd9d2cc-1b1d-47a4-8336-ac1fd462e0a3.png)
-
-2.	Click to open up **4. Encrypt transmission of cardholder data across open, public networks.**
-3.	Click to open **control 4.1**
-4.  Click to open **control 4.1.*.**
-![Regulatory compliance assessment and standards](../Images/lab4rc2.gif?raw=true)
-5.	Click to open **Secure transfer to storage accounts should be enabled.**
-6.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
-![Regulatory compliance assessment and standards](../Images/lab4rc3.jpg?raw=true)
-7.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
-8.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select Download report.
-9.	On the Report standard dropdown menu, select **PSI DSS 3.2.1** and **PDF**. Click **Download**
-10. A local PDF file is now stored on your machine. Open the **PCI DSS 3.2.1 Compliance Report** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
+1. Navigate to the standard you've chosen for Exercise 2. For the lab, we chose *CIS Microsoft Azure Foundations Benchmark v2.0.0*. Notice the different compliance controls mapped to assessments.
+2.	Search for **Secure transfer to storage accounts should be enabled.**
+3.	Click to open **Secure transfer to storage accounts should be enabled.**
+4.	In the new pane, tick the box for the unhealthy resource titled asclabXXXXXX, and select **Fix** at the bottom of the page. 
+5.	Then in the pop-up tab click Fix 1 resource. Your Storage account now has secure transfer enabled.
+6.	Return to the dashboard. You can export regulatory standard compliance status as a PDF report or CSV file. From the top menu bar, select **Download report**.
+7.	On the Report standard dropdown menu, select *CIS Microsoft Azure Foundations Benchmark v2.0.0* and **PDF**. Click **Download**
+8. A local PDF file is now stored on your machine. Open the **CIS Microsoft Azure Foundations Benchmark v2.0.0** and explore the compliance report – This report summarizes the status of those assessments on your environment, as they map to the associated controls.
 
 ### Exercise 4: Creating your own benchmark!
-
-
-Once you create your custom initiative, Microsoft Defender for Cloud allows you to add it as security policy and which provides two main benefits:
+For the sake of simplicity, while you can create your own "benchmark", we will use the term "standard" in this exericse. A standard can be made up of one or more recommendations. 
+Once you create your custom standard, Defender for Cloud allows you to add it as security policy and which provides two main benefits:
 * Having security requirements represent as custom recommendations under the recommendation list.
-* Having a way to track compliance status using regulatory compliance dashboard.
+* Having a way to track compliance status using Regulatory Compliance dashboard.
+1.	Navigate to Regulatory Compliance in Defender for Cloud.
+2.	From the top menu, select **Manage compliance standards** to create custom standard.
+3.	Select a scope as a location for the new definition. The recommended approach is to select management groups if they have been assigned but in our scenario select your subscription as the scope.
+4.	Select **Security policies**.
+5.	Click on **+Custom standard** from the **+Create** dropdown on top. 
+6.  Provide a name like "Module 4 custom standard".
+7.  Add a description.
+8.  Now you can choose the different recommendations you want to have as part of this standard. 
+9.  Click **Create**.
+10.	You will be redirected to the **Security policies** page. Sort by **Status** to see your newly created standard applied to your subscription.
+![module4_customstandard](https://github.com/Azure/Microsoft-Defender-for-Cloud/assets/45104504/aba2680c-9d1e-4fae-bb98-63ea3627c9a4)
 
-Navigate to Azure Policy blade. You can also select this [link](https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyMenuBlade/Overview).
-
-1.	From the left pane, select **Definitions**.
-2.	From the top menu, select **+ initiative definition** to create a new policy set definition.
-3.	On the Basics tab, select a **scope as a location for the new definition**. The recommended approach is to select management groups if they have been assigned but in our scenario select your subscription "Azure subscription 1" as the scope.
-4.	Select a name, for example: **Custom Benchmark**.
-5.	Provide an informative description so others can be clear on what is the purpose of this new security policy.
-6.	Select **Category**. You can decide to use existing one (for example: Microsoft Defender for Cloud) or to create your own one. *The recommended approach is to use a custom one so you can quickly filter policy definitions and initiatives when needed (for example: Contoso)*.
-7.	Select **Version** number. Each policy definition and initiative contain a version in its metadata section. You can decide to have major versions (1.0), minor version (1.1) and so.  Click **Next**.
-8.	Click **Groups**, to define your groups and subgroups to be used in your initiative. To add a new group, click **Create Group**.
-9.	Create a new group, for this example we will call **Group 1**, select a subgroup, **Sub-group1** and provide a description. Please aware to the additional metadata which can be used as well. The location of the policyMetadata object that has additional details about the control and compliance domain. Click **Save** to create the new group.
-10.	Repeat the previous step to create additional group, for example: Group 2
-11.	Now you should have two groups to help you organize your policies within the initiative.
-12.	Click on the **Policies** tab. Here you can add policy definitions, both built-in and custom. Click Add policy definition(s). Select your desired polices, if you create a benchmark, you can also leverage existing policy definitions from **Microsoft managed** tab. For example, you can choose the following policies and select Add:
-    -	Audit virtual machines without disaster recovery configured
-    -	Audit VMs that do not use managed disks
-13.	Each policy on the list, has its definition name, reference ID and the associated group. However, you do need to define a group for each policy. To do so, click on the **…** to open the context menu and select **Edit groups**.
-14.	Make sure all policies are associated to a group. Please notice that policies can be associated to multiple groups.
-15.	You can assign policy and initiative parameters to be used during the assignment process. Skip this section and click on Review + Create to validate your settings. Then, click on Create.
-16.	You should now see your new initiative listed – **Custom Benchmark** along with the additional metadata (scope, category, etc.)
-![Regulatory compliance assessment and standards](../Images/lab4rc5.gif?raw=true)
-17.	To assign your new security policy, open **Microsoft Defender for Cloud blade**.
-18.	From the left navigation pane, click on **Environment Settings**, choose your subscription.
-19.	Under **Policy settings**, click on **Security policy**.
-20.	On **Security policy** page, scroll down to Your custom initiatives and select **Add a custom initiative**. 
-21.	On **Add custom initiative**, your new standard should be listed there, so you can click on **Add** to assign to it. Once assigned, it will be listed as a recommendation in the Recommendations blade and be added in the Regulatory Compliance dashboard.
-22.	Follow the **on-screen instructions to assign it on the desired scope**. If you decided to include parameters in your initiative, now you should be able to fulfill them. Click **Review + create** to start the validation process and then **Create**.
-23.	Now your new security benchmark is displayed in regulatory compliance along with the built-in regulatory standards.
 
 ### Exercise 5 Azure Audit Reports
 
@@ -108,40 +81,27 @@ You now have the audit report downloaded.
 
 ### Exercise 6 Continuous Export & Compliance over time workbook
 
-Compliance dashboard over time is a Workbook in Microsoft Defender for Cloud dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it.
-
-You'll need to configure continuous export first to export data to a Log Analytics workspace:
+Compliance dashboard over time is a Workbook in Microsoft Defender for Cloud dedicated to tracking a subscription's compliance with the regulatory or industry standards applied to it. Read more about it [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook). To leverage this workbook, you'll need to configure continuous export first to export data to a Log Analytics workspace:
 1.	From Microsoft Defender for Cloud's sidebar, select **Environment Settings**.
 2.	Select the subscription for which you want to configure the data export.
 3.	From the sidebar of the settings page for that subscription, select **Continuous Export**.
 4.	Click on the **Log Analytics workspace**. Set the export enable to **On** (which is the tab beside Event hub).
-5.	Leave settings as is. Check off box next to **Regulatory compliance** and choose **All standards selected**
-6.	From the export frequency options, select both **Streaming updates** and **Snapshots (Preview)**.
+5.	Leave settings as is. Check off box next to **Regulatory compliance** and choose **Select All**
+6.	From the export frequency options, select both **Streaming updates** and **Snapshots**.
 7.	Select target workspace and the Resource Group to be those you created earlier.
 9.	Select Save. You might get a message about Sentinel alerts connector already enabled. Click **Confirm**.
 10.	Wait for the first snapshot to occur. 
 
-![Regulatory compliance assessment and standards](../Images/lab4rc8.jpg?raw=true)
-
-![Regulatory compliance assessment and standards](../Images/lab4rc9.jpg?raw=true)
-
-![Regulatory compliance assessment and standards](../Images/lab4rc10.jpg?raw=true)
-
 Compliance dashboard over time 
-1.	Go to Microsoft Defender for Cloud, and from the left navigation pane, under the General section, press on the Workbooks button. 
-2.	Select the Compliance Over Time Workbook
+1.	Go to Microsoft Defender for Cloud, and from the left navigation pane, under the **General** section, choose on the **Workbooks** button. 
+2.	Select **Compliance Over Time** workbook located under **Defender for Cloud**.
 3.	For the workspace, select **asclab-la-XXXXXXXXXX** 
-4.	For the subscription, select **Subscription 1**
+4.	For the subscription, select your subscription.
 5.	For the standard name, select **All**, and now you can see the workbook.
 ![Regulatory compliance assessment and standards](../Images/lab4rc11.jpg?raw=true)
 >Note 1: You need to complete the previous exercise of setting up Continuous Export to the Log Analytics workspace for the Compliance Over Time Workbook to work.
 >Note 2: If you see the error below, you will need to wait for a week for this workbook to populate with data through Continuous Export.
 ![Regulatory compliance assessment and standards](../Images/lab4rc12.gif?raw=true)
-
-
-
-
-
 
 
 ### Continue with the next lab: [Module 5 - Improving your Secure Posture](../Modules/Module-5-Improving-your-Secure-Posture.md)
