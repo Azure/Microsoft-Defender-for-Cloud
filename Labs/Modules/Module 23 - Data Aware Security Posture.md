@@ -241,16 +241,10 @@ When sensitive data discovery is enabled in the Defender for Storage plan, you c
 ## (Optional) Exercise 10: Data security dashboard investigation
 
 1. In Defender for Cloud, open **Data security**.
-Check the following tiles and look for unusual data:
-![Data security dashboard 1](../Images/datasecuritydashboard1.png?raw=true) 
+Check the following tiles and look for unusual data: ![Data security dashboard 1](../Images/datasecuritydashboard1.png?raw=true) 
 - **Data resources requiring attention** - displays the number of sensitive resources that have either high severity security alerts or attack paths. Click on **high severity alerts** or **attack paths** to further drill down on the findings.
-- **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk.
-   ![Data security dashboard 2](../Images/datasecuritydashboard2.png?raw=true) 
-- **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk.
-   ![Data security dashboard 3](../Images/datasecuritydashboard3.png?raw=true) 
-- **Data queries in security explorer** - presents the top data-related queries in security explorer that helps focus on multicloud risks to sensitive data. Click on **View** to narrow down the specific query.
-![Data security dashboard 4](../Images/datasecuritydashboard4.png?raw=true) 
-- **Sensitive data discovery** - summarizes the results of the sensitive resources discovered, allowing you to explore a specific sensitive information type and label. You can also open the data sensitivity settings described in **Exercise 3** by using the **Manage data sensitivity settings** button.
-![Data security dashboard 5](../Images/datasecuritydashboard5.png?raw=true) 
-- **Internet-exposed data resources** - summarizes the discovery of sensitive data resources that are internet-exposed for storage and managed databases. Click on **View all data resources exposed to the internet** to run a query in Cloud security explorer.
-![Data security dashboard 6](../Images/datasecuritydashboard6.png?raw=true) 
+   - **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk. ![Data security dashboard 2](../Images/datasecuritydashboard2.png?raw=true) 
+   - **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk. ![Data security dashboard 3](../Images/datasecuritydashboard3.png?raw=true) 
+- **Data queries in security explorer** - presents the top data-related queries in security explorer that helps focus on multicloud risks to sensitive data. Click on **View** to narrow down the specific query. ![Data security dashboard 4](../Images/datasecuritydashboard4.png?raw=true) 
+- **Sensitive data discovery** - summarizes the results of the sensitive resources discovered, allowing you to explore a specific sensitive information type and label. You can also open the data sensitivity settings described in **Exercise 3** by using the **Manage data sensitivity settings** button. ![Data security dashboard 5](../Images/datasecuritydashboard5.png?raw=true) 
+- **Internet-exposed data resources** - summarizes the discovery of sensitive data resources that are internet-exposed for storage and managed databases. Click on **View all data resources exposed to the internet** to run a query in Cloud security explorer. ![Data security dashboard 6](../Images/datasecuritydashboard6.png?raw=true) 
