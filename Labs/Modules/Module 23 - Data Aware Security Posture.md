@@ -244,9 +244,9 @@ When sensitive data discovery is enabled in the Defender for Storage plan, you c
 Check the following tiles and look for unusual data:
 ![Data security dashboard 1](../Images/datasecuritydashboard1.png?raw=true) 
 - **Data resources requiring attention** - displays the number of sensitive resources that have either high severity security alerts or attack paths. Click on **high severity alerts** or **attack paths** to further drill down on the findings.
-   - **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk.
+- **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk.
    ![Data security dashboard 2](../Images/datasecuritydashboard2.png?raw=true) 
-   - **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk.
+- **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk.
    ![Data security dashboard 3](../Images/datasecuritydashboard3.png?raw=true) 
 - **Data queries in security explorer** - presents the top data-related queries in security explorer that helps focus on multicloud risks to sensitive data. Click on **View** to narrow down the specific query.
 ![Data security dashboard 4](../Images/datasecuritydashboard4.png?raw=true) 
