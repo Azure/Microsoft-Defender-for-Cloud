@@ -250,7 +250,7 @@ Explore data risks and exposure in cloud security graph insights using a query t
    ![Security explorer query 5](../Images/daspsecurityexplorer5.png?raw=true)
 
 > [!NOTE]
-> Sensitive data discovery in Defender for Cloud uses smart sampling scanning to achieve high efficiency of scanning and does not proved by desing, an exhaustive list of all files in the Storage account. 
+> Sensitive data discovery in Defender for Cloud uses smart sampling scanning to achieve high efficiency of scanning and does not provide by design, an exhaustive list of all files in the Storage account. 
 
 ## Exercise 7: Identify sensitive resources in Inventory
 
