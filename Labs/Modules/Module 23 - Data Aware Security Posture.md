@@ -201,10 +201,14 @@ Create a new storage account based on the instructions in [Module 19](https://gi
 1. In the **Azure Portal**, navigate to **Storage accounts**.
 2. Open the storage account you have created.
 3. Navigate to **Data storage > Containers** and create new container by selecting the **+ Container** button on top of the page.
-![Create Container](../Images/createcontainerdasp.png?raw=true)
+
+   ![Create Container](../Images/createcontainerdasp.png?raw=true)
+
 4. Choose a name, leave other settings by default and select **Create**.
 5. Open the new container by clicking on its name and select the **Upload** button on top of the page.
-6. Select the file *"Credit Card Expenses.docx"* located in *CreditCardNumber* folder from the extracted zip archive and upload it to the container. ![Upload data to Container](../Images/uploaddatatocontainerdasp.png?raw=true)
+6. Select the file *"Credit Card Expenses.docx"* located in *CreditCardNumber* folder from the extracted zip archive and upload it to the container.
+
+   ![Upload data to Container](../Images/uploaddatatocontainerdasp.png?raw=true)
 
 > [!NOTE]
 > It takes up to 24 hours for first scan results in case of newly created storage account. Databases are scanned on a weekly basis or within 24 hours on newly enabled subscriptions.
@@ -225,16 +229,25 @@ Explore data risks and exposure in cloud security graph insights using a query t
 
 1. In Defender for Cloud, open **Cloud Security Explorer**.
 
-2. In the Query builder, from the **Select resource types** drop down menu, select *Data > Object storage > **Azure Storage accounts*** and click **Done**. 
-![Security explorer query 1](../Images/daspsecurityexplorer1.png?raw=true)
+2. In the Query builder, from the **Select resource types** drop down menu, select *Data > Object storage > **Azure Storage accounts*** and click **Done**.
+
+   ![Security explorer query 1](../Images/daspsecurityexplorer1.png?raw=true)
+
 3. Add condition by selecting the **+** button. Choose *Data > **Contains sensitive data***
-![Security explorer query 2](../Images/daspsecurityexplorer2.png?raw=true)
+
+   ![Security explorer query 2](../Images/daspsecurityexplorer2.png?raw=true)
+
 4. Run the query by clicking on the **Search** button.
-![Security explorer query 3](../Images/daspsecurityexplorer3.png?raw=true) 
+
+   ![Security explorer query 3](../Images/daspsecurityexplorer3.png?raw=true) 
+
 5. In the *Results* section, look for the Storage account you've created in previous exercise and where you uploaded the *Credit Card Expenses.docx* file. After selecting it, *Result details* window will pop-up in the side, where you can review details. Select the **Export** button to export finding details to a csv file.
-![Security explorer query 4](../Images/daspsecurityexplorer4.png?raw=true)
+
+   ![Security explorer query 4](../Images/daspsecurityexplorer4.png?raw=true)
+
 4. After opening the exported csv file, you can identify the specific files in which Defender for Cloud identified sensitive content and what sensitive info types did it match.
-![Security explorer query 5](../Images/daspsecurityexplorer5.png?raw=true)
+
+   ![Security explorer query 5](../Images/daspsecurityexplorer5.png?raw=true)
 
 > [!NOTE]
 > Sensitive data discovery in Defender for Cloud uses smart sampling scanning to achieve high efficiency of scanning and does not proved by desing, an exhaustive list of all files in the Storage account. 
@@ -243,24 +256,34 @@ Explore data risks and exposure in cloud security graph insights using a query t
 
 1. In Defender for Cloud, open **Inventory**.
 2. Add a filter **Sensitive info types** to narrow down the list.
-![Inventory sensitive data 1](../Images/daspinventory1.png?raw=true)
+
+   ![Inventory sensitive data 1](../Images/daspinventory1.png?raw=true)
+
 3. In the **Value** drop-down list, uncheck ***(Unclassified)*** to show only resources containing sensitive info types and confirm by selecting **Ok**.
-![Inventory sensitive data 2](../Images/daspinventory2.png?raw=true)
+
+   ![Inventory sensitive data 2](../Images/daspinventory2.png?raw=true)
+
 4. Click on the name of the Storage account where you have uploaded sensitive data sample in previous exercise.
-![Inventory sensitive data 3](../Images/daspinventory3.png?raw=true)
+
+   ![Inventory sensitive data 3](../Images/daspinventory3.png?raw=true)
+
 5. On the *Resource health overview*, you can review the *Sensitive info types* in the **Security value** section.
-![Inventory sensitive data 4](../Images/daspinventory4.png?raw=true)
+   
+   ![Inventory sensitive data 4](../Images/daspinventory4.png?raw=true)
+
 ## (Optional) Exercise 8: Explore risks through attack paths
 
 1. In Defender for Cloud, open **Attack path analysis**.
 
 2. In **Risk Factors**, select **Sensitive data** to filter the data-related attack paths.
-![Attack Path risk factors](../Images/daspattackpaths1.png?raw=true)
+
+   ![Attack Path risk factors](../Images/daspattackpaths1.png?raw=true)
 
 3. Review the attack paths. 
 
 4. To view sensitive information detected in data resources, select the resource name and then **Insights**. There is a section **Insights - Contains sensitive data**, where you can investigate details of the sensitive data discovery.
-![Attack Path insights](../Images/daspattackpaths2.png?raw=true)
+
+   ![Attack Path insights](../Images/daspattackpaths2.png?raw=true)
 
 
 
@@ -270,9 +293,12 @@ When sensitive data discovery is enabled in the Defender for Storage plan, you c
 
 1. In Defender for Cloud, open **Security alerts**.
 2. Click on **Add filter** and search for **Sensitive info types**. In the **Value** parameter, uncheck **(Unclassified)** and confirm the filter by selecting **Ok**.
-![Alerts SIT 1](../Images/daspalerts1.png?raw=true) 
+
+   ![Alerts SIT 1](../Images/daspalerts1.png?raw=true) 
+
 3. After selecting one of the alerts, you can identify the sensitive info types by scrolling down in the details window.
-![Alerts SIT 2](../Images/daspalerts2.png?raw=true) 
+
+   ![Alerts SIT 2](../Images/daspalerts2.png?raw=true) 
 
 ## (Optional) Exercise 10: Data security dashboard investigation
 
