@@ -1,6 +1,6 @@
 # Module 23 - Data-aware security posture
 
-<p align="left"><img src=".../Images/asc-labs-intermediate.gif?raw=true"></p>
+<p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
 #### 🎓 Level: 200 (Intermediate)
 #### ⌛ Estimated time to complete this lab: 1-2 hours
