@@ -22,14 +22,19 @@ To enable the sensitive data discovery, you need to enable Defender CSPM or Defe
 2. Navigate to **Microsoft Defender for Cloud**, then **Environment settings**.
 3. Select the relevant subscription.
 4. Toggle the **Defender CSPM** or **Storage** plan to **On**.
-![Enable DCSPM or Storage plan](../Images/daspenableplan.png?raw=true) Detailed permissions to run sensitive data discovery are described in our [documentation](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-data-security-posture-prepare#whats-supported).
+
+   ![Enable DCSPM or Storage plan](../Images/daspenableplan.png?raw=true) 
+   
+   Detailed permissions to run sensitive data discovery are described in our [documentation](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-data-security-posture-prepare#whats-supported).
 
 > [!NOTE]
 > If you have only Storage plan enabled, sensitive data discovery will only be available for resources supported by this plan. If you enable Defender CSPM plan, all supported resources will be included in the scanning, including databases and multicloud resources.
 
 5. Click on **Settings & monitoring** on top of the page.
 6. In the **Sensitive data discovery** component, make sure the toggle is **ON**.
-![Enable sensitive data discovery](../Images/daspenablediscovery.png?raw=true)
+
+   ![Enable sensitive data discovery](../Images/daspenablediscovery.png?raw=true)
+
 8. Select **Continue** and in the next screen **Save**.
 
 > [!Important]
@@ -70,13 +75,16 @@ In case of GCP storage buckets, please visit [**Module 10 - Connecting a GCP pro
 1. Navigate to **Microsoft Defender for Cloud > Environment settings**.
 
 3. Select **Data sensitivity** on top of the page.
-![Edit data sensitivity settings](../Images/daspsensitivitysettings1.png?raw=true)
+
+   ![Edit data sensitivity settings](../Images/daspsensitivitysettings1.png?raw=true)
 
 4. Select the info types category **Other**:
-![Select info type category Other](../Images/daspsensitivitysettings2.png?raw=true)
+
+   ![Select info type category Other](../Images/daspsensitivitysettings2.png?raw=true)
 
 5. By default, info types in the **Other** category are excluded from sensitive data discovery. For purposes of this exercise, select **All** and then **Apply**.
-![Select all info types in category Other](../Images/daspsensitivitysettings3.png?raw=true)
+
+   ![Select all info types in category Other](../Images/daspsensitivitysettings3.png?raw=true)
 
 6. Select **Save** on top of the Data sensitivity page to confirm new settings.
 
@@ -93,6 +101,7 @@ Defender for Cloud provides built-in sensitive info types (SITs) from Microsoft 
 3. In the consent notice messages, select **Turn on** and then select **Yes** to share your custom info types and sensitivity labels with Defender for Cloud.
 
    ![Enable Purview integration 1](../Images/turnonpurviewintegration1.png?raw=true)
+
    ![Enable Purview integration 2](../Images/turnonpurviewintegration2.png?raw=true)
 
 <!--
@@ -104,21 +113,30 @@ Defender for Cloud provides built-in sensitive info types (SITs) from Microsoft 
 
 1. Navigate to **Data classification > Classifiers > Sensitive info types**.
     - In case of the new Microsoft Purview portal, this can be found in the **Information Protection** blade.
- ![Custom SIT creation 1](../Images/customsit1.png?raw=true)
+
+      ![Custom SIT creation 1](../Images/customsit1.png?raw=true)
+
 2. Select **Create sensitive info type**.
 3. Enter name and description.
- ![Custom SIT creation 2](../Images/customsit2.png?raw=true)
+ 
+   ![Custom SIT creation 2](../Images/customsit2.png?raw=true)
+
 4. On the **Patterns** step, select **Create pattern**.
 5. Add primary element and choose **Keyword list**.
- ![Custom SIT creation 3](../Images/customsit3.png?raw=true)
+
+   ![Custom SIT creation 3](../Images/customsit3.png?raw=true)
+
 6. In the **ID** field, type  *"DSPM"*.
 7. In the **Keyword group #1, Case insensitive**, type *"data security posture management"*.
 8. Select the **String match** option and click **Done**.
- ![Custom SIT creation 4](../Images/customsit4.png?raw=true)
+
+   ![Custom SIT creation 4](../Images/customsit4.png?raw=true)
+
 9. Confirm by selecting the **Create** button.
 10. Leave **High confidence level** selected in the next step.
 11. On the Finish page review the settings and save the new Custom SIT by selecting the **Create** button.
- ![Custom SIT creation 5](../Images/customsit5.png?raw=true)
+ 
+    ![Custom SIT creation 5](../Images/customsit5.png?raw=true)
 
 You can now select your Custom SIT from the **Custom** category in the **Data sensitivity** settings described in **Excercise 3**. Create and upload a document which will include the phrase *"data security posture management"* to test your Custom SIT.
 
@@ -137,7 +155,9 @@ To have your labeled data visible in Defender for Cloud, follow these steps to c
 1. Navigate to **Microsoft Defender for Cloud > Environment settings > Data sensitivity** as described in **Exercise 3**.
 
 2. Select **Change** to see the list of sensitivity labels and select the sensitivity label that will serve as your threshold. If you select the **(Lowest sensitivity)** label, all discovered labeled resources will be shown in Defender for Cloud.
-![Setting label threshold](../Images/labelthreshold.png?raw=true)
+
+   ![Setting label threshold](../Images/labelthreshold.png?raw=true)
+
 3. Select **Apply** and **Save**.  
 
 # Exercise 5: Upload sensitive data
@@ -149,14 +169,30 @@ In [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/La
 1. Navigate to [Files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/TestData.zip) and download the *TestData.zip* file. This is a file that contains various types of sample sensitive data we will use in this exercise. 
 2. Extract the zip archive. We will use the file  *"Sales Force Expense Cards.xlsx"* from the *CreditCardNumber* directory in following steps. 
 3. Follow instructions [on this page](https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-data-from-excel-to-sql?view=sql-server-ver16) to upload the .xlsx file into the previously created database. We recommend to use Microsoft SQL Management Studio for the import (SMSS).
-    - In SMSS, select the **asclab-db** database and choose **Import Data** via **Tasks**. ![SMSS import data 1](../Images/smssimportdata1.png?raw=true)
-    - In the wizard, select the *"Sales Force Expense Cards.xlsx*" file and choose version *Microsoft Excel 2016*. ![SMSS import data 2](../Images/smssimportdata2.png?raw=true)
-    - On the destination selection step, choose *Microsoft OLE DB Provider for SQL Server* and enter the credentials you used in **Module 1**. ![SMSS import data 3](../Images/smssimportdata3.png?raw=true)
-    - In the next step, select **Copy data from one or more tables or views**. ![SMSS import data 4](../Images/smssimportdata4.png?raw=true)
-    - Click on **Edit Mappings**.     
-    ![SMSS import data 5](../Images/smssimportdata5.png?raw=true)
+    - In SMSS, select the **asclab-db** database and choose **Import Data** via **Tasks**. 
+    
+      ![SMSS import data 1](../Images/smssimportdata1.png?raw=true)
+
+    - In the wizard, select the *"Sales Force Expense Cards.xlsx*" file and choose version *Microsoft Excel 2016*. 
+    
+      ![SMSS import data 2](../Images/smssimportdata2.png?raw=true)
+
+    - On the destination selection step, choose *Microsoft OLE DB Provider for SQL Server* and enter the credentials you used in **Module 1**. 
+    
+      ![SMSS import data 3](../Images/smssimportdata3.png?raw=true)
+
+    - In the next step, select **Copy data from one or more tables or views**. 
+    
+      ![SMSS import data 4](../Images/smssimportdata4.png?raw=true)
+
+    - Click on **Edit Mappings**. 
+
+      ![SMSS import data 5](../Images/smssimportdata5.png?raw=true)
+
     - Change *CC Number* and *CVV* type to **numeric**.
-   ![SMSS import data 6](../Images/smssimportdata6.png?raw=true)
+
+      ![SMSS import data 6](../Images/smssimportdata6.png?raw=true)
+
     - Confirm and finish the Wizard. If succesful, you can continue to the next part of this lab.
 
 ### Upload data to Storage account
@@ -241,10 +277,27 @@ When sensitive data discovery is enabled in the Defender for Storage plan, you c
 ## (Optional) Exercise 10: Data security dashboard investigation
 
 1. In Defender for Cloud, open **Data security**.
-Check the following tiles and look for unusual data: ![Data security dashboard 1](../Images/datasecuritydashboard1.png?raw=true) 
+Check the following tiles and look for unusual data:
+
+    ![Data security dashboard 1](../Images/datasecuritydashboard1.png?raw=true) 
+
 - **Data resources requiring attention** - displays the number of sensitive resources that have either high severity security alerts or attack paths. Click on **high severity alerts** or **attack paths** to further drill down on the findings.
-   - **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk. ![Data security dashboard 2](../Images/datasecuritydashboard2.png?raw=true) 
-   - **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk. ![Data security dashboard 3](../Images/datasecuritydashboard3.png?raw=true) 
-- **Data queries in security explorer** - presents the top data-related queries in security explorer that helps focus on multicloud risks to sensitive data. Click on **View** to narrow down the specific query. ![Data security dashboard 4](../Images/datasecuritydashboard4.png?raw=true) 
-- **Sensitive data discovery** - summarizes the results of the sensitive resources discovered, allowing you to explore a specific sensitive information type and label. You can also open the data sensitivity settings described in **Exercise 3** by using the **Manage data sensitivity settings** button. ![Data security dashboard 5](../Images/datasecuritydashboard5.png?raw=true) 
-- **Internet-exposed data resources** - summarizes the discovery of sensitive data resources that are internet-exposed for storage and managed databases. Click on **View all data resources exposed to the internet** to run a query in Cloud security explorer. ![Data security dashboard 6](../Images/datasecuritydashboard6.png?raw=true) 
+   - **Data resources with high severity alerts** - summarizes the active threats to sensitive data resources and which data types are at risk.
+   
+     ![Data security dashboard 2](../Images/datasecuritydashboard2.png?raw=true) 
+
+   - **Data resources with critical and high attack paths** - summarizes the potential threats to sensitive data resources by presenting attack paths leading to sensitive data resources and which data types are at potential risk. 
+   
+     ![Data security dashboard 3](../Images/datasecuritydashboard3.png?raw=true) 
+
+- **Data queries in security explorer** - presents the top data-related queries in security explorer that helps focus on multicloud risks to sensitive data. Click on **View** to narrow down the specific query.
+
+   ![Data security dashboard 4](../Images/datasecuritydashboard4.png?raw=true) 
+
+- **Sensitive data discovery** - summarizes the results of the sensitive resources discovered, allowing you to explore a specific sensitive information type and label. You can also open the data sensitivity settings described in **Exercise 3** by using the **Manage data sensitivity settings** button. 
+
+   ![Data security dashboard 5](../Images/datasecuritydashboard5.png?raw=true) 
+   
+- **Internet-exposed data resources** - summarizes the discovery of sensitive data resources that are internet-exposed for storage and managed databases. Click on **View all data resources exposed to the internet** to run a query in Cloud security explorer. 
+
+   ![Data security dashboard 6](../Images/datasecuritydashboard6.png?raw=true) 
