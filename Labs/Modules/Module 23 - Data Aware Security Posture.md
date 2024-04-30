@@ -13,7 +13,6 @@ Yura Lee  [Github](https://github.com/yura-lee/), [Linkedin](https://www.linkedi
 ## Objectives 
 This exercise guides you through enabling and configuring sensitive data discovery in Microsoft Defender for Cloud and will show you various ways of how you can leverage the added sensitivity context provided by Defender CSPM and Defender for Storage plans.
 
-
 ## Exercise 1: Enabling sensitive data discovery
 
 To enable the sensitive data discovery, you need to enable Defender CSPM or Defender for Storage plan on a specific subscription:
@@ -162,38 +161,6 @@ To have your labeled data visible in Defender for Cloud, follow these steps to c
 
 # Exercise 5: Upload sensitive data
 
-### Upload data to Azure SQL database
-
-In [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md), you created an Azure SQL database, *asclab-db*. In this exercise, we will connect to the database and upload sensitive information. 
-
-1. Navigate to [Files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/TestData.zip) and download the *TestData.zip* file. This is a file that contains various types of sample sensitive data we will use in this exercise. 
-2. Extract the zip archive. We will use the file  *"Sales Force Expense Cards.xlsx"* from the *CreditCardNumber* directory in following steps. 
-3. Follow instructions [on this page](https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-data-from-excel-to-sql?view=sql-server-ver16) to upload the .xlsx file into the previously created database. We recommend to use Microsoft SQL Management Studio for the import (SMSS).
-    - In SMSS, select the **asclab-db** database and choose **Import Data** via **Tasks**. 
-    
-      ![SMSS import data 1](../Images/smssimportdata1.png?raw=true)
-
-    - In the wizard, select the *"Sales Force Expense Cards.xlsx*" file and choose version *Microsoft Excel 2016*. 
-    
-      ![SMSS import data 2](../Images/smssimportdata2.png?raw=true)
-
-    - On the destination selection step, choose *Microsoft OLE DB Provider for SQL Server* and enter the credentials you used in **Module 1**. 
-    
-      ![SMSS import data 3](../Images/smssimportdata3.png?raw=true)
-
-    - In the next step, select **Copy data from one or more tables or views**. 
-    
-      ![SMSS import data 4](../Images/smssimportdata4.png?raw=true)
-
-    - Click on **Edit Mappings**. 
-
-      ![SMSS import data 5](../Images/smssimportdata5.png?raw=true)
-
-    - Change *CC Number* and *CVV* type to **numeric**.
-
-      ![SMSS import data 6](../Images/smssimportdata6.png?raw=true)
-
-    - Confirm and finish the Wizard. If succesful, you can continue to the next part of this lab.
 
 ### Upload data to Storage account
 
@@ -206,12 +173,47 @@ Create a new storage account based on the instructions in [Module 19](https://gi
 
 4. Choose a name, leave other settings by default and select **Create**.
 5. Open the new container by clicking on its name and select the **Upload** button on top of the page.
-6. Select the file *"Credit Card Expenses.docx"* located in *CreditCardNumber* folder from the extracted zip archive and upload it to the container.
+6. Navigate to [Files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/TestData.zip) and download the *TestData.zip* file. This is a file that contains sample of sensitive data we will use in this exercise. 
+7. Select the file *"Credit Card Expenses.docx"* located in *CreditCardNumber* folder from the extracted zip archive and upload it to the container.
 
    ![Upload data to Container](../Images/uploaddatatocontainerdasp.png?raw=true)
 
 > [!NOTE]
 > It takes up to 24 hours for first scan results in case of newly created storage account. Databases are scanned on a weekly basis or within 24 hours on newly enabled subscriptions.
+
+### (Optional) Upload data to Azure SQL database
+
+In [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md), you created an Azure SQL database, *asclab-db*. In this exercise, we will connect to the database and upload sensitive information. 
+
+1. Follow instructions [on this page](https://learn.microsoft.com/en-us/sql/relational-databases/import-export/import-data-from-excel-to-sql?view=sql-server-ver16) to upload the .xlsx file into the database created as part of **Module 1**. We recommend to use Microsoft SQL Management Studio for the import (SMSS) with the following steps.
+2. In SMSS, select the **asclab-db** database and choose **Import Data** via **Tasks**. 
+    
+   ![SMSS import data 1](../Images/smssimportdata1.png?raw=true)
+
+3. In the wizard, select the *"Sales Force Expense Cards.xlsx*" file and choose version *Microsoft Excel 2016*. 
+      
+   ![SMSS import data 2](../Images/smssimportdata2.png?raw=true)
+
+4. On the destination selection step, choose *Microsoft OLE DB Provider for SQL Server* and enter the credentials you used in **Module 1**. 
+    
+   ![SMSS import data 3](../Images/smssimportdata3.png?raw=true)
+
+5. In the next step, select **Copy data from one or more tables or views**. 
+    
+   ![SMSS import data 4](../Images/smssimportdata4.png?raw=true)
+
+6. Click on **Edit Mappings**. 
+
+   ![SMSS import data 5](../Images/smssimportdata5.png?raw=true)
+
+7. Change *CC Number* and *CVV* type to **numeric**.
+
+   ![SMSS import data 6](../Images/smssimportdata6.png?raw=true)
+
+8. Confirm and finish the Wizard.
+
+> [!NOTE]
+> As described in **Exercise 1** you will now have to wait for the specified time, depending on when you have enabled the plans or created the resources, to allow the scan to finish. Follow [this link](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-data-security-posture-prepare#discovery) to our documentation for more details.
 
 # Explore risks to sensitive data
 
