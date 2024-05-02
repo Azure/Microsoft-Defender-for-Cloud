@@ -10,7 +10,7 @@ In this exercise, you will learn how to connect Azure DevOps repositories to Def
 
 ### Exercise 1: Preparing the Environment
 
-If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md) of this lab, you can skip this exercise, otherwise plesae finish at least Exercise 1, 2 and 3 from Module 1.
+If you already finished [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md) of this lab, you can skip this exercise, otherwise please finish at least Exercise 1, 2 and 3 from Module 1.
 
 ### Exercise 2: Creating an Azure DevOps Trial Subscription
 
