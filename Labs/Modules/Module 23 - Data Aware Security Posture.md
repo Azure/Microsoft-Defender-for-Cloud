@@ -47,7 +47,7 @@ If you want to use sensitive data discovery for AWS S3 Buckets and RDS databases
 
 1. Enable sensitive data discovery as described in **Excercise 1**.
 
-2. Proceed with the instructions to use GCP Cloud Shell or Terraform to connect GCP resources.
+2. Proceed with the instructions to download the CloudFormation template and to run it in AWS.
 
 The snapshot is used to create a live instance that is spun up, scanned and then immediately destroyed (together with the copied snapshot).
 
@@ -59,7 +59,7 @@ In case of GCP storage buckets, please visit [**Module 10 - Connecting a GCP pro
 
 1. Enable sensitive data discovery as described in **Excercise 1**.
 
-2. Proceed with the instructions to download the CloudFormation template and to run it in AWS.
+2. Proceed with the instructions to use GCP Cloud Shell or Terraform to connect GCP resources.
 
 <br>
 
