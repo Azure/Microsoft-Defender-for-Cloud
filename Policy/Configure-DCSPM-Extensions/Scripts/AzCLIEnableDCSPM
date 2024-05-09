@@ -1,0 +1,11 @@
+# Define your variables by entering subscriptionId and whether extensions should be enabled using "True" to enable and "False" to not enable
+subscriptionId="SubscriptionId"
+AgentlessVmScanning="True"
+AgentlessDiscoveryForKubernetes="True"
+SensitiveDataDiscovery="True"
+ContainerRegistriesVulnerabilityAssessments="True"
+
+# Use the variables in the az rest command
+az rest --method put \
+  --uri "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Security/pricings/CloudPosture?api-version=2023-01-01" \
+  --body "{\"properties\": {\"pricingTier\": \"Standard\", \"extensions\": [{\"name\": \"AgentlessVmScanning\", \"isEnabled\": \"$AgentlessVmScanning\"},{\"name\": \"AgentlessDiscoveryForKubernetes\",\"isEnabled\": \"$AgentlessDiscoveryForKubernetes\"},{\"name\": \"SensitiveDataDiscovery\", \"isEnabled\": \"$SensitiveDataDiscovery\"},{\"name\": \"ContainerRegistriesVulnerabilityAssessments\",\"isEnabled\": \"$ContainerRegistriesVulnerabilityAssessments\"}]}}"

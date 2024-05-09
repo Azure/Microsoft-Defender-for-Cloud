@@ -1,13 +1,15 @@
-###############################################################################################
-# This script creates custom Role for Microsoft Defender for Cloud Just-in-time access.              #
-# Purposed for those wish to have users to be able to request access to VMs                   #
-# but not any other permissions.                                                              #
-# Usage:                                                                                      #
-# Set-JitLeastPrivilegedRole                                                                  #
-#	-subscriptionId <Mandatory: subscription ID>                                              #
-#	-roleName <Optional: default is "JIT Access Role">                                        #
-#	-forApiOnly <Optional: if the requests are meant to initiate only from powershell/REST API#
-###############################################################################################
+#######################################################################################################
+# This script creates custom Role for Microsoft Defender for Cloud Just-in-time access.               #
+# Purposed for those wish to have users to be able to request access to VMs                           #
+# but not any other permissions.                                                                      #
+# Usage:                                                                                              #
+# Set-JitLeastPrivilegedRole                                                                          #
+#	-subscriptionId <Mandatory: subscription ID>                                                  #
+#	-roleName <Optional: default is "JIT Access Role">                                            #
+#	-forApiOnly <Optional: if the requests are meant to initiate only from powershell/REST API    #
+# Note:                                                                                               #
+# Some VMs will require write action. If this is the case, comment out line 79 and un-comment line 78.#
+#######################################################################################################
 
 param (
 		[parameter(Mandatory=$true)]
@@ -75,7 +77,8 @@ $role.Actions.Add("Microsoft.Security/policies/read")
 $role.Actions.Add("Microsoft.Network/publicIPAddresses/read")
 if (!($forApiOnly))
 {
-	$role.Actions.Add("Microsoft.Compute/virtualMachines/read")
+	# $role.Actions.Add("Microsoft.Compute/virtualMachines/write")
+       	$role.Actions.Add("Microsoft.Compute/virtualMachines/read")
 	$role.Actions.Add("Microsoft.Network/*/read")
 }
 $role.AssignableScopes.Clear()

@@ -50,17 +50,12 @@ In this lab we will use only one but selecting different/additional subscription
 > ⭐ Good to know: <br>
 > The higher the score, the lower the identified risk level.
 
-10.	On the **Regulatory Compliance** tile, you can get insights into your compliance posture based on continuous assessment of your both Azure and hybrid cloud environments. This tile shows only 4 standards which are SOC TSP, ISO 27001, PCI DSS 3.2.1 and Azure CIS 1.1.0. Clicking on this tile will redirects you to **Regulatory Compliance** dashboard – where you can add additional standards and explore the current ones.
+10.	On the **Regulatory Compliance** tile, you can get insights into your compliance posture based on continuous assessment of your both Azure and hybrid cloud environments. Clicking on this tile will redirects you to **Regulatory Compliance** dashboard – where you can add additional standards and explore the current ones.
 11.	On the **Workload Protections** tile, you can see the coverage of your connected resources (for the currently selected subscriptions) and the recent alerts, color-coded by severity. Your current resource coverage should be **100% which means full protection**. Clicking on this tile will redirects you Microsoft Defender for Cloud dashboard.
-12.	On the **Firewall Manager** tile, you are provided with unified infrastructure and network security management. Azure Firewall Manager is a security management service that provides central security policy and route management for cloud-based security perimeters.
-13. On the **Inventory** tile, you are provided with a view of your security posture across all your inventory, including Defender coverage per resource and whether the monitoring agent is installed (which brinhs security protection to those resources).
-![Overview: Secure Score tile](../Images/mdfc-inventory.png?raw=true)  
-14.  On the **Information Protection** tile, you can see a list of your resources which have data which has been classified through [Microsoft Purview](https://azure.microsoft.com/en-us/services/purview/). 
-![Overview: Secure Score tile](../Images/mdfc-infpro.png?raw=true)  
+12. On the **Inventory** tile, you are provided with a view of your security posture across all your inventory, including Defender coverage per resource and whether the monitoring agent is installed (which brinhs security protection to those resources).
+![Overview: Secure Score tile](../Images/mdfc-inventory.png?raw=true) 
+13.	On the right pane, you can find the **Insights** section which offers tailored items for your environments: 
 
-15.	On the right pane, you can find the **Insights** section which offers tailored items for your environments: 
-
-- OMI vulnerabilities published
 - Upgrade to New Containers plan
 - Cost estimation workbook for Containers plan
 - Most prevalent recommendations (by resources)
@@ -83,29 +78,20 @@ Exploring secure score
 3.	On the Secure Score page, **review your current overall secure score percentrage**.
 
 > ⭐ Notice: <br>
-> Your score is shown as a percentage value, but you can also see the number of points which the score is being calculated based on. See the following example: <br>
+> Your score is shown as a percentage value, but you can also see the breakdown by cloud environment and criticallity rating. See the following example: <br>
 > ![Overall Secure Score](../Images/module2_securescore_percentage_yl.png?raw=true)<br>
 > For more information on how the score is calculated, [refer to the secure score documentation page](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls#how-your-secure-score-is-calculated).
 
-4.	On the left side of the page, you can notice the **subscriptions with the lowest scores** – this section helps in prioritizing working on subscriptions. Since this demo is based on a single subscription, you will see only one.
-
-5.	On the bottom part, you can see a list of subscriptions and their current score. To view the recommendations behind the score, click on **view recommendations**.
+4.	On the bottom part, you can see a list of subscriptions and their current score. To view the recommendations behind the score, click on **view recommendations**.
 
 **Exploring Security Controls and Recommendations**
 
-1.	On the recommendations page, pay attention to the first part of the page; the **summary view** which includes the current score, progress on the recommendations (both completed security controls and recommendations) and resource health (by severity).
+1.	On the recommendations page, pay attention to the first part of the page; the **summary view** which includes a breakdown of recommendations by criticallity, the number of active attack paths, and the number of overdue recommendations.  
 2.	On the top menu, click on **Download CSV report** button – this allow you to get a snapshot of your resources, their health status and the associated recommendations. You can use it for pivoting and reporting.
-3.	Notice the second part of the page; here you have a **list of all recommendations grouped by security controls**:
+3.	Notice the second part of the page; here you have a **list of all recommendations grouped by criticallity**:
 
-> ⭐ Notice: <br>
-> -	Each security control is a logical group of related security recommendations and represents a security risk you should mitigate.
-> -	Each control has its own score which contributes to the overall secure score.
-> -	Address the recommendations in each control, focusing on the controls worth the most points.
-> -	To get the max score, fix all recommendations for all resources in a control.
-> To understand how the score and the downstream recommendations are calculated, please visit our official [documentation](https://docs.microsoft.com/en-us/azure/security-center/secure-score-security-controls#calculations---understanding-your-score "Understanding your score calculation").
-
-4.	Look for the **Encrypt data in transit** security control. Notice its max score 4 and the potential increase for the score. You should have three recommendations that have that **Quick Fix** symbple (lightning bolt).
-5.	Click on the **Secure transfer to storage accounts should be enabled** recommendation. As you can see, this recommendation has the **Quick Fix** available.
+4.	In the search bar, look for the recommendation `Secure transfer to storage accounts should be enabled`.  Click on this recommendation. You will be taken to a page dedicated to presenting the assessment for a particular instance.  ![Secure transfer to storage accounts should be enabled](../Images/module2_specificRecommendation.png)  Notice that we display the overall risk level, number of active attack paths, the governance owner (if set), due date, ServiceNow Ticket ID,, and compounding risk factors.  
+5.	To view all resources that have this applicable recommendation, click `View recommendation for all resources`.  As you can see, this recommendation has the **Quick Fix** available.
 
 > ⭐ Notice: <br>
 > Quick Fix allows you to remediate a group of resources quickly when possible with a single click. This option is only available for supported recommendations and enables you to quickly improve your secure score and increase the security in your environment.
@@ -121,9 +107,8 @@ Exploring secure score
 * Refreshens interval on supported recommendations: **30 Min**
 
 ![Recommendation top menu](../Images/asc-storage-top-menu.jpg?raw=true)
-
-7. 
-8. The next important part is the **Remediation Steps** which contains the remediation logic. Expand **Remediation steps** to see more information.  As you can see, you can remediate the select resource/s either by following the step-by-step instructions, use the provided ARM template or REST API to automate the process by yourself or use the Quick Fix button which triggers the ARM call for you.
+ 
+7. The next important part is the **Remediation Steps** which contains the remediation logic. Expand **Remediation steps** to see more information.  As you can see, you can remediate the select resource/s either by following the step-by-step instructions, use the provided ARM template or REST API to automate the process by yourself or use the Quick Fix button which triggers the ARM call for you.
 
 * Click on the **Quick Fix Logic**
 * Notice the automatic remediation script content (ARM Template):
@@ -188,7 +173,7 @@ Asset inventory dashboard allows you to get a single pane of glass view to all y
 15. Save the query for later use by clicking on **Save as** from the top menu. You can use it to create periodic reports. Name the report as *asc-filtered-query* and select **Save**.
 
 > ⭐ Good to know: <br>
-> Inventory dashboard is fully built on top of Azure Resource Graph (ARG) which stores all of ASC security posture data and leveraging its powerful KQL engine.
+> Inventory dashboard is fully built on top of Azure Resource Graph (ARG) which stores all of MDC security posture data and leveraging its powerful KQL engine.
 > It enables you to reach deep insights quickly and easily on top of ASC data and cross reference with any other resource properties.
 
 ### Continue with the next lab: [Module 3 - Microsoft Defender for Cloud Security Policy](../Modules/Module-3-ASC-Security-Policy.md)

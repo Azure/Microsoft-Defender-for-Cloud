@@ -1,0 +1,131 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        //relicate the parameters of the nested templates
+        // parmaters for Windows Server Name
+        "winServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Windows Server Virtual Machine."
+            }
+        },  
+        // parmaters for Windows Server Azure Image Version
+        "azureWinImageVersion": {
+            "metadata": {
+                "description": "Select a version of choice. These versions have vulnerabilities that now are fully pathced. These versions are not always avaiable, therefore you might need to select a different one"
+            },
+            "type": "string",
+            "defaultValue": "17763.3406.220909",
+            "allowedValues": [
+                "17763.3406.220909",
+                "17763.3532.221008",
+                "17763.3534.221015",
+                "17763.3650.221105",
+                "17763.3770.221211"
+                ]
+        },
+        // parmaters for Linux Server Name
+        "linuxServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "Name for the Linux Server Virtual Machine."
+            }
+        },
+        //parmeters for user name
+        "adminUsername": {
+            "type": "string",
+            "metadata": {
+                "description": "User name for the Virtual Machine."
+            }
+        },  
+        // parameters for password
+        "adminPassword": {
+            "type": "securestring",
+            "metadata": {
+                "description": "Password for the Virtual Machine."
+            }
+        },
+        // parameters for virtual network name
+        "virtualNetworkName": {
+            "type": "string",
+            "defaultValue": "asclab-vnet",
+            "metadata": {
+                "description": "This needs to be the same name as the vNet you used in the previous deploymnet. Open the Resource Group hosting Lab environment and copy the vNet Name"
+            }
+        },
+        // parameters for storage account name
+        "storageAccountName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the storage account you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the SA Name"
+            }
+        },
+        //parameters for kye vault name
+        "keyVaultName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the Key Vault you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the KV Name"
+            }
+        },
+        //parameters for Azure SQL DB name
+        "sqlServerName": {
+            "type": "string",
+            "metadata": {
+                "description": "This needs to be the same name as the Azure SQL Server you used in the previous deployment. Open the Resource Group hosting Lab environment and copy the SQL Server Name"
+            }
+        }
+    },
+    "variables": {
+        "linuxVmTemplateLink": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Labs/Files/nested/nested-linux-vm.json",
+        "windowsVmTemplateLink": "https://raw.githubusercontent.com/Azure/Microsoft-Defender-for-Cloud/main/Labs/Files/nested/nested-windows-vm.json"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "linuxVmDeployment",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('linuxVmTemplateLink')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "linuxServerName": { "value": "[parameters('linuxServerName')]" },
+                    "adminUsername": { "value": "[parameters('adminUsername')]" },
+                    "adminPassword": {"value": "[parameters('adminPassword')]"},
+                    "virtualNetworkName": {"value": "[parameters('virtualNetworkName')]"},
+                    "storageAccountName": {"value": "[parameters('storageAccountName')]"},
+                    "keyVaultName": {"value": "[parameters('keyVaultName')]"},
+                    "sqlServerName": {"value": "[parameters('sqlServerName')]"}
+                }
+            }
+        },
+        //Resources from Nested ARM
+        {
+            "type": "Microsoft.Resources/deployments",
+            "name": "windowsVmDeployment",
+            "apiVersion": "2019-10-01",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[variables('windowsVmTemplateLink')]",
+                    "contentVersion": "1.0.0.0"
+                },
+                "parameters": {
+                    "winServerName": { "value": "[parameters('winServerName')]" },
+                    "azureWinImageVersion": { "value": "[parameters('azureWinImageVersion')]" },
+                    "adminUsername": { "value": "[parameters('adminUsername')]" },
+                    "adminPassword": {"value": "[parameters('adminPassword')]"},
+                    "virtualNetworkName": {"value": "[parameters('virtualNetworkName')]"},
+                    "storageAccountName": {"value": "[parameters('storageAccountName')]"},
+                    "keyVaultName": {"value": "[parameters('keyVaultName')]"},
+                    "sqlServerName": {"value": "[parameters('sqlServerName')]"}
+                }
+            }
+        }
+    ],
+    "outputs": {
+    }
+}

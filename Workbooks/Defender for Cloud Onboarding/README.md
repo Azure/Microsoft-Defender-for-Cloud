@@ -16,15 +16,15 @@ The workbook provides different Tabs organized as:
 
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://aka.ms/MDCOnboardingWorkbook" target="_blank"> 
+<a href="https://aka.ms/MDCOnboarding" target="_blank"> 
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
-<a href="https://aka.ms/MDCOnboardingWorkbook" target="_blank">
+<a href="https://aka.ms/MDCOnboarding" target="_blank">
 <img src="https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazuregov.png"/>
 </a> 
 
-Checkout the blog here to learn more details about this workbook <a href="https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/defender-for-cloud-onboarding-workbook/ba-p/3597457" target="_blank">here</a>
+Checkout the blog here to learn more details about this workbook <a href="https://techcommunity.microsoft.com/t5/microsoft-defender-for-cloud/microsoft-defender-for-cloud-onboarding-workbook-v2/ba-p/3828185" target="_blank">here</a>
 
 # Acknowledgements
 * Special thanks to **Shay Amar** for the partnership in reviewing and providing feedbacks on the artifact.
-* Many thanks to **Tom Janescheck** & **Yuri Diogenes** in supporting my initiative and suggesting feedbacks.  
+* Many thanks to **Tom Janescheck** & **Yuri Diogenes** & **Safeena Begum** in supporting my initiative and suggesting feedbacks.  

@@ -143,7 +143,6 @@ This PowerShell script estimates the monthly cost of Microsoft Defender for Stor
 
 11. If you don’t want to specify it, write in your console: `pwsh ./scriptprompt.ps1`
 
-    ![Step11](Pictures/Picture11.png)
 
 12. Hit enter. This can take some time (seconds to minutes) if you have hundreds to thousands of subscriptions and storage accounts. Keep your Terminal open until you get a new input line.
 
@@ -154,7 +153,7 @@ This PowerShell script estimates the monthly cost of Microsoft Defender for Stor
   ![Step13A](Pictures/Picture13.png)
   ![Step13B](Pictures/Picture13b.png)
 
-#### CSV file 
+
 The CSV file includes the following information:
 - Total Defender for Storage V2 cost for X subscriptions. This is the sum of column C “StorageAccountCost”.
 - Subscription ID.

@@ -2,7 +2,7 @@
 # Monitors Windows Virtual Machines to ensure specific Endpoint protection is running and healthy.
 **Author: Safeena Begum**
 
-Today Azure Security Center detects and supports wide variety of Endpoint Protection solutions. This automation artifact will help those customers who are using an Endpoint protection solution apart from what ASC already supports.  
+Today Microsoft Defender for Cloud detects and supports wide variety of Endpoint Protection solutions. This automation artifact will help those customers who are using an Endpoint protection solution apart from what MDC already supports.  
 
 Please refer to this [article](https://techcommunity.microsoft.com/t5/azure-security-center/customizing-endpoint-protection-recommendation-in-azure-security/ba-p/1733217) for step by step instructions to deploy this automation.
 

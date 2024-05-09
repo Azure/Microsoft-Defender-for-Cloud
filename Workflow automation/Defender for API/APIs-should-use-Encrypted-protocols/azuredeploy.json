@@ -1,0 +1,213 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    
+    "parameters":  {
+        "PlaybookName":  {
+            "defaultValue":  "Export-APIFindings",
+            "type":  "string"
+        }
+    },
+    "variables":  {
+    },
+    "resources":  [
+        {
+            "properties":  {
+                "provisioningState":  "Succeeded",
+                "state":  "Enabled",
+                "definition":  {
+                    "$schema":  "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion":  "1.0.0.0",
+                    "parameters":  {
+                        "$connections":  {
+                            "defaultValue":  {
+                            },
+                            "type":  "Object"
+                        }
+                    },
+                    "triggers":  {
+                        "Recurrence":  {
+                            "recurrence":  {
+                                "frequency":  "Day",
+                                "interval":  3
+                            },
+                            "evaluatedRecurrence":  {
+                                "frequency":  "Day",
+                                "interval":  3
+                            },
+                            "type":  "Recurrence"
+                        }
+                    },
+                    "actions":  {
+                        "Create_HTML_table_-_Organize_Secret_Scanning_Findings":  {
+                            "runAfter":  {
+                                "Parse_JSON_-_Parse_API_Findings":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Table",
+                            "inputs":  {
+                                "from":  "@body('Parse_JSON_-_Parse_API_Findings')?['data']",
+                                "format":  "HTML",
+                                "columns":  [
+                                    {
+                                        "header":  "APICollection",
+                                        "value":  "@item()?['Collection']"
+                                    },
+                                    {
+                                        "header":  "APIEndpoint",
+                                        "value":  "@item()?['Endpoint']"
+                                    },
+                                    {
+                                        "header":  "Operation",
+                                        "value":  "@item()?['Operation']"
+                                    },
+                                    {
+                                        "header":  "Active",
+                                        "value":  "@item()?['Active']"
+                                    },
+                                    {
+                                        "header":  "Authorized",
+                                        "value":  "@item()?['Authorized']"
+                                    },
+                                    {
+                                        "header":  "External",
+                                        "value":  "@item()?['External']"
+                                    },
+                                    {
+                                        "header":  "PII",
+                                        "value":  "@item()?['PII']"
+                                    }
+                                ]
+                            }
+                        },
+                        "HTTP_-_Retrieve_API_Findings":  {
+                            "runAfter":  {
+                                "Initialize_variable_-_Email_Body":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "Http",
+                            "inputs":  {
+                                "uri":  "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01",
+                                "method":  "POST",
+                                "headers":  {
+                                    "Content-Type":  "application/json"
+                                },
+                                "body":  {
+                                    "query":  "securityresources | union extensibilityresources | where type in ('microsoft.security/apicollections/apiendpoints', 'microsoft.apisecurity/apicollections/apicollectiondetails') | where properties.PII != '{}' and properties.PII != '' | extend  Operation = properties.DisplayName, Collection = properties.CollectionName, CollectionId = properties.CasApiCollectionId, Endpoint=properties.EndPoint, Active=properties.IsEndpointActive, Authorized=properties.IsEndpointAuthorized,NumberOfExternalApiEndpoints=properties.NumberOfExternalEndpoints, PII=properties.PII, HttpMethod=properties.HttpMethod, DiscoveryDate=properties.DiscoveryDate, TriggerDate=properties.TriggerDate, External = properties.IsExternal | where Authorized == 'false' | where External = true | project Collection, Operation, id, Active, Authorized, External, Endpoint, PII"
+                                },
+                                "authentication":  {
+                                    "type":  "ManagedServiceIdentity"
+                                }
+                            }
+                        },
+                        "Initialize_variable_-_Email_Body":  {
+                            "runAfter":  {
+                            },
+                            "type":  "InitializeVariable",
+                            "inputs":  {
+                                "variables":  [
+                                    {
+                                        "name":  "EmailBody",
+                                        "type":  "string"
+                                    }
+                                ]
+                            }
+                        },
+                        "Parse_JSON_-_Parse_API_Findings":  {
+                            "runAfter":  {
+                                "HTTP_-_Retrieve_API_Findings":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "ParseJson",
+                            "inputs":  {
+                                "content":  "@body('HTTP_-_Retrieve_API_Findings')",
+                                "schema":  {
+                                    "properties":  {
+                                        "count":  {
+                                            "type":  "integer"
+                                        },
+                                        "data":  {
+                                            "items":  {
+                                                "properties":  {
+                                                    "Active":  {
+                                                        "type":  "boolean"
+                                                    },
+                                                    "Authorized":  {
+                                                        "type":  "boolean"
+                                                    },
+                                                    "Collection":  {
+                                                        "type":  "string"
+                                                    },
+                                                    "Endpoint":  {
+                                                        "type":  "string"
+                                                    },
+                                                    "External":  {
+                                                        "type":  "boolean"
+                                                    },
+                                                    "Operation":  {
+                                                        "type":  "string"
+                                                    },
+                                                    "PII":  {
+                                                        "type":  "object"
+                                                    },
+                                                    "id":  {
+                                                        "type":  "string"
+                                                    }
+                                                },
+                                                "type":  "object"
+                                            },
+                                            "type":  "array"
+                                        },
+                                        "facets":  {
+                                            "type":  "array"
+                                        },
+                                        "resultTruncated":  {
+                                            "type":  "string"
+                                        },
+                                        "totalRecords":  {
+                                            "type":  "integer"
+                                        }
+                                    },
+                                    "type":  "object"
+                                }
+                            }
+                        },
+                        "Set_variable_-_Email_Body":  {
+                            "runAfter":  {
+                                "Create_HTML_table_-_Organize_Secret_Scanning_Findings":  [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type":  "SetVariable",
+                            "inputs":  {
+                                "name":  "EmailBody",
+                                "value":  "@body('Create_HTML_table_-_Organize_Secret_Scanning_Findings')"
+                            }
+                        }
+                    },
+                    "outputs":  {
+                    }
+                },
+                "parameters":  {
+                    "$connections":  {
+                        "value":  {
+                        }
+                    }
+                }
+            },
+            "name":  "[parameters('PlaybookName')]",
+            "type":  "Microsoft.Logic/workflows",
+            "location":  "[resourceGroup().location]",
+         
+            "identity":  {
+                "type":  "SystemAssigned"
+            },
+            "apiVersion":  "2017-07-01",
+            "dependsOn":  [
+            ]
+        }
+    ]
+}

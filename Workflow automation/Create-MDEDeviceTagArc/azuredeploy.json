@@ -1,0 +1,337 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+        "metadata":{
+        "comments": "This Logic App can be set to run daily,weekly. Upon scheduled trigger it will match Arc connected server in Azure to MDE Devices and Set a defined MDE Device Tag on the Server in MDE. This can be useful to help with reporting in MDE portal and MDE Tag can also be tied to a Device Group so you can Seperate Permissions to Servers and also set Automation Investigation & Remediation (AIRs) to none, Semi, or Full for the Servers onboarded to MDE from Defender for Servers P1/P2.",
+        "author": "Nathan Swift, Matt Egen"
+    },    
+    "parameters": {
+        "LogicAppName": {
+            "defaultValue": "Create-MDEDeviceTagArc",
+            "type": "string"
+        },
+        "MDETag": {
+            "defaultValue": "ArcServer",
+            "type": "string"
+        }
+    },
+    "variables": {     
+    },
+    "resources": [      
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('LogicAppName')]",
+            "location": "[resourceGroup().location]",
+            "tags": {
+                "LogicAppsCategory": "security"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "MDETag": {
+                            "defaultValue": "[parameters('MDETag')]",
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                }
+                            },
+                            "evaluatedRecurrence": {
+                                "frequency": "Day",
+                                "interval": 1,
+                                "schedule": {
+                                    "hours": [
+                                        "6"
+                                    ]
+                                }
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "BuildMDETokenArray": {
+                            "foreach": "@body('GetMDEDevices')?['Results']",
+                            "actions": {
+                                "Append_to_array_variable_4": {
+                                    "runAfter": {
+                                        "MDETokenItem3": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "AppendToArrayVariable",
+                                    "inputs": {
+                                        "name": "MDETokenArray",
+                                        "value": "@outputs('MDETokenItem3')"
+                                    },
+                                    "description": "add server based token to mde token array"
+                                },
+                                "MDETokenItem3": {
+                                    "runAfter": {},
+                                    "type": "Compose",
+                                    "inputs": {
+                                        "DeviceId": "@{items('BuildMDETokenArray')?['DeviceId']}",
+                                        "DeviceToken": "@{first(skip(split(tolower(item()?['DeviceName']),'.'),0))}"
+                                    },
+                                    "description": "generate a server based token"
+                                }
+                            },
+                            "runAfter": {
+                                "GetMDEDevices": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "For each MDE device generate a MDE Token and add it to MDE Token Array to be used in filter later against Azure tokens",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "ForEachSub": {
+                            "foreach": "@body('GetAzureSubs')?['value']",
+                            "actions": {
+                                "BuildArcTokenArray": {
+                                    "foreach": "@body('GetArcVMs')?['value']",
+                                    "actions": {
+                                        "Condition": {
+                                            "actions": {
+                                                "SetMDEDeviceTag": {
+                                                    "runAfter": {},
+                                                    "type": "Http",
+                                                    "inputs": {
+                                                        "authentication": {
+                                                            "audience": "https://api.securitycenter.windows.com",
+                                                            "type": "ManagedServiceIdentity"
+                                                        },
+                                                        "body": {
+                                                            "Action": "Add",
+                                                            "Value": "@{parameters('MDETag')}"
+                                                        },
+                                                        "method": "POST",
+                                                        "uri": "https://api.securitycenter.windows.com/api/machines/@{body('MatchMDEToken-ArcToken')[0]?['DeviceId']}/tags"
+                                                    },
+                                                    "description": "Add the Tag to the MDE Device Id that was matched in Azure"
+                                                }
+                                            },
+                                            "runAfter": {
+                                                "MatchMDEToken-ArcToken": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "expression": {
+                                                "and": [
+                                                    {
+                                                        "not": {
+                                                            "equals": [
+                                                                "@body('MatchMDEToken-ArcToken')[0]?['DeviceId']",
+                                                                "@null"
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            },
+                                            "type": "If",
+                                            "description": "Ensure a match is found and a device id is passed"
+                                        },
+                                        "MatchMDEToken-ArcToken": {
+                                            "runAfter": {
+                                                "Set_variable_ArcTokenItem_Name": [
+                                                    "Succeeded"
+                                                ]
+                                            },
+                                            "type": "Query",
+                                            "inputs": {
+                                                "from": "@variables('MDETokenArray')",
+                                                "where": "@startsWith(item()?['DeviceToken'], variables('ArcTokenItem'))"
+                                            },
+                                            "description": "Match arc server Token to MDE Token Array to find device id"
+                                        },
+                                        "Set_variable_ArcTokenItem_Name": {
+                                            "runAfter": {},
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "ArcTokenItem",
+                                                "value": "@{tolower(item()?['name'])}"
+                                            },
+                                            "description": "generate a name based token"
+                                        },
+                                        "Set_variable_ArcToken_Null": {
+                                            "runAfter": {
+                                                "Condition": [
+                                                    "Succeeded",
+                                                    "Failed"
+                                                ]
+                                            },
+                                            "type": "SetVariable",
+                                            "inputs": {
+                                                "name": "ArcTokenItem",
+                                                "value": "@{null}"
+                                            },
+                                            "description": "Reset the Azure Token to match to null to be generated for next arc server"
+                                        }
+                                    },
+                                    "runAfter": {
+                                        "GetArcVMs": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Foreach",
+                                    "description": "For each arc server generate a Azure token and match against the MDE Token array to determine device id to set a MDE Device Tag to"
+                                },
+                                "GetArcVMs": {
+                                    "runAfter": {},
+                                    "type": "Http",
+                                    "inputs": {
+                                        "authentication": {
+                                            "audience": "https://management.azure.com/",
+                                            "type": "ManagedServiceIdentity"
+                                        },
+                                        "method": "GET",
+                                        "uri": "https://management.azure.com/subscriptions/@{item()?['subscriptionId']}/providers/Microsoft.HybridCompute/machines?api-version=2022-08-11-preview"
+                                    },
+                                    "description": "Get arc servers in Subscription to match"
+                                }
+                            },
+                            "runAfter": {
+                                "GetAzureSubs": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Foreach",
+                            "description": "get each arc servers and generate a azure token to match against the MDE Token array and set a MDE Device Tag if a match occurs to the Matched MDE Device Id",
+                            "runtimeConfiguration": {
+                                "concurrency": {
+                                    "repetitions": 1
+                                }
+                            }
+                        },
+                        "GetAzureSubs": {
+                            "runAfter": {
+                                "BuildMDETokenArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://management.azure.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "method": "GET",
+                                "uri": "https://management.azure.com/subscriptions?api-version=2020-01-01"
+                            },
+                            "description": "get all azure subscriptions to search for arc servers"
+                        },
+                        "GetMDEDevices": {
+                            "runAfter": {
+                                "Initialize_variable_ArcTokenItem": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Http",
+                            "inputs": {
+                                "authentication": {
+                                    "audience": "https://api.securitycenter.windows.com",
+                                    "type": "ManagedServiceIdentity"
+                                },
+                                "body": {
+                                    "Query": "@variables('AdvHuntKQLQuery')"
+                                },
+                                "method": "POST",
+                                "uri": "https://api.securitycenter.windows.com/api/advancedqueries/run"
+                            },
+                            "description": "Using advanced hunting api get the MDE Devices information to generate matching tokens array"
+                        },
+                        "Initialize_variable_AdvHuntKQLQuery": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "AdvHuntKQLQuery",
+                                        "type": "string",
+                                        "value": "DeviceNetworkInfo | mvexpand parse_json(IPAddresses) | project IPAddress=IPAddresses.IPAddress, DeviceName, DeviceId | join kind = leftouter (DeviceInfo) on $left.DeviceId == $right.DeviceId | where DeviceType == \"Server\" or OSPlatform == \"Linux\" | where IPAddress !has \":\" | summarize by tostring(IPAddress), PublicIP, DeviceName, DeviceId"
+                                    }
+                                ]
+                            },
+                            "description": "this kql in adv hunting will lookup mde devices that are servers"
+                        },
+                        "Initialize_variable_ArcTokenItem": {
+                            "runAfter": {
+                                "Initialize_variable_MDETokenArray": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "ArcTokenItem",
+                                        "type": "string",
+                                        "value": "@{null}"
+                                    }
+                                ]
+                            },
+                            "description": "used later to generate a arc token to match and filter against MDE token array"
+                        },
+                        "Initialize_variable_MDETokenArray": {
+                            "runAfter": {
+                                "Initialize_variable_AdvHuntKQLQuery": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "MDETokenArray",
+                                        "type": "array",
+                                        "value": []
+                                    }
+                                ]
+                            },
+                            "description": "used later to filter and match arc servers against mde devices"
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "arm": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('armConnectionName'))]",
+                                "connectionName": "arm",
+                                "connectionProperties": {
+                                    "authentication": {
+                                        "type": "ManagedServiceIdentity"
+                                    }
+                                },
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/arm')]"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}
