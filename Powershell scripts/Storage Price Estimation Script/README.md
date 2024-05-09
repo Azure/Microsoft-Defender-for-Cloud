@@ -50,7 +50,7 @@ These PowerShell scripts allow you to estimate the cost of the new per-storage p
 
 This script will get estimated metrics on Azure Storage V2 Accounts to help estimate costs for Defender for Storage and Defender for Storage Malware Scanning
 - The metrics used in this script is based on the last 30 days
-- The price caculations are based on list price
+- The price calculations are based on list price
 - The script will output the totals and export the data to a csv file
 
 #### Examples 
