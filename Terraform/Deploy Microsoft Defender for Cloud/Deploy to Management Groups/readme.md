@@ -1,1 +1,1 @@
-# Deploy Defender for Cloud to Management Groups
+# Onboarding Defender for Cloud to Management Groups

@@ -1,1 +1,1 @@
-# Deploying Defender for Cloud to an Azure Subscription
+# Onboarding Defender for Cloud to an Azure Subscription
