@@ -1,4 +1,4 @@
-# Microsoft Defender for Servers - CVE Dashboard
+# Microsoft Defender for Servers - CVE Dashboard for Servers
 
 | Version | Description | Author | Date |
 | ------ | ------ | ------ | ------ |
