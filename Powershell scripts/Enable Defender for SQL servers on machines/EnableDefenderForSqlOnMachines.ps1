@@ -61,6 +61,8 @@ $policyInitiativeNames = @{
 
 $defaultLocation = "eastus"
 
+$ErrorActionPreference = "Stop"
+
 # Function to assign policy initiative definition with parameters
 function AssignPolicyInitiative {
     param(
@@ -117,14 +119,14 @@ function AssignPolicyInitiative {
 try
 {  
     Write-Host "Connecting to Azure..."
-    Connect-AzAccount -ErrorAction Stop
+    Connect-AzAccount
 
     # Azure subscription ID
     $subscriptionId = $SubscriptionId
 
     Write-Host "Selecting Azure subscription $subscriptionId..."
     # Select the subscription
-    Select-AzSubscription -SubscriptionId $subscriptionId -ErrorAction Stop
+    Select-AzSubscription -SubscriptionId $subscriptionId
 
     # SQL VM bulk registration
     $bulkRegistration = $RegisterSqlVmAgnet
@@ -163,7 +165,7 @@ try
     # Set role assignment to policy assignment's Managed Identity
     $permissions | Foreach-Object -Parallel {
         try {
-            New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope "/subscriptions/$using:subscriptionId"   
+            New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope "/subscriptions/$using:subscriptionId"
         }
         catch {
             Write-Host "Failed to assign role $_ to policy assignment's Managed Identity on subscription level."
@@ -174,7 +176,7 @@ try
     if($WorkspaceResourceId) {
         $permissions | Foreach-Object -Parallel {
             try {
-                New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope $using:WorkspaceResourceId   
+                New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope $using:WorkspaceResourceId
             }
             catch {
                 Write-Host "Failed to assign role $_ to policy assignment's Managed Identity on workspace level."
