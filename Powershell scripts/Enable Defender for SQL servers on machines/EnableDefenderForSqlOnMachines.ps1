@@ -6,7 +6,7 @@ Enable Defender for SQL servers on machines.
 This script enables Defender for SQL servers on machines at a subscription level.
 
 .PARAMETER SubscriptionId
-[Required] The Azure subscription ID.
+[Required] The Azure subscription ID of the machine.
 
 .PARAMETER RegisterSqlVmAgnet
 [Required] A flag indicating whether to register the SQL VM Agent in bulk. For more information: https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-agent-extension-manually-register-vms-bulk?view=azuresql
@@ -114,6 +114,15 @@ function AssignPolicyInitiative {
     return New-AzPolicyAssignment @assignmentParams -Scope "/subscriptions/$SubscriptionId" -IdentityType "SystemAssigned" -Location $defaultLocation
 }
 
+function Get-SubscriptionIdFromWorkspaceResourceId {
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$WorkspaceResourceId
+    )
+
+    return ($WorkspaceResourceId -split '/')[2]
+}
+
 # Main script
 
 try
@@ -121,18 +130,14 @@ try
     Write-Host "Connecting to Azure..."
     Connect-AzAccount
 
-    # Azure subscription ID
-    $subscriptionId = $SubscriptionId
-
-    Write-Host "Selecting Azure subscription $subscriptionId..."
+    Write-Host "Selecting Azure subscription $SubscriptionId..."
     # Select the subscription
-    Select-AzSubscription -SubscriptionId $subscriptionId
+    Select-AzSubscription -SubscriptionId $SubscriptionId
 
     # SQL VM bulk registration
     $bulkRegistration = $RegisterSqlVmAgnet
 
     $policyDefinitionReferenceIds = $policyDefinitionReferenceIdsDefault
-    $policyAssignmentName = "Defender for SQL on SQL VMs and Arc-enabled SQL Servers"
 
     $policyAssignment = @{}
 
@@ -142,11 +147,12 @@ try
     if ($WorkspaceResourceId) {
         $policyAssignmentName = "Defender for SQL on SQL VMs and Arc-enabled SQL Servers- Custom"
 
-        $policyAssignment = AssignPolicyInitiative -SubscriptionId $subscriptionId -PolicyInitiativeName $policyInitiativeNames["custom"] -AssignmentName $policyAssignmentName -WorkspaceResourceId $WorkspaceResourceId
+        $policyAssignment = AssignPolicyInitiative -SubscriptionId $SubscriptionId -PolicyInitiativeName $policyInitiativeNames["custom"] -AssignmentName $policyAssignmentName -WorkspaceResourceId $WorkspaceResourceId
         $policyDefinitionReferenceIds = $policyDefinitionReferenceIdsCustom
     }
     else {
-        $policyAssignment = AssignPolicyInitiative -SubscriptionId $subscriptionId -PolicyInitiativeName $policyInitiativeNames["default"] -AssignmentName $policyAssignmentName
+        $policyAssignmentName = "Defender for SQL on SQL VMs and Arc-enabled SQL Servers"
+        $policyAssignment = AssignPolicyInitiative -SubscriptionId $SubscriptionId -PolicyInitiativeName $policyInitiativeNames["default"] -AssignmentName $policyAssignmentName
     }
 
     # Create custom role assignments
@@ -165,7 +171,7 @@ try
     # Set role assignment to policy assignment's Managed Identity
     $permissions | Foreach-Object -Parallel {
         try {
-            New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope "/subscriptions/$using:subscriptionId"
+            New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope "/subscriptions/$using:SubscriptionId"
         }
         catch {
             Write-Host "Failed to assign role $_ to policy assignment's Managed Identity on subscription level."
@@ -173,7 +179,8 @@ try
         }
     }
 
-    if($WorkspaceResourceId) {
+    # If the workspace is different from the subscription, assign roles to the policy assignment's Managed Identity on workspace level
+    if($WorkspaceResourceId -and ((Get-SubscriptionIdFromWorkspaceResourceId -WorkspaceResourceId $WorkspaceResourceId) -ne $SubscriptionId)) {
         $permissions | Foreach-Object -Parallel {
             try {
                 New-AzRoleAssignment -ObjectId $using:policyAssignment.Identity.PrincipalId -RoleDefinitionId $_ -Scope $using:WorkspaceResourceId
@@ -194,7 +201,7 @@ try
             $remediationParams = @{
                 "PolicyAssignmentId" = $using:policyAssignment.PolicyAssignmentId
                 "Name" = "Remediation-$_"
-                "Scope" = "/subscriptions/$using:subscriptionId"
+                "Scope" = "/subscriptions/$using:SubscriptionId"
                 "ResourceDiscoveryMode" = "ReEvaluateCompliance"
                 "PolicyDefinitionReferenceId" = $_
             }
@@ -213,7 +220,6 @@ try
         Write-Host "Remediation steps created and executed successfully."
     }
     else {
-        Write-Host "Failed to create and run remediation steps for policy assignment $policyAssignmentName. Exception: $exceptionMessage"
         throw $exceptionMessage
     }
 
@@ -221,7 +227,7 @@ try
     if ($bulkRegistration) {
         Write-Host "Registering SQL VMs for bulk registration..."
         try {
-            $apiUrl = "https://management.azure.com/subscriptions/$subscriptionId/providers/Microsoft.Features/providers/Microsoft.SqlVirtualMachine/features/BulkRegistration/register?api-version=2021-07-01"
+            $apiUrl = "https://management.azure.com/subscriptions/$SubscriptionId/providers/Microsoft.Features/providers/Microsoft.SqlVirtualMachine/features/BulkRegistration/register?api-version=2021-07-01"
             $accessToken = Get-AzAccessToken
             
             Invoke-RestMethod -Uri $apiUrl -Method Post -Headers @{"Authorization" = "Bearer $($accessToken.Token)"}
@@ -237,7 +243,7 @@ try
 
     # Turn on pricing bundle
     Write-Host "Turning on the pricing bundle..."
-    Select-AzSubscription -SubscriptionId $subscriptionId
+    Select-AzSubscription -SubscriptionId $SubscriptionId
     Set-AzSecurityPricing -Name SqlServerVirtualMachines -PricingTier Standard
 }
 catch {
