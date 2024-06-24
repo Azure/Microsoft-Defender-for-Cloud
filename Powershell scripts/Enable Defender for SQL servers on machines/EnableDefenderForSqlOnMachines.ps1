@@ -1,3 +1,5 @@
+#Requires -Modules Az.Resources, Az.OperationalInsights, Az.Accounts, Az,  Az.PolicyInsights, Az.Security
+
 <#
 .SYNOPSIS
 Enable Defender for SQL servers on machines.
@@ -6,7 +8,7 @@ Enable Defender for SQL servers on machines.
 This script enables Defender for SQL servers on machines at a subscription level.
 
 .PARAMETER SubscriptionId
-[Required] The Azure subscription ID of the machine.
+[Required] The Azure subscription ID that you want to enable Defender for SQL servers on machines for.
 
 .PARAMETER RegisterSqlVmAgnet
 [Required] A flag indicating whether to register the SQL VM Agent in bulk. For more information: https://learn.microsoft.com/en-us/azure/azure-sql/virtual-machines/windows/sql-agent-extension-manually-register-vms-bulk?view=azuresql
