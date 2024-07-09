@@ -22,7 +22,7 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 #### NOTE: GitHub Advanced Security is available for Enterprise accounts on GitHub Enterprise Cloud and GitHub Enterprise Server. Some features of GitHub Advanced Security are also available for public repositories on GitHub.com. For more information, see GitHub’s products.
 
 To setup trial of GitHub Enterprise Cloud, try the steps from this article. In order to setup GitHub Enterprise Server trial account, try the steps from this article.
-For the purpose of this lab, we’re setting up a trial to evaluate GitHub Enterprise Cloud. To get a Trial version of GitHub Enterprise Cloud, click here. This will be a 30-day trial and you don’t need to provide a payment method during the trial unless you add GitHub marketplace apps to your organization that require a payment method. 
+For the purpose of this lab, we’re setting up a trial to evaluate GitHub Enterprise Cloud. To get a Trial version of GitHub Enterprise Cloud, click [here](https://docs.github.com/en/enterprise-cloud@latest/admin/overview/setting-up-a-trial-of-github-enterprise-cloud). This will be a 30-day trial and you don’t need to provide a payment method during the trial unless you add GitHub marketplace apps to your organization that require a payment method. 
 
 Go ahead and create a new repository for the purpose of this lab, make the repository as ‘Public’ for testing purposes in order to benefit from the GHAS features.
 
