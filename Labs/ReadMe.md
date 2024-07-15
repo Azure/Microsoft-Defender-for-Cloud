@@ -21,6 +21,7 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 
 * Version 1.0 - General availability of Microsoft Defender for Cloud labs
 * Version 2.0 - General availability of Microsoft Defender for Cloud labs version 2 (November 2021)
+* Version 3.0 - General availability of Microsoft Defender for Cloud labs version 3 (May 2024)
 
 ## Modules
 
@@ -68,10 +69,10 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 3: Adaptive Application Control](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-3-adaptive-application-control)
 - [Exercise 4: File Integrity Monitoring](./Modules/Module-8-Advance-Cloud-Defense.md#exercise-4-file-integrity-monitoring)
 
-[**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md)
+[**Module 9 – Defender for Containers (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Agentless-Container-Vulnerability-Assessment-Scanning.md)
 - [Install Docker Desktop](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
-- [Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry)
-- [Investigate the recommendation for vulnerabilities in ACR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Defender-For-Containers.md#exercise-3-investigate-the-recommendation-for-vulnerabilities-in-acr)
+- [Download vulnerable image from Docker Hub into the Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Agentless-Container-Vulnerability-Assessment-Scanning.md#exercise-2-download-vulnerable-image-from-docker-hub-into-the-container-registry)
+- [Investigate the recommendation for vulnerabilities in ACR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-9-Agentless-Container-Vulnerability-Assessment-Scanning.md#exercise-3-investigate-the-recommendation-for-vulnerabilities-in-acr)
 
 [**Module 10 – GCP (L300)**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md)
 - [Create a GCP project](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-10-GCP.md#exercise-1-create-a-gcp-project)
@@ -152,13 +153,27 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [Exercise 2: Explore Attack Paths in your AWS Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md#exercise-2-explore-attack-paths-in-your-aws-environment)
 - [Exercise 3: Build query with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2020%20%E2%80%93Contextual%20Security%20capabilities%20for%20AWS%20using%20Defender%20CSPM.md#exercise-3-build-query-with-cloud-security-explorer)
 
-**Module 21 - tba**
+[**Module 21 - Contextual Security capabilities for GCP using Defender CSPM**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2021%20%E2%80%93Contextual%20Security%20capabilities%20for%20GCP%20using%20Defender%20CSPM.md)
+- [Exercise 1: Preparing the GCP Environment for Defender CSPM plan](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2021%20%E2%80%93%20Contextual%20Security%20capabilities%20for%20GCP%20using%20Defender%20CSPM.md#exercise-1-preparing-the-gcp-environment-for-defender-cspm-plan)
+- [Exercise 2: Explore Attack Paths in your AWS Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2021%20%E2%80%93%20Contextual%20Security%20capabilities%20for%20GCP%20using%20Defender%20CSPM.md#exercise-2-explore-attack-paths-in-your-aws-environment)
+- [Exercise 3: Build query with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2021%20%E2%80%93%20Contextual%20Security%20capabilities%20for%20GCP%20using%20Defender%20CSPM.md#exercise-3-build-query-with-cloud-security-explorer)
 
 [**Module 22 - Integration with Microsoft Defender for Endpoint**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-22-MDE-integration.md)
 - [Exercise 1: Enable the integration with Microsoft Defender for Endpoint](./Modules/Module-22-MDE-integration.md#exercise-1-enable-the-integration-with-microsoft-defender-for-endpoint)
 - [Exercise 2: Connect your on-premises servers via direct onboarding](./Modules/Module-22-MDE-integration.md#exercise-2-connect-your-on-premises-servers-via-direct-onboarding)
 - [Exercise 3: Analyze vulnerability assessment findings in custom workbooks](./Modules/Module-22-MDE-integration.md#exercise-3-analyze-vulnerability-assessment-findings-in-custom-workbooks)
 
+[**Module 23 - Data-aware security posture**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md)
+- [Exercise 1: Enabling sensitive data discovery](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#exercise-1-enabling-sensitive-data-discovery)
+- [(Optional) Exercise 2: Enabling sensitive data discovery for AWS and GCP](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-2-enabling-sensitive-data-discovery-for-aws-and-gcp)
+- [Exercise 3: Configure sensitive data categories](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#data-sensitivity-settings)
+- [(Optional) Exercise 4: Import and configure custom sensitive info types and sensitivity labels](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-4-import-and-configure-custom-sensitive-info-types-and-sensitivity-labels)
+- [Exercise 5: Upload sensitive data](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#exercise-5-upload-sensitive-data)
+- [Exercise 6: Explore risks with Cloud Security Explorer](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#exercise-6-explore-risks-with-cloud-security-explorer)
+- [Exercise 7: Identify sensitive resources in Inventory](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#exercise-7-identify-sensitive-resources-in-inventory)
+- [(Optional) Exercise 8: Explore risks through attack paths](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#exercise-7-identify-sensitive-resources-in-inventory)
+- [(Optional) Exercise 9: Explore sensitive data security alerts](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
+- [(Optional) Exercise 10: Data security dashboard investigation](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
 
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 

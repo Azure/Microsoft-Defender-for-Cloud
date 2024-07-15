@@ -8,7 +8,7 @@ In summer 2021, we added Microsoft Defender for Endpoint (MDE) integration suppo
 
 ![MDE Integration](./integration.png)
 
-[This script](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Powershell%20scripts/Enable%20MDE%20Integration%20for%20Linux/Enable-LinuxMDE.ps1) has been created to enable MDE integration for Linux machines at scale across on subscriptions within your Tenant. When running the script, it will ask you to enter a Tenant ID and if you want to enable MDE on all subscriptions (including those that don't have the MDE integration enabled at all), or only add MDE integration for Linux machines on subscriptions that already have Windows integration enabled.
+[This script](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Powershell%20scripts/MDE%20Integration/Enable%20MDE%20Integration%20for%20Linux/Enable-LinuxMDE.ps1) has been created to enable MDE integration for Linux machines at scale across on subscriptions within your Tenant. When running the script, it will ask you to enter a Tenant ID and if you want to enable MDE on all subscriptions (including those that don't have the MDE integration enabled at all), or only add MDE integration for Linux machines on subscriptions that already have Windows integration enabled.
 
 You can learn more about MDE integration with Microsoft Defender for Cloud in [our documentation](https://docs.microsoft.com/azure/defender-for-cloud/integration-defender-for-endpoint?tabs=linux).
 
