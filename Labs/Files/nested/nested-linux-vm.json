@@ -81,10 +81,10 @@
         //"nsgID": "[resourceId('Microsoft.Network/networkSecurityGroups',variables('networkSecurityGroupName'))]",
         "nicName": "[concat(variables('vmName'), '-nic')]",
         "osType": {
-            "publisher": "Canonical",
-            "offer": "0001-com-ubuntu-minimal-kinetic",
-            "sku": "minimal-22_10-gen2",
-            "version": "22.10.202210220",
+            "publisher": "canonical",
+            "offer": "0001-com-ubuntu-server-jammy",
+            "sku": "22_04-lts-gen2",
+            "version": "latest",
             "osDiskName": "[concat(variables('vmName'), '-osdisk')]",
             "dataDiskName": "[concat(variables('vmName'), '-datadisk')]"
         },
