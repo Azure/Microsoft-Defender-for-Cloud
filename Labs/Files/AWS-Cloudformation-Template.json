@@ -23,7 +23,7 @@
       "MinLength": "1",
       "MaxLength": "16",
       "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*",
-      "ConstraintDescription" : "must begin with a letter and contain only alphanumeric characters."
+      "ConstraintDescription" : "user name must begin with a letter and contain only alphanumeric characters."
     },
 
     "DBPassword": {
