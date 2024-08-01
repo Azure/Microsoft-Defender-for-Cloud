@@ -159,11 +159,11 @@ try
 
     # Create custom role assignments
     $permissions = @(
-        "92aaf0da-9dab-42b6-94a3-d43ce8d16293", // Log Analytics Contributor
-        "9980e02c-c2be-4d73-94e8-173b1dc7cf3c", // Virtual Machine Contributor
-        "749f88d5-cbae-40b8-bcfc-e573ddc772fa", // Monitoring Contributor
-        "cd570a14-e51a-42ad-bac8-bafd67325302", // Azure Connected Machine Resource Administrator
-        "b24988ac-6180-42a0-ab88-20f7382dd24c" // Contributor
+        "92aaf0da-9dab-42b6-94a3-d43ce8d16293", # Log Analytics Contributor
+        "9980e02c-c2be-4d73-94e8-173b1dc7cf3c", # Virtual Machine Contributor
+        "749f88d5-cbae-40b8-bcfc-e573ddc772fa", # Monitoring Contributor
+        "cd570a14-e51a-42ad-bac8-bafd67325302", # Azure Connected Machine Resource Administrator
+        "b24988ac-6180-42a0-ab88-20f7382dd24c"  #Contributor
     )
 
     Write-Host "Setting role assignment to policy assignment's Managed Identity..."
