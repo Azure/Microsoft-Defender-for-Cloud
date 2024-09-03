@@ -1,4 +1,4 @@
-#Requires -Modules Az.Resources, Az.Accounts, Az.Compute, Az.ConnectedMachine, Az.SqlVirtualMachine
+#Requires -Modules Az, Az.Resources, Az.Accounts, Az.Compute, Az.ConnectedMachine, Az.SqlVirtualMachine
 
 <#
 .SYNOPSIS
@@ -55,7 +55,7 @@ foreach ($vm in $VMResources) {
 
     try {
         # Obtain the instance view of the SQL VM
-        $sqlVMInstanceView = Get-AzSqlVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name -ErrorAction Stop
+        Get-AzSqlVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name -ErrorAction Stop
     }
     catch {
         Write-Host "VM $($vm.Name) is missing SQL extension, skipping.."
