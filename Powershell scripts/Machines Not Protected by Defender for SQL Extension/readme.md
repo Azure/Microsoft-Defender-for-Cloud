@@ -10,6 +10,8 @@ Therefore, the script will exclude the following resources:
 - Linux machines
 - Deallocated or disconnected machines
 
+For more information regarding the SQL servers on machines prerequisites and installation details, please refer to the following [documentation page](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage).
+
 ## Prerequisites
 * Install the following Powershell modules:
     * Az

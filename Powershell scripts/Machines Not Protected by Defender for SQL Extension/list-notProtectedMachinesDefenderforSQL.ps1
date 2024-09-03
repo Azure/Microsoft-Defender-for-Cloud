@@ -36,12 +36,12 @@ catch {
 $ArcResources = $allResources | Where-Object { $_.ResourceType -eq 'Microsoft.HybridCompute/machines' }
 $VMResources = $allResources | Where-Object { $_.ResourceType -eq 'Microsoft.Compute/virtualMachines' }
 
-# Initialize lists to store non-compliant machines and their errors
+# Initialize lists to store not protected machines and their errors
 $nonCompliantVMs = @()
 $nonCompliantVMsError = @()
 
 Write-Host "-----------------------"
-# Iterate over all SQL VMs in the subscription to identify non-compliant VMs
+# Iterate over all SQL VMs in the subscription to identify not protected VMs
 Write-Host "Checking all SQL VMs in the subscription for compliance"
 foreach ($vm in $VMResources) {
     try {
@@ -55,7 +55,7 @@ foreach ($vm in $VMResources) {
 
     try {
         # Obtain the instance view of the SQL VM
-        Get-AzSqlVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name -ErrorAction Stop
+        $sqlVMInstanceView = Get-AzSqlVM -ResourceGroupName $vm.ResourceGroupName -Name $vm.Name -ErrorAction Stop
     }
     catch {
         Write-Host "VM $($vm.Name) is missing SQL extension, skipping.."
@@ -89,18 +89,18 @@ foreach ($vm in $VMResources) {
                             # Validate the status message
                             if ($displayStatus -ne $null -and $displayStatus -like "*provisioning succeeded*") {
                                     if ($message -ne $null -and $message -notlike "*extension is running*") {
-                                    Write-Host "VM $($vm.Name) is non-compliant. Defender for SQL extension status contains errors."
+                                    Write-Host "VM $($vm.Name) is not protected. Defender for SQL extension status contains errors."
                                     $errorMsg  = $message
                                     $addToNonCompliant = $true
                                 }
                             } else {
-                                Write-Host "VM $($vm.Name) is non-compliant. Defender for SQL extension provisioning did not succeed."
-                                $errorMsg  = "Defender for SQL extension provisioning did not succeed."
+                                Write-Host "VM $($vm.Name) is not protected. Defender for SQL extension provisioning did not succeed."
+                                $errorMsg  = "Defender for SQL extension provisioning failed, $message"
                                 $addToNonCompliant = $true
                             }
                         }
                     } else {
-                        Write-Host "VM $($vm.Name) is non-compliant. Missing Defender for SQL extension status."
+                        Write-Host "VM $($vm.Name) is not protected. Missing Defender for SQL extension status."
                         $errorMsg  = "Missing Defender for SQL extension status."
                         $addToNonCompliant = $true
                     }
@@ -110,7 +110,7 @@ foreach ($vm in $VMResources) {
                         $nonCompliantVMsError += $errorMsg
                     }
                 } else {
-                    Write-Host "VM $($vm.Name) is non-compliant. Defender for SQL extension is missing."
+                    Write-Host "VM $($vm.Name) is not protected. Defender for SQL extension is missing."
                     $errorMsg  = "Defender for SQL extension is missing."
                     $nonCompliantVMs += $vm.Name
                     $nonCompliantVMsError += $errorMsg
@@ -131,7 +131,7 @@ $nonCompliantArcs = @()
 $nonCompliantArcsError = @()
 
 Write-Host "-----------------------"
-# Iterate over all Arc machines in the subscription to identify non-compliant Arc machines
+# Iterate over all Arc machines in the subscription to identify not protected Arc machines
 Write-Host "Checking all Arc machines in the subscription for compliance machines"
 foreach ($arc in $ArcResources) {
     try {
@@ -172,18 +172,18 @@ foreach ($arc in $ArcResources) {
 
                             # Validate the status message
                             if ($message -ne $null -and $message -notlike "*extension is running*") {
-                                Write-Host "Arc machine $($arc.Name) is non-compliant. Defender for SQL extension status contains errors."
+                                Write-Host "Arc machine $($arc.Name) is not protected. Defender for SQL extension status contains errors."
                                 $errorMsg  = $message
                                 $addToNonCompliant = $true
                             }
                         } else {
-                            Write-Host "Arc machine $($arc.Name) is non-compliant. Missing Defender for SQL extension status."
+                            Write-Host "Arc machine $($arc.Name) is not protected. Missing Defender for SQL extension status."
                             $errorMsg  = "Missing Defender for SQL extension status."
                             $addToNonCompliant = $true
                         }
                     } else {
-                        Write-Host "Arc machine $($arc.Name) is non-compliant. Defender for SQL extension provisioning did not succeed."
-                        $errorMsg  = "Defender for SQL extension provisioning did not succeed."
+                        Write-Host "Arc machine $($arc.Name) is not protected. Defender for SQL extension provisioning did not succeed."
+                        $errorMsg  = "Defender for SQL extension provisioning failed, $($defenderForSQLExtension.StatusMessage)"
                         $addToNonCompliant = $true
                     }
 
@@ -192,7 +192,7 @@ foreach ($arc in $ArcResources) {
                         $nonCompliantArcsError += $errorMsg
                     }
                 } else {
-                    Write-Host "Arc machine $($arc.Name) is non-compliant. Defender for SQL extension is missing."
+                    Write-Host "Arc machine $($arc.Name) is not protected. Defender for SQL extension is missing."
                     $errorMsg  = "Defender for SQL extension is missing."
                     $nonCompliantArcs += $arc.Name
                     $nonCompliantArcsError += $errorMsg
@@ -209,24 +209,24 @@ foreach ($arc in $ArcResources) {
     }
 }
 
-# Output the list of non-compliant VMs
+# Output the list of not protected VMs
 Write-Host "-----------------------"
 if ($nonCompliantVMs.Count -gt 0) {
-    Write-Host "The following VMs are non-compliant:"
+    Write-Host "The following VMs are not protected:"
     for ($i = 0; $i -lt $nonCompliantVMs.Count; $i++) {
     Write-Host "VM: $($nonCompliantVMs[$i]), error: $($nonCompliantVMsError[$i])"
 }
 } else {
-    Write-Host "After checking all connected VMs, no non-compliant VMs were found. To test deallocated VMs, please turn them on and re-run the script."
+    Write-Host "After checking all connected VMs, no not protected VMs were found. To test deallocated VMs, please turn them on and re-run the script."
 }
 
-# Output the list of non-compliant Arc machines
+# Output the list of not protected Arc machines
 Write-Host "-----------------------"
 if ($nonCompliantArcs.Count -gt 0) {
-    Write-Host "The following Arc machines are non-compliant:"
+    Write-Host "The following Arc machines are not protected:"
     for ($i = 0; $i -lt $nonCompliantArcs.Count; $i++) {
     Write-Host "Arc machine: $($nonCompliantArcs[$i]), error: $($nonCompliantArcsError[$i])"
 }
 } else {
-    Write-Host "After checking all connected Arc machines, no non-compliant Arc machines were found. To test disconnected Arc machines, please turn them on and re-run the script."
+    Write-Host "After checking all connected Arc machines, no not protected Arc machines were found. To test disconnected Arc machines, please turn them on and re-run the script."
 }
