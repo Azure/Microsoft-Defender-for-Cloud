@@ -94,7 +94,7 @@ foreach ($vm in $VMResources) {
                                     $addToNonCompliant = $true
                                 }
                             } else {
-                                Write-Host "VM $($vm.Name) is not protected. Defender for SQL extension provisioning did not succeed."
+                                Write-Host "VM $($vm.Name) is not protected. Defender for SQL extension provisioning failed."
                                 $errorMsg  = "Defender for SQL extension provisioning failed, $message"
                                 $addToNonCompliant = $true
                             }
@@ -182,7 +182,7 @@ foreach ($arc in $ArcResources) {
                             $addToNonCompliant = $true
                         }
                     } else {
-                        Write-Host "Arc machine $($arc.Name) is not protected. Defender for SQL extension provisioning did not succeed."
+                        Write-Host "Arc machine $($arc.Name) is not protected. Defender for SQL extension provisioning failed."
                         $errorMsg  = "Defender for SQL extension provisioning failed, $($defenderForSQLExtension.StatusMessage)"
                         $addToNonCompliant = $true
                     }
