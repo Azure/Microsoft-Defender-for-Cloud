@@ -1,7 +1,8 @@
 Network requirements for IP allowlist:
 
 Defender for Cloud services use the following list of IPs to monitor the security status of customer environments. 
-
+This list is applicable to the CSPM Foundational (free) offering.
+ 
 IP ranges:
 102.133.124.160/27
 102.37.64.64/27
