@@ -1,4 +1,4 @@
-# Module 23 - Data-aware security posture
+# Module 23 - Data security posture management
 
 <p align="left"><img src="../Images/asc-labs-intermediate.gif?raw=true"></p>
 
