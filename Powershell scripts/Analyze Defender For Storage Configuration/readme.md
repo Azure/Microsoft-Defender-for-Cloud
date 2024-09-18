@@ -35,8 +35,10 @@ This PowerShell script analyzes the configuration of Microsoft Defender for Stor
 The script outputs a detailed CSV file of the Defender for Storage configuration for each storage account in the specified resource group. The report includes information on:
 
 - Storage account name
-- Defender for Storage status
-- Recommendations for improving security
+- Defender for Storage effective plan 
+- Sensitive Data Threat Detection feature (enabled/not enabled)
+- On Upload Malware Scanning feature (enabled/not enabled)
+- On Upload Malware Scanning cap
 
 ### Output Sample
 | SubscriptionName | SubscriptionId     | ResourceGroupName  | StorageAccountName   | SubscriptionPlan      | EffectivePlanOnResource                               | SensitiveDataThreatDetection | OnUploadMalwareScanning | OnUploadMalwareScanningCap |
