@@ -78,7 +78,7 @@ If you're accepted into the limited preview, you can enable threat protection fo
   	
      b.	Create a new container within your storage account.
   	
-  	 c.	Unzip the files in the following folder- **ContosoData** and upload them to the container created above.
+  	 c.	Unzip the files in the following folder- [**ContosoData**](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Labs/Files/ContosoData) and upload them to the container created above.
   	
      d.	Perform the following steps to make sure your Storage account is recognized as containing sensitive data: [Test the Defender for Storage data security features](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-test#testing-sensitive-data-threat-detection) (continue from step 4)
   	
