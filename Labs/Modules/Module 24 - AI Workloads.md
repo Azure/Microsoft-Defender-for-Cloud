@@ -1,4 +1,4 @@
-# Module 23 - AI Workloads
+# Module 24 - AI Workloads
 
 ![asc-labs-intermediate](https://github.com/user-attachments/assets/a96db39c-df4f-4a09-a164-edbeb6d19189)
 
