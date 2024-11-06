@@ -16,6 +16,6 @@ A Function App provides high performance with a low latency response time.
 
 1. Consume Event Grid events and connect an Azure Function as the endpoint type.
 
-1. When writing the Azure Function code, you can use our premade function sample - [MoveMaliciousBlobEventTrigger](/MoveMaliciousBlobEventTrigger.cs), or [write your own code](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-copy) to copy the blob elsewhere, then delete it from the source.
+1. When writing the Azure Function code, you can use our premade function sample - [MoveMaliciousBlobEventTrigger](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Workflow%20automation/Move%20Malicious%20Blob%20FunctionApp%20Defender%20for%20Storage/MoveMaliciousBlobEventTrigger.cs), or [write your own code](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-copy) to copy the blob elsewhere, then delete it from the source.
 
 For each scan result, an event is sent according to the following schema.
