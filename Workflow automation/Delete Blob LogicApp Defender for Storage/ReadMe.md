@@ -21,6 +21,7 @@ The ARM template DeleteBlobLogicApp will create a LogicApp that removes maliciou
         2. Go to Workflow automation in the side menu.
         3. Add a new workflow: In the Alert name contains field, fill in Malicious file uploaded to storage account and choose your Logic app in the Actions section.
         4. Select Create.
+           
         ![Screenshot that shows how to set up workflow automation to respond to scan results](Figures/workflow-automation.png)
 
 
