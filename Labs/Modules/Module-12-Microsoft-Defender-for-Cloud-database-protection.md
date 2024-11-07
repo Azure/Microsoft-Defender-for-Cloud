@@ -29,7 +29,7 @@ To enable the Defender plan on a specific subscription:
 4. Locate **Databases**.
 5. Click on **Select types** and ensure **SQL servers on machines** is toggled `On`.
 6. In the Monitoring Coverage column, click on **Settings**:
-    >It is *strongly* recommended to use the new Azure Monitoring Agent for SQL server on machines experience over the legacy Log Analytics/AMA option.
+    >It is *strongly* recommended to use the new Azure Monitoring Agent for SQL server on machines experience over the legacy Log Analytics/MMA option.
     1. Ensure that `Azure Monitoring Agent for SQL server on machines` is toggled to `On`  
     2. (Optional): In the `Configuration` column, you have the option of configuring which Log Analytic Workspace to use as well as the ability to register Azure SQL server instances by enabling SQL IaaS extension automatic registration.  
 7. Click **Continue** and **Save**.
@@ -147,6 +147,44 @@ Defender for Cloud protects PostgreSQL, MySQL flexible servers and MariaDB.
 2. Navigate to **Microsoft Defender for Cloud**
 3. Click on **Inventory** and search for your Azure Maria DB resource.
 4. **Recommendations** and **Security incidents and alerts** should be available, if applicable.
+
+#### Understand AWS RDS protection
+
+Defender for Cloud now extends its protection to AWS RDS. See this announcement here: Microsoft Defender for Open-Source Relational Databases Now Supports Multicloud (AWS RDS).
+In addition to the advance threat protection capabilities for AWS RDS, Defender for open-source relational databases also bundles sensitive data discovery as part of its core value. 
+Refer to Module 11 to familiarize yourself with the AWS connector in MDC. 
+
+##### Enable and protect your AWS RDSs using Microsoft Defender for Open-source relational database plan:
+
+1.	Sign into the Azure portal.
+2.	Navigate to Microsoft Defender for Cloud, then Environment settings.
+3.	Select the relevant AWS Connector.
+4.	Navigate to Databases and then select Settings
+5.	Expand list next to Open-source relational databases (preview)
+6.	Toggle on Open-source relational databases (preview)
+7.	Toggle on Sensitive data discovery 
+    >Notice SQL Servers on machines – Defender for SQL protects SQL machines outside of Azure, including AWS. Azure Arc must be installed on those machines. 
+8.	Click Save.
+
+##### Create an RDS instance with sensitive information
+1.	Sign into your AWS portal and create one of the supported RDS resources. 
+2.	Upload sensitive data into the just created RDS database
+    >Refer to [Module 23, exercise 5 for guidance](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20security%20posture%20management.md?plain=1) or [AWS doc](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/MySQL.Procedural.Importing.AnySource.html) for assistance. 
+3.	Wait 24 hours
+
+##### Look for enriched findings in Cloud Security Explorer:
+1.	Navigate to Cloud Security Explorer in Defender for Cloud 
+2.	Under “Select resource types”, choose “Managed database (PaaS)” then “AWS RDS DB instances
+3.	Click “+” to add another condition
+4.	For “Select condition”, choose “Data” and then “Contains sensitive data”
+5.	Click **Search**
+6.	Your AWS RDS DB should populate in the Results section. 
+
+Other places to look for findings:
+ - **Alerts**: filter alerts by resources with sensitive data discovery findings
+ - **Inventory**: filter RDS resources with sensitive data discovery findings
+ - **Resource health**: enrichment with sensitive data discovery findings
+ - **Attack path**: identify potential attack paths for RDS with sensitive data discovery findings
 
 ### Exercise 4: Explore Defender for Azure Cosmos DB
 
