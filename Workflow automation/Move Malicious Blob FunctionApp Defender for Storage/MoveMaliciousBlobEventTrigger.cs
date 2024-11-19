@@ -33,6 +33,7 @@ namespace FunctionEventTrigger
             log.LogInformation("Received new scan result for storage {0}", storageAccountName);
             var eventData = JsonDocument.Parse(eventGridEvent.Data).RootElement;
             var verdict = eventData.GetProperty("scanResultType").GetString();
+            var blobETag = new ETag(eventData.GetProperty("eTag").GetString());
             var blobUriString = eventData.GetProperty("blobUri").GetString();
             var blobUri = new Uri(blobUriString);
             var blobUriBuilder = new BlobUriBuilder(blobUri);
@@ -55,7 +56,7 @@ namespace FunctionEventTrigger
                 log.LogInformation("blob {0} is malicious, moving it to {1} container", blobUri, MalwareContainer);
                 try
                 {
-                    await MoveMaliciousBlobAsync(blobUri, log);
+                    await MoveMaliciousBlobAsync(blobUri, blobETag, log);
                 }
                 catch (Exception e)
                 {
@@ -69,7 +70,7 @@ namespace FunctionEventTrigger
                 log.LogInformation("blob {0} is malicious, moving it to {1} container", blobUri, CleanContainer);
                 try
                 {
-                    await MoveCleanBlobAsync(blobUri, log);
+                    await MoveCleanBlobAsync(blobUri, blobETag, log);
                 }
                 catch (Exception e)
                 {
@@ -79,7 +80,7 @@ namespace FunctionEventTrigger
             }
         }
 
-        private static async Task MoveMaliciousBlobAsync(Uri blobUri, ILogger log)
+        private static async Task MoveMaliciousBlobAsync(Uri blobUri, ETag blobETag, ILogger log)
 
         {
             var blobUriBuilder = new BlobUriBuilder(blobUri);
@@ -103,14 +104,15 @@ namespace FunctionEventTrigger
             }
 
             log.LogInformation("MoveBlob: Copying blob to {0}", destBlobClient.Uri);
-            var copyFromUriOperation = await destBlobClient.StartCopyFromUriAsync(srcBlobClient.Uri);
+            var copyConditions = new BlobRequestConditions { IfMatch = blobETag };
+            var copyFromUriOperation = await destBlobClient.StartCopyFromUriAsync(srcBlobClient.Uri, sourceConditions: copyConditions);
             await copyFromUriOperation.WaitForCompletionAsync();
             log.LogInformation("MoveBlob: Deleting source blob {0}", srcBlobClient.Uri);
             await srcBlobClient.DeleteAsync();
             log.LogInformation("MoveBlob: blob moved successfully");
         }
 
-        private static async Task MoveCleanBlobAsync(Uri blobUri, ILogger log)
+        private static async Task MoveCleanBlobAsync(Uri blobUri, ETag blobETag, ILogger log)
         {
             var blobUriBuilder = new BlobUriBuilder(blobUri);
             if (blobUriBuilder.BlobContainerName == CleanContainer)
@@ -133,7 +135,8 @@ namespace FunctionEventTrigger
             }
 
             log.LogInformation("MoveBlob: Copying blob to {0}", destBlobClient.Uri);
-            var copyFromUriOperation = await destBlobClient.StartCopyFromUriAsync(srcBlobClient.Uri);
+            var copyConditions = new BlobRequestConditions { IfMatch = blobETag };
+            var copyFromUriOperation = await destBlobClient.StartCopyFromUriAsync(srcBlobClient.Uri, sourceConditions: copyConditions);
             await copyFromUriOperation.WaitForCompletionAsync();
             log.LogInformation("MoveBlob: Deleting source blob {0}", srcBlobClient.Uri);
             await srcBlobClient.DeleteAsync();
