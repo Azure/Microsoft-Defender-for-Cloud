@@ -34,20 +34,20 @@ function ExtractResourceGroupAndMachine {
 # Function to add a row to the table
 function AddRowToOutTable {
     param (
-        [string]$resourceId,
+        [string]$simplifiedResourceId,
         [string]$resourceType,
         [string]$inherited,
         [string]$subPlan,
         [string]$pricingTier
     )
     $row = [PSCustomObject]@{
-        ResourceId = $resourceId
+        ResourceId = $simplifiedResourceId
         ResourceType = $resourceType
         Inherited = $inherited
         SubPlan = $subPlan
         PricingTier = $pricingTier
     }
-    Write-Host "Adding row: $($resourceId), $($resourceType), $($inherited), $($subPlan), $($pricingTier)" -ForegroundColor Gray
+    #Write-Host "Adding row: $($simplifiedResourceId), $($resourceType), $($inherited), $($subPlan), $($pricingTier)" -ForegroundColor Gray
     $script:outTable += $row
 }
 
@@ -348,7 +348,7 @@ foreach ($machine in $vmResponseMachines) {
 				$inherited = $pricingResponse.properties.inherited 
 				$subPlan = $pricingResponse.properties.subPlan
 				$pricingTier = $pricingResponse.properties.pricingTier
-				AddRowToOutTable -resourceId $id -resourceType "VM" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
+				AddRowToOutTable -simplifiedResourceId $id -resourceType "VM" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
 			}
 			catch{
 				Write-Host "Could not write a row in the results table for $($machine.name)" -ForegroundColor Yellow
@@ -431,7 +431,7 @@ foreach ($machine in $vmssResponseMachines) {
 				$inherited = $pricingResponse.properties.inherited 
 				$subPlan = $pricingResponse.properties.subPlan
 				$pricingTier = $pricingResponse.properties.pricingTier
-				AddRowToOutTable -resourceId $id -resourceType "VMSS Machine" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
+				AddRowToOutTable -simplifiedResourceId $id -resourceType "VMSS Machine" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
 			}
 			catch{
 				Write-Host "Could not write a row in the results table for $($machine.name)" -ForegroundColor Yellow
@@ -514,7 +514,7 @@ foreach ($machine in $arcResponseMachines) {
 				$inherited = $pricingResponse.properties.inherited 
 				$subPlan = $pricingResponse.properties.subPlan
 				$pricingTier = $pricingResponse.properties.pricingTier
-				AddRowToOutTable -resourceId $id -resourceType "Arc Machine" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
+				AddRowToOutTable -simplifiedResourceId $id -resourceType "Arc Machine" -inherited $inherited -subPlan $subPlan -pricingTier $pricingTier							
 			}
 			catch{
 				Write-Host "Could not write a row in the results table for $($machine.name)" -ForegroundColor Yellow
