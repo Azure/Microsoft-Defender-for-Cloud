@@ -551,6 +551,9 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 1. Go to **Get Scan**
 2. Navigate to **Auth** and choose **Bearer Token**
 3. Modify the parameters in your GET request
+```
+https://{{endpoint}}/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroup}}/providers/Microsoft.Storage/storageAccounts/{{storageAccountName}}/providers/Microsoft.Security/defenderForStorageSettings/{{settingsName}}/startMalwareScan?api-version=2024-10-01-preview
+```
 6. Click **Send**. The scan status will be "WaitingForCompletion"
 ![waitingforscan](../Images/waitingforscan.png)
 7. The result will appear on the right section. Click **Send** again and the scan status will change "Completed"
@@ -560,6 +563,9 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 1. Go to **Cancel Scan**
 2. Navigate to **Auth** and choose **Bearer Token**
 3. Modify the parameters in your POST request
+```
+https://{{endpoint}}/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroup}}/providers/Microsoft.Storage/storageAccounts/{{storageAccountName}}/providers/Microsoft.Security/defenderForStorageSettings/{{settingsName}}/malwareScans/latest/cancelMalwareScan?api-version=2024-10-01-preview
+```
 6. Click **Send** 
 7. The result will appear on the right section
 
