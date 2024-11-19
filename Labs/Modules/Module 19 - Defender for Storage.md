@@ -506,13 +506,13 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 ![cancel](../Images/cancel.png)
 
 ### Testing it via API
-[Download](/Files/On_Demand_Insomnia_2024-10-14.yaml) our Insomnia collection that has the following APIs:
+[Download](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/On_Demand_Insomnia_2024-10-14.yaml) our Insomnia collection that has the following APIs:
 - Get Scan
 - Start Scan
 - Cancel Scan
 
 #### Prerequisites
-- [Download](/Files/On_Demand_Insomnia_2024-10-14.yaml) API collection 
+- [Download](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Files/On_Demand_Insomnia_2024-10-14.yaml) API collection 
 - Install Insomnia
 - Import the downloaded template
 - Have your Azure Bearer Token for the subscription where you want to use On-demand malware scanning
