@@ -521,9 +521,12 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 1. Open your terminal
 2. Put it PowerShell mode and enter **Connect-AzAccount**
 ![connectazaccount](../Images/connectazaccount.png)
-3. Once connected, enter **(Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token**
+3. Once connected, enter
+```PowerShell
+(Get-AzAccessToken -ResourceUrl "https://management.azure.com").Token
+```
 ![getaccesstoken](../Images/getaccesstoken.png)
-4. Copy it and paste it in the Auth tab in Insomnia
+5. Copy it and paste it in the Auth tab in Insomnia
 
 
 #### Start Scan
