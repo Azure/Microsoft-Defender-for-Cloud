@@ -49,32 +49,39 @@ Note: The deployment time for a new Azure API Management service is ~ 1 hr.
 1.	In the left navigation of your API Management instance, select **APIs**.
  ![](../Images/api3.png?raw=true)
 2.	Select the **OpenAPI** tile.
-3.	In the Create from OpenAPI specification window, select **Basic**.
+3.	In the Create from OpenAPI specification window, select **Full**.
 4.	Enter the following values.
+   You can set API values during creation or later by going to the **Settings** tab.
 
-**OpenAPI specification**	https://conferenceapi.azurewebsites.net?format=json			
+<img width="920" alt="image" src="https://github.com/user-attachments/assets/4cec04ac-35a9-4cbb-b592-a63d0fb312b7" />
 
-**Display name**	Labs Test			
+**OpenAPI specification**		https://petstore3.swagger.io/api/v3/openapi.json			
+
+**Display name**	After you enter the OpenAPI specification URL, API Management fills out this field based on the JSON.		
 
 **Name**	After you enter the preceding Display Name, API Management fills out this field based on the JSON.		
 
-**API URL suffix**	labs	
+**API URL suffix**	petstore	
 
- ![](../Images/api4.png?raw=true)
+<img width="395" alt="image" src="https://github.com/user-attachments/assets/e73849c1-eaae-419f-8d92-53e4f254b514" />
  
  5. Select **Create** to create your API.
 
 ### Test your API
-1.	Once the API has been created, then select it.
-2.	Under Revision 1, select the **Test** tab.
-3.	Click on **GetSessions**.
+You can call API operations directly from the Azure portal, which provides a convenient way to view and test the operations. In the portal's test console, by default, APIs are called by using a key from the built-in all-access subscription. You can also test API calls by using a subscription key scoped to a product.
+1. In the left navigation of your API Management instance, select **APIs** > **Swagger Petstore.**
 
- ![](../Images/api5.png?raw=true)
- 
-4.	Leave all the default values in GetSessions as they are, and press **Send**.
+2. Select the **Test** tab, and then select **Finds Pets by status**. The page shows the status **Query parameter**. Select one of the available values, such as pending. You can also add query parameters and headers here.
+
+In the **HTTP request** section, the **Ocp-Apim-Subscription-Key** header is filled in automatically for you, which you can see if you select the "eye" icon.
+
+3. Select **Send.**
+   
+<img width="423" alt="image" src="https://github.com/user-attachments/assets/2018362c-6db7-4e9a-b20e-a8a5476d4fb9" />
+
+4. The backend responds with **200 OK** and some data.
+
 You can then scroll through the results to verify that the API has been onboarded successfully to Azure API Management.
-
-![](../Images/api6.png?raw=true)
  
 Note: It will take up to 45 minutes for the API you just created to appear in Defender for Cloud for you to follow the next exercise.
 
