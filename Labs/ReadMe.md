@@ -175,6 +175,14 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [(Optional) Exercise 9: Explore sensitive data security alerts](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
 - [(Optional) Exercise 10: Data security dashboard investigation](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
 
+[**Module 25 - Defender XDR Integration**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md)
+
+* [Exercise 1: Setting Up the Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-1-setting-up-the-environment)
+* [Exercise 2: Deploying the Attack Simulation](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-2-deploying-the-attack-simulation)
+* [Exercise 3: Running Individual and Combined Attack Scenarios](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-3-running-individual-and-combined-attack-scenarios)
+* [Exercise 4: Observing and Analyzing MDC Alerts](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-4-observing-and-analyzing-mdc-alerts)
+* [Exercise 5: Correlating and Responding to Incidents Using XDR](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-5-correlating-and-responding-to-incidents-using-xdr)
+
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
 ## Acronyms
