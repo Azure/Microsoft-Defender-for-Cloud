@@ -175,6 +175,10 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 - [(Optional) Exercise 9: Explore sensitive data security alerts](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
 - [(Optional) Exercise 10: Data security dashboard investigation](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2023%20-%20Data%20Aware%20Security%20Posture.md#optional-exercise-9-explore-sensitive-data-security-alerts)
 
+[**Module 24 - Security for AI Workloads**](./Modules/Module%2024%20-%20AI%20Workloads.md)
+* [Exercise 1: Enable AI Workloads](./Modules/Module%2024%20-%20AI%20Workloads.md#Exercise-1:-Enable-AI-Workloads)
+* [Exercise 2: Simulate Jailbreak Attacks](./Modules/Module%2024%20-%20AI%20Workloads.md#Exercise-2:-Simulate-Jailbreak-Attacks)
+
 [**Module 25 - Defender XDR Integration**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md)
 
 * [Exercise 1: Setting Up the Environment](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-1-setting-up-the-environment)
