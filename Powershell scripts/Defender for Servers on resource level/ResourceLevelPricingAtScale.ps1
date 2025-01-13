@@ -101,15 +101,15 @@ if ($mode.ToLower() -eq "rg") {
 		
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachineScaleSets'&api-version=2021-04-01"
 		do{
-			$vmssResponse += Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
-			$vmssResponseMachines = $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmssResponseMachines += $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$vmssUrl = $vmssResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.HybridCompute/machines'&api-version=2023-07-01"
 		do{
-			$arcResponse += Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
-			$arcResponseMachines = $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$arcResponseMachines += $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$arcUrl = $arcResponse.nextLink
 		} while (![string]::IsNullOrEmpty($arcUrl))
 	}
