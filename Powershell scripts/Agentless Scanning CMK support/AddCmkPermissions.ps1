@@ -84,8 +84,12 @@ foreach ($subscription in $Subscriptions) {
             Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
 
             if ($keyVaultRbacEnabled) {
-                Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
+                if ($DryRun) {
+                    Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                } else {
+                    Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                    az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
+                }
             } else {
                 Set-KeyVaultPolicy -KeyVaultName $keyVaultName -Subscription $subscription -AppId $appId -DryRun $DryRun
             }
