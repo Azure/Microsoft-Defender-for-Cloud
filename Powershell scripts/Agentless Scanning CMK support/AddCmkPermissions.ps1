@@ -39,6 +39,25 @@ if (-not $PSBoundParameters.ContainsKey('DryRun')) {
 function Green { process { Write-Host $_ -ForegroundColor Green } }
 function Red { process { Write-Host $_ -ForegroundColor Red } }
 
+# Function to apply Key Vault policy (access policies only)
+function Set-KeyVaultPolicy {
+    param(
+        [string]$KeyVaultName,
+        [string]$Subscription,
+        [string]$AppId,
+        [bool]$DryRun
+    )
+
+    Write-Output "Processing Key Vault: $KeyVaultName in subscription: $Subscription" | Green
+
+    if ($DryRun) {
+        Write-Output "DRY RUN: Would apply access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
+    } else {
+        Write-Output "Applying access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
+        az keyvault set-policy --subscription $Subscription --name $KeyVaultName --spn $AppId --key-permissions get wrapKey unwrapKey
+    }
+}
+
 # Check if the user is logged in to Azure
 $loggedIn = az account show --output none 2>&1
 
@@ -83,16 +102,11 @@ foreach ($subscription in $Subscriptions) {
             $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
             Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
 
-            if ($DryRun) {
-                Write-Output "DryRun mode enabled. No changes will be made for Key Vault: $keyVaultName." | Green
+            if ($keyVaultRbacEnabled) {
+                Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
             } else {
-                if ($keyVaultRbacEnabled) {
-                    Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                    az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
-                } else {
-                    Write-Output "Applying access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                    az keyvault set-policy --subscription $subscription --name $keyVaultName --spn $appId --key-permissions get wrapKey unwrapKey
-                }
+                Set-KeyVaultPolicy -KeyVaultName $keyVaultName -Subscription $subscription -AppId $appId -DryRun $DryRun
             }
         }
     } else {
@@ -113,29 +127,12 @@ foreach ($subscription in $Subscriptions) {
             Write-Output "Found $( $accessPolicyKVs.Count ) Key Vault(s) using Access Policies. They need separate permission setup." | Red
 
             if ($DryRun) {
-                Write-Output "DryRun mode enabled. No changes will be made for Access Policies Key Vaults." | Green
-            } else {
-                $response = Read-Host "Do you want to apply Key Vault permissions for access policy Key Vaults?`n
-                (A)ll - Apply permissions to all access policy Key Vaults`n
-                (O)ne-by-one - Ask for approval for each Key Vault`n
-                (N)o - Skip access policy Key Vaults"
-                
-                if ($response -eq "A" -or $response -eq "a") {
-                    foreach ($kvId in $accessPolicyKVs) {
-                        Write-Output "Applying permissions to $kvId" | Green
-                        az keyvault set-policy --subscription $subscription --name ($kvId -split '/')[-1] --spn $appId --key-permissions get wrapKey unwrapKey
-                    }
-                } elseif ($response -eq "O" -or $response -eq "o") {
-                    foreach ($kvId in $accessPolicyKVs) {
-                        $confirm = Read-Host "Apply permissions to $kvId? (Y/N)"
-                        if ($confirm -eq "Y" -or $confirm -eq "y") {
-                            Write-Output "Applying permissions to $kvId" | Green
-                            az keyvault set-policy --subscription $subscription --name ($kvId -split '/')[-1] --spn $appId --key-permissions get wrapKey unwrapKey
-                        }
-                    }
-                } else {
-                    Write-Output "Skipping access policy Key Vaults." | Green
-                }
+                Write-Output "DryRun mode enabled. Simulating Key Vault policy application." | Green
+            }
+
+            foreach ($kvId in $accessPolicyKVs) {
+                $KeyVaultName = ($kvId -split '/')[-1]
+                Set-KeyVaultPolicy -KeyVaultName $KeyVaultName -Subscription $subscription -AppId $appId -DryRun $DryRun
             }
         }
     }
