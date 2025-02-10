@@ -73,87 +73,34 @@ foreach ($subscription in $Subscriptions) {
         $keyVaultIds = az disk-encryption-set show --ids @desIds --query "[].activeKey.sourceVault.id || activeKey.sourceVault.id" --output json
         $keyVaultIds = $keyVaultIds | ConvertFrom-Json | Sort-Object -Unique
 
-        if ($keyVaultIds -and $keyVaultIds.Count -gt 0) {
-            # Provide a prompt to apply to ALL or ONE-BY-ONE
-            $response = Read-Host "Do you want to apply Key Vault permissions for these Key Vault(s)?
-            (A)ll - Apply permissions to all Key Vaults
-            (O)ne-by-one - Ask for approval for each Key Vault
-            (N)o - Skip Key Vaults"
+        foreach ($keyVaultId in $keyVaultIds) {
+            $keyVaultName = ($keyVaultId -split '/')[-1]
+            $keyVaultSubscription = ($keyVaultId -split '/')[2]
+            Write-Output "Processing Key Vault: $keyVaultName in subscription: $keyVaultSubscription" | Green
 
-            if ($response -eq "A" -or $response -eq "a") {
-                foreach ($keyVaultId in $keyVaultIds) {
-                    $keyVaultName = ($keyVaultId -split '/')[-1]
-                    $keyVaultSubscription = ($keyVaultId -split '/')[2]
-                    Write-Output "Processing Key Vault: $keyVaultName in subscription: $keyVaultSubscription" | Green
+            # Check if the Key Vault is RBAC or Access Policy-based
+            $keyVaultProperties = az keyvault show --subscription $subscription --name $keyVaultName --query "properties" --output json | ConvertFrom-Json
+            $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
+            Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
 
-                    # Check if the Key Vault is RBAC or Access Policy-based
-                    $keyVaultProperties = az keyvault show --subscription $subscription --name $keyVaultName --query "properties" --output json | ConvertFrom-Json
-                    $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
-                    Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
-
-                    if ($keyVaultRbacEnabled) {
-                        if ($DryRun) {
-                            Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                        } else {
-                            Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                            az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
-                        }
-                    } else {
-                        if ($DryRun) {
-                            Write-Output "DRY RUN: Would apply access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                        } else {
-                            Write-Output "Applying access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                            az keyvault set-policy --subscription $subscription --name $keyVaultName --spn $appId --key-permissions get wrapKey unwrapKey
-                        }
-                    }
+            if ($DryRun) {
+                Write-Output "DryRun mode enabled. No changes will be made for Key Vault: $keyVaultName." | Green
+            } else {
+                if ($keyVaultRbacEnabled) {
+                    Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                    az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
+                } else {
+                    Write-Output "Applying access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                    az keyvault set-policy --subscription $subscription --name $keyVaultName --spn $appId --key-permissions get wrapKey unwrapKey
                 }
             }
-            elseif ($response -eq "O" -or $response -eq "o") {
-                # ONE-BY-ONE mode
-                foreach ($keyVaultId in $keyVaultIds) {
-                    $keyVaultName = ($keyVaultId -split '/')[-1]
-                    $keyVaultSubscription = ($keyVaultId -split '/')[2]
-                    Write-Output "Processing Key Vault: $keyVaultName in subscription: $keyVaultSubscription" | Green
-
-                    $keyVaultProperties = az keyvault show --subscription $subscription --name $keyVaultName --query "properties" --output json | ConvertFrom-Json
-                    $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
-                    Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
-
-                    $confirm = Read-Host "Apply permissions to Key Vault: $keyVaultName? (Y/N)"
-                    if ($confirm -eq "Y" -or $confirm -eq "y") {
-                        if ($keyVaultRbacEnabled) {
-                            if ($DryRun) {
-                                Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                            } else {
-                                Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                                az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
-                            }
-                        } else {
-                            if ($DryRun) {
-                                Write-Output "DRY RUN: Would apply access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                            } else {
-                                Write-Output "Applying access policies for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                                az keyvault set-policy --subscription $subscription --name $keyVaultName --spn $appId --key-permissions get wrapKey unwrapKey
-                            }
-                        }
-                    } else {
-                        Write-Output "Skipping Key Vault: $keyVaultName." | Red
-                    }
-                }
-            }
-            else {
-                Write-Output "Skipping all Key Vault permissions at the Key Vault level." | Green
-            }
-        } else {
-            Write-Output "No Key Vaults associated with the Disk Encryption Sets in subscription $subscription." | Green
         }
-    }
-    else {
+    } else {
         # Step 4: Apply RBAC permissions at the subscription level (default)
         Write-Output "Applying RBAC permissions at the subscription level for App ID '$appId' in subscription $subscription." | Green
 
         if ($DryRun) {
-            Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' at subscription scope: /subscriptions/$subscription." | Green
+            Write-Output "DryRun mode enabled. No changes will be made for subscription: $subscription." | Green
         } else {
             Write-Output "Applying RBAC permissions for App ID '$appId' at subscription scope." | Green
             az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope "/subscriptions/$subscription"
@@ -165,39 +112,30 @@ foreach ($subscription in $Subscriptions) {
         if ($accessPolicyKVs.Count -gt 0) {
             Write-Output "Found $( $accessPolicyKVs.Count ) Key Vault(s) using Access Policies. They need separate permission setup." | Red
 
-            # Instead of skipping these on DryRun, we'll show the same prompt
-            $response = Read-Host "Do you want to apply Key Vault permissions for access policy Key Vaults?
-            (A)ll - Apply permissions to all access policy Key Vaults
-            (O)ne-by-one - Ask for approval for each Key Vault
-            (N)o - Skip access policy Key Vaults"
-
-            if ($response -eq "A" -or $response -eq "a") {
-                foreach ($kvId in $accessPolicyKVs) {
-                    $kvName = ($kvId -split '/')[-1]
-                    if ($DryRun) {
-                        Write-Output "DRY RUN: Would apply access policies for App ID '$appId' to Key Vault: $kvName." | Green
-                    } else {
+            if ($DryRun) {
+                Write-Output "DryRun mode enabled. No changes will be made for Access Policies Key Vaults." | Green
+            } else {
+                $response = Read-Host "Do you want to apply Key Vault permissions for access policy Key Vaults?`n
+                (A)ll - Apply permissions to all access policy Key Vaults`n
+                (O)ne-by-one - Ask for approval for each Key Vault`n
+                (N)o - Skip access policy Key Vaults"
+                
+                if ($response -eq "A" -or $response -eq "a") {
+                    foreach ($kvId in $accessPolicyKVs) {
                         Write-Output "Applying permissions to $kvId" | Green
-                        az keyvault set-policy --subscription $subscription --name $kvName --spn $appId --key-permissions get wrapKey unwrapKey
+                        az keyvault set-policy --subscription $subscription --name ($kvId -split '/')[-1] --spn $appId --key-permissions get wrapKey unwrapKey
                     }
-                }
-            }
-            elseif ($response -eq "O" -or $response -eq "o") {
-                foreach ($kvId in $accessPolicyKVs) {
-                    $kvName = ($kvId -split '/')[-1]
-                    $confirm = Read-Host "Apply permissions to $kvId? (Y/N)"
-                    if ($confirm -eq "Y" -or $confirm -eq "y") {
-                        if ($DryRun) {
-                            Write-Output "DRY RUN: Would apply access policies for App ID '$appId' to Key Vault: $kvName." | Green
-                        } else {
+                } elseif ($response -eq "O" -or $response -eq "o") {
+                    foreach ($kvId in $accessPolicyKVs) {
+                        $confirm = Read-Host "Apply permissions to $kvId? (Y/N)"
+                        if ($confirm -eq "Y" -or $confirm -eq "y") {
                             Write-Output "Applying permissions to $kvId" | Green
-                            az keyvault set-policy --subscription $subscription --name $kvName --spn $appId --key-permissions get wrapKey unwrapKey
+                            az keyvault set-policy --subscription $subscription --name ($kvId -split '/')[-1] --spn $appId --key-permissions get wrapKey unwrapKey
                         }
                     }
+                } else {
+                    Write-Output "Skipping access policy Key Vaults." | Green
                 }
-            }
-            else {
-                Write-Output "Skipping access policy Key Vaults." | Green
             }
         }
     }
