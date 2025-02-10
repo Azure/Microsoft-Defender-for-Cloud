@@ -39,25 +39,6 @@ if (-not $PSBoundParameters.ContainsKey('DryRun')) {
 function Green { process { Write-Host $_ -ForegroundColor Green } }
 function Red { process { Write-Host $_ -ForegroundColor Red } }
 
-# Function to apply Key Vault policy (access policies only)
-function Set-KeyVaultPolicy {
-    param(
-        [string]$KeyVaultName,
-        [string]$Subscription,
-        [string]$AppId,
-        [bool]$DryRun
-    )
-
-    Write-Output "Processing Key Vault: $KeyVaultName in subscription: $Subscription" | Green
-
-    if ($DryRun) {
-        Write-Output "DRY RUN: Would apply access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
-    } else {
-        Write-Output "Applying access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
-        az keyvault set-policy --subscription $Subscription --name $KeyVaultName --spn $AppId --key-permissions get wrapKey unwrapKey
-    }
-}
-
 # Check if the user is logged in to Azure
 $loggedIn = az account show --output none 2>&1
 
@@ -139,3 +120,22 @@ foreach ($subscription in $Subscriptions) {
 }
 
 Write-Output "Script execution complete." | Green
+
+# Function to apply Key Vault policy (access policies only)
+function Set-KeyVaultPolicy {
+    param(
+        [string]$KeyVaultName,
+        [string]$Subscription,
+        [string]$AppId,
+        [bool]$DryRun
+    )
+
+    Write-Output "Processing Key Vault: $KeyVaultName in subscription: $Subscription" | Green
+
+    if ($DryRun) {
+        Write-Output "DRY RUN: Would apply access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
+    } else {
+        Write-Output "Applying access policies for App ID '$AppId' to Key Vault: $KeyVaultName." | Green
+        az keyvault set-policy --subscription $Subscription --name $KeyVaultName --spn $AppId --key-permissions get wrapKey unwrapKey
+    }
+}
