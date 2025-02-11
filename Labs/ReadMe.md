@@ -186,9 +186,9 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 * [Exercise 4: Observing and Analyzing MDC Alerts](./Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-4-observing-and-analyzing-mdc-alerts)
 * [Exercise 5: Correlating and Responding to Incidents Using XDR](./Modules/Module%2025%20-%20Defender%20XDR%20Integration.md#step-5-correlating-and-responding-to-incidents-using-xdr)
 
-[**Module 26 - Code Vulnerability Reachability**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Vulnerability%20Reachability.md)
-* [Exercise 1: Azure DevOps Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Vulnerability%20Reachability.md#exercise-1-azure-devops-configuration)
-* [Exercise 2: GitHub Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Vulnerability%20Reachability.md#exercise-2-github-configuration)
+[**Module 26 - Code Reachability Vulnerabilities**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Reachability%20Vulnerability.md)
+* [Exercise 1: Azure DevOps Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Reachability%20Vulnerability.md#exercise-1-azure-devops-configuration)
+* [Exercise 2: GitHub Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Reachability%20Vulnerability.md#exercise-2-github-configuration)
 
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
