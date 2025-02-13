@@ -94,25 +94,30 @@ foreach ($subscription in $Subscriptions) {
             $keyVaultSubscription = ($keyVaultId -split '/')[2]
 
             Write-Output "Processing Key Vault: $keyVaultName in subscription: $keyVaultSubscription" | Green
-            $confirm = Read-Host "Apply permissions to $keyVaultName? (Y/N)"
-            if ($confirm -eq "Y" -or $confirm -eq "y") {
-
-                # Check if the Key Vault is RBAC or Access Policy-based
-                $keyVaultProperties = az keyvault show --subscription $subscription --name $keyVaultName --query "properties" --output json | ConvertFrom-Json
-                $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
-                Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
-
-                # Step 3: Apply permissions at the Key Vault level
-                if ($keyVaultRbacEnabled) {
-                    if ($DryRun) {
-                        Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                    } else {
-                        Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
-                        az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
-                    }
-                } else {
-                    Set-KeyVaultPolicy -KeyVaultName $keyVaultName -Subscription $subscription -AppId $appId -DryRun $DryRun
+            
+            if ($response -eq "O" -or $response -eq "o") {
+                $confirm = Read-Host "Apply permissions to $keyVaultName? (Y/N)"
+                if ($confirm -ne "Y" -and $confirm -ne "y") {
+                    Write-Output "Skipping Key Vault: $keyVaultName" | Green
+                    continue
                 }
+            }
+
+            # Check if the Key Vault is RBAC or Access Policy-based
+            $keyVaultProperties = az keyvault show --subscription $subscription --name $keyVaultName --query "properties" --output json | ConvertFrom-Json
+            $keyVaultRbacEnabled = $keyVaultProperties.enableRbacAuthorization -eq $true
+            Write-Output "Key Vault: $keyVaultName, RBAC Enabled: $keyVaultRbacEnabled" | Green
+
+            # Step 3: Apply permissions at the Key Vault level
+            if ($keyVaultRbacEnabled) {
+                if ($DryRun) {
+                    Write-Output "DRY RUN: Would apply RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                } else {
+                    Write-Output "Applying RBAC permissions for App ID '$appId' to Key Vault: $keyVaultName." | Green
+                    az role assignment create --assignee $appId --role "Key Vault Crypto Service Encryption User" --scope $keyVaultId
+                }
+            } else {
+                Set-KeyVaultPolicy -KeyVaultName $keyVaultName -Subscription $subscription -AppId $appId -DryRun $DryRun
             }
         }
     } else {
