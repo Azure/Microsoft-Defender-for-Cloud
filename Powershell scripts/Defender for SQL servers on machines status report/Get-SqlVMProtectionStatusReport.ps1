@@ -25,6 +25,24 @@ param(
 )
 
 # ----------------------
+# Connect to Azure if not already connected and set the subscription context
+# ----------------------
+if (-not (Get-AzContext)) { Connect-AzAccount }
+
+$subscription = Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionIdOrName -or $_.Name -eq $SubscriptionIdOrName }
+
+if (-not $subscription) {
+    Write-Error "Subscription not found. Exiting."
+    exit
+}
+
+Write-Output "Processing subscription: $($subscription.Name) ($($subscription.Id))"
+Set-AzContext -SubscriptionId $subscription.Id | Out-Null
+
+# Import Excel for the output
+Import-Module ImportExcel -ErrorAction Stop
+
+# ----------------------
 # 1. Define Remote Script
 # ----------------------
 $remoteScript = @'
@@ -66,24 +84,6 @@ catch {
 # Output the collected objects as JSON.
 $results | ConvertTo-Json -Depth 4
 '@
-
-# ----------------------
-# Connect to Azure if not already connected and set the subscription context
-# ----------------------
-if (-not (Get-AzContext)) { Connect-AzAccount }
-
-$subscription = Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionIdOrName -or $_.Name -eq $SubscriptionIdOrName }
-
-if (-not $subscription) {
-    Write-Error "Subscription not found. Exiting."
-    exit
-}
-
-Write-Output "Processing subscription: $($subscription.Name) ($($subscription.Id))"
-Set-AzContext -SubscriptionId $subscription.Id | Out-Null
-
-# Import Excel for the output
-Import-Module ImportExcel -ErrorAction Stop
 
 # ----------------------
 # 2. Loop Through SQL VMs and Start Jobs
@@ -147,7 +147,7 @@ foreach ($job in $jobs) {
         $jobOutput = Receive-Job -Job $job
 
         $jsonOutput = $jobOutput.Value[0].Message
-        
+
         try {
             $parsed = $jsonOutput | ConvertFrom-Json
         }
@@ -155,7 +155,7 @@ foreach ($job in $jobs) {
             Write-Warning "Failed to parse JSON output for SQL VM '$($job.SqlVmName)'. Raw output: $jsonOutput"
             continue
         }
-        
+
         # Ensure the parsed output is an array.
         if ($parsed -isnot [System.Collections.IEnumerable]) {
             $parsed = @($parsed)

@@ -56,9 +56,9 @@ To execute the script, run the following command, replacing `<SubscriptionIdOrNa
 - The script will generate an **Excel file** containing the results.
 - The file is saved in the same directory where the script is run.
 - The output filename follows this format:
-  ```
+```plaintext
   SqlVmProtectionResults_<SubscriptionId>.xlsx
-  ```
+```
 
 ### Step 3: Analyze and Troubleshoot
 - Open the Excel file and review the protection status of SQL VMs.
@@ -86,14 +86,14 @@ To execute the script, run the following command, replacing `<SubscriptionIdOrNa
 
 ### **Q2: The report shows empty results.**
 **Solution:** Ensure:
-   - The subscription contains **SQL VMs**.
-   - You have the correct **Azure role permissions** to access these VMs.
-   - **Microsoft Defender for SQL** is enabled for the VMs.
+- The subscription contains **SQL VMs**.
+- You have the correct **Azure role permissions** to access these VMs.
+- **Microsoft Defender for SQL** is enabled for the VMs.
 
 ### **Q3: I get an "Invoke-AzVMRunCommand failed" error.**
 **Solution:** Ensure:
-   - The target **VMs are running**.
-   - The **VM agent is installed** on each VM (required for `Invoke-AzVMRunCommand`).
+- The target **VMs are running**.
+- The **VM agent is installed** on each VM (required for `Invoke-AzVMRunCommand`).
 
 For additional guidance, check 👉 [Invoke-AzVMRunCommand](https://learn.microsoft.com/en-us/powershell/module/az.compute/invoke-azvmruncommand?view=azps-13.2.0).
 
