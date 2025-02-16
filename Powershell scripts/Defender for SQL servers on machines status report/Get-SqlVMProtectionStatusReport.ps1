@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Retrieves registry values from all underlying VMs of your SQL Virtual Machines (in the scope of the current subscription)
     for every SQL instance (under HKLM:\SOFTWARE\Microsoft\AzureDefender\SQL\) and exports the results to an Excel file.
@@ -25,24 +25,28 @@ param(
 )
 
 # ----------------------
-# Connect to Azure if not already connected and set the subscription context
-# ----------------------
-if (-not (Get-AzContext)) { Connect-AzAccount }
-
-$subscription = Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionIdOrName -or $_.Name -eq $SubscriptionIdOrName }
-
-if (-not $subscription) {
-    Write-Error "Subscription not found. Exiting."
-    exit
-}
-
-Write-Output "Processing subscription: $($subscription.Name) ($($subscription.Id))"
-Set-AzContext -SubscriptionId $subscription.Id | Out-Null
-
-# Import Excel for the output
-Import-Module ImportExcel -ErrorAction Stop
-
-# ----------------------
+# Connect to Azure if not already connected and set the subscription context
+# ----------------------
+if (-not $SubscriptionIdOrName -or [string]::IsNullOrWhiteSpace($SubscriptionIdOrName)) {
+    Write-Error "A valid subscription id or name must be provided."
+    exit
+}
+if (-not (Get-AzContext)) { Connect-AzAccount }
+
+$subscription = Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionIdOrName -or $_.Name -eq $SubscriptionIdOrName }
+
+if (-not $subscription) {
+    Write-Error "Subscription not found. Exiting."
+    exit
+}
+
+Write-Output "Processing subscription: $($subscription.Name) ($($subscription.Id))"
+Set-AzContext -SubscriptionId $subscription.Id | Out-Null
+
+# Import Excel for the output
+Import-Module ImportExcel -ErrorAction Stop
+
+# ----------------------
 # 1. Define Remote Script
 # ----------------------
 $remoteScript = @'
@@ -147,7 +151,7 @@ foreach ($job in $jobs) {
         $jobOutput = Receive-Job -Job $job
 
         $jsonOutput = $jobOutput.Value[0].Message
-
+
         try {
             $parsed = $jsonOutput | ConvertFrom-Json
         }
@@ -155,7 +159,7 @@ foreach ($job in $jobs) {
             Write-Warning "Failed to parse JSON output for SQL VM '$($job.SqlVmName)'. Raw output: $jsonOutput"
             continue
         }
-
+
         # Ensure the parsed output is an array.
         if ($parsed -isnot [System.Collections.IEnumerable]) {
             $parsed = @($parsed)
