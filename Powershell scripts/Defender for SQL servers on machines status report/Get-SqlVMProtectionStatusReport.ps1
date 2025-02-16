@@ -19,6 +19,11 @@
     - Ensure you are connected to your Azure account (Connect-AzAccount).
 #>
 
+param(
+    [Parameter(Mandatory=$true)]
+    [string]$SubscriptionIdOrName
+)
+
 # ----------------------
 # 1. Define Remote Script
 # ----------------------
@@ -63,15 +68,10 @@ $results | ConvertTo-Json -Depth 4
 '@
 
 # ----------------------
-# Prompt for Subscription and Set Context
+# Connect to Azure if not already connected and set the subscription context
 # ----------------------
-# Connect to Azure if not already connected.
-if ($null -eq $(Get-AzContext)){Connect-AzAccount}
+if (-not (Get-AzContext)) { Connect-AzAccount }
 
-param(
-    [Parameter(Mandatory=$true)]
-    [string]$SubscriptionIdOrName
-)
 $subscription = Get-AzSubscription | Where-Object { $_.Id -eq $SubscriptionIdOrName -or $_.Name -eq $SubscriptionIdOrName }
 
 if (-not $subscription) {
