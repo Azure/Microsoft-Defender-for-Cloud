@@ -101,11 +101,17 @@ if (-not $sqlVms) {
     Write-Output "No SQL VMs found in subscription $($subscription.Name). Exiting."
     exit
 }
+Write-Output "Found $($sqlVms.Count) SQL Virtual Machines. Initiating processing of SQL VM protection status checks..."
 
 foreach ($sqlVm in $sqlVms) {
-    # Get the underlying Virtual Machine's resource id.
-    $underlyingVmResourceId = $sqlVm.VirtualMachineId #VirtualMachineResourceId
-    if (-not $underlyingVmResourceId) {
+    # Get the underlying Virtual Machine's resource id from either VirtualMachineId or VirtualMachineResourceId.
+    if ($sqlVm.VirtualMachineId) {
+        $underlyingVmResourceId = $sqlVm.VirtualMachineId
+    }
+    elseif ($sqlVm.VirtualMachineResourceId) {
+        $underlyingVmResourceId = $sqlVm.VirtualMachineResourceId
+    }
+    else {
         Write-Warning "SQL VM '$($sqlVm.Name)' does not have an underlying Virtual Machine resource id. Skipping."
         continue
     }
@@ -128,6 +134,7 @@ foreach ($sqlVm in $sqlVms) {
                                  -AsJob
 
     # Attach extra metadata to the job for later aggregation.
+    $job | Add-Member -MemberType NoteProperty -Name "VmName" -Value $vmName -Force
     $job | Add-Member -MemberType NoteProperty -Name "SqlVmName" -Value $sqlVm.Name -Force
     $job | Add-Member -MemberType NoteProperty -Name "SQLVMResourceId" -Value $sqlVm.ResourceId -Force
 
@@ -147,6 +154,31 @@ Wait-Job -Job $jobs
 # ----------------------
 # Process each job’s output.
 foreach ($job in $jobs) {
+    if ($job.State -eq 'Failed') {
+        $jobErrorMessage = $job.Error[0].Exception.Message
+        if ($jobErrorMessage -match "authorization to perform action") {
+            Write-Warning "Authorization failed for VM '$($job.VmName)'. Error: $jobErrorMessage"
+        }
+        elseif ($jobErrorMessage -match "requires the VM to be running") {
+            Write-Warning "The operation requires the VM '$($job.VmName)' to be running. Error: $jobErrorMessage"
+        }
+        else {
+            Write-Warning "Failed to retrieve protection status from machine '$($job.VmName)'. Error: $jobErrorMessage"
+        }
+
+        # Add the failed job details to the final results with empty fields for status and last update
+        $obj = [PSCustomObject]@{
+            "SQL VM Name"        = $job.SqlVmName
+            "Instance Name"      = ""
+            "Protection Status"  = ""
+            "Last Update"        = ""
+            "SQL VM Resource ID" = $job.SQLVMResourceId
+            "Failure Reason"     = $jobErrorMessage
+        }
+        $finalResults += $obj
+        continue
+    }
+
     try {
         $jobOutput = Receive-Job -Job $job
 
@@ -172,12 +204,14 @@ foreach ($job in $jobs) {
                 "Protection Status"  = $item.ProtectionStatus
                 "Last Update"        = $item.LastUpdate.ToString("o")
                 "SQL VM Resource ID" = $job.SQLVMResourceId
+                "Failure Reason"     = ""
             }
             $finalResults += $obj
         }
     }
     catch {
-        Write-Warning "An error occurred processing job for SQL VM '$($job.SqlVmName)'. Error: $_"
+        Write-Warning "Failed to retrieve protection status for SQL VM '$($job.SqlVmName)'. Error details: $_."
+        Write-Warning "Please verify that the VM is running, accessible, and that the SQL IaaS Extension has been provisioned successfully."
     }
 }
 
