@@ -141,6 +141,7 @@ foreach ($sqlVm in $sqlVms) {
         $finalResults += $obj
         continue
     }
+
     $vmResourceGroup = $parts[4]
     $vmName = $parts[8]
 
@@ -159,77 +160,112 @@ foreach ($sqlVm in $sqlVms) {
     $jobs += $job
 }
 
-if ($jobs.Count -eq 0) {
-    Write-Output "No run command jobs were started. Exiting."
-    return
-}
-
-Write-Output "Waiting for all run command jobs to complete..."
-Wait-Job -Job $jobs
-
 # ----------------------
 # 3. Process Job Outputs and Aggregate Results
 # ----------------------
 # Process each job’s output.
-foreach ($job in $jobs) {
-    if ($job.State -eq 'Failed') {
-        $jobErrorMessage = $job.Error[0].Exception.Message
-        if ($jobErrorMessage -match "authorization to perform action") {
-            Write-Warning "Authorization failed for VM '$($job.VmName)'. Error: $jobErrorMessage"
-        }
-        elseif ($jobErrorMessage -match "requires the VM to be running") {
-            Write-Warning "The operation requires the VM '$($job.VmName)' to be running. Error: $jobErrorMessage"
-        }
-        else {
-            Write-Warning "Failed to retrieve protection status from machine '$($job.VmName)'. Error: $jobErrorMessage"
-        }
+if ($jobs.Count -gt 0) {
+    Write-Output "Waiting for all run command jobs to complete..."
+    Wait-Job -Job $jobs
 
-        # Add the failed job details to the final results with empty fields for status and last update
-        $obj = [PSCustomObject]@{
-            "SQL VM Name"        = $job.SqlVmName
-            "Instance Name"      = ""
-            "Protection Status"  = ""
-            "Last Update"        = ""
-            "SQL VM Resource ID" = $job.SQLVMResourceId
-            "Failure Reason"     = $jobErrorMessage
-        }
-        $finalResults += $obj
-        continue
-    }
+    foreach ($job in $jobs) {
+        if ($job.State -eq 'Failed') {
+            $jobErrorMessage = $job.Error[0].Exception.Message
+            if ($jobErrorMessage -match "authorization to perform action") {
+                Write-Warning "Authorization failed for VM '$($job.VmName)'. Error: $jobErrorMessage"
+            }
+            elseif ($jobErrorMessage -match "requires the VM to be running") {
+                Write-Warning "The operation requires the VM '$($job.VmName)' to be running. Error: $jobErrorMessage."
+            }
+            else {
+                Write-Warning "Failed to retrieve protection status from machine '$($job.VmName)'. Error: $jobErrorMessage"
+            }
 
-    try {
-        $jobOutput = Receive-Job -Job $job
-
-        $jsonOutput = $jobOutput.Value[0].Message
-
-        try {
-            $parsed = $jsonOutput | ConvertFrom-Json
-        }
-        catch {
-            Write-Warning "Failed to parse JSON output for SQL VM '$($job.SqlVmName)'. Raw output: $jsonOutput"
+            # Add the failed job details to the final results with empty fields for status and last update
+            $obj = [PSCustomObject]@{
+                "SQL VM Name"        = $job.SqlVmName
+                "Instance Name"      = ""
+                "Protection Status"  = ""
+                "Last Update"        = ""
+                "SQL VM Resource ID" = $job.SQLVMResourceId
+                "Failure Reason"     = $jobErrorMessage
+            }
+            $finalResults += $obj
             continue
         }
 
-        # Ensure the parsed output is an array.
-        if ($parsed -isnot [System.Collections.IEnumerable]) {
-            $parsed = @($parsed)
-        }
+        try {
+            $jobOutput = Receive-Job -Job $job
+            $jsonOutput = $jobOutput.Value[0].Message
 
-        foreach ($item in $parsed) {
+            # Check if the job output message is empty or white space.
+            if ([string]::IsNullOrWhiteSpace($jsonOutput)) {
+            Write-Warning "Protection status could not be retrieved from SQL VM '$($job.SqlVmName)'."
             $obj = [PSCustomObject]@{
                 "SQL VM Name"        = $job.SqlVmName
-                "Instance Name"      = $item.InstanceName
-                "Protection Status"  = $item.ProtectionStatus
-                "Last Update"        = $item.LastUpdate.ToString("o")
+                "Instance Name"      = ""
+                "Protection Status"  = ""
+                "Last Update"        = ""
                 "SQL VM Resource ID" = $job.SQLVMResourceId
-                "Failure Reason"     = ""
+                "Failure Reason"     = "No protection status information was found on the machine."
+            }
+            $finalResults += $obj
+            continue
+            }
+
+            try {
+            $parsed = $jsonOutput | ConvertFrom-Json
+            }
+            catch {
+            Write-Warning "Failed to parse JSON output for SQL VM '$($job.SqlVmName)'. Raw output: $jsonOutput"
+            continue
+            }
+
+            # Ensure the parsed output is an array.
+            if ($parsed -isnot [System.Collections.IEnumerable]) {
+            $parsed = @($parsed)
+            }
+
+            # Check if the parsed array is empty.
+            if (-not $parsed -or $parsed.Count -eq 0) {
+                Write-Warning "Protection status could not be retrieved from SQL VM '$($job.SqlVmName)'."
+                $obj = [PSCustomObject]@{
+                    "SQL VM Name"        = $job.SqlVmName
+                    "Instance Name"      = ""
+                    "Protection Status"  = ""
+                    "Last Update"        = ""
+                    "SQL VM Resource ID" = $job.SQLVMResourceId
+                    "Failure Reason"     = "No protection status information was found on the machine."
+                }
+                $finalResults += $obj
+                continue
+            }
+
+            foreach ($item in $parsed) {
+                $obj = [PSCustomObject]@{
+                    "SQL VM Name"        = $job.SqlVmName
+                    "Instance Name"      = $item.InstanceName
+                    "Protection Status"  = $item.ProtectionStatus
+                    "Last Update"        = $item.LastUpdate.ToString("o")
+                    "SQL VM Resource ID" = $job.SQLVMResourceId
+                    "Failure Reason"     = ""
+                }
+                $finalResults += $obj
+            }
+        }
+        catch {
+            Write-Warning "Failed to retrieve protection status for SQL VM '$($job.SqlVmName)'. Error details: $_."
+            Write-Warning "Please verify that the VM is running, accessible, that the SQL IaaS Extension and Defender for SQL provisioning is successful."
+            $obj = [PSCustomObject]@{
+                "SQL VM Name"        = $job.SqlVmName
+                "Instance Name"      = ""
+                "Protection Status"  = ""
+                "Last Update"        = ""
+                "SQL VM Resource ID" = $job.SQLVMResourceId
+                "Failure Reason"     = "No protection status information was found on the machine."
             }
             $finalResults += $obj
         }
-    }
-    catch {
-        Write-Warning "Failed to retrieve protection status for SQL VM '$($job.SqlVmName)'. Error details: $_."
-        Write-Warning "Please verify that the VM is running, accessible, and that the SQL IaaS Extension has been provisioned successfully."
     }
 }
 
@@ -246,5 +282,9 @@ while (Test-Path $excelFile) {
 }
 
 $finalResults | Export-Excel -Path $excelFile -AutoSize -WorksheetName "SQLVMs"
+$failedCount = ($finalResults | Where-Object { $_."Failure Reason" -and $_."Failure Reason".Trim() -ne "" }).Count
+$successCount = $finalResults.Count - $failedCount
+$totalCount = $finalResults.Count
 
+Write-Output "Out of $totalCount SQL VM found, successfully retrieved protection status for $successCount, and failed for $failedCount."
 Write-Output "Export complete. Results saved to $excelFile."
