@@ -113,6 +113,15 @@ foreach ($sqlVm in $sqlVms) {
     }
     else {
         Write-Warning "SQL VM '$($sqlVm.Name)' does not have an underlying Virtual Machine resource id. Skipping."
+        $obj = [PSCustomObject]@{
+            "SQL VM Name"        = $sqlVm.Name
+            "Instance Name"      = ""
+            "Protection Status"  = ""
+            "Last Update"        = ""
+            "SQL VM Resource ID" = ""
+            "Failure Reason"     = "No underlying Virtual Machine resource id"
+        }
+        $finalResults += $obj
         continue
     }
 
@@ -121,6 +130,15 @@ foreach ($sqlVm in $sqlVms) {
     $parts = $underlyingVmResourceId -split '/'
     if ($parts.Count -lt 9) {
         Write-Warning "Unexpected resource id format for SQL VM '$($sqlVm.Name)'. Skipping."
+        $obj = [PSCustomObject]@{
+            "SQL VM Name"        = $sqlVm.Name
+            "Instance Name"      = ""
+            "Protection Status"  = ""
+            "Last Update"        = ""
+            "SQL VM Resource ID" = $underlyingVmResourceId
+            "Failure Reason"     = "Unexpected resource id format"
+        }
+        $finalResults += $obj
         continue
     }
     $vmResourceGroup = $parts[4]
