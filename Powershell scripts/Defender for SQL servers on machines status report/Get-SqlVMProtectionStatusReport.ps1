@@ -286,5 +286,5 @@ $failedCount = ($finalResults | Where-Object { $_."Failure Reason" -and $_."Fail
 $successCount = $finalResults.Count - $failedCount
 $totalCount = $finalResults.Count
 
-Write-Output "Out of $totalCount SQL VM found, successfully retrieved protection status for $successCount, and failed for $failedCount."
+Write-Output "Out of $totalCount total instances found, successfully retrieved protection status for $successCount, and failed for $failedCount."
 Write-Output "Export complete. Results saved to $excelFile."
