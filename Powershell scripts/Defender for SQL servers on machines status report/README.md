@@ -3,8 +3,10 @@
 ## Validating SQL Instance Protection Under The *Microsoft Defender for SQL Servers on Machines* Plan
 
 ## Overview
-Defender for SQL on machines provides comprehensive security for SQL servers hosted on Azure Virtual Machines, on-premises infrastructure, and Azure Arc-enabled servers. It helps you discover and mitigate potential [database vulnerabilities](https://learn.microsoft.com/en-us/azure/defender-for-cloud/sql-azure-vulnerability-assessment-overview) and alerts you to [anomalous activies](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-introduction?source=recommendations#advanced-threat-protection) that might indicate a threat to your databases. 
-For further details about the plan and how to enable protection, [please visit this page](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage)
+Defender for SQL on machines provides comprehensive security for SQL servers hosted on Azure Virtual Machines, on-premises infrastructure, and Azure Arc-enabled servers.<!-- -->
+It helps you discover and mitigate potential [database vulnerabilities](https://learn.microsoft.com/en-us/azure/defender-for-cloud/sql-azure-vulnerability-assessment-overview)<!-- -->
+and alerts you to [anomalous activies](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-introduction?source=recommendations#advanced-threat-protection) that might indicate a threat to your databases.
+For further details about the plan and how to enable protection, [please visit this page](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage).
 
 The `Get-SqlVMProtectionStatusReport.ps1` script is designed to retrieve and report the **Microsoft Defender for SQL** protection status from all **SQL Virtual Machines** within a specified Azure subscription.
 
