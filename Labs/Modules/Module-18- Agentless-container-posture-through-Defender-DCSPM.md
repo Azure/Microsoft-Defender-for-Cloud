@@ -64,7 +64,7 @@ az aks get-credentials  --subscription <your-subscriptionid> --resource-group <y
 **4.	Deploy a mock vulnerable image and expose the vulnerable container to the internet.**
 
 ```
-helm install dcspmcharts oci://dcspmtesting.azurecr.io/dcspmcharts --version 1.0.0  --namespace mdc-dcspm-demo --create-namespace --set registry=<your-registry>
+helm install dcspmcharts  oci://mcr.microsoft.com/mdc/stable/dcspmcharts --version 1.0.0 --namespace mdc-dcspm-demo --create-namespace --set image=<your-acr-name.azurecr.io/mdc-mock-0001> --set distribution=AZURE
 ```
 
 **5.	Verify success of the deployment:**

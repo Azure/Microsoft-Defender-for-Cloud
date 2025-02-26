@@ -44,6 +44,8 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 
 **Location**: Select the location nearest you.
 
+**Scan interval**: You can leave as is.
+
 **GCP project number**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project number from the dashboard.
 
 **GCP project id**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project ID from the dashboard.

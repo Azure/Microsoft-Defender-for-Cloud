@@ -4,7 +4,7 @@
 
 #### 🎓 Level: 300 (Advanced)
 #### ⌛ Estimated time to complete this lab: 120 minutes
-#### 💁 Author: Liana Anca Tomescu 
+#### 💁 Author: Walner Dort
 
 
 ## Objectives
@@ -49,32 +49,39 @@ Note: The deployment time for a new Azure API Management service is ~ 1 hr.
 1.	In the left navigation of your API Management instance, select **APIs**.
  ![](../Images/api3.png?raw=true)
 2.	Select the **OpenAPI** tile.
-3.	In the Create from OpenAPI specification window, select **Basic**.
+3.	In the Create from OpenAPI specification window, select **Full**.
 4.	Enter the following values.
+   You can set API values during creation or later by going to the **Settings** tab.
 
-**OpenAPI specification**	https://conferenceapi.azurewebsites.net?format=json			
+<img width="920" alt="image" src="https://github.com/user-attachments/assets/4cec04ac-35a9-4cbb-b592-a63d0fb312b7" />
 
-**Display name**	Labs Test			
+**OpenAPI specification**		https://petstore3.swagger.io/api/v3/openapi.json			
+
+**Display name**	After you enter the OpenAPI specification URL, API Management fills out this field based on the JSON.		
 
 **Name**	After you enter the preceding Display Name, API Management fills out this field based on the JSON.		
 
-**API URL suffix**	labs	
+**API URL suffix**	petstore	
 
- ![](../Images/api4.png?raw=true)
+<img width="395" alt="image" src="https://github.com/user-attachments/assets/e73849c1-eaae-419f-8d92-53e4f254b514" />
  
  5. Select **Create** to create your API.
 
 ### Test your API
-1.	Once the API has been created, then select it.
-2.	Under Revision 1, select the **Test** tab.
-3.	Click on **GetSessions**.
+You can call API operations directly from the Azure portal, which provides a convenient way to view and test the operations. In the portal's test console, by default, APIs are called by using a key from the built-in all-access subscription. You can also test API calls by using a subscription key scoped to a product.
+1. In the left navigation of your API Management instance, select **APIs** > **Swagger Petstore.**
 
- ![](../Images/api5.png?raw=true)
- 
-4.	Leave all the default values in GetSessions as they are, and press **Send**.
+2. Select the **Test** tab, and then select **Finds Pets by status**. The page shows the status **Query parameter**. Select one of the available values, such as pending. You can also add query parameters and headers here.
+
+In the **HTTP request** section, the **Ocp-Apim-Subscription-Key** header is filled in automatically for you, which you can see if you select the "eye" icon.
+
+3. Select **Send.**
+   
+<img width="423" alt="image" src="https://github.com/user-attachments/assets/2018362c-6db7-4e9a-b20e-a8a5476d4fb9" />
+
+4. The backend responds with **200 OK** and some data.
+
 You can then scroll through the results to verify that the API has been onboarded successfully to Azure API Management.
-
-![](../Images/api6.png?raw=true)
  
 Note: It will take up to 45 minutes for the API you just created to appear in Defender for Cloud for you to follow the next exercise.
 
@@ -87,14 +94,15 @@ Note: It will take up to 45 minutes for the API you just created to appear in De
 4.	Under Cloud Workload protections, ensure that the APIs plan is switched **On**.
  
 
- ![](../Images/api7new.png?raw=true)
+ ![](../Images/api7.png?raw=true)
 
 ### Exercise 4: ONBOARD APIS TO DEFENDER FOR APIS
 Next, you will onboard that API to be protected by Defender for API.
 1.	Navigate to the **Recommendations** pane in Microsoft Defender for Cloud
-2.	Under the category “Enable enhanced security features” select the recommendation **Azure API Management APIs should be onboarded to Defender for APIs**. 
+2.	Type "Defender for APIs" within the search box and select the recommendation **Azure API Management APIs should be onboarded to Defender for APIs**. 
 
-![](../Images/api8.png?raw=true)
+<img width="940" alt="image" src="https://github.com/user-attachments/assets/f3399538-9ef1-4770-ad18-88b9b2ce19ab">
+
  
 3.	In the recommendation **Azure API Management APIs should be onboarded to Defender for APIs**, tick the box of the API labs-test and echo-api that you would like to onboard, and click **Fix**.
 
@@ -152,13 +160,11 @@ Next, you will explore other Defender for API recommendations.
 
 ![](../Images/api17.png?raw=true)
  
-4.	Expand **Manage access and permissions, Enable enhanced security features and Implement security best practices**, to see the API recommendations that belong to these controls.
+4.	Select the recommendation **API Management services should use a virtual network**.
+   
+<img width="947" alt="image" src="https://github.com/user-attachments/assets/8be5a15d-7fc3-4c37-bbd7-f79d436d2c18">
 
-
-![](../Images/api18.png?raw=true)
- 
-5.	Select the recommendation **API Management services should use a virtual network**.
-6.	Explore this recommendation by looking at what’s displayed, such as **Unhealthy resources**.
+5.	Explore this recommendation by looking at what’s displayed, such as **Unhealthy resources**.
 
 ![](../Images/api19.png?raw=true)
    
@@ -227,52 +233,3 @@ After some time, Defender for APIs will trigger an alert with detailed informati
 ![](../Images/api28.png?raw=true)
   
 Now you have successfully tested out Defender for API and triggered an alert.
-
-### Exercise 7: EXPLORE THE DATA CLASSIFICATIONS COMING FROM MICROSOFT PURVIEW IN THE DEFENDER FOR API TILE
-PREREQUISITE: Follow the [Microsoft Purview guidance](https://learn.microsoft.com/en-us/purview/sensitivity-insights) to enable sensitive data labels and data classifications for the API **API labs-test** in Microsoft Purview.
-
-1.	Navigate to the Microsoft Defender for Cloud’s **Workload Protections** pane (from the left-hand navigation bar). 
-
-![](../Images/api10.png?raw=true)
- 
-2.	In the bottom part of the blade, under Advanced protection section, click the **API Security** tile at the bottom right.
- 
-
-![](../Images/api11.png?raw=true)
-
-3.	Select the **API labs-test**.
-
- 
-![](../Images/api12.png?raw=true)
-
-
-4. Notice how the data sensitivity labels and data classification is now coming from what you enabled in Microsoft Purview.
-
-![](../Images/purviewlabels.png?raw=true)
-
-
-5.	Select **GetSessions** endpoint name that you tested in Exercise 2 to see this endpoint’s **Resource Health** page.
-
-![](../Images/api13.png?raw=true)
- 
-5.	Explore the **Resource Health** page. Notice how the information available is the same as the information obtained from Microsoft Purview. 
-
-![](../Images/api14.png?raw=true)
- 
-
-## Exercise 8: Build query with Cloud Security Explorer
-1.	Open **Azure Portal** and navigate to **Microsoft Defender for Cloud** blade.
-2.	From Defender for Cloud's menu, open the **Cloud Security Explorer** page
-
-![](../Images/apidcspm.png?raw=true)
-
-3.	Under Query templates, select a predefined query template **APIs communicating over unencrypted protocols with unauthenticated API endpoints** and click on **Open query**.
-
-![](../Images/api29.png?raw=true)
-
-4. Scroll to the top of the page, and hit **Search**.
-
-![](../Images/api30.png?raw=true)
-
-5.	You will find the list of APIs that do not use TLS/SSL encryption, which are communicating with API endpoints that do not have any detected authentication.    
-

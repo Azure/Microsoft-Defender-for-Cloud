@@ -22,7 +22,7 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 #### NOTE: GitHub Advanced Security is available for Enterprise accounts on GitHub Enterprise Cloud and GitHub Enterprise Server. Some features of GitHub Advanced Security are also available for public repositories on GitHub.com. For more information, see GitHub’s products.
 
 To setup trial of GitHub Enterprise Cloud, try the steps from this article. In order to setup GitHub Enterprise Server trial account, try the steps from this article.
-For the purpose of this lab, we’re setting up a trial to evaluate GitHub Enterprise Cloud. To get a Trial version of GitHub Enterprise Cloud, click here. This will be a 30-day trial and you don’t need to provide a payment method during the trial unless you add GitHub marketplace apps to your organization that require a payment method. 
+For the purpose of this lab, we’re setting up a trial to evaluate GitHub Enterprise Cloud. To get a Trial version of GitHub Enterprise Cloud, click [here](https://docs.github.com/en/enterprise-cloud@latest/admin/overview/setting-up-a-trial-of-github-enterprise-cloud). This will be a 30-day trial and you don’t need to provide a payment method during the trial unless you add GitHub marketplace apps to your organization that require a payment method. 
 
 Go ahead and create a new repository for the purpose of this lab, make the repository as ‘Public’ for testing purposes in order to benefit from the GHAS features.
 
@@ -30,13 +30,13 @@ Go ahead and create a new repository for the purpose of this lab, make the repos
 
 1.	Login to your Azure Portal and navigate to Defender for Cloud dashboard
 2.	In the left navigation pane, click **Environment settings** option
-3.	Click the **Add environment** button and click **GitHub (preview)** option. The **Create GitHub connection** page appears as shown the sample below.
+3.	Click the **Add environment** button and click **GitHub** option. The **Create GitHub connection** page appears as shown the sample below.
+   <img width="399" alt="image" src="https://github.com/user-attachments/assets/3bba3c1c-6616-4487-8a9b-888011d62963">
+
 4.	Type the name for the connector, select the subscription, select the Resource Group, which can be the same you used in this lab and the region. 
-5.	Click **Next:select plans >** button to continue.
-6.	In the next page, enable **Defender CSPM**, click **Next: Authorize connection >** button to continue. T
-7.	Click **Authorize** button. Now Click **Install** button under Install Defender for Cloud app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
-8 Back to the Azure portal, you’ll notice that the extension is installed > Click on **Review and Create** button to continue.  
-9. Navigating to the **Environment Settings** under **Microsoft Defender for Cloud**, you’ll notice the GitHub Connection was successfully created. 
+5. In the next page, click **Authorize** button. Now Click **Install** button under Install Defender for Cloud app. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask you confirmation of which repository you'd like to install the app. 
+6. Click on **Review and generate** button to continue.  
+7. Navigating to the **Environment Settings** under **Microsoft Defender for Cloud**, you’ll notice the GitHub Connection was successfully created. 
 
 ![GitHub Connector - Confirming the connector](../Images/Pic6.png?raw=true)
 

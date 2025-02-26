@@ -1,0 +1,129 @@
+_type: export
+__export_format: 4
+__export_date: 2024-10-14T06:21:30.672Z
+__export_source: insomnia.desktop.app:v2023.5.8
+resources:
+  - _id: req_12918c9145614646abd578dec2e504c9
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728826431492
+    created: 1728825924249
+    url: https://{{endpoint}}/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroup}}/providers/Microsoft.Storage/storageAccounts/{{storageAccountName}}/providers/Microsoft.Security/defenderForStorageSettings/{{settingsName}}/malwareScans/latest?api-version={{apiVersion}}
+    name: Get Scan
+    description: ""
+    method: GET
+    body: {}
+    parameters: []
+    headers:
+      - name: User-Agent
+        value: insomnia/2023.5.8
+    authentication:
+      type: bearer
+      token: "{{ _.bearerToken }}"
+    metaSortKey: -1714912469819
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    parentId: null
+    modified: 1728825924151
+    created: 1728825924152
+    name: On-demand
+    description: ""
+    scope: collection
+    _type: workspace
+  - _id: req_d122b4e290184cc989911ef7a01d70cf
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728825924245
+    created: 1728825924245
+    url: https://{{endpoint}}/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroup}}/providers/Microsoft.Storage/storageAccounts/{{storageAccountName}}/providers/Microsoft.Security/defenderForStorageSettings/{{settingsName}}/startMalwareScan?api-version={{apiVersion}}
+    name: Start Scan
+    description: ""
+    method: POST
+    body: {}
+    parameters: []
+    headers:
+      - name: User-Agent
+        value: insomnia/2023.5.8
+    authentication:
+      type: bearer
+      token: "{{bearerToken}}"
+    metaSortKey: -1714563363144
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: req_5416db06e6b944eea7e4fb3fbf92e073
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728825924262
+    created: 1728825924262
+    url: https://{{endpoint}}/subscriptions/{{subscriptionId}}/resourceGroups/{{resourceGroup}}/providers/Microsoft.Storage/storageAccounts/{{storageAccountName}}/providers/Microsoft.Security/defenderForStorageSettings/{{settingsName}}/malwareScans/latest/cancelMalwareScan?api-version={{apiVersion}}
+    name: Cancel Scan
+    description: ""
+    method: POST
+    body: {}
+    parameters: []
+    headers:
+      - name: User-Agent
+        value: insomnia/2023.5.8
+    authentication:
+      type: bearer
+      token: "{{bearerToken}}"
+    metaSortKey: -1709591503871.5
+    isPrivate: false
+    settingStoreCookies: true
+    settingSendCookies: true
+    settingDisableRenderRequestBody: false
+    settingEncodeUrl: true
+    settingRebuildPath: true
+    settingFollowRedirects: global
+    _type: request
+  - _id: env_76b7f922735845babaff1619ec9a43bd
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728886856308
+    created: 1728825924155
+    name: Base Environment
+    data:
+      endpoint: brazilus.management.azure.com
+      subscriptionId: 51a0c478-8a63-44e3-95df-5df37397a193
+      resourceGroup: ondemandpublicbugbash
+      storageAccountName: mystorageaccount
+      settingsName: current
+      bearerToken: "{% AzureIdentityToken 'https://management.azure.com', false %}"
+      apiVersion: 2024-10-01-preview
+    dataPropertyOrder:
+      "&":
+        - endpoint
+        - subscriptionId
+        - resourceGroup
+        - storageAccountName
+        - settingsName
+        - bearerToken
+        - apiVersion
+    color: null
+    isPrivate: false
+    metaSortKey: 1673808881535
+    _type: environment
+  - _id: jar_651558f3c8b143f6bb1afc7014ebb792
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728825924222
+    created: 1728825924222
+    name: Default Jar
+    cookies: []
+    _type: cookie_jar
+  - _id: spc_3205b1b803e24b1289b5493ac7e97dc6
+    parentId: wrk_2b8d3bd1a5f147a5a9321c849e3120b8
+    modified: 1728825924288
+    created: 1728825924227
+    fileName: On-demand
+    contents: ""
+    contentType: yaml
+    _type: api_spec

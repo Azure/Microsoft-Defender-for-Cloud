@@ -10,7 +10,7 @@ In this exercise, you will learn how to connect Azure DevOps repositories to Def
 
 ### Exercise 1: Preparing the Environment
 
-If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md) of this lab, you can skip this exercise, otherwise plesae finish at least Exercise 1, 2 and 3 from Module 1.
+If you already finished [Module 1](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md) of this lab, you can skip this exercise, otherwise please finish at least Exercise 1, 2 and 3 from Module 1.
 
 ### Exercise 2: Creating an Azure DevOps Trial Subscription
 
@@ -24,24 +24,23 @@ If you alredy finished [Module 1](https://github.com/Azure/Microsoft-Defender-fo
 2.	In the left navigation pane, click **Environment settings** option
 3.	Click the **Add environment** button and click **Azure DevOps** option. The **Create Azure DevOps connection** page appears as shown the sample below.
 
-![Azure DevOps Connector](../Images/M14_Fig1.PNG?raw=true)
+<img width="625" alt="image" src="https://github.com/user-attachments/assets/f85b2051-39ae-4dd3-be28-ac3643a1fbeb">
+
 
 4.	Type the name for the connector, select the subscription, select the Resource Group, which can be the same you used in this lab and the region. 
-11.	Click **Next:select plans >** button to continue.
-12.	In the next page, select **Defender CSPM** and click **Next: Authorize connection >** button to continue.
+11.	Click **Next: Configure access >** button to continue.
+12.	In the next page, click **Next: Authorize connection >** button to continue.
 
-![Azure DevOps Connector - Authorize](../Images/M14_Fig2.PNG?raw=true)
-
+<img width="468" alt="image" src="https://github.com/user-attachments/assets/79801359-2618-4d7c-acb9-c4a3335058a9">
 
 13.	Click **Authorize** button. If this is the first time you’re authorizing your DevOps connection, you’ll receive a pop-up screen, that will ask your permission to authorize. Scroll down the popped up window screen and click the **Accept** button as shown in the sample below:
 
-![Azure ADO Connector - Accept](../Images/M14_Fig3.PNG?raw=true)
-
+<img width="1040" alt="image" src="https://github.com/user-attachments/assets/1794e5b1-ddd9-4a7d-9be2-d3a6e3f6c537">
 
 > **Note** When you click **Accept** in your Azure DevOps, you’ll notice the proof of Authorization to the **Microsoft Security DevOps** App. You can find this in your Azure ADO organization, under the **Personal Access tokens** / **User Settings** / **Authorizatons**.  
 
 
-14.	Click **Review and create** button to continue.
+14.	Click **Review and generate** button to continue.
 
 
 > **Note** You need to be a **Project Collection Admin** in the Azure DevOps organization that you selected to complete this process. Learn more about this role [here](https://learn.microsoft.com/en-us/azure/devops/organizations/settings/about-settings?view=azure-devops&WT.mc_id=Portal-Microsoft_Azure_Security_DevOps#project-collection-administrator-pca-role-and-managing-collections-of-projects)

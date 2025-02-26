@@ -16,13 +16,13 @@
                 "description": "Select a version of choice. These versions have vulnerabilities that now are fully pathced. These versions are not always avaiable, therefore you might need to select a different one"
             },
             "type": "string",
-            "defaultValue": "17763.3406.220909",
+            "defaultValue": "17763.4377.230505",
             "allowedValues": [
-                "17763.3406.220909",
-                "17763.3532.221008",
-                "17763.3534.221015",
-                "17763.3650.221105",
-                "17763.3770.221211"
+                "17763.4499.230606",
+                "17763.4499.230621",
+                "17763.4645.230707",
+                "17763.4737.230802",
+                "17763.4851.230905"
                 ]
         },
         // parmaters for Linux Server Name
