@@ -7,6 +7,7 @@ $AgentlessVmScanningEnabled = "True"
 $AgentlessDiscoveryForKubernetesEnabled = "True"
 $SensitiveDataDiscoveryEnabled = "True"
 $ContainerRegistriesVulnerabilityAssessmentsEnabled = "True"
+$ApiPostureEnabled = "True"
 
 # Construct the request body using the variables
 $body = @{
@@ -28,6 +29,10 @@ $body = @{
             @{
                 name = "ContainerRegistriesVulnerabilityAssessments"
                 isEnabled = $ContainerRegistriesVulnerabilityAssessmentsEnabled
+            },
+            @{
+                name = "ApiPosture"
+                isEnabled = $ApiPostureEnabled
             }
         )
     }
