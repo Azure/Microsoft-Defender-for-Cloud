@@ -31,6 +31,10 @@ foreach ($subscription in $subscriptions) {
                 @{
                     name = "ContainerRegistriesVulnerabilityAssessments"
                     isEnabled = "True"
+                },
+                @{
+                    name = "ApiPosture"
+                    isEnabled = "True"
                 }
             )
         }

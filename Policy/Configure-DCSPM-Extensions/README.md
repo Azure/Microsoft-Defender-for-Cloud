@@ -1,3 +1,6 @@
+# Disclaimer: 
+> This custom policy has been effectively replaced by [this built-in policy definition](https://portal.azure.com/#blade/Microsoft_Azure_Policy/PolicyDetailBlade/definitionId/%2Fproviders%2FMicrosoft.Authorization%2FpolicyDefinitions%2F72f8cee7-2937-403d-84a1-a4e3e57f3c21).
+
 # Fine Grain Control of Defender CSPM (DCSPM)
 
 Configure DCSPM and all of it's capabilities through Azure Policy
