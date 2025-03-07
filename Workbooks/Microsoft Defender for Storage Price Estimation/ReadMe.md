@@ -1,4 +1,4 @@
-# Microsoft Defender for Storage - Price Estimation Dashboard 4.0
+# Microsoft Defender for Storage - Price Estimation Dashboard 4.1
 
 
 This workbook helps you estimating the cost of enabling Microsoft Defender for Storage and considers all storage accounts with and without Microsoft Defender for Storage enabled across the selected scope. 
