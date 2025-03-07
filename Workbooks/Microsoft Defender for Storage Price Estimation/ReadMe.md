@@ -12,7 +12,7 @@ You can deploy the workbook by clicking on the button below:
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkbooks%2FMicrosoft%20Defender%20for%20Storage%20Price%20Estimation%2FD4StorageARMTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
 
 ## Overview Tab
-![Image of OverviewTab](WorkbookScreenshot.png)
+![Image of OverviewTab](WorkbookSample.png)
 
 ## Known Issues
 
