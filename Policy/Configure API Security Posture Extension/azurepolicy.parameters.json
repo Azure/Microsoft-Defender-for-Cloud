@@ -1,0 +1,28 @@
+{
+    "effect": {
+        "type": "String",
+        "metadata": {
+            "displayName": "Effect",
+            "description": "Enable or disable the execution of the policy"
+        },
+        "allowedValues": [
+            "DeployIfNotExists",
+            "Disabled"
+        ],
+        "defaultValue": "DeployIfNotExists"
+    },
+    "isApiPostureEnabled": {
+        "type": "String",
+        "metadata": {
+            "displayName": "API Posture Enabled",
+            "description": "Enable or disable the API Posture add-on feature"
+        },
+        "allowedValues": [
+            "true",
+            "false"
+        ],
+        "defaultValue": "true"
+    }
+}
+    
+
