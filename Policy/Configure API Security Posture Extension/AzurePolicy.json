@@ -79,17 +79,17 @@
                     "properties": {
                         "mode": "incremental",
                         "parameters": {
-							"isApiPostureEnabled": {
-                                "value": "[parameters('isApiPostureEnabled')]"
-                            }
+                							"isApiPostureEnabled": {
+                                                "value": "[parameters('isApiPostureEnabled')]"
+                                            }
                         },
                         "template": {
                             "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
                             "contentVersion": "1.0.0.0",
                             "parameters": {
-								"isApiPostureEnabled":{
-									"type": "String"
-								}
+                  								"isApiPostureEnabled":{
+                  									"type": "String"
+                  								}
                             },
                             "resources": [
                                 {
@@ -99,10 +99,10 @@
                                     "properties": {
                                         "pricingTier": "Standard",
                                         "extensions": [
-											{
-												"name": "ApiPosture",
-												"isEnabled": "[parameters('isApiPostureEnabled')]"
-											}
+                    											{
+                    												"name": "ApiPosture",
+                    												"isEnabled": "[parameters('isApiPostureEnabled')]"
+                    											}
                                         ]
                                     }
                                 }
