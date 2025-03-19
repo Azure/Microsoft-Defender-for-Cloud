@@ -30,7 +30,8 @@ if (-not $PSBoundParameters.ContainsKey('DryRun')) {
 # Prompt for permission application level
 $option = Read-Host "Select permission application level: 
 (1) Key Vault level (Note: you'll have to run the script again when new Key Vaults are created)
-(2) Subscription level"
+(2) Subscription level
+"
 
 if ($option -eq "1") {
     $applyAtKeyVaultLevel = $true
