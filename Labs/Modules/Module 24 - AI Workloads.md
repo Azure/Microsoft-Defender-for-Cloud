@@ -7,7 +7,7 @@
 #### ⌛ Estimated time to complete this lab: 30 minutes
 
 #### 💁‍♀️ Author: 
-Safeena Begum [Github](https://github.com/safeenab786), Shiran Horev
+Safeena Begum [GitHub](https://github.com/safeenab786), Shiran Horev
 
 ## Objectives
 This exercise guides you through enabling and configuring AI workloads plan in Microsoft Defender for Cloud and will help you simulate Jailbreak attack proving the value Microsoft Defender for Cloud brings to secure the AI workloads in your environments. 
