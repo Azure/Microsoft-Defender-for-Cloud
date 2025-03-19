@@ -1,7 +1,9 @@
 <#
 .SYNOPSIS
    This script iterates over all VMs in specified subscriptions, identifying those with Customer Managed Keys (CMK).
-   It applies RBAC permissions at the **subscription level** by default but can also apply permissions at the **Key Vault level** if specified.
+   It provides 2 options for applying permissions:
+      Option 1 - Key Vault level (note: you'll need to re-run the script when new Key Vaults are created)
+      Option 2 - Subscription level
 
 .PARAMETER Subscriptions
    An array of Azure Subscription IDs.
@@ -9,31 +11,35 @@
 .PARAMETER DryRun
    A switch parameter to simulate the process without making changes.
 
-.PARAMETER ApplyAtKeyVaultLevel
-   A switch parameter to apply permissions at the Key Vault level instead of the default subscription level.
-
-.NOTES
-   - **Access Policies Key Vaults**: Subscription-level RBAC permissions do not apply. The script detects such cases and offers options to configure manually.
-   - **Migration to RBAC is recommended** for better security & manageability.
-     - Migration Guide: https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-migration
-     - RBAC vs. Access Policies: https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-access-policy
-
 .EXAMPLE
    .\AddCmkPermissions.ps1 -Subscriptions "Subscription1", "Subscription2" -DryRun
-   .\AddCmkPermissions.ps1 -Subscriptions "Subscription1" -ApplyAtKeyVaultLevel
+   .\AddCmkPermissions.ps1 -Subscriptions "Subscription1"
 #>
 
 param (
     [Parameter(Mandatory=$true)]
     [string[]]$Subscriptions,
 
-    [switch]$DryRun,
-
-    [switch]$ApplyAtKeyVaultLevel
+    [switch]$DryRun
 )
 
 if (-not $PSBoundParameters.ContainsKey('DryRun')) {
     $DryRun = $false
+}
+
+# Prompt for permission application level
+$option = Read-Host "Select permission application level: 
+(1) Key Vault level (Note: you'll have to run the script again when new Key Vaults are created)
+(2) Subscription level
+"
+
+if ($option -eq "1") {
+    $applyAtKeyVaultLevel = $true
+} elseif ($option -eq "2") {
+    $applyAtKeyVaultLevel = $false
+} else {
+    Write-Host "Invalid option selected. Exiting script." -ForegroundColor Red
+    exit 1
 }
 
 # Function to apply Key Vault policy (access policies only)
@@ -84,8 +90,8 @@ foreach ($subscription in $Subscriptions) {
     # Get Key Vaults associated with DES
     $keyVaultIds = az disk-encryption-set show --ids @desIds --query "[].activeKey.sourceVault.id" --output json | ConvertFrom-Json | Sort-Object -Unique
 
-    if ($ApplyAtKeyVaultLevel) {
-        $response = Read-Host "Do you want to apply access policies for all Key Vaults or one-by-one?
+    if ($applyAtKeyVaultLevel) {
+        $response = Read-Host "Do you want to apply permissions for all Key Vaults or one-by-one?
         (A)ll - Apply permissions to all Key Vaults
         (O)ne-by-one - Ask for approval for each Key Vault"
         foreach ($keyVaultId in $keyVaultIds) {
@@ -93,13 +99,19 @@ foreach ($subscription in $Subscriptions) {
             $keyVaultSubscription = ($keyVaultId -split '/')[2]
 
             Write-Output "Processing Key Vault: $keyVaultName in subscription: $keyVaultSubscription" | Green
-            
+
             if ($response -eq "O" -or $response -eq "o") {
                 $confirm = Read-Host "Apply permissions to $keyVaultName? (Y/N)"
                 if ($confirm -ne "Y" -and $confirm -ne "y") {
                     Write-Output "Skipping Key Vault: $keyVaultName" | Green
                     continue
                 }
+            }
+            q
+            $response = Read-Host "Apply permissions to $keyVaultName? (Y/N)"
+            if ($response -ne "Y" -and $response -ne "y") {
+                Write-Output "Skipping Key Vault: $keyVaultName" | Green
+                continue
             }
 
             # Check if the Key Vault is RBAC or Access Policy-based
@@ -134,11 +146,11 @@ foreach ($subscription in $Subscriptions) {
         foreach ($keyVaultId in $keyVaultIds) {
             $keyVaultName = ($keyVaultId -split '/')[-1]
             $keyVaultSubscription = ($keyVaultId -split '/')[2]
-        
+
             # Check if RBAC is enabled on the Key Vault
             $keyVaultProperties = az keyvault show --subscription $keyVaultSubscription --name $keyVaultName --query "properties.enableRbacAuthorization" --output json | ConvertFrom-Json
             $keyVaultRbacEnabled = $keyVaultProperties -eq $true
-        
+
             if (-not $keyVaultRbacEnabled) {
                 $accessPolicyKVs += $keyVaultId
             }
@@ -154,7 +166,7 @@ foreach ($subscription in $Subscriptions) {
             
             if ($response -eq "N" -or $response -eq "n") {
                 Write-Output "Skipping all access policy Key Vaults." | Green
-                return
+                continue
             }
 
             foreach ($kvId in $accessPolicyKVs) {
@@ -170,7 +182,7 @@ foreach ($subscription in $Subscriptions) {
                 }
                 
                 if ($DryRun) {
-                    Write-Output "DryRun mode enabled. No changes will be made for key vault: $keyVaultName." | Green
+                    Write-Output "DryRun mode enabled. No changes will be made for Key Vault: $kvName." | Green
                 } else {
                     Set-KeyVaultPolicy -KeyVaultName $kvName -Subscription $subscription -AppId $appId -DryRun $DryRun
                 }
