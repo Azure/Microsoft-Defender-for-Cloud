@@ -1,4 +1,4 @@
-# GuestConfiguration Result v1.10
+# GuestConfiguration Result v1.13
 
 This workbook gives an overview to GuestConfiguration results and machine configuration. Azure Arc is fully included.
 All data is queried by the Azure Resource Graph (ARG) and has no dependencies to Microsoft Defender for Cloud generated data. 
@@ -16,7 +16,9 @@ All data is queried by the Azure Resource Graph (ARG) and has no dependencies to
 | v.1.8|h.wache|2023-05| added Tenant filter to include Lighthouse connected Subscriptions
 | v.1.9|h.wache|2023-06| added a helper to find correct policy with regards to the jobscript which is assigned in the "localscript" paramter, see _[custom policy solution](https://aka.ms/machineconfig)_
 | v.1.10|h.wache|2024-02| fixed policy helper issue, when exceed > 250 entires
-
+| v.1.11|h.wache|2024-06| fixed not showing compliance details if reason/code is not provided in "by Policy tab"
+| v.1.12|h.wache|2024-11| new tab Azure Policy added, looking on Policy Assingments and Definition details per Computer
+| v.1.13|h.wache|2025-03| enabled export to excel buttons on tables
 
 ---
 
@@ -49,11 +51,17 @@ The workbook provides different sections:
 **Identity**
 * Installed and missing Identities
 
+**Azure VM-Agent**
+* VM Agent Information
+
+**Azure Policy**
+* (Preview) Policy Compliance Overview and Details
+
 ## Try on Portal
 You can deploy the workbook by clicking on the buttons below:
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FGuestConfiguration%20Result%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
-<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FAzure-Security-Center%2Fmaster%2FWorkbooks%2FGuestConfiguration%20Result%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Frefs%2Fheads%2Fmain%2FWorkbooks%2FGuestConfiguration%2520Result%2FGuestConfigurationResult_v1.13.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton"/></a>
+<a href="https://portal.azure.us/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Frefs%2Fheads%2Fmain%2FWorkbooks%2FGuestConfiguration%2520Result%2FGuestConfigurationResult_v1.13.json" target="_blank"><img src="https://aka.ms/deploytoazuregovbutton"/></a>
 
 
 
