@@ -9,7 +9,7 @@
    An array of Azure Subscription IDs.
 
 .PARAMETER DryRun
-   A switch parameter to simulate the process without making changes..
+   A switch parameter to simulate the process without making changes.
 
 .EXAMPLE
    .\AddCmkPermissions.ps1 -Subscriptions "Subscription1", "Subscription2" -DryRun
