@@ -1,3 +1,3 @@
 # Policy for Defining Microsoft Defender for Cloud Trusted IPs
 
-Create a new policy definition by copy and pasting the provided definition. After assigning the policy, resource groups and IP groups will be deployed in all subscriptions. These IP groups will contain IP addresses that were specified in the parameters of the policy assignment. These IP addresses are "Trusted IPs" that will be considered in the Internet Exposure calculation.
+Create a new policy definition by copy and pasting the provided definition. After assigning the policy, resource groups and IP groups will be deployed in all subscriptions. These IP groups will contain IP addresses that were specified in the parameters of the policy assignment. These IP addresses are "Trusted IPs" that will be considered in the internet exposure calculation.
