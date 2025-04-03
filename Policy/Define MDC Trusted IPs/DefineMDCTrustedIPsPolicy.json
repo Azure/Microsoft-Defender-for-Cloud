@@ -1,0 +1,115 @@
+{
+    "mode": "All",
+    "policyRule": {
+      "if": {
+        "field": "type",
+        "equals": "Microsoft.Resources/subscriptions"
+      },
+      "then": {
+        "effect": "deployIfNotExists",
+        "details": {
+          "type": "Microsoft.Network/ipgroups",
+          "existenceScope": "subscription",
+          "existenceCondition": {
+            "allOf": [
+              {
+                "field": "name",
+                "equals": "mdc-network-exposure-trusted-ips"
+              },
+              {
+                "count": {
+                  "field": "Microsoft.Network/ipGroups/ipAddresses[*]"
+                },
+                "equals": "[length(parameters('trustedIpAddressRanges'))]"
+              },
+              {
+                "field": "Microsoft.Network/ipGroups/ipAddresses[*]",
+                "in": "[parameters('trustedIpAddressRanges')]"
+              }
+            ]
+          },
+          "deploymentScope": "subscription",
+          "deployment": {
+            "location": "eastus",
+            "properties": {
+              "mode": "incremental",
+              "template": {
+                "$schema": "https://schema.management.azure.com/schemas/2018-05-01/subscriptionDeploymentTemplate.json#",
+                "contentVersion": "1.0.0.0",
+                "parameters": {
+                  "trustedIpAddressRanges": {
+                    "type": "array"
+                  },
+                  "resourceGroupLocation": {
+                    "type": "string"
+                  }
+                },
+                "resources": [
+                  {
+                    "type": "Microsoft.Resources/resourceGroups",
+                    "apiVersion": "2024-11-01",
+                    "name": "mdc-network-exposure-trusted-ips",
+                    "location": "[parameters('resourceGroupLocation')]"
+                  },
+                  {
+                    "type": "Microsoft.Resources/deployments",
+                    "apiVersion": "2022-09-01",
+                    "name": "[concat('ipGroupDeployment-', uniqueString(deployment().name))]",
+                    "dependsOn": [
+                      "[resourceId('Microsoft.Resources/resourceGroups/', 'mdc-network-exposure-trusted-ips')]"
+                    ],
+                    "properties": {
+                      "mode": "incremental",
+                      "template": {
+                        "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                        "contentVersion": "1.0.0.0",
+                        "resources": [
+                          {
+                            "type": "Microsoft.Network/ipGroups",
+                            "apiVersion": "2024-05-01",
+                            "name": "mdc-network-exposure-trusted-ips",
+                            "location": "[parameters('resourceGroupLocation')]",
+                            "properties": {
+                              "ipAddresses": "[parameters('trustedIpAddressRanges')]"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "resourceGroup": "mdc-network-exposure-trusted-ips"
+                  }
+                ]
+              },
+              "parameters": {
+                "trustedIpAddressRanges": {
+                  "value": "[parameters('trustedIpAddressRanges')]"
+                },
+                "resourceGroupLocation": {
+                  "value": "[parameters('resourceGroupLocation')]"
+                }
+              }
+            }
+          },
+          "roleDefinitionIds": [
+            "/providers/Microsoft.Authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+          ]
+        }
+      }
+    },
+    "parameters": {
+      "trustedIpAddressRanges": {
+        "type": "Array",
+        "metadata": {
+          "displayName": "IP Address Ranges",
+          "description": "List of Trusted IP address ranges in CIDR notation."
+        }
+      },
+      "resourceGroupLocation": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Resource Group Location",
+          "description": "The location where the resource group and ipGroup should be deployed."
+        }
+      }
+    }
+  }
