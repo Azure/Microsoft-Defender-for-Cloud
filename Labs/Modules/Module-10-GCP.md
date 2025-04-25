@@ -12,12 +12,12 @@ This exercise guides you on how to connect and protect GCP projects using Defend
 
 First you need to create a GCP project. 
 
-1.	Navigate to [Create free GCP](https://www.google.com/aclk?sa=l&ai=DChcSEwiA7K7Gubn3AhUJuu0KHbACBZkYABAAGgJkZw&sig=AOD64_0Cc0zndLvPEu7wV4blEFwWvjOWag&q&adurl&ved=2ahUKEwihk6nGubn3AhVFZcAKHWP5BYkQ0Qx6BAgDEAE).  
-![Docker Version in Powershell](../Images/1gcpintro.png?raw=true)
+1.	Navigate to [Create free GCP](https://cloud.google.com/free).  
+![Docker Version in Powershell](../Images/1gcpintro.png?raw=true) 
 2.  Click **Get started for free**.
 3.  Now select either an existing Google account or create a new one. 
 4.  Follow the on-screen instructions to create the GCP project.
-5.  At the end, you should be able to sign in to the [Google Cloud Console](console.cloud.google.com), and see the Dashboard:
+5.  At the end, you should be able to sign in to the [Google Cloud Console](https://console.cloud.google.com), and see the Dashboard:
 ![GCP console](../Images/2gcpconsole.png?raw=true)
 6. Copy the project number and project ID, and keep them safe, as you'll be using them in the next exercise.
 
@@ -26,7 +26,7 @@ First you need to create a GCP project.
 In order to be able to protect your GCP resources in Microsoft Defender for Cloud, you need to create the GCP connector in Microsoft Defender for Cloud, which you will do in the following exercise. 
 
 
-1. Go to the Azure Portal and open **Microsft Defender for Cloud** 
+1. Go to the Azure Portal and open **Microsoft Defender for Cloud**. 
 2. Go to **Environment Settings** in the left-hand tab.
 3. Click **+ Add environment** and select **Google Cloud Platform** from the dropdown menu.
 
@@ -46,9 +46,7 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 
 **Scan interval**: You can leave as is.
 
-**GCP project number**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project number from the dashboard.
-
-**GCP project id**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](console.cloud.google.com) and copy the project ID from the dashboard.
+**Organization ID**: You need to enter the organization ID for your GCP project.
 
 ![Create GCP connector](../Images/4creategcpconnector.png?raw=true)
 
@@ -60,15 +58,27 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 ![GCP plans](../Images/5gcpplans.png?raw=true)
 
 8. Select **Next: Configure access**.
+
+For the Management project details, you can either create a new one automatically or use your own existing one. To use the existing GCP project, **uncheck the "Create a dedicated billable GCP project automatically** (as part of the gcloud script)" option.
+
+**Project ID**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](https://console.cloud.google.com) and copy the project ID from the dashboard.
+
+**Project number**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](https://console.cloud.google.com) and copy the project number from the dashboard.
+
 9. Copy the GCP Cloud Shell script. 
 ![GCP script](../Images/6scpscript.png?raw=true)
 10. Click **GCP Cloud Shell** button which will open up the GCP console with Cloud Shell.
-11. Paste the script into the Cloud Shell.
+11. Click on **Authorize Cloud Shell** to grant permission for Google Cloud API calls.
+![GCP script](../Images/6.2gcpscript.png?raw=true)
+12. Paste the script into the Cloud Shell.
 
 ![GCP console with Cloud Shell](../Images/7gcpconsole.png?raw=true)
-12. Let the script run and after it finishes successfully return to Defender for Cloud. 
-13. Back in the **Configure access** page click **Next: review and Generate**.
-14. In the next screen, after validation completes succesfully, click **Create**
+
+13. Let the script run and after it finishes successfully return to Defender for Cloud. 
+
+14. Back in the **Configure access** page click **Next: review and Generate**.
+
+15. In the next screen, after validation completes succesfully, click **Create**.
 
 Now, you have successfully created a GCP connector in Microsoft Defender for Cloud. Now you'll be able to get GCP recommendations and alerts.
 
@@ -81,7 +91,7 @@ Once a vulnerable image has been pushed to the Azure Container Registry registry
  
  1. Go to **Microsoft Defender for Cloud** in the **Azure Portal**.
  2. Go to the **Recommendations** tab in Defender for Cloud.
- 3. In the upper taskbar, under **Scope**, select **GCP** only. 
+ 3. In the upper taskbar, under **Environment type**, select **GCP** only. 
  
 ![GCP console with Cloud Shell](../Images/8gcprecommendations.png?raw=true)
 
