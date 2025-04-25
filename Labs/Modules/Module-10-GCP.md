@@ -48,8 +48,6 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 
 **Organization ID**: You need to enter the organization ID for your GCP project.
 
-
-
 ![Create GCP connector](../Images/4creategcpconnector.png?raw=true)
 
 5.  After filling everything in, click **Next: Select plans**.
@@ -61,13 +59,11 @@ In order to be able to protect your GCP resources in Microsoft Defender for Clou
 
 8. Select **Next: Configure access**.
 
-    For the Management project details, you can either create a new one automatically or use your own existing one. To use the existing GCP project, **uncheck the "Create a dedicated billable GCP project automatically** (as part of the gcloud script)" option.
+For the Management project details, you can either create a new one automatically or use your own existing one. To use the existing GCP project, **uncheck the "Create a dedicated billable GCP project automatically** (as part of the gcloud script)" option.
 
-
-**Project ID**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](https://console.cloud.google.com) and copy the project ID from the dashboard.
+**Project id**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](https://console.cloud.google.com) and copy the project ID from the dashboard.
 
 **Project number**: Paste this from exercise 1, or alternatively go to [Google Cloud Console](https://console.cloud.google.com) and copy the project number from the dashboard.
-
 
 9. Copy the GCP Cloud Shell script. 
 ![GCP script](../Images/6scpscript.png?raw=true)
