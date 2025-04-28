@@ -10,13 +10,12 @@
 
 This exercise guides you MDC's database protection plans. Database protection in Defender for Cloud contains four flavors, dependong on which database type you are looking to protect.
 
-1. Defender for SQL PaaS (SQL on Azure VM)
-Vulnerability assessment and threat protection is available for this plan. Read more about it [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-introduction).
-2. Defender for SQL on machines (SQL servers hosted on premise, in Azure, AWS or GCP)
-For this plan, Azure Monitoring Agent (AMA) is required, in place of Microsoft Monitoring Agent (MMA). Read more about this [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-usage). Vulnerability assessment and detecting anomalous activities are available to protect your Iaas SQL Servers.
-3. Defendr for Open-source relational database
-Protect your PostgreSQL, MySQL and MariaDB resources by detecting anomalous activities. Read more about these security alerts [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-databases-introduction).
-4. Defender for Cosmos DB (NoSQL)
+1. Defender for SQL PaaS (SQL on Azure VM):Vulnerability assessment and threat protection is available for this plan. Read more about it [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-introduction).
+2. Defender for SQL on machines (SQL servers on machines hosted on premise, in Azure, AWS or GCP):
+For this plan, vulnerability assessment and detecting anomalous activities are available to protect your Iaas SQL Servers. Read more about it [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-servers-introduction).
+3. Defender for Open-source relational database:
+Protect your PostgreSQL and MySQL resources by detecting anomalous activities. Read more about these security alerts [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-databases-introduction).
+4. Defender for Cosmos DB (NoSQL):
 Detect potential threats against Cosmos DB accounts like SQL injection, compromised identities or potential exploitation. Read more about CosmosDB protection [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-defender-for-cosmos).
 
 ### Exercise 1: Create a SQL Server on an Azure VM, enable Defender for SQL servers on machines plan and validate alerts
@@ -28,11 +27,7 @@ To enable the Defender plan on a specific subscription:
 3. Select the relevant subscription.
 4. Locate **Databases**.
 5. Click on **Select types** and ensure **SQL servers on machines** is toggled `On`.
-6. In the Monitoring Coverage column, click on **Settings**:
-    >It is *strongly* recommended to use the new Azure Monitoring Agent for SQL server on machines experience over the legacy Log Analytics/MMA option.
-    1. Ensure that `Azure Monitoring Agent for SQL server on machines` is toggled to `On`  
-    2. (Optional): In the `Configuration` column, you have the option of configuring which Log Analytic Workspace to use as well as the ability to register Azure SQL server instances by enabling SQL IaaS extension automatic registration.  
-7. Click **Continue** and **Save**.
+6. Click **Continue** and **Save**.
 
 Now all your existing and upcoming Azure SQL servers on machines are protected.
 
@@ -42,41 +37,15 @@ First use the ARM template to create a SQL server on a Windows Virtual Machine [
 
 1. To deploy, click on the blue **Deploy to Azure** button below:
 
-    [![BlueAzurebutton][def]](<https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.sqlvirtualmachine%2Fsql-vm-new-storage%2Fazuredeploy.json target="_blank">)
+    [![BlueAzurebutton][def]](<https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fquickstarts%2Fmicrosoft.sqlvirtualmachine%2Fsql-vm-new-storage%2Fazuredeploy.json>) 
 
-2. Click **Review and Create** and then when it's ready, click **Create**.
+3. Click **Review and Create** and then when it's ready, click **Create**.
 
     ![SQLVMtemplate](../Images/module12_sqlvmtemplate_yl.png)
 
-3. Once created, make sure **Defender for SQL on machines** plan is enabled.
+4. Once created, make sure **Defender for SQL on machines** plan is enabled.
 
-4. Navigate to the virtual machine. Click on **Extensions + applications**. Notice three extensions: `AzureMonitorWindowsAgent`, `MicrosoftDefenderforSQL` and `SqlIaasExtension`.
-
-#### Validate alerts for Defender for SQL for servers on machines
-
-To validate alerts for Defender for SQL Servers on machines:
-
-1. Sign into the **Azure portal**.
-2. Navigate to the virtual machine.
-3. Click on the **Connect** dropdown and choose **RDP**
-4. Log into your virtual machine using the username and password from Exercise 1.
-5. Open Command Prompt and navigate to:
-`C:\Packages\Plugins\Microsoft.Azure.AzureDefenderForSQL.AdvancedThreatProtection.Windows\2.0.2650.205\bin`
-
-    >As of this writing, 2.0.2650.205 is the version installed. Depending on when you run this lab, the versioning might change.
-
-6. Run the available attacks as displayed. For example, in the command prompt, you can run:
-
-    `Microsoft.SQL.ADS.DefenderForSQL.exe simulate --Attack BruteForce`.
-
-    ![CmdPrompt simulateattack](../Images/module12_cmdpromptsimulateattack_yl.png)
-
-    >Note: Make sure to use the local username and password (you've assigned this in exercise 1, step 3 when creating the VM) to continue running the tests
-
-7. In a few minutes, navigate to **Microsoft Defender for Cloud**, click on **Security Alerts**.
-8. Filter by **Time** or by **Affected resources** and choose your values.
-![SQL ATP Alerts](../Images/12sqlatpalerts-yl.png)
-9. Notice the alert details pertaining to the SQL server.
+5. Navigate to the virtual machine. Click on **Extensions + applications**. Notice three extensions: `MicrosoftDefenderforSQL` and `SqlIaasExtension`.
 
 #### View vulnerability assessments
 
@@ -140,13 +109,6 @@ Defender for Cloud protects PostgreSQL, MySQL flexible servers and MariaDB.
 **Create**.
 4. Once created, navigate to the resource.
 5. Find **Defender for Cloud** under **Security** and make sure the database is **protected**.
-
-#### Understand Azure Maria DB protection
-
-1. Sign into the **Azure portal**.
-2. Navigate to **Microsoft Defender for Cloud**
-3. Click on **Inventory** and search for your Azure Maria DB resource.
-4. **Recommendations** and **Security incidents and alerts** should be available, if applicable.
 
 #### Understand AWS RDS protection
 
