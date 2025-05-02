@@ -3,11 +3,11 @@
 <p align="left"><img src="(../Images/asc-labs-intermediate.gif?raw=true"></p>
 
 #### 💁💁‍♀️ Authors: 
-Fernanda Vela [Github](https://github.com/velahuer), [Linkedin](https://www.linkedin.com/in/mfvelah/)
+Fernanda Vela [GitHub](https://github.com/velahuer), [LinkedIn](https://www.linkedin.com/in/mfvelah/)
 
-Alex Steele [Github](https://github.com/steelealex2), [Linkedin](https://www.linkedin.com/in/alexsteeles/)
+Alex Steele [GitHub](https://github.com/steelealex2), [LinkedIn](https://www.linkedin.com/in/alexsteeles/)
 
-Dick Lake [Github](https://github.com/dickLake-msft), [Linkedin](https://www.linkedin.com/in/richard-lake-b3797394/)
+Dick Lake [GitHub](https://github.com/dickLake-msft), [LinkedIn](https://www.linkedin.com/in/richard-lake-b3797394/)
 
 #### 🎓 Level: 200 (Intermediate)
 #### ⌛ Estimated time to complete this lab: 2-3 hours
@@ -537,7 +537,7 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 3. Paste your Bearer Token
 4. Modify the following parameters in your POST request:
     1. endpoint - **management.azure.com**
-    2. subscriptionId - **your sub id**
+    2. subscriptionId - **your sub ID**
     3. resourceGroup - **the resource group name where you have your storage account**
     4. settingsName - **current**
     5. apiVersion - **2024-10-01-preview**
