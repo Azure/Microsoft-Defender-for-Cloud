@@ -133,7 +133,12 @@ Navigate to the [Defender for Storage documentation](https://learn.microsoft.com
 
 In this Python code you will be able to create a benign file and an Eicar file that will be uploaded to a Storage Account. The results will be surfaced in your IDE.
 
-1. Go to the **Azure portal** and for this exercise, grant your account the **Storage Blob Data Owner** role. This is needed to read the blob index tag in a specific Storage Account container without using a SAS key, rather your Azure AD. Follow the steps documented in this [link](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal#step-2-open-the-add-role-assignment-page) or in the Appendix of this module.
+1. Go to the **Azure portal** and for this exercise, grant your account the **Storage Blob Data Owner** role.
+   This is needed to read the blob index tag in a specific Storage Account container without using a SAS key,
+   rather your Azure AD. Follow the steps documented in this
+   [link](https://learn.microsoft.com/en-us/azure/role-based-access-control/role-assignments-portal#step-2-open-the-add-role-assignment-page)
+   or in the Appendix of this module.
+
 2. Open your preffered IDE, in this exercise we will use Visual Studio Code.
 ![Visual Studio Code](../Images/code1.png?raw=true)
 3. Copy the following code in Visual Studio Code and save it as **antimalware.py**.
@@ -220,7 +225,9 @@ In this Python code you will be able to create a benign file and an Eicar file t
 8. Run **pip install azure-identity**.
 ![Run](../Images/terminal2.png?raw=true)
 9. Run **pip install azure-storage-blob**
-10. Now, run **Connect-AZAccount**. A prompt will pop up and ask you to login into your Azure environment.
+10. Now, run **Connect-AZAccount**.  
+    A prompt will pop up and ask you to login into your Azure environment.
+
 ![Connect account](../Images/terminal3.png?raw=true)
 ![Sign in](../Images/terminal4.png?raw=true)
 11. In Visual Studio Code, run **python ./antimalware.py**. Make sure you are in the folder where you have the python file. In this example, the file is located in Downloads.
@@ -275,16 +282,21 @@ In this Python code you will be able to create a benign file and an Eicar file t
 In this exercise we will use an Azure Function App based on Event Grid events. The Azure Function code we will use is going to help you move a malicious blob from the container where you are uploading files, to a different container (quarantine). The Event Grid events come from the Malware Scanning scan results.
 
 1. Create an Event-Grid Topic in Azure. This has to be in the same region as your Storage Account. Every time we get a scan result, this will be sent to the Event-Grid Topic and this will be able to publish it to all the subscribers (Function app in this case).
-![Event Grid creation](../Images/eventgrid1.png?raw=true)
+    ![Event Grid creation](../Images/eventgrid1.png?raw=true)
 
 2. Once you have validaded all fields, click on **Create**.
-![Event Grid creation](../Images/eventgrid2.png?raw=true)
+    ![Event Grid creation](../Images/eventgrid2.png?raw=true)
 
-3. Go to your storage account, click **Microsoft Defender for Cloud** on the left side menu, and then on **Settings**. On the right, a menu will pop-up. First, switch **Override Defender for Storage subscription-level settings** to **On**. Then, you can check the box for **Send scan results to Event-Grid topic** and choose from the dropbox menu, your Event-Grid.
-![Event Grid creation](../Images/eventgrid3.png?raw=true)
+3. Go to your storage account, click **Microsoft Defender for Cloud** on  
+   the left side menu, and then on **Settings**. On the right, a menu will  
+   pop-up. First, switch **Override Defender for Storage subscription-level  
+   settings** to **On**. Then, you can check the box for **Send scan results  
+   to Event-Grid topic** and choose from the dropbox menu, your Event-Grid.
+
+    ![Event Grid creation](../Images/eventgrid3.png?raw=true)
 
 4. In the **Azure portal** create a Function App. In this example, we will have a .NET code that moves malicious files once they are scanned and found with malware. It will be in the same resource group as my Event-Grid.
-![Function App creation](../Images/functionapp1.png?raw=true)
+    ![Function App creation](../Images/functionapp1.png?raw=true)
 
 5. In the **Defender for Storage documentation**, you will find a code template [MoveMaliciousBlobEventTrigger.](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-configure-malware-scan#option-2-function-app-based-on-event-grid-events) Copy the code. **Note:** The code was updated after this lab instructions. You will have to edit the value "InterestedContainer" to the container where you want to apply the Function App.
 
