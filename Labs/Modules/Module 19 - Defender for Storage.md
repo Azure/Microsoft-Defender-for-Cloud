@@ -232,7 +232,14 @@ In this Python code you will be able to create a benign file and an Eicar file t
 ![Sign in](../Images/terminal4.png?raw=true)
 11. In Visual Studio Code, run **python ./antimalware.py**. Make sure you are in the folder where you have the python file. In this example, the file is located in Downloads.
 ![Results](../Images/terminal5.png?raw=true)
-12. In the results you will see you have 2 files: "ContosoSecretRecipe.txt" and "TotallyNotMalware.txt". Both files where declared in your code. The first file was a benign one, that's why it shows a checkmark ✅ right next to its path. The second file was an Eicar one that the Malware Scanning scan result identifies as malicious, that's why it has an X ❌ next to its path. In the results you will also have values as: etag, last_modified, and the blob index tags with the scan result and time when the scan was performed.
+12. In the results you will see you have 2 files: "ContosoSecretRecipe.txt"  
+    and "TotallyNotMalware.txt". Both files were declared in your code. The  
+    first file was a benign one, that's why it shows a checkmark ✅ right  
+    next to its path. The second file was an Eicar one that the Malware  
+    Scanning scan result identifies as malicious, that's why it has an X ❌  
+    next to its path. In the results you will also have values such as:  
+    `etag`, `last_modified`, and the blob index tags with the scan result  
+    and the time when the scan was performed.
 
 ## 📖 Exercise 9: Set up "Send scan results to Log Analytics" and read it
 
@@ -298,7 +305,11 @@ In this exercise we will use an Azure Function App based on Event Grid events. T
 4. In the **Azure portal** create a Function App. In this example, we will have a .NET code that moves malicious files once they are scanned and found with malware. It will be in the same resource group as my Event-Grid.
     ![Function App creation](../Images/functionapp1.png?raw=true)
 
-5. In the **Defender for Storage documentation**, you will find a code template [MoveMaliciousBlobEventTrigger.](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-configure-malware-scan#option-2-function-app-based-on-event-grid-events) Copy the code. **Note:** The code was updated after this lab instructions. You will have to edit the value "InterestedContainer" to the container where you want to apply the Function App.
+5. In the **Defender for Storage documentation**, you will find a code  
+    template [MoveMaliciousBlobEventTrigger.](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-configure-malware-scan#option-2-function-app-based-on-event-grid-events)  
+    Copy the code. **Note:** The code was updated after this lab  
+    instructions. You will have to edit the value `"InterestedContainer"` to  
+    the container where you want to apply the Function App.
 
 6. Open **Visual Studio Code** in your computer and create a new function. Use **CTRL + Shift + P** to display the quick menu and look for **Azure Functions: Create Function...**
 ![Function App code](../Images/codefunctionapp1.png?raw=true)
@@ -332,8 +343,15 @@ In this exercise we will use an Azure Function App based on Event Grid events. T
 15. Input the name of one of your storage account containers, solely for the purpose to fill this section.
 ![Function App code](../Images/codefunctionapp13.png?raw=true)
 
-16. In this newly created project, paste - in the MoveMaliciousBlob.cs file - the code found in the Defender for Storage documentation called [MoveMaliciousBlobEventTrigger.](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-configure-malware-scan#option-2-function-app-based-on-event-grid-events) **Note:** The code was updated after this lab instructions. You will have to edit the value **InterestedContainer** = "YourContainerName" to the container where you want to apply the Function App; all files that are uploaded there and have the Malicious tag, will be moved to a new container (also defined in this code).
-![Function App code](../Images/codefunctionapp14.png?raw=true)
+16. In this newly created project, paste—in the `MoveMaliciousBlob.cs` file—
+    the code found in the Defender for Storage documentation called
+    [MoveMaliciousBlobEventTrigger.](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-storage-configure-malware-scan#option-2-function-app-based-on-event-grid-events)  
+    **Note:** The code was updated after this lab instructions. You will have to
+    edit the value `InterestedContainer = "YourContainerName"` to the container
+    where you want to apply the Function App; all files that are uploaded there
+    and have the Malicious tag will be moved to a new container (also defined in
+    this code).
+    ![Function App code](../Images/codefunctionapp14.png?raw=true)
 
 17. [Optional] Download and install .NET 6.0 SDK so that you can run the code. <https://dotnet.microsoft.com/en-us/download/dotnet/6.0> After you do that, close and re-open Visual Studio Code so that changes are applied.
 
