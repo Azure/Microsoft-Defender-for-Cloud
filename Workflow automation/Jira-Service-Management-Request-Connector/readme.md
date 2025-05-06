@@ -131,7 +131,7 @@ az keyvault set-policy \
   --object-id <principalId> \
   --secret-permissions get list
 ```
-You can also use Azure Portal to enable the System‑Assigned Managed Identity abd assign the role (Key Vault Secrets User). This role grants permission to read secret contents. This is the minimum role needed to retrieve the actual values of secrets stored in the Key Vault.
+You can also use Azure Portal to enable the System‑Assigned Managed Identity and assign the role (**Key Vault Secrets User**). This role grants permission to read secret contents. This is the minimum role needed to retrieve the actual values of secrets stored in the Key Vault.
 ## 4. Secrets Management and set the App Settings
 
 7. **Import Secrets into Key Vault**
@@ -234,7 +234,7 @@ This is the trickiest one to find directly in the UI. The most reliable method i
 #### 5. JIRA_SERVICE_DESK_ID
 This is the internal, numerical ID of your Jira Service Management project (often different from the Project Key). This ID is used by the Service Management REST API endpoint you are calling.
 
-This is also the trickiest one to find directly in the UI. Best option is to use the URL `https://yourJiraInstanceName.atlassian.net/rest/servicedeskapi/servicedesk` and a page JSON returned page should open and the ID should be there.
+This is also the trickiest one to find directly in the UI. Best option is to use the URL `https://yourJiraInstanceName.atlassian.net/rest/servicedeskapi/servicedesk`. A page JSON page should open and the ID should be there.
 
 * **Value format**: A numerical string (e.g., "1", "10002").
 ![Image 1](images/image06.png)
@@ -276,7 +276,7 @@ az functionapp restart \
 ## 8. Deploy Azure Logi App
 Once done deploying and configure the Azure Function App you can deploy the Logic App by using the button below
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FJira-Service-Management-Request-Connector%2Fmaster%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FJira-Service-Management-Request-Connector%2Fmain%2Fazuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
