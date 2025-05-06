@@ -1,12 +1,13 @@
 # Jira - Create a Service Request
-author: Giulio Astori
-        Ivano Dibenedetto
-        Antonio Formato
+Author: <br>
+Giulio Astori <br>
+Ivano Dibenedetto <br>
+Antonio Formato <br>
 
 
 This is a custom soltuion to provide the option for creating a Service Request whitin Jira Service Management, based on Defender for Cloud Security Recommendations.
 
-Architecture Overview
+Architecture Overview <br>
 The system adopts a serverless, event-driven architecture using Azure services. The core principles guiding the architecture are:
 
 - Serverless Computing: Leverage Azure Functions and Logic Apps to minimize operational overhead and maximize scalability and cost-efficiency. 
@@ -131,7 +132,7 @@ az keyvault set-policy \
   --secret-permissions get list
 ```
 You can also use Azure Portal to enable the System‑Assigned Managed Identity abd assign the role (Key Vault Secrets User). This role grants permission to read secret contents. This is the minimum role needed to retrieve the actual values of secrets stored in the Key Vault.
-## 4. Secrets Management
+## 4. Secrets Management and set the App Settings
 
 7. **Import Secrets into Key Vault**
 
@@ -178,7 +179,65 @@ az functionapp config appsettings set \
     ## use your own service desk id
     JIRA_SERVICE_DESK_ID="1"
 ```
+### How to retrieve the values for the JIRA related settings to configure in the Function App
 
+#### 1. JIRA_PROJECT_KEY_SERVICE_REQUEST
+This is the unique key for your Jira Service Management project.
+
+* Go to your Jira Service Management portal in a web browser and log in.
+* Navigate to your specific Service Management project (e.g., the "Support" project you've been using).
+* The Project Key is usually displayed prominently on the project's main page, often near the project name or logo.
+* Alternatively, go to Project settings (usually in the sidebar or under a gear icon). The Project Key is typically displayed on the "Details" or "Summary" page within Project Settings.
+* **Value format**: A short, uppercase string (e.g., SUP, JSM, ITSUPPORT). Use this exact key.
+![Image 1](images/image03.png)
+
+#### 2. JIRA_ISSUE_TYPE_NAME_SERVICE_REQUEST
+This is the name of the specific Issue Type that Service Requests in your project are based on. In Service Management projects, this is often a standard Issue Type like "Service Request" or "Task".
+
+* Go to your Jira Service Management project in the portal.
+* Go to Project settings.
+* In the left-hand menu of Project settings, find and click on Issue types.
+* Look for the Issue Type that is used for your Service Request tickets. The name will be listed here. For Service Management, there's often a primary issue type linked to the service desk workflow.
+* **Value format**: The exact name as it appears in the "Issue types" list (e.g., Service Request, Task, [System] Service request). Pay attention to capitalization and spacing.
+![Image 1](images/image02.png)
+
+#### 3. JIRA_REQUEST_TYPE_NAME_MDC_RECOMMENDATION
+This is the display name of the specific Request Type you created for MDC Recommendations.
+
+* Go to your Jira Service Management project on the portal.
+* Go to Project settings.
+* In the left-hand menu of Project settings, find and click on Request types and open the Service Requests.
+* Find your custom Request Type in the list (the one you named something like "Request a change - MDC Recommendation").
+* **Value format**: The exact display name of the Request Type as it appears in this list (e.g., Request a change - MDC Recommendation, MDC Recommendation Ticket). Pay close attention to capitalization, spacing, and any punctuation.
+![Image 1](images/image01.png)
+
+#### 4. JIRA_REQUEST_TYPE_ID_MDC_RECOMMENDATION
+This is the internal, numerical ID associated with your specific Request Type. Jira Service Management API often requires the ID rather than the name for creating requests.
+
+This is the trickiest one to find directly in the UI. The most reliable method is often by inspecting network requests in your browser's developer tools or using the Jira API directly.
+
+#### Method (Recommended - Using Browser Developer Tools):
+1. Go to your Jira Service Management project in the portal.
+2. Go to Project settings -> Request types->Service Request and click to open the Request Type.
+3. Open your web browser's Developer Tools (usually by pressing F12).
+4. Go to the Network tab in the Developer Tools.
+5. Refresh the "Request types" page in Jira (or click on your specific "Request a change - MDC Recommendation" Request Type to view its details).
+6. In the Network tab, look for API requests that are made. You might need to filter by "XHR" or "Fetch/XHR". Look for URLs that contain `/rest/servicedeskapi/requesttype` or similar.
+7. Click on one of the relevant network requests.
+8. Examine the Response tab. Look for JSON data in the response that lists the Request Types in your project. Find your "Request a change - MDC Recommendation" Request Type within this JSON data. It should have an `id` property.
+9. Copy the numerical value of the `id` property. This is your Request Type ID.
+
+* **Value format**: A numerical string (e.g., "10001", "12345").
+![Image 1](images/image04.png)
+![Image 1](images/image05.png)
+
+#### 5. JIRA_SERVICE_DESK_ID
+This is the internal, numerical ID of your Jira Service Management project (often different from the Project Key). This ID is used by the Service Management REST API endpoint you are calling.
+
+This is also the trickiest one to find directly in the UI. Best option is to use the URL `https://yourJiraInstanceName.atlassian.net/rest/servicedeskapi/servicedesk` and a page JSON returned page should open and the ID should be there.
+
+* **Value format**: A numerical string (e.g., "1", "10002").
+![Image 1](images/image06.png)
 ## 5. Deploy the ZIP file jira-azure-function.zip
 Download the file locally and then execute:
 
@@ -222,3 +281,4 @@ Once done deploying and configure the Azure Function App you can deploy the Logi
 </a>
 
 Once deployed ensure to enable System‑Assigned Managed Identity for the Logic App and assign the role of Azure Security Admin.
+
