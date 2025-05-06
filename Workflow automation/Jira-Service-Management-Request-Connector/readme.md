@@ -276,7 +276,7 @@ az functionapp restart \
 ## 8. Deploy Azure Logi App
 Once done deploying and configure the Azure Function App you can deploy the Logic App by using the button below
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FJira-Service-Management-Request-Connector%2Fmain%2Fazuredeploy.json" target="_blank">
+<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FWorkflow%20automation%2FJira-Service-Management-Request-Connector%2Fazuredeploy.json" target="_blank">
     <img src="https://aka.ms/deploytoazurebutton"/>
 </a>
 
