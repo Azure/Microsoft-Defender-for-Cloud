@@ -455,7 +455,8 @@ In this exercise we will use an Azure Function App based on Event Grid events. T
 ![Function App code](../Images/codefunctionapp48.png?raw=true)
 
 ## 👮‍♀️ Exercise 11: ABAC for users not to read malicious files
-To make sure that your apps and users can only read non-malicious files, which means that Defender for Storage found without threats, you can implement Attribute-Based Access Control (ABAC). In this exercise we will explore how you can have roles that have a condition to only read the files that have no threats found. 
+
+To make sure that your apps and users can only read non-malicious files, which means that Defender for Storage found without threats, you can implement Attribute-Based Access Control (ABAC). In this exercise we will explore how you can have roles that have a condition to only read the files that have no threats found.
 
 1. In the **Azure portal**, navigate to your Storage Account you are testing.
 ![ABAC](../Images/abac1.png?raw=true)
