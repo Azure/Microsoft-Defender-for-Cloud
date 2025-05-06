@@ -1,0 +1,294 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "PlaybookName": {
+            "defaultValue": "jira-service-request-v1",
+            "type": "String",
+            "metadata": {
+                "description": "The name for the Logic App playbook."
+            }
+        },
+        "functionAppSubscriptionId": {
+            "type": "String",
+            "metadata": {
+                "description": "The subscription ID where the Jira Function App is located."
+            }
+        },
+        "functionAppResourceGroupName": {
+            "type": "String",
+            "metadata": {
+                "description": "The resource group name where the Jira Function App is located."
+            }
+        },
+        "functionAppName": {
+            "type": "String",
+            "metadata": {
+                "description": "The name of the Jira Function App."
+            }
+        },
+        "jiraEmailDomain": {
+            "defaultValue": "jira.com",
+            "type": "String",
+            "metadata": {
+                "description": "The email domain for Jira users."
+            }
+        },
+        "remediationDueDateOffsetDays": {
+            "defaultValue": 14,
+            "type": "Int",
+            "metadata": {
+                "description": "The number of days to add to the current date for the remediation due date."
+            }
+        }
+    },
+    "variables": {
+        "AscassessmentConnectionName": "[concat('Ascassessment-', parameters('PlaybookName'))]",
+        "logicAppOwnerExpression": "[concat('@{body(''Parse_Function_Output_JSON'')?[''body'']?[''issueKey'']}@', parameters('jiraEmailDomain'))]",
+        "logicAppRemediationDueDateExpression": "[concat('@{formatDateTime(addDays(utcNow(), ', parameters('remediationDueDateOffsetDays'), '),''yyyy-MM-ddTHH:mm:ss.fffffffZ'')}')]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('PlaybookName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]"
+            ],
+            "tags": {
+                "hidden-SentinelTemplateName": "jira-service-request-v1",
+                "hidden-SentinelTemplateVersion": "1.0"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "provisioningState": "Succeeded",
+                "state": "Enabled",
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "defaultValue": {},
+                            "type": "Object"
+                        },
+                        "jiraEmailDomain": {
+                            "type": "String"
+                        },
+                        "remediationDueDateOffsetDays": {
+                            "type": "Int"
+                        }
+                    },
+                    "triggers": {
+                        "When_a_Microsoft_Defender_for_Cloud_recommendation_is_created_or_triggered": {
+                            "type": "ApiConnectionWebhook",
+                            "inputs": {
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['ascassessment']['connectionId']"
+                                    }
+                                },
+                                "body": {
+                                    "callback_url": "@listCallbackUrl()"
+                                },
+                                "path": "/Microsoft.Security/Assessment/subscribe"
+                            }
+                        }
+                    },
+                    "actions": {
+                        "jira-func-app-CreateServiceRequest": {
+                            "runAfter": {
+                                "Initialize_assignmentKey": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "Function",
+                            "inputs": {
+                                "body": {
+                                    "displayName": "@{triggerBody()?['properties']?['displayName']}",
+                                    "status": {
+                                        "code": "@{triggerBody()?['properties']?['status']?['code']}"
+                                    },
+                                    "description": "@{triggerBody()?['properties']?['metadata']?['description']}",
+                                    "remediationDescription": "@{triggerBody()?['properties']?['metadata']?['remediationDescription']}",
+                                    "severity": "@{triggerBody()?['properties']?['metadata']?['severity']}",
+                                    "link": "@{triggerBody()?['properties']?['links']?['azurePortalUri']}",
+                                    "resourceName": "@{triggerBody()?['properties']?['resourceDetails']?['ResourceName']}",
+                                    "resourceType": "@{triggerBody()?['properties']?['resourceDetails']?['ResourceType']}",
+                                    "resourceUri": "@{triggerBody()?['properties']?['resourceDetails']?['id']}",
+                                    "source": "Microsoft Defender for Cloud: @{triggerBody()?['properties']?['resourceDetails']?['source']}"
+                                },
+                                "headers": {
+                                    "Content-Type": "application/json"
+                                },
+                                "function": {
+                                    "id": "[concat('/subscriptions/', parameters('functionAppSubscriptionId'), '/resourceGroups/', parameters('functionAppResourceGroupName'), '/providers/Microsoft.Web/sites/', parameters('functionAppName'), '/functions/CreateServiceRequest')]"
+                                }
+                            }
+                        },
+                        "Parse_Function_Output_JSON": {
+                            "runAfter": {
+                                "jira-func-app-CreateServiceRequest": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "type": "ParseJson",
+                            "inputs": {
+                                "content": "@outputs('jira-func-app-CreateServiceRequest')",
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "statusCode": {
+                                            "type": "integer"
+                                        },
+                                        "headers": {
+                                            "type": "object",
+                                            "properties": {
+                                                "Date": {
+                                                    "type": "string"
+                                                },
+                                                "Server": {
+                                                    "type": "string"
+                                                },
+                                                "Transfer-Encoding": {
+                                                    "type": "string"
+                                                },
+                                                "Content-Type": {
+                                                    "type": "string"
+                                                },
+                                                "Content-Length": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "body": {
+                                            "type": "object",
+                                            "properties": {
+                                                "status": {
+                                                    "type": "string"
+                                                },
+                                                "issueKey": {
+                                                    "type": "string"
+                                                },
+                                                "issueUrl": {
+                                                    "type": "string"
+                                                },
+                                                "httpStatusCode": {
+                                                    "type": "integer"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "Condition": {
+                            "actions": {
+                                "Compose": {
+                                    "type": "Compose",
+                                    "inputs": "https://management.azure.com@{triggerBody()?['id']}/governanceAssignments/@{variables('assignmentKey')}"
+                                },
+                                "HTTP_Update_MDC_Recommendation": {
+                                    "runAfter": {
+                                        "Compose": [
+                                            "Succeeded"
+                                        ]
+                                    },
+                                    "type": "Http",
+                                    "inputs": {
+                                        "uri": "@{outputs('Compose')}?api-version=2021-06-01",
+                                        "method": "PUT",
+                                        "headers": {
+                                            "Content-type": "application/json"
+                                        },
+                                        "body": {
+                                            "properties": {
+                                                "owner": "[variables('logicAppOwnerExpression')]",
+                                                "remediationDueDate": "[variables('logicAppRemediationDueDateExpression')]",
+                                                "isGracePeriod": true
+                                            }
+                                        },
+                                        "authentication": {
+                                            "type": "ManagedServiceIdentity"
+                                        }
+                                    },
+                                    "runtimeConfiguration": {
+                                        "contentTransfer": {
+                                            "transferMode": "Chunked"
+                                        }
+                                    }
+                                }
+                            },
+                            "runAfter": {
+                                "Parse_Function_Output_JSON": [
+                                    "Succeeded"
+                                ]
+                            },
+                            "else": {
+                                "actions": {}
+                            },
+                            "expression": {
+                                "and": [
+                                    {
+                                        "equals": [
+                                            "@body('Parse_Function_Output_JSON')?['statusCode']",
+                                            201
+                                        ]
+                                    }
+                                ]
+                            },
+                            "type": "If"
+                        },
+                        "Initialize_assignmentKey": {
+                            "runAfter": {},
+                            "type": "InitializeVariable",
+                            "inputs": {
+                                "variables": [
+                                    {
+                                        "name": "assignmentKey",
+                                        "type": "string",
+                                        "value": "@{guid()}"
+                                    }
+                                ]
+                            }
+                        }
+                    },
+                    "outputs": {}
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "ascassessment": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', variables('AscassessmentConnectionName'))]",
+                                "connectionName": "[variables('AscassessmentConnectionName')]",
+                                "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                            }
+                        }
+                    },
+                    "jiraEmailDomain": {
+                        "value": "[parameters('jiraEmailDomain')]"
+                    },
+                    "remediationDueDateOffsetDays": {
+                        "value": "[parameters('remediationDueDateOffsetDays')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[variables('AscassessmentConnectionName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "V1",
+            "properties": {
+                "displayName": "[variables('AscassessmentConnectionName')]",
+                "customParameterValues": {},
+                "api": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Web/locations/', resourceGroup().location, '/managedApis/Ascassessment')]"
+                }
+            }
+        }
+    ]
+}
