@@ -106,7 +106,7 @@ az functionapp config appsettings set \
 
 When you set `SCM_DO_BUILD_DURING_DEPLOYMENT=true` and `ENABLE_ORYX_BUILD=true`, you're telling Azure to:
 
-1. **Use Oryx build system** - Oryx is Microsoft's build system that can detect and build applications in various languages (Python, Node.js, .NET, etc.)
+1. **Use Oryx build tool** - Oryx is Microsoft's build tool that can detect and build applications in various languages (Python, Node.js, .NET, etc.)
 
 2. **Build your code remotely** - Instead of packaging all dependencies locally, you can upload just your source code, and Azure will install the dependencies on the server
 
