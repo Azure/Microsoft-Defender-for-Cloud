@@ -15,7 +15,7 @@ The Logic App uses a scheduler and a Managed System Identity (MSI) to authentica
     - **Resource Group**: where the Logic App will be located.
     - **Region**: the Logic App's region.
     - **Logic App Name**: choose a new name or leave the default one.
-    - **User Name**: email address that will send the emails with the OnDemand Malware Scan results.
+    - **Username**: email address that will send the emails with the OnDemand Malware Scan results.
     - **Send To Email**: email address that will receive the OnDemand Malware Scan results.
     - **Storage Accounts**: input the storage account names where you want to run this scheduled OnDemand Malware Scan.
     ![FillProjectDetails](deploytemplate.png)
