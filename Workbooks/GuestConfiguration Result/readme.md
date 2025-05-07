@@ -1,5 +1,6 @@
 # GuestConfiguration Result v1.13
 
+
 This workbook gives an overview to GuestConfiguration results and machine configuration. Azure Arc is fully included.
 All data is queried by the Azure Resource Graph (ARG) and has no dependencies to Microsoft Defender for Cloud generated data. 
 
@@ -18,7 +19,8 @@ All data is queried by the Azure Resource Graph (ARG) and has no dependencies to
 | v.1.10|h.wache|2024-02| fixed policy helper issue, when exceed > 250 entires
 | v.1.11|h.wache|2024-06| fixed not showing compliance details if reason/code is not provided in "by Policy tab"
 | v.1.12|h.wache|2024-11| new tab Azure Policy added, looking on Policy Assingments and Definition details per Computer
-| v.1.13|h.wache|2025-03| enabled export to excel buttons on tables
+| v.1.13|h.wache|2025-03| enabled export to excel buttons on table
+
 
 ---
 

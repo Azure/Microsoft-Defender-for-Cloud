@@ -2,8 +2,8 @@
 .SYNOPSIS
    This script iterates over all VMs in specified subscriptions, identifying those with Customer Managed Keys (CMK).
    It provides 2 options for applying permissions:
-      Option 1 - Key Vault level (note: you'll need to re-run the script when new Key Vaults are created)
-      Option 2 - Subscription level
+      Option 1 - Key Vault level (note: you'll need to re-run the script when new Key Vaults are created).
+      Option 2 - Subscription level.
 
 .PARAMETER Subscriptions
    An array of Azure Subscription IDs.
