@@ -8,7 +8,7 @@
 
 ## Objectives
 
-This exercise guides you MDC's database protection plans. Database protection in Defender for Cloud contains four flavors, dependong on which database type you are looking to protect.
+This exercise guides you MDC's database protection plans. Database protection in Defender for Cloud contains four flavors, depending on which database type you are looking to protect.
 
 1. Defender for SQL PaaS (SQL on Azure VM):Vulnerability assessment and threat protection is available for this plan. Read more about it [here](https://learn.microsoft.com/en-us/azure/defender-for-cloud/defender-for-sql-introduction).
 2. Defender for SQL on machines (SQL servers on machines hosted on premise, in Azure, AWS or GCP):
