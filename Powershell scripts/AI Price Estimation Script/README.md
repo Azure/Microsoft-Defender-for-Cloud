@@ -10,7 +10,7 @@
 **Defender for AI services includes a 30 day free trial, capped up to 75 Billion tokens scanned. Billing will commence if cap is reached within the 30 day period. For details about the pricing plans, see [Microsoft Defender for Cloud pricing page](https://azure.microsoft.com/pricing/details/defender-for-cloud/)
 
  
-> **Credits:** [Shay Amar](https://www.linkedin.com/in/shay-amar/), [Shay Amar](https://www.linkedin.com/in/shay-amar/), [Dick Lake](https://www.linkedin.com/in/richard-lake-b3797394/)
+> **Credits:** [Shay Amar](https://www.linkedin.com/in/shay-amar/), [Niv Azriel](https://www.linkedin.com/in/nivazriel/), [Dick Lake](https://www.linkedin.com/in/richard-lake-b3797394/)
 
 ## Defender for AI Overview
 Microsoft Defender for Cloud's threat protection for AI services identifies threats to generative AI applications in real time and helps respond to security issues.
