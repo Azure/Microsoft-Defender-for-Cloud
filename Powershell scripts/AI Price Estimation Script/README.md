@@ -75,7 +75,7 @@ This PowerShell script estimates the monthly cost of Microsoft Defender for AI f
     ![Step2](Pictures/Picture3.png)
 
 
-13. Open your defender for cloud environment and navigate to environment settings-> cost calculator. Click on the option to Add assets with script and then upload the csv file that you've from the script execution. Click next and check the relevant subscription/s and click next 
+13. Open your defender for cloud environment and navigate to environment settings-> cost calculator. Click on the option to Add assets with script and then click on browse to upload the csv file that you've from the script execution. Click next and check the relevant subscription/s and click next 
 
 ![Step13](Pictures/Picture13.png) 
 ![Step14](Pictures/Picture14.png) 
