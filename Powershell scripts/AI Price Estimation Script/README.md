@@ -39,8 +39,6 @@ This script will get estimated metrics on Azure AI to help estimate costs for De
 ```powershell
 .\Get-AIOnlyCosts.ps1
 ```
-![Step1](Pictures/get-azaimetrics.png)
-
 ### Get-AIOnlyCosts.ps1
 
 You can find the PowerShell script here [Get-AIOnlyCosts.ps1](./Get-AIOnlyCosts.ps1)
@@ -58,51 +56,30 @@ This PowerShell script estimates the monthly cost of Microsoft Defender for AI f
 #### Running the Script
 
 1. Click on the [PowerShell script](./Get-AIOnlyCosts.ps1).
-
-   ![Step1](Pictures/Picture1.png)
-   
+      
 2. On the right side, click on “Raw”.
 
-    ![Step2](Pictures/Picture2.png)
-  
 4. Copy the code.
-
-    ![Step3](Pictures/Picture3.png)
 
 4. Paste it in your favorite code tool. In this example we’ll use Visual Studio Code.
 
-    ![Step4](Pictures/Picture4.png)
+    ![Step1](Pictures/Picture1.png)
 
-5. Save it. In this example we’ll save it as scriptprompt.ps1.
-   
-6. For this example, I had one of the following roles in different subscriptions: `“Resource Access”, “Reader”, or “Owner”`. You can verify your roles by going to the Azure Portal and opening “Subscriptions”.
-
-    ![Step6](Pictures/Picture6.png)
-
-7. Here we’ll use Terminal that already has PowerShell installed to run the code. Write: `pwsh`
-
-    ![Step7](Pictures/Picture7.png)
-
+5. Save it. 
+6. Open the terminal. View->Terminal.
+   ![Step4](Pictures/Picture4.png)
 8. Connect to your Azure account using `Connect-AzAccount -TenantId INSERT_TENANT_ID`
+   ![Step5](Pictures/Picture5.png)
+6. Run it with VScode 
+    ![Step1](Pictures/Picture2.png)
+    ![Step2](Pictures/Picture3.png)
 
-    ![Step8](Pictures/Picture8.png)
-
-9. Go into the directory where you saved your PowerShell script. In this example, it is saved in Documents.
-
-    ![Step9](Pictures/Picture9.png)
-
-11. If you don’t want to specify it, write in your console: `pwsh ./scriptprompt.ps1`
-
-
-12. Hit enter. This can take some time (seconds to minutes) if you have hundreds to thousands of subscriptions and AI resources. Keep your Terminal open until you get a new input line.
-
-    ![Step12](Pictures/Picture12.png)
 
 13. Open your defender for cloud environment and navigate to environment settings-> cost calculator. Click on the option to Add assets with script and then upload the csv file that you've from the script execution. Click next and check the relevant subscription/s and click next 
 
 ![Step13](Pictures/Picture13.png) 
 ![Step14](Pictures/Picture14.png) 
 
-14. Now in the Select Defender Plans mark the AI services : ![Step15](Pictures/Picture15.png) and press calculate, the Total Monthly estimate will vbe displayes. 
+14. Now in the Select Defender Plans mark the AI services : ![Step15](Pictures/Picture15.png) and press calculate, the Total Monthly estimate will be displayed. ![Step16](Pictures/Picture16.png)
 
 
