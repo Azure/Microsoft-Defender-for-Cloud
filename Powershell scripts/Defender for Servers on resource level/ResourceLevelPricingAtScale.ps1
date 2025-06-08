@@ -10,6 +10,22 @@ $vmResponseMachines = $null
 $vmssResponseMachines = $null
 $arcResponseMachines = $null
 
+# Check prerequisites
+$azAccountsVersion = (Get-Module -Name Az.Accounts -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
+$azModuleVersion = (Get-Module -Name Az -ListAvailable | Sort-Object Version -Descending | Select-Object -First 1).Version
+
+if ($azAccountsVersion -lt [Version]"4.0.0") {
+	Write-Host "Az.Accounts module version is $azAccountsVersion. Please update to version 4.0.0 or higher." -ForegroundColor Red
+	exit 1
+}
+
+if ($azModuleVersion -lt [Version]"13.0.0") {
+	Write-Host "Az module version is $azModuleVersion. Please update to version 13.0.0 or higher." -ForegroundColor Red
+	exit 1
+}
+
+Write-Host "Prerequisite checks passed. Az.Accounts version: $azAccountsVersion, Az module version: $azModuleVersion." -ForegroundColor Green
+
 # login:
 $needLogin = $true
 Try {
@@ -54,7 +70,10 @@ if ($mode.ToLower() -eq "rg") {
 	$resourceGroupName = Read-Host "Enter the name of the resource group"
 	try
 	{
-		# Get all virtual machines, VMSSs, and ARC machines in the resource group
+	# Convert $accesstoken from SecureString to plain text ( Required for Invoke-RestMethods below )
+	$tokenPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($accesstoken)
+	$accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPtr)
+	# Get all virtual machines, VMSSs, and ARC machines in the resource group
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachines?api-version=2021-04-01"
 		do{
 			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
@@ -76,6 +95,9 @@ if ($mode.ToLower() -eq "rg") {
 			write-host $arcUrl
 			$arcUrl = $arcResponse.nextLink
 		} while (![string]::IsNullOrEmpty($arcUrl))
+	# Clean up memory and sets $accesstoken back to securestring
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPtr)
+	$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
 	}
 	catch 
 	{
@@ -91,6 +113,9 @@ if ($mode.ToLower() -eq "rg") {
 	
 	try
 	{
+	# Convert SecureString to plain text ( Required for Invoke-RestMethods below )
+	$tokenPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($accesstoken)
+	$accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPtr)
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group based on the given tag
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachines'&api-version=2021-04-01"
 		do{
@@ -112,6 +137,9 @@ if ($mode.ToLower() -eq "rg") {
 			$arcResponseMachines += $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$arcUrl = $arcResponse.nextLink
 		} while (![string]::IsNullOrEmpty($arcUrl))
+	# Clean up memory and sets $accesstoken back to securestring
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPtr)
+	$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
 	}
 	catch 
 	{
@@ -203,6 +231,10 @@ foreach ($machine in $vmResponseMachines) {
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
+	# Convert SecureString to plain text ( Required for Invoke-RestMethods below )
+	$tokenPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($accesstoken)
+	$accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPtr)
+		
 		if($PricingTier.ToLower() -eq "delete")
 		{
 			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
@@ -224,6 +256,9 @@ foreach ($machine in $vmResponseMachines) {
 			$successCount++
 			$vmSuccessCount++
 		}
+	# Clean up memory and sets $accesstoken back to securestring
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPtr)
+	$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
 	}
 	catch {
 		$failureCount++
@@ -273,7 +308,9 @@ foreach ($machine in $vmssResponseMachines) {
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
-		
+	# Convert SecureString to plain text ( Required for Invoke-RestMethods below )
+	$tokenPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($accesstoken)
+	$accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPtr)
 		if($PricingTier.ToLower() -eq "delete")
 		{
 			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
@@ -295,6 +332,9 @@ foreach ($machine in $vmssResponseMachines) {
             $successCount++
             $vmssSuccessCount++
         }
+	# Clean up memory and sets $accesstoken back to securestring
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPtr)
+	$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
 	}
 	catch {
 		$failureCount++
@@ -344,7 +384,9 @@ foreach ($machine in $arcResponseMachines) {
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
 	try 
 	{
-		
+	# Convert SecureString to plain text ( Required for Invoke-RestMethods below )
+	$tokenPtr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($accesstoken)
+	$accessToken = [System.Runtime.InteropServices.Marshal]::PtrToStringBSTR($tokenPtr)
 		if($PricingTier.ToLower() -eq "delete")
 		{
 			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
@@ -366,6 +408,9 @@ foreach ($machine in $arcResponseMachines) {
             $successCount++
             $arcSuccessCount++
         }
+	# Clean up memory and sets $accesstoken back to securestring
+	[System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($tokenPtr)
+	$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token	
 	}
 	catch {
 		$failureCount++
