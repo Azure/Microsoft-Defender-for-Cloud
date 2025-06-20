@@ -6,7 +6,7 @@
 
 ## Description
 
-The Trusted Exposure preview feature in Microsoft Defender for Cloud allows organizations to define specific IP address ranges as "trusted," ensuring that resources accessible only from these IPs are not flagged as internet-exposed risks. 
+The Trusted Exposure preview feature in Microsoft Defender for Cloud allows organizations to define specific IP address ranges as "trusted," ensuring that resources accessible only from these IPs are not flagged as internet-exposed risks.
 This helps reduce false positives in security alerts and improves the accuracy of attack path analysis. Use the provided policy definition to define these trusted IP ranges across management groups and subscriptions.
 
 ## Usage

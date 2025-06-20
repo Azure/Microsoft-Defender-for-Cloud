@@ -5,8 +5,8 @@
         },
         "functions": [],
         "variables": {
-            "policyDefinitionName": "DefineMDCTrustedIps",
-            "policyDefinitionDisplayName": "Define Microsoft Defender for Cloud Trusted IPs",
+            "policyDefinitionName": "DeployMDCTrustedIps",
+            "policyDefinitionDisplayName": "Deploy Microsoft Defender for Cloud Trusted IPs",
             "policyDefinitionDescription": "This policy definition deploys IP Groups to define trusted IP ranges within the desired scope."    
         },
         "resources": [
