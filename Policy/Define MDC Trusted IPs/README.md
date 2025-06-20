@@ -1,4 +1,4 @@
-# Microsoft Defender for Cloud - Define Microsoft Defender for Cloud Trusted IPs
+# Microsoft Defender for Cloud - Deploy Microsoft Defender for Cloud Trusted IPs
 
 | Version | Description | Author | Date |
 | ------ | ------ | ------ | ------ |
@@ -15,7 +15,7 @@ The simplest way to deploy this Policy definition is by clicking on the "Deploy 
   
 [![Deploy To Azure](https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/1-CONTRIBUTION-GUIDE/images/deploytoazure.svg?sanitize=true)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FPolicy%2FDefine%20MDC%20Trusted%20IPs%2Fazuredeploy.json)
 
-Once deployed, you can assign the **Define Microsoft Defender for Cloud Trusted IPs** policy definition at the desired scope, then fill in the required parameters:
+Once deployed, you can assign the **Deploy Microsoft Defender for Cloud Trusted IPs** policy definition at the desired scope, then fill in the required parameters:
 
 * IP Address Ranges - The list of trusted IP Address ranges in CIDR Notation
 * Resource Group Region - The region where the resource group and ipGroup should be deployed
