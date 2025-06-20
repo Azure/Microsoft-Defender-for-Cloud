@@ -40,7 +40,7 @@
                   "trustedIpAddressRanges": {
                     "type": "array"
                   },
-                  "resourceGroupLocation": {
+                  "resourceGroupRegion": {
                     "type": "string"
                   }
                 },
@@ -49,7 +49,7 @@
                     "type": "Microsoft.Resources/resourceGroups",
                     "apiVersion": "2024-11-01",
                     "name": "mdc-network-exposure-trusted-ips",
-                    "location": "[parameters('resourceGroupLocation')]"
+                    "location": "[parameters('resourceGroupRegion')]"
                   },
                   {
                     "type": "Microsoft.Resources/deployments",
@@ -68,7 +68,7 @@
                             "type": "Microsoft.Network/ipGroups",
                             "apiVersion": "2024-05-01",
                             "name": "mdc-network-exposure-trusted-ips",
-                            "location": "[parameters('resourceGroupLocation')]",
+                            "location": "[parameters('resourceGroupRegion')]",
                             "properties": {
                               "ipAddresses": "[parameters('trustedIpAddressRanges')]"
                             }
@@ -84,8 +84,8 @@
                 "trustedIpAddressRanges": {
                   "value": "[parameters('trustedIpAddressRanges')]"
                 },
-                "resourceGroupLocation": {
-                  "value": "[parameters('resourceGroupLocation')]"
+                "resourceGroupRegion": {
+                  "value": "[parameters('resourceGroupRegion')]"
                 }
               }
             }
@@ -104,11 +104,11 @@
           "description": "List of Trusted IP address ranges in CIDR notation."
         }
       },
-      "resourceGroupLocation": {
+      "resourceGroupRegion": {
         "type": "String",
         "metadata": {
-          "displayName": "Resource Group Location",
-          "description": "The location where the resource group and ipGroup should be deployed."
+          "displayName": "Resource Group Region",
+          "description": "The region where the resource group and ipGroup should be deployed."
         }
       }
     }
