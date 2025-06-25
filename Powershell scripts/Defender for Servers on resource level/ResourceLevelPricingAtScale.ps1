@@ -39,7 +39,7 @@ if ($needLogin)
 # login - end
 
 # get token
-$accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+$token = (Get-AzAccessToken -AsSecureString).token
 $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
 # Define variables for authentication and resource group
@@ -57,21 +57,21 @@ if ($mode.ToLower() -eq "rg") {
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachines?api-version=2021-04-01"
 		do{
-			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Token $token -Authentication Bearer
 			$vmResponseMachines += $vmResponse.value 
 			$vmUrl = $vmResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmUrl))
 
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets?api-version=2021-04-01"
 		do{
-			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Token $token -Authentication Bearer
 			$vmssResponseMachines += $vmssResponse.value
 			$vmssUrl = $vmssResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.HybridCompute/machines?api-version=2022-12-27"
 		do{
-			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Token $token -Authentication Bearer
 			$arcResponseMachines += $arcResponse.value
 			write-host $arcUrl
 			$arcUrl = $arcResponse.nextLink
@@ -94,21 +94,21 @@ if ($mode.ToLower() -eq "rg") {
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group based on the given tag
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachines'&api-version=2021-04-01"
 		do{
-			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Token $token -Authentication Bearer
 			$vmResponseMachines += $vmResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$vmUrl = $vmResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmUrl))
 		
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachineScaleSets'&api-version=2021-04-01"
 		do{
-			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Token $token -Authentication Bearer
 			$vmssResponseMachines += $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$vmssUrl = $vmssResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.HybridCompute/machines'&api-version=2023-07-01"
 		do{
-			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Headers @{Authorization = "Bearer $accessToken"}
+			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Token $token -Authentication Bearer
 			$arcResponseMachines += $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
 			$arcUrl = $arcResponse.nextLink
 		} while (![string]::IsNullOrEmpty($arcUrl))
@@ -176,10 +176,10 @@ foreach ($machine in $vmResponseMachines) {
     if ((get-date $currentTime) -ge (get-date $expireson)) {
 		Start-Sleep -Seconds 2
         Write-host "Token expired - refreshing token:"
-        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -205,13 +205,13 @@ foreach ($machine in $vmResponseMachines) {
 	{
 		if($PricingTier.ToLower() -eq "delete")
 		{
-			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
 			$successCount++
 			$vmSuccessCount++
 		} elseif ($PricingTier.ToLower() -eq "read")
         {
-            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
             Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
 			$successCount++
@@ -219,7 +219,7 @@ foreach ($machine in $vmResponseMachines) {
         }
 		else
 		{
-			$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+			$pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Token $token -Authentication Bearer -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
 			$successCount++
 			$vmSuccessCount++
@@ -246,10 +246,10 @@ foreach ($machine in $vmssResponseMachines) {
     if ((get-date $currentTime) -ge (get-date $expireson)) {
 		Start-Sleep -Seconds 2
         Write-host "Token expired - refreshing token:"
-        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -276,13 +276,13 @@ foreach ($machine in $vmssResponseMachines) {
 		
 		if($PricingTier.ToLower() -eq "delete")
 		{
-			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
 			$successCount++
 			$vmssSuccessCount++
 		} elseif ($PricingTier.ToLower() -eq "read")
         {
-            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
             Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
 			$successCount++
@@ -290,7 +290,7 @@ foreach ($machine in $vmssResponseMachines) {
         }
 		else
 		{
-            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Token $token -Authentication Bearer -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
             Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
             $successCount++
             $vmssSuccessCount++
@@ -317,10 +317,10 @@ foreach ($machine in $arcResponseMachines) {
     if ((get-date $currentTime) -ge (get-date $expireson)) {
 		Start-Sleep -Seconds 2
         Write-host "Token expired - refreshing token:"
-        $accessToken = Get-AzAccessToken | Select-Object -ExpandProperty token
+        $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $accessToken"
+        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -347,13 +347,13 @@ foreach ($machine in $arcResponseMachines) {
 		
 		if($PricingTier.ToLower() -eq "delete")
 		{
-			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+			$pricingResponse = Invoke-RestMethod -Method Delete -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully deleted pricing configuration for $($machine.name)" -ForegroundColor Green
 			$successCount++
 			$arcSuccessCount++
 		} elseif ($PricingTier.ToLower() -eq "read")
         {
-            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -ContentType "application/json" -TimeoutSec 120
+            $pricingResponse = Invoke-RestMethod -Method Get -Uri $pricingUrl -Token $token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
 			Write-Host "Successfully read pricing configuration for $($machine.name): " -ForegroundColor Green
             Write-Host ($pricingResponse | ConvertTo-Json -Depth 100)
 			$successCount++
@@ -361,7 +361,7 @@ foreach ($machine in $arcResponseMachines) {
         }
 		else
 		{
-            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Headers @{Authorization = "Bearer $accessToken"} -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
+            $pricingResponse = Invoke-RestMethod -Method Put -Uri $pricingUrl -Token $token -Authentication Bearer -Body ($pricingBody | ConvertTo-Json) -ContentType "application/json" -TimeoutSec 120
             Write-Host "Successfully updated pricing configuration for $($machine.name)" -ForegroundColor Green
             $successCount++
             $arcSuccessCount++
