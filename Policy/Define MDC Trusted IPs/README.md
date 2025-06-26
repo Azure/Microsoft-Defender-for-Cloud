@@ -17,7 +17,7 @@ The simplest way to deploy this Policy definition is by clicking on the "Deploy 
 
 Once deployed, you can assign the **Deploy Microsoft Defender for Cloud Trusted IPs** policy definition at the desired scope, then fill in the required parameters:
 
-* IP Address Ranges - The list of IP Address ranges in CIDR Notation that you want to designate as "trusted". 
+* IP Address Ranges - The list of IP Address ranges in CIDR Notation that you want to designate as "trusted".
 * Resource Group Region - The region where the resource group and IP Group should be deployed. For example, centralus or westeurope. There are no requirements for a specific location, so you can specify the locations where your other resources are.
 
 ![Policy Assignment Parameters](./PolicyAssignmentParameters.png)
