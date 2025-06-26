@@ -4,4 +4,7 @@ By default, Defender for Servers is enabled as a subscription-wide setting, cove
 
 This folder contains a [PowerShell script](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Powershell%20scripts/Defender%20for%20Servers%20on%20resource%20level/ResourceLevelPricingAtScale.ps1) that allows you to select machines based on Azure resource tags, or a resource group to configure them individually rather than using the same plan setting for all machines in a subscription.
 
+> ## Important
+> Before running this script, please make sure to update your environment to **PowerShell 7.4** or newer.
+
 To learn more about how to enable Defender for Servers, please read [this documentation](https://learn.microsoft.com/en-us/azure/defender-for-cloud/tutorial-enable-servers-plan).
