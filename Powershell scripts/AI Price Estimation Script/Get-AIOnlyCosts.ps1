@@ -39,7 +39,7 @@ foreach ($sub in $subscriptions) {
     $response = Invoke-AzRestMethod -Method GET -Path $openAiUri -ErrorAction Stop
 
     $openAiResources = ($response.Content | ConvertFrom-Json).value | Where-Object {
-        $_.kind -in @("OpenAI", "AzureAIServices")
+        $_.kind -in @("OpenAI", "AIServices")
     }
 
     if (-not $openAiResources) {
