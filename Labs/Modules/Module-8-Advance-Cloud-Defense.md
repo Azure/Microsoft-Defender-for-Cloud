@@ -64,6 +64,7 @@ File integrity monitoring (FIM) scans and analyzes operating system files, Windo
 6.  Further below in the **Recommended to monitor** section, select **Edit**. Select the [files and registries](https://learn.microsoft.com/en-us/azure/defender-for-cloud/file-integrity-monitoring-overview#recommended-items-to-monitor) recommended for monitoring. Ensure the Status toggle is set to **Enabled** and select the **Change types** you want to monitor. By default, all entities recommended for monitoring are selected. You can remove entities from monitoring by selecting the three dot button next to the monitoring rule and then selecting **Delete**.
 
 ![](../Images/lab8-fimconf2.png?raw=true)
+
 7. Select **Apply** to save your changes.
 8. In addition to monitoring recommended files and registries, you can also define your own, custom rules for monitoring. Select **+ Add rule** to create a custom rule.
 
@@ -72,7 +73,9 @@ File integrity monitoring (FIM) scans and analyzes operating system files, Windo
     - Select the Change types and define Entity type and Entity path for your custom rules.
     - Select Apply to save your changes.
 ![](../Images/lab8-customRule.png?raw=true)
+
     - (Optional) Select Delete rule to delete a rule configuration.
+
 9. Select **Apply** to save your changes.
 10. Select **Apply**.
 11. Select **Continue**.
