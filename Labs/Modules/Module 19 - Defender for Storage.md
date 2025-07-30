@@ -242,6 +242,7 @@ In this Python code you will be able to create a benign file and an Eicar file t
     and the time when the scan was performed.
 
 ## 📖 Exercise 9: Set up "Send scan results to Log Analytics" and read it
+> **Note:** Malware Scanning error messages were updated in August 2025. For more information visit this [blog post](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/defender-for-storage-malware-scan-error-message-update/4436304).
 
 1. Go to the **Azure portal** and select one of your Storage Accounts.
 2. Once in your Storage Account, in the left pane select **Microsoft Defender for Cloud**.
