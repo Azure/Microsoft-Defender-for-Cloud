@@ -57,14 +57,28 @@ File integrity monitoring (FIM) scans and analyzes operating system files, Windo
 1.	From Microsoft Defender for Cloud menu, select **Environment Settings**.
 2.	Select the relevant subscription.
 3.	Locate the Defender for Servers plan and select **Settings**.
-4.  In the **File Integrity Monitoring** section, switch the toggle to **On**. Then select **Edit configuration**.
+4.  In the **File Integrity Monitoring** section, switch the toggle to **On**. Then select **Edit configuration**. 
 ![](../Images/mdfc-fim.png?raw=true)
 5.	The **FIM configuration** pane opens. In the **Workspace selection** dropdown, select the workspace where you want to store the file integrity monitoring data. If you want to create a new workspace, select **Create new**.
 ![](../Images/lab8-fimconf1.png?raw=true)
-6.  In the lower section of the **FIM configuration** pane, select the **Windows registry**, **Windows files**, and **Linux files** tabs to choose the files and registries you want to monitor. If you choose the top selection in each tab, all files and registries are monitored. Select **Apply** to save your changes.
+6.  Further below in the **Recommended to monitor** section, select **Edit**. Select the [files and registries](https://learn.microsoft.com/en-us/azure/defender-for-cloud/file-integrity-monitoring-overview#recommended-items-to-monitor) recommended for monitoring. Ensure the Status toggle is set to **Enabled** and select the **Change types** you want to monitor. By default, all entities recommended for monitoring are selected. You can remove entities from monitoring by selecting the three dot button next to the monitoring rule and then selecting **Delete**.
+
 ![](../Images/lab8-fimconf2.png?raw=true)
-7.  Select **continue**.
-8.  Select **Save**.
+
+7. Select **Apply** to save your changes.
+8. In addition to monitoring recommended files and registries, you can also define your own, custom rules for monitoring. Select **+ Add rule** to create a custom rule.
+
+    - Under the Add new custom rule section, enter a Rule name and (Optional) a Rule description.
+    - Ensure Status toggle is set to Enabled.
+    - Select the Change types and define Entity type and Entity path for your custom rules.
+    - Select Apply to save your changes.
+![](../Images/lab8-customRule.png?raw=true)
+
+    - (Optional) Select Delete rule to delete a rule configuration.
+
+9. Select **Apply** to save your changes.
+10. Select **Apply**.
+11. Select **Continue**.
 
 #### Review FIM findings
 1.  In the Defender for Cloud navigation menu, go to **Workload protection** > **File integrity monitoring**.
