@@ -218,8 +218,11 @@
             "name": "[concat(variables('vmNameWindows'), '-pip')]",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('resourceTags')]",
+			"sku": {
+				"name": "Standard"
+			},
             "properties": {
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "dnsSettings": {
                     "domainNameLabel": "[toLower(concat(variables('vmNameWindows'), uniqueString(subscription().subscriptionId)))]"
                 }
@@ -231,8 +234,11 @@
             "name": "[concat(variables('vmNameLinux'), '-pip')]",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('resourceTags')]",
+			"sku": {
+				"name": "Standard"
+			},
             "properties": {
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "dnsSettings": {
                     "domainNameLabel": "[toLower(concat(variables('vmNameLinux'), uniqueString(subscription().subscriptionId)))]"
                 }
