@@ -112,6 +112,10 @@ az aks create --resource-group $RESOURCE_GROUP --name $CLUSTER_NAME --node-count
 1. Navigate to Microsoft Defender for Cloud in the Azure portal.
 2. Go to Environment Settings > Select your subscription > Defender Plans.
 3. Enable Microsoft Defender for Containers by toggling the plan.
+   <img width="952" height="484" alt="image" src="https://github.com/user-attachments/assets/8f732ab3-8ba5-43d1-9f44-b50572ebc3f0" />
+4. Select Settings -> Make sure Defender sensor -> Turned ON, Azure Policy -> Turned ON, Kubernetes API Access -> Turned ON and save the settings
+   <img width="1164" height="506" alt="image" src="https://github.com/user-attachments/assets/66649e32-8cb7-400d-888e-d09bb245d8f2" />
+
 
 **Validation:**
 - Confirm the AKS cluster appears under:
