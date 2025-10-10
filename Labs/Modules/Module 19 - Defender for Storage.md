@@ -30,8 +30,8 @@ In these exercises, you will learn how to enable Defender for Storage and levera
 - [Exercise 10: Function App Based on Event Grid Events](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-10-function-app-based-on-event-grid-events)
 - [Exercise 11: ABAC for users not to read malicious files](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#%EF%B8%8F-exercise-11-abac-for-users-not-to-read-malicious-files)
 - [Exercise 12: Configure and Test On-Demand Malware Scanning](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-12-test-on-demand-malware-scanning)
-- [Exercise 13: Built-in Malware Automatic Remediation](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-12-test-on-demand-malware-scanning)
-- [Appendix: Grant Storage Blob Data Owner to a User in a Storage Account Container](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-exercise-13-built-in-malware-automated-remediation)
+- [Exercise 13: Built-in Malware Automatic Remediation]()
+- [Appendix: Grant Storage Blob Data Owner to a User in a Storage Account Container](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2019%20-%20Defender%20for%20Storage.md#-appendix)
 
 ## 👩🏽‍🍳Exercise 1: Preparing the Environment for Defender for Storage plan
 
@@ -646,7 +646,7 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 2. Under **Management** click on **Environment Settings** and select the subscription where you want to enable it
 3. Confirm you have the Defender for Storage plan enabled. If true, there's a **Settings** button
 4. Once you click there, if you have Malware scanning enabled, click on **Edit configuration**
-5. Mark the check box **Soft delete malicious blobs (preview)** and click the **Apply** button
+5. Mark the checkbox **Soft delete malicious blobs (preview)** and click the **Apply** button
 6. Click **Continue** and then **Save**
 ![armsublevel](../Images/malwareremediationsublevel.png)
 
@@ -660,9 +660,9 @@ The On-demand Malware Scanning shows the total number of GBs of your storage acc
 ![armacclevel](../Images/malwareremediationacclevel.png)
 
 ### How does it look like in action
-Check this demo video we created. 
-[![Video](../Images/malwarevideo.png)](https://www.youtube.com/watch?v=R07AiTHlxOk)
 
+Check this demo video we created
+[![Video](../Images/malwarevideo.png)](https://www.youtube.com/watch?v=R07AiTHlxOk)
 
 ## 🦉 Appendix
 
