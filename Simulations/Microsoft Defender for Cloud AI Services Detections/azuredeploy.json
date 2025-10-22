@@ -1,0 +1,325 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "userObjectId": {
+            "type": "string",
+            "metadata": {
+                "description": "Microsoft Entra (AAD) Object ID of the user to assign the personal compute instance (az ad signed-in-user show --query id -o tsv)."
+            }
+        }
+    },
+    "variables": {
+        "rgBaseRaw": "[toLower(resourceGroup().name)]",
+        "rgBaseDns": "[toLower(replace(resourceGroup().name, '-', ''))]",
+        "unique6": "[substring(uniqueString(resourceGroup().id), 0, 6)]",
+        "rgBaseTrunc15": "[if(greater(length(variables('rgBaseDns')), 15), substring(variables('rgBaseDns'), 0, 15), variables('rgBaseDns'))]",
+        "mlHubWorkspaceName": "[toLower(concat(resourceGroup().name, '-hub'))]",
+        "mlProjectWorkspaceName": "[toLower(concat(resourceGroup().name, '-project'))]",
+        "storageAccountName": "[concat(variables('rgBaseTrunc15'), 'sa', variables('unique6'))]",
+        "keyVaultName": "[concat(variables('rgBaseTrunc15'), 'kv', variables('unique6'))]",
+        "appInsightsName": "[concat(variables('rgBaseRaw'), '-appi')]",
+        "cognitiveServiceName": "[concat(variables('rgBaseTrunc15'), 'ai', variables('unique6'))]",
+        "computeInstanceName": "[toLower(concat(variables('rgBaseTrunc15'), 'ci', variables('unique6')))]",
+        "userAssignedIdentityName": "[concat(variables('rgBaseTrunc15'), 'id', variables('unique6'))]",
+        "storageAccountId": "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]",
+        "hubWorkspaceId": "[resourceId('Microsoft.MachineLearningServices/workspaces', variables('mlHubWorkspaceName'))]",
+        "projectWorkspaceId": "[resourceId('Microsoft.MachineLearningServices/workspaces', variables('mlProjectWorkspaceName'))]",
+        "userAssignedIdentityId": "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('userAssignedIdentityName'))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Storage/storageAccounts",
+            "apiVersion": "2023-01-01",
+            "name": "[variables('storageAccountName')]",
+            "location": "[resourceGroup().location]",
+            "sku": { "name": "Standard_LRS" },
+            "kind": "StorageV2",
+            "properties": {
+                "isHnsEnabled": false,
+                "publicNetworkAccess": "Enabled",
+                "minimumTlsVersion": "TLS1_2"
+            }
+        },
+        {
+            "type": "Microsoft.KeyVault/vaults",
+            "apiVersion": "2023-07-01",
+            "name": "[variables('keyVaultName')]",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "tenantId": "[tenant().tenantId]",
+                "enableRbacAuthorization": true,
+                "sku": {
+                    "family": "A",
+                    "name": "standard"
+                },
+                "publicNetworkAccess": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.Insights/components",
+            "apiVersion": "2020-02-02",
+            "name": "[variables('appInsightsName')]",
+            "location": "[resourceGroup().location]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        },
+        {
+            "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+            "apiVersion": "2023-01-31",
+            "name": "[variables('userAssignedIdentityName')]",
+            "location": "[resourceGroup().location]"
+        },
+        {
+            "type": "Microsoft.CognitiveServices/accounts",
+            "apiVersion": "2023-05-01",
+            "name": "[variables('cognitiveServiceName')]",
+            "location": "[resourceGroup().location]",
+            "sku": { "name": "S0" },
+            "kind": "AIServices",
+            "identity": { "type": "SystemAssigned" },
+            "properties": {
+                "customSubDomainName": "[variables('cognitiveServiceName')]",
+                "publicNetworkAccess": "Enabled",
+                "networkAcls": { "defaultAction": "Allow" }
+            }
+        },
+        {
+            "type": "Microsoft.CognitiveServices/accounts/deployments",
+            "apiVersion": "2024-06-01-preview",
+            "name": "[format('{0}/{1}', variables('cognitiveServiceName'), 'gpt-4o-mini')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))]"
+            ],
+            "sku": {
+                "name": "GlobalStandard",
+                "capacity": 1
+            },
+            "properties": {
+                "model": {
+                    "format": "OpenAI",
+                    "name": "gpt-4o-mini",
+                    "version": "2024-07-18"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces",
+            "apiVersion": "2023-04-01",
+            "name": "[variables('mlHubWorkspaceName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('storageAccountId')]",
+                "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+                "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]"
+            ],
+            "identity": { "type": "SystemAssigned" },
+            "kind": "Hub",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "friendlyName": "[concat(variables('mlHubWorkspaceName'), ' Hub')]",
+                "description": "Azure ML Hub workspace for AI services",
+                "storageAccount": "[variables('storageAccountId')]",
+                "keyVault": "[resourceId('Microsoft.KeyVault/vaults', variables('keyVaultName'))]",
+                "applicationInsights": "[resourceId('Microsoft.Insights/components', variables('appInsightsName'))]",
+                "publicNetworkAccess": "Enabled",
+                "allowRoleAssignmentOnRG": false,
+                "enableDataIsolation": true,
+                "softDeleteEnabled": false,
+                "systemDatastoresAuthMode": "identity",
+                "workspaceHubConfig": {
+                    "defaultWorkspaceResourceGroup": "[resourceGroup().id]",
+                    "defaultStorageAccountConfig": {
+                        "storageAccountId": "[variables('storageAccountId')]",
+                        "storageAuthType": "identity"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces",
+            "apiVersion": "2023-04-01",
+            "name": "[variables('mlProjectWorkspaceName')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [ "[variables('hubWorkspaceId')]" ],
+            "identity": { "type": "SystemAssigned" },
+            "kind": "Project",
+            "sku": {
+                "name": "Basic",
+                "tier": "Basic"
+            },
+            "properties": {
+                "friendlyName": "[concat(variables('mlProjectWorkspaceName'), ' Project')]",
+                "hubResourceId": "[variables('hubWorkspaceId')]",
+                "publicNetworkAccess": "Enabled",
+                "allowRoleAssignmentOnRG": false,
+                "enableDataIsolation": true,
+                "softDeleteEnabled": false
+            }
+        },
+        {
+            "type": "Microsoft.MachineLearningServices/workspaces/computes",
+            "apiVersion": "2023-04-01",
+            "name": "[concat(variables('mlHubWorkspaceName'), '/', variables('computeInstanceName'))]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[variables('hubWorkspaceId')]",
+                "[variables('userAssignedIdentityId')]",
+                "[resourceId('Microsoft.Storage/storageAccounts/providers/roleAssignments', variables('storageAccountName'), 'Microsoft.Authorization', guid(resourceGroup().id, 'uami-storage-blob-data-contributor', variables('userAssignedIdentityName'), variables('storageAccountName')))]",
+                "[resourceId('Microsoft.Storage/storageAccounts/providers/roleAssignments', variables('storageAccountName'), 'Microsoft.Authorization', guid(resourceGroup().id, 'uami-storage-file-data-privileged-contributor', variables('userAssignedIdentityName'), variables('storageAccountName')))]"
+            ],
+            "identity": {
+                "type": "UserAssigned",
+                "userAssignedIdentities": {
+                    "[variables('userAssignedIdentityId')]": {}
+                }
+            },
+            "properties": {
+                "computeType": "ComputeInstance",
+                "properties": {
+                    "vmSize": "Standard_E4ds_v4",
+                    "applicationSharingPolicy": "Personal",
+                    "computeInstanceAuthorizationType": "personal",
+                    "personalComputeInstanceSettings": {
+                        "assignedUser": {
+                            "objectId": "[parameters('userObjectId')]",
+                            "tenantId": "[tenant().tenantId]"
+                        }
+                    },
+                    "sshSettings": { "sshPublicAccess": "Disabled" },
+                    "idleTimeBeforeShutdown": "PT1H"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'project-openai-user-role', variables('mlProjectWorkspaceName'), variables('cognitiveServiceName'))]",
+            "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))]",
+            "dependsOn": [ "[variables('projectWorkspaceId')]", "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))]" ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+                "principalId": "[reference(variables('projectWorkspaceId'), '2023-04-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'uami-openai-user-role', variables('userAssignedIdentityName'), variables('cognitiveServiceName'))]",
+            "scope": "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))]",
+            "dependsOn": [
+                "[variables('userAssignedIdentityId')]",
+                "[resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '5e0bd9bd-7b93-4f28-af87-19fc36ad61bd')]",
+                "principalId": "[reference(variables('userAssignedIdentityId'), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'uami-storage-blob-data-contributor', variables('userAssignedIdentityName'), variables('storageAccountName'))]",
+            "scope": "[variables('storageAccountId')]",
+            "dependsOn": [
+                "[variables('userAssignedIdentityId')]",
+                "[variables('storageAccountId')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalId": "[reference(variables('userAssignedIdentityId'), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'uami-storage-file-data-privileged-contributor', variables('userAssignedIdentityName'), variables('storageAccountName'))]",
+            "scope": "[variables('storageAccountId')]",
+            "dependsOn": [
+                "[variables('userAssignedIdentityId')]",
+                "[variables('storageAccountId')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '69566ab7-960f-475b-8e7c-b3118f30c6bd')]",
+                "principalId": "[reference(variables('userAssignedIdentityId'), '2023-01-31').principalId]",
+                "principalType": "ServicePrincipal"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'user-storage-blob-data-contributor', parameters('userObjectId'), variables('storageAccountName'))]",
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
+                "principalId": "[parameters('userObjectId')]",
+                "principalType": "User"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'user-storage-file-data-privileged-contributor', parameters('userObjectId'))]",
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '69566ab7-960f-475b-8e7c-b3118f30c6bd')]",
+                "principalId": "[parameters('userObjectId')]",
+                "principalType": "User"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'user-hub-azure-ai-developer', parameters('userObjectId'), variables('mlHubWorkspaceName'))]",
+            "scope": "[variables('hubWorkspaceId')]",
+            "dependsOn": [
+                "[variables('hubWorkspaceId')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')]",
+                "principalId": "[parameters('userObjectId')]",
+                "principalType": "User"
+            }
+        },
+        {
+            "type": "Microsoft.Authorization/roleAssignments",
+            "apiVersion": "2022-04-01",
+            "name": "[guid(resourceGroup().id, 'user-project-azure-ai-developer', parameters('userObjectId'), variables('mlProjectWorkspaceName'))]",
+            "scope": "[variables('projectWorkspaceId')]",
+            "dependsOn": [
+                "[variables('projectWorkspaceId')]"
+            ],
+            "properties": {
+                "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '64702f94-c441-49e6-a78b-ef80e0188fee')]",
+                "principalId": "[parameters('userObjectId')]",
+                "principalType": "User"
+            }
+        }
+    ],
+    "outputs": {
+        "cognitiveServiceEndpoint": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.CognitiveServices/accounts', variables('cognitiveServiceName'))).endpoint]"
+        },
+        "mlHubWorkspaceName": {
+            "type": "string",
+            "value": "[variables('mlHubWorkspaceName')]"
+        },
+        "mlProjectWorkspaceName": {
+            "type": "string",
+            "value": "[variables('mlProjectWorkspaceName')]"
+        },
+        "computeInstanceName": {
+            "type": "string",
+            "value": "[variables('computeInstanceName')]"
+        }
+    }
+}
