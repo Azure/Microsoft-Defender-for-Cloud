@@ -112,7 +112,7 @@ Defender for Cloud protects PostgreSQL, MySQL flexible servers and MariaDB.
 
 #### Understand AWS RDS protection
 
-Defender for Cloud now extends its protection to AWS RDS. See this announcement here: Microsoft Defender for Open-Source Relational Databases Now Supports Multicloud (AWS RDS).
+Defender for Cloud now extends its protection to AWS RDS. See this announcement here: [Microsoft Defender for Open-Source Relational Databases Now Supports Multicloud (AWS RDS)](https://techcommunity.microsoft.com/blog/microsoftdefendercloudblog/microsoft-defender-for-open-source-relational-databases-now-supports-multicloud-/4127655).
 In addition to the advance threat protection capabilities for AWS RDS, Defender for open-source relational databases also bundles sensitive data discovery as part of its core value. 
 Refer to Module 11 to familiarize yourself with the AWS connector in MDC. 
 
@@ -182,3 +182,4 @@ Now all your existing and upcoming Azure Cosmos DB accounts are protected.
 ### Continue with the next lab [Module 13: Defender for APIs](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-13-Defender%20for%20APIs.md)
 
 [def]: https://aka.ms/deploytoazurebutton/
+
