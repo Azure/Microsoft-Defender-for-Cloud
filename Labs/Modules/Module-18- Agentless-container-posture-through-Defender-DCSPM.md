@@ -46,12 +46,14 @@ Wait for the role propagation to finish running. AAD role propagation should sho
 ![](../Images/dcspmrolepropagation.png?raw=true)
 
 
-**2.	Import a mock vulnerable image to your Azure Container Registry. Remember to replace the text in <>.**
+**2. Pull a base image and tag with the following label to push to your ACR. Remember to replace the text in <>.**
 
 Run in cloud shell: 
 
 ```
-az acr import --name <your-acr-name> --source DCSPMtesting.azurecr.io/mdc-mock-0001 --image mdc-mock-0001 
+docker pull alpine
+docker tag alpine <MYACR>.azurecr.io/mdc-mock-0001
+docker push <MYACR>.azurecr.io/mdc-mock-0001
 ```
 
 
@@ -61,10 +63,12 @@ az acr import --name <your-acr-name> --source DCSPMtesting.azurecr.io/mdc-mock-0
 az aks get-credentials  --subscription <your-subscriptionid> --resource-group <your-rg-name> --name <your-cluster-name>
 ```
 
-**4.	Deploy a mock vulnerable image and expose the vulnerable container to the internet.**
+**4.	First, Install the ngnix ingress Controller. Then, deploy a mock vulnerable image and expose the vulnerable container to the internet.**
 
 ```
-helm install dcspmcharts  oci://mcr.microsoft.com/mdc/stable/dcspmcharts --version 1.0.0 --namespace mdc-dcspm-demo --create-namespace --set image=<your-acr-name.azurecr.io/mdc-mock-0001> --set distribution=AZURE
+helm install ingress-controller oci://ghcr.io/nginxinc/charts/nginx-ingress --version 1.0.1
+
+helm install dcspmcharts  oci://mcr.microsoft.com/mdc/stable/dcspmcharts --version 1.0.0 --namespace mdc-dcspm-demo --create-namespace --set image=<your-image-uri> --set distribution=AZURE
 ```
 
 **5.	Verify success of the deployment:**
@@ -149,4 +153,5 @@ In the attach path, you will notice it detected the namespace “mdc-dcspm-demo�
 To see how to remediate the attack path, scroll down to the “Remediation Steps” and navigate to the “Recommendations” tab. 
 
 ![](../Images/attackpathVArecommendation.png?raw=true)
+
 
