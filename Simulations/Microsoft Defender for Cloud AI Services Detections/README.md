@@ -14,7 +14,7 @@ This workshop deploys an environment for running the [Azure AI Red Teaming Agent
 ## Deploy the Templates
 
 ### Deploy the Main Template
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2Simulations%2Microsoft%20Defender%20for%20Cloud%20AI%20Services%20Detections%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FSimulations%2FMicrosoft%20Defender%20for%20Cloud%20AI%20Services%20Detections%2Fazuredeploy.json)
 
 ## Deployment Guidance
 
