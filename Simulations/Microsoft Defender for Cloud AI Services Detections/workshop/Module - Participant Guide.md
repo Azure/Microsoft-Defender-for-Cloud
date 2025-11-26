@@ -1,5 +1,4 @@
-# Defender for AI Services Threat Protection and AI Red Team Workshop
-This guide provides instructions to first run the AIRT-Eval.ipynb notebook to execute AI red team evaluations, if you want to only evaluate Defender for AI Services threat protection alerts from the DfAI-Eval.ipynb, skip to the [Examine AI evaluations and Defender alerts](#examine-ai-evaluations-and-defender-alerts) section.
+# Azure AI Red Team Participant Guide
 
 # Prerequisites to meet
 
@@ -12,8 +11,8 @@ This guide provides instructions to first run the AIRT-Eval.ipynb notebook to ex
  - [ ] Attendee has access to their own Azure Subscription and can
        deploy resources to it
        
- - [ ] Azure Subscription has capacity to deploy Azure AI Foundry in
-       East US 2
+ - [ ] Azure Subscription has capacity to deploy a Microsoft Foundry
+       (classic, hub-based) project in East US 2
        
  - [ ] Azure Subscription has Provider Types registered [register_providers.sh](https://raw.githubusercontent.com/swiftsolves-msft/AI-Red-Teaming-Workshop/refs/heads/main/register_providers.sh)  can help here, by running in Azure Cloud Shell session
 
@@ -23,7 +22,7 @@ This guide provides instructions to first run the AIRT-Eval.ipynb notebook to ex
 2. Obtain your current user's Microsoft Entra ID (AAD) Object ID using Cloud Shell (Bash). You will use this in the deployment parameter **User Object Id**. ```az ad signed-in-user show --query id -o tsv```
 3. Ensure you deploy to East US 2 region, only a select few regions are supported
 
-![Deploy](../images/deploytemplatedirections.png)
+![Deploy](/images/deploytemplatedirections.png)
 
 # Participant ML Notebook Setup Instructions
 
@@ -48,33 +47,33 @@ This workshop is intentionally designed to run the notebooks on the Azure Machin
 
 ## Launch VS Code Web
 
-1.	Open URL to:  https://ml.azure.com/workspaces and navigate to the Machine Learning workspace Azure resource by clicking the Name.
+1.	Open URL to:  https://ml.azure.com/workspaces and navigate to the Machine Learning workspace Azure resource (backing your Microsoft Foundry hub-based project) by clicking the Name.
  
-![Launch](../images/launchmlworkspace.png)
+![Launch](/images/launchmlworkspace.png)
 
 2. In Machine Learning Studio, Goto Compute , ensure the VM is running and launch VS Code Web
 
-![Launch](../images/launchvscodeweb.png)
+![Launch](/images/launchvscodeweb.png)
 
 3. Allow Extension to use Remote and Authenticate
 
-![Launch](../images/allowext.png)
+![Launch](/images/allowext.png)
 
 4. Trust the Authors dialog box
 
-![Launch](../images/trust.png)
+![Launch](/images/trust.png)
 
 5. Be sure to download the workshop files from GitHub and unzip and enter the Shared root folder into the workshop and drag *files* folder into the VS Code
 
-![Launch](../images/downloadzip.png)
+![Launch](/images/downloadzip.png)
 
-![Launch](../images/copyover.png)
+![Launch](/images/copyover.png)
 
-![Launch](../images/copied.png)
+![Launch](/images/copied.png)
 
 6. Right Click on *files* folder in Left Navigation pane, and click Open in Integrated terminal
 
-![Launch](../images/openterminal.png)
+![Launch](/images/openterminal.png)
 
 7.	click on generate-env.sh
 
@@ -82,46 +81,46 @@ This workshop is intentionally designed to run the notebooks on the Azure Machin
 
 1. execute ```./generate-env.sh```
 
-![Launch](../images/runsh.png)
+![Launch](/images/runsh.png)
 
 2. Authenticate using the URL link and Device code in the terminal
 3.	Afterwards you should have a .env file created and populated 
 
-![Launch](../images/runsh.png)
+![Launch](/images/runsh.png)
 
 ## Execute installs, imports, and credential login
 
 1. Open the AIRT-Eval.ipynb file.
 
-![Launch](../images/airtnotebook.png)
+![Launch](/images/airtnotebook.png)
 
 2. Run the first install cell. A pop‑up prompts you to select the Python kernel (choose your compute instance).
 
-![Launch](../images/newkernel.png)
+![Launch](/images/newkernel.png)
 
 3. You should now see the ML compute selected and the first run succeeded (green check mark). The top-right 'Select Kernel' indicator updates.
 
-![Launch](../images/cellrun.png)
+![Launch](/images/cellrun.png)
 
 4. Continue executing the remaining setup cells. You may receive an error that can safely be ignored.
 
-![Launch](../images/error.png)
+![Launch](/images/error.png)
 
-![Launch](../images/import.png)
+![Launch](/images/import.png)
 
 5.	During the login step, you should see "Managed Identity OK".
 
-![Launch](../images/msi.png)
+![Launch](/images/msi.png)
 
 6.	Running the next step ensures the .env file is found and loaded properly. If needed, adjust the pathing when variables do not load.
 
-![Launch](../images/loadenv.png)
+![Launch](/images/loadenv.png)
 
 # Run AI red team evaluations agent
 
 **Avg execution time (section): ~25 min**
 
-These instructions cover running the remaining AIRT.ipynb cells where the AI Red Teaming Agent conducts basic, intermediate, advanced, and custom prompt attacks against the target model in your Azure AI project.
+These instructions cover running the remaining AIRT-Eval.ipynb cells where the AI Red Teaming Agent conducts basic, intermediate, advanced, and custom prompt attacks against the target model in your Azure AI project.
 
 ## Prerequisites
 
@@ -157,13 +156,13 @@ The Basic attack focuses on default risk categories (violence, sexual, hate & un
 
 Results from the execution of the cell should indicate Completed Tasks and Evaluation Results being saved and uploaded.
 
-![Launch](../images/basicattack.png)
+![Launch](/images/basicattack.png)
 
 Be sure to review the risk_categories available in the array. While Basic focuses on Violence and Hateful/Unfair Content, there are others [documented here](https://learn.microsoft.com/en-us/azure/ai-foundry/concepts/evaluation-evaluators/risk-safety-evaluators).
 
 If you want to add to the risk_categories array, you can add elements by typing RiskCategory. and choosing other categories from the IntelliSense suggestions list.
 
-![Launch](../images/riskcategory.png)
+![Launch](/images/riskcategory.png)
 
 ### Intermediate attack
 
@@ -171,11 +170,11 @@ The Intermediate attack increases the objectives count and optionally introduces
 
 Be sure to review the attack_strategies available in the array. While Basic only used the Flip strategy, Intermediate employs many other techniques to manipulate and trick the model behavior into the categories being used.
 
-![Launch](../images/intattack.png)
+![Launch](/images/intattack.png)
 
 Just like the risk_categories array in the Basic attack, if you want to add additional attack strategies to the Intermediate attack, you can add elements to the attack_strategies array by typing AttackStrategy. and choosing other strategy types from the IntelliSense suggestions list.
 
-![Launch](../images/attackstrat.png)
+![Launch](/images/attackstrat.png)
 
 One of the more fascinating strategies is the use of early 19th century technology like Morse Code being employed in an attack against an AI model. Almost all human knowledge can be used to interpret and translate prompts as a potential attack vector!
 
@@ -185,39 +184,39 @@ The Advanced attack delivers bespoke high-risk or application-specific prompt ob
 
 Be sure to review the prompts.json file in the data directory. This file includes easily extensible custom prompting that would apply to your application or model. 
 
-![Launch](../images/advattack.png)
+![Launch](/images/advattack.png)
 
 As an example, let's ask a Generative AI to help produce some red teaming prompts specific to isolation and self-harm for a health assistance application.
 
-![Launch](../images/promptresponse.png)
+![Launch](/images/promptresponse.png)
 
 ### Review AI red team results
 
 # Warning
 The content from the prompts and outputs in scan results contain descriptions that might be disturbing to some users.
 
-1.	Go to the Azure AI Foundry project resource and launch Azure AI Studio.
+1.	Go to the Microsoft Foundry (classic) project resource and launch Azure AI Studio.
 
-![Launch](../images/aiproj.png)
+![Launch](/images/aiproj.png)
 
 2.	In the left navigation, go to the Evaluation and the AI red teaming tab.
 
-![Launch](../images/resultsoverview.png)
+![Launch](/images/resultsoverview.png)
 
 3.	Let's examine the Advanced Scan where we see some percentages above 0% indicating some successful attacks. Click the Advanced-Scan- name.
 
 4.	Within the report we have high level attack success in some risk categories. Be sure to note these in production. Operationally, these risk categories and attack strategies can then be used to benchmark and track progress to the application to determine how content filters and data sources are further securing the models.
 
-![Launch](../images/asr.png)
+![Launch](/images/asr.png)
 
 5.	Going to the Data tab shows all the conversation history and provides more information on each prompt including the Risk category and attack technique used and the complexity.
 6.	Scroll to the bottom, switch view to 100 results per page, and scroll back up to see some Attack successful results. Choose one and click on "view more". In this case, we'll examine a successful Violence attack.
 
-![Launch](../images/results.png)
+![Launch](/images/results.png)
 
 7.	You will now see the prompt that was crafted using the Red Team Eval library and Pyrit using attack techniques to successfully bypass content filtering on this model.
 
-![Launch](../images/jsonpreview.png)
+![Launch](/images/jsonpreview.png)
 
 ## Examine AI evaluations and Defender alerts
 
@@ -225,21 +224,21 @@ The content from the prompts and outputs in scan results contain descriptions th
 
 This guide provides instructions for examining the AI red teaming agent results across areas relevant to different personas protecting the GenAI application. One of the byproducts of running the AI red team agent is that it can produce security alerts due to it's attack strategy techniques employed on risk category content. Defender for AI Services will generate security alerts that can be found where the persona is.
 
-### Azure AI Foundry project red team evaluations
+### Microsoft Foundry (classic) project red team evaluations
 
-Security alerting from Defender for AI Services can be found in the Azure AI Foundry Left navigation's blade, here the data analyst or application owner can find if an alert was recently issued and some basic information on the alert and affected resource, including some remediation steps. The user is invited to review the alert in more detail and evidence in Defender for Cloud.
+Security alerting from Defender for AI Services can be found in the Microsoft Foundry (classic) left navigation blade. Here the data analyst or application owner can find if an alert was recently issued and some basic information on the alert and affected resource, including some remediation steps. The user is invited to review the alert in more detail and evidence in Defender for Cloud.
 
-![Launch](../images/aialert.png)
+![Launch](/images/aialert.png)
 
-![Launch](../images/aialertdetails.png)
+![Launch](/images/aialertdetails.png)
 
 ### Defender for Cloud
 
 The security alert is also in Defender for Cloud and in the left navigation Security Alerts. The alert itself contains some mor security context including aspects of the suspicious prompt that triggered the alert.
 
-![Launch](../images/mdcalert.png)
+![Launch](/images/mdcalert.png)
 
-![Launch](../images/mdcalertdetails.png)
+![Launch](/images/mdcalertdetails.png)
 
 Some of those aspects include:
 -	Mitre Tactics
@@ -247,30 +246,30 @@ Some of those aspects include:
 -	Geo information
 -	model involved in attack.
 
-![Launch](../images/mdcalertdetailsaspect.png)
+![Launch](/images/mdcalertdetailsaspect.png)
 
 The Supporting Evidence and show events in the bottom right provider even more rich data can be found like:
 -	Suspicious prompt segment
 -	User agent involved with browser or application.
 -	Confidence score
 
-![Launch](../images/mdcevidence.png)
+![Launch](/images/mdcevidence.png)
 
 ### Defender XDR alerting
 
 Finally the Defender for AI Services alerting is available in the Defender XDR portal, and can also be correlated with other suspicious or malicious activity around similar patterns. The following below shows a Jailbreak attempt as part of a correlated larger attack story. The same evidence and information is available in different tiles as well including the same information in the Defender for Cloud alert like Prompt Suspicious Segment.
 
-![Launch](../images/xdralert.png)
+![Launch](/images/xdralert.png)
 
-### AI-SPM within Azure AI Foundry and Defender for Cloud
+### AI-SPM within Microsoft Foundry and Defender for Cloud
 
-Security Recommendations are also generated to reduce attack surfaces and harden Azure Services including Azure AI Foundry, these results can be found across areas relevant to different personas protecting the GenAI application. Again this will include Azure AI Foundry Project -> Guardrails + controls -> Security Recommendations. By clicking on a recommendation you can get some additional details and a button to send you to more information found in Defender for Cloud.
+Security Recommendations are also generated to reduce attack surfaces and harden Azure Services including Microsoft Foundry. These results can be found across areas relevant to different personas protecting the GenAI application. Again this will include Microsoft Foundry (classic) project -> Guardrails + controls -> Security Recommendations. By clicking on a recommendation you can get some additional details and a button to send you to more information found in Defender for Cloud.
 
-![Launch](../images/aispm.png)
+![Launch](/images/aispm.png)
 
 and Defender for Cloud -> Recommendations
 
-![Launch](../images/mdcrec.png)
+![Launch](/images/mdcrec.png)
 
 Defender for Cloud will have additional context involving the MITRE Tactics involved with the attack surface. Any additional risk factors, and a top suggested active user for assignment for remediation.
 
@@ -278,25 +277,25 @@ Defender for Cloud will have additional context involving the MITRE Tactics invo
 
 **Avg deployment time: 10 min**
 
-The following instructions are for deploying our first model to test in Azure AI Foundry and also configuring Content Filters and Prompt Shields.
+The following instructions are for deploying our first model to test in Microsoft Foundry (classic) and also configuring Content Filters and Prompt Shields.
 
-While deploying models in Azure AI Foundry from the model catalog will deploy a default filter that will protect against some harms, we recommend creating custom filters and tailoring for your risk tolerance and needs. The following will walk through these steps and also we encourage after applying to the model re running the AI Red Team to see the differences.
+While deploying models in Microsoft Foundry (classic) from the model catalog will deploy a default filter that will protect against some harms, we recommend creating custom filters and tailoring for your risk tolerance and needs. The following will walk through these steps and also we encourage after applying to the model re running the AI Red Team to see the differences.
 
-![Launch](../images/nodefaults.png)
+![Launch](/images/nodefaults.png)
 
-### Azure AI Foundry Project
+### Microsoft Foundry (classic) project
 
-1.	In the Azure portal, locate the deployed Azure AI Foundry project resource in the resource group. Open it and click Launch AI Studio.
+1.	In the Azure portal, locate the deployed Microsoft Foundry (classic) project resource in the resource group. Open it and click Launch AI Studio.
 
-![Launch](../images/aiprojfind.png)
+![Launch](/images/aiprojfind.png)
 
-![Launch](../images/launch.png)
+![Launch](/images/launch.png)
 
 2.	In the left-hand navigation, select Model catalog
 
-![Launch](../images/modelcatalog.png)
+![Launch](/images/modelcatalog.png)
 
-Within the model catalog you can examine various attributes of models. Click "Browse the leaderboards" and scroll to review leaderboards by scenario. Review Standard harmful behavior and other scenarios to understand relative safety posture (higher score = higher measured risk). Learn more: [Model leaderboards in Azure AI Foundry](https://ai.azure.com/doc/azure/ai-foundry/concepts/model-benchmarks?tid=b8f7636c-2e7b-476f-858c-93b63e87d81b)
+Within the model catalog you can examine various attributes of models. Click "Browse the leaderboards" and scroll to review leaderboards by scenario. Review Standard harmful behavior and other scenarios to understand relative safety posture (higher score = higher measured risk). Learn more: [Model leaderboards in Microsoft Foundry](https://ai.azure.com/doc/azure/ai-foundry/concepts/model-benchmarks?tid=b8f7636c-2e7b-476f-858c-93b63e87d81b)
 
 ![Launch](/images/modeldash1.png)
 
@@ -348,7 +347,7 @@ Safety disclaimer: Use the relaxed filter configuration solely within this isola
 
 # Conclusion
 
-We have now been through the stand up and usage of the AI Red teaming agent through a Jupyter Python Notebook targeting and evaluating certain risks categories with differing attack strategies. We explored the results of these attacks in AI Red team evaluations in Azure AI Foundry, the attack success rates, and details of unique and novel prompt attacks. Finally we explored the alerting and further security elements within Azure AI Foundry and Defender for Cloud and Defender XDR portals.
+We have now been through the stand up and usage of the AI Red teaming agent through a Jupyter Python Notebook targeting and evaluating certain risks categories with differing attack strategies. We explored the results of these attacks in AI Red team evaluations in Microsoft Foundry (classic), the attack success rates, and details of unique and novel prompt attacks. Finally we explored the alerting and further security elements within Microsoft Foundry, Defender for Cloud, and Defender XDR portals.
 
 Going forward review material in workshop and
 
