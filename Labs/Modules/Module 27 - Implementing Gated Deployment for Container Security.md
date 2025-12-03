@@ -37,7 +37,7 @@ Ensure that Security Findings is turned on as part of “Registry access” and 
 
 - An Azure Kubernetes Service (AKS) cluster attached to an Azure Container Registry (ACR). AKS must be on version 1.31 or higher.
 - Creating or changing gated deployment policies requires Security Admin or higher tenant permission.
-- [AZ command line](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively), [kubectl](https://kubernetes.io/docs/tasks/tools/), [JQ](https://jqlang.org/download/) and [ORAS](https://oras.land/docs/installation/) command line installed on your local machine.
+- [AZ command-line](https://learn.microsoft.com/en-us/cli/azure/authenticate-azure-cli-interactively), [kubectl](https://kubernetes.io/docs/tasks/tools/), [JQ](https://jqlang.org/download/) and [ORAS](https://oras.land/docs/installation/) command-line installed on your local machine.
 
 Learn more about how to enable gated deployment in Defender for Containers: [Enable Gated Deployment](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enablement-guide-runtime-gated)
 
@@ -169,6 +169,7 @@ View the gating event:
 
 1. Go to the Defender for cloud portal and select environment settings then Security Rules.
 2. Under Gated deployment, select Admission Monitoring. You should see both the audit event and deny event. Select either event.
-3. Aside from the admission action, the event includes a time stamp, the rule name, violation and image digest that violated the rule.
+3. Aside from the admission action, the event includes a timestamp, the rule name, violation and image digest that violated the rule.
 
 ![](../Images/lab27-38.png?raw=true)
+
