@@ -190,6 +190,14 @@ Advanced | 300+ | You have lots of experience and are looking to learn about adv
 * [Exercise 1: Azure DevOps Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Reachability%20Vulnerabilities.md#exercise-1-azure-devops-configuration)
 * [Exercise 2: GitHub Configuration](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2026%20-%20Code%20Reachability%20Vulnerabilities.md#exercise-2-github-configuration)
 
+[**Module 27 - Implementing Gated Deployment for Container Security**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md)
+* [Exercise 1: Create and view audit rules for your Kubernetes Cluster](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md#exercise-1-create-and-view-audit-rules-for-your-kubernetes-cluster)
+* [Exercise 2: View the security artifact created in your Azure Container Registry](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md#exercise-2-view-the-security-artifact-created-in-your-azure-container-registry)
+* [Exercise 3: Run the vulnerable image on your AKS cluster](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md#exercise-3-run-the-vulnerable-image-on-your-aks-cluster)
+* [Exercise 4: Create, view and run deny rules for your Kubernetes Cluster](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md#exercise-4-create-view-and-run-deny-rules-for-your-kubernetes-cluster)
+* [Exercise 5: View the gating events](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module%2027%20-%20Implementing%20Gated%20Deployment%20for%20Container%20Security.md#exercise-5-view-the-gating-events)
+
+  
 [**Begin the labs here >**](https://github.com/Azure/Microsoft-Defender-for-Cloud/blob/main/Labs/Modules/Module-1-Preparing-the-Environment.md)
 
 ## Acronyms
