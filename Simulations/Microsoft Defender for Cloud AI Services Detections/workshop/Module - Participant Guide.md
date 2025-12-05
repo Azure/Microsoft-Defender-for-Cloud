@@ -1,5 +1,4 @@
-# Defender for AI Services Threat Protection and AI Red Team Workshop
-This guide provides instructions to first run the AIRT-Eval.ipynb notebook to execute AI red team evaluations, if you want to only evaluate Defender for AI Services threat protection alerts from the DfAI-Eval.ipynb, skip to the [Examine AI evaluations and Defender alerts](#examine-ai-evaluations-and-defender-alerts) section.
+# Azure AI Red Team Participant Guide
 
 # Prerequisites to meet
 
@@ -12,8 +11,8 @@ This guide provides instructions to first run the AIRT-Eval.ipynb notebook to ex
  - [ ] Attendee has access to their own Azure Subscription and can
        deploy resources to it
        
- - [ ] Azure Subscription has capacity to deploy Azure AI Foundry in
-       East US 2
+ - [ ] Azure Subscription has capacity to deploy a Microsoft Foundry
+       (classic, hub-based) project in East US 2
        
  - [ ] Azure Subscription has Provider Types registered [register_providers.sh](https://raw.githubusercontent.com/swiftsolves-msft/AI-Red-Teaming-Workshop/refs/heads/main/register_providers.sh)  can help here, by running in Azure Cloud Shell session
 
@@ -48,7 +47,7 @@ This workshop is intentionally designed to run the notebooks on the Azure Machin
 
 ## Launch VS Code Web
 
-1.	Open URL to:  https://ml.azure.com/workspaces and navigate to the Machine Learning workspace Azure resource by clicking the Name.
+1.	Open URL to:  https://ml.azure.com/workspaces and navigate to the Machine Learning workspace Azure resource (backing your Microsoft Foundry hub-based project) by clicking the Name.
  
 ![Launch](../images/launchmlworkspace.png)
 
@@ -121,7 +120,7 @@ This workshop is intentionally designed to run the notebooks on the Azure Machin
 
 **Avg execution time (section): ~25 min**
 
-These instructions cover running the remaining AIRT.ipynb cells where the AI Red Teaming Agent conducts basic, intermediate, advanced, and custom prompt attacks against the target model in your Azure AI project.
+These instructions cover running the remaining AIRT-Eval.ipynb cells where the AI Red Teaming Agent conducts basic, intermediate, advanced, and custom prompt attacks against the target model in your Azure AI project.
 
 ## Prerequisites
 
@@ -196,7 +195,7 @@ As an example, let's ask a Generative AI to help produce some red teaming prompt
 # Warning
 The content from the prompts and outputs in scan results contain descriptions that might be disturbing to some users.
 
-1.	Go to the Azure AI Foundry project resource and launch Azure AI Studio.
+1.	Go to the Microsoft Foundry (classic) project resource and launch Azure AI Studio.
 
 ![Launch](../images/aiproj.png)
 
@@ -225,9 +224,9 @@ The content from the prompts and outputs in scan results contain descriptions th
 
 This guide provides instructions for examining the AI red teaming agent results across areas relevant to different personas protecting the GenAI application. One of the byproducts of running the AI red team agent is that it can produce security alerts due to it's attack strategy techniques employed on risk category content. Defender for AI Services will generate security alerts that can be found where the persona is.
 
-### Azure AI Foundry project red team evaluations
+### Microsoft Foundry (classic) project red team evaluations
 
-Security alerting from Defender for AI Services can be found in the Azure AI Foundry Left navigation's blade, here the data analyst or application owner can find if an alert was recently issued and some basic information on the alert and affected resource, including some remediation steps. The user is invited to review the alert in more detail and evidence in Defender for Cloud.
+Security alerting from Defender for AI Services can be found in the Microsoft Foundry (classic) left navigation blade. Here the data analyst or application owner can find if an alert was recently issued and some basic information on the alert and affected resource, including some remediation steps. The user is invited to review the alert in more detail and evidence in Defender for Cloud.
 
 ![Launch](../images/aialert.png)
 
@@ -262,9 +261,9 @@ Finally the Defender for AI Services alerting is available in the Defender XDR p
 
 ![Launch](../images/xdralert.png)
 
-### AI-SPM within Azure AI Foundry and Defender for Cloud
+### AI-SPM within Microsoft Foundry and Defender for Cloud
 
-Security Recommendations are also generated to reduce attack surfaces and harden Azure Services including Azure AI Foundry, these results can be found across areas relevant to different personas protecting the GenAI application. Again this will include Azure AI Foundry Project -> Guardrails + controls -> Security Recommendations. By clicking on a recommendation you can get some additional details and a button to send you to more information found in Defender for Cloud.
+Security Recommendations are also generated to reduce attack surfaces and harden Azure Services including Microsoft Foundry. These results can be found across areas relevant to different personas protecting the GenAI application. Again this will include Microsoft Foundry (classic) project -> Guardrails + controls -> Security Recommendations. By clicking on a recommendation you can get some additional details and a button to send you to more information found in Defender for Cloud.
 
 ![Launch](../images/aispm.png)
 
@@ -278,15 +277,15 @@ Defender for Cloud will have additional context involving the MITRE Tactics invo
 
 **Avg deployment time: 10 min**
 
-The following instructions are for deploying our first model to test in Azure AI Foundry and also configuring Content Filters and Prompt Shields.
+The following instructions are for deploying our first model to test in Microsoft Foundry (classic) and also configuring Content Filters and Prompt Shields.
 
-While deploying models in Azure AI Foundry from the model catalog will deploy a default filter that will protect against some harms, we recommend creating custom filters and tailoring for your risk tolerance and needs. The following will walk through these steps and also we encourage after applying to the model re running the AI Red Team to see the differences.
+While deploying models in Microsoft Foundry (classic) from the model catalog will deploy a default filter that will protect against some harms, we recommend creating custom filters and tailoring for your risk tolerance and needs. The following will walk through these steps and also we encourage after applying to the model re running the AI Red Team to see the differences.
 
 ![Launch](../images/nodefaults.png)
 
-### Azure AI Foundry Project
+### Microsoft Foundry (classic) project
 
-1.	In the Azure portal, locate the deployed Azure AI Foundry project resource in the resource group. Open it and click Launch AI Studio.
+1.	In the Azure portal, locate the deployed Microsoft Foundry (classic) project resource in the resource group. Open it and click Launch AI Studio.
 
 ![Launch](../images/aiprojfind.png)
 
@@ -296,49 +295,49 @@ While deploying models in Azure AI Foundry from the model catalog will deploy a 
 
 ![Launch](../images/modelcatalog.png)
 
-Within the model catalog you can examine various attributes of models. Click "Browse the leaderboards" and scroll to review leaderboards by scenario. Review Standard harmful behavior and other scenarios to understand relative safety posture (higher score = higher measured risk). Learn more: [Model leaderboards in Azure AI Foundry](https://ai.azure.com/doc/azure/ai-foundry/concepts/model-benchmarks?tid=b8f7636c-2e7b-476f-858c-93b63e87d81b)
+Within the model catalog you can examine various attributes of models. Click "Browse the leaderboards" and scroll to review leaderboards by scenario. Review Standard harmful behavior and other scenarios to understand relative safety posture (higher score = higher measured risk). Learn more: [Model leaderboards in Microsoft Foundry](https://ai.azure.com/doc/azure/ai-foundry/concepts/model-benchmarks?tid=b8f7636c-2e7b-476f-858c-93b63e87d81b)
 
-![Launch](/images/modeldash1.png)
+![Launch](../images/modeldash1.png)
 
-![Launch](/images/modeldash2.png)
+![Launch](../images/modeldash2.png)
 
 3.	In the upper left navigation trail, click on the project and switch to the foundry view:
 
-![Launch](/images/navigate.png)
+![Launch](../images/navigate.png)
 
 4.	In the left-hand navigation, select Model + Endpoint, you should see a gpt-4o-mini deployed with the lab
 
-![Launch](/images/gpt4omini.png)
+![Launch](../images/gpt4omini.png)
 
 5.	In the left-hand navigation, select Guardrails + controls, then choose the Content filters tab.
 
-![Launch](/images/contentfiltertab.png)
+![Launch](../images/contentfiltertab.png)
 
 6.	Click Create a content filter.
 
-![Launch](/images/createcontentfilter.png)
+![Launch](../images/createcontentfilter.png)
 
 7.	Name the content filter LowSafetyAITest, choose the connection created from the model deployment, then click Next.
 
-![Launch](/images/namefilter.png)
+![Launch](../images/namefilter.png)
 
 8.	Adjust the input filters as shown. Set them to the lowest blocking level and turn OFF Prompt Shields, then click Next.
 
-![Launch](/images/adjustfilter1.png)
+![Launch](../images/adjustfilter1.png)
 
 You can learn more from the following Learn document: [Content filtering overview](https://learn.microsoft.com/en-us/azure/ai-foundry/openai/concepts/content-filter?tabs=warning%2Cuser-prompt%2Cpython-new#risk-categories)
 
 9.	Adjust the output filters likewise. Set them to the lowest blocking level and turn OFF Prompt Shields, then click Next.
 
-![Launch](/images/adjustfilter2.png)
+![Launch](../images/adjustfilter2.png)
 
 10.	On the connection screen, check the gpt-4o-mini model name and click Next, then choose Replace.
 
-![Launch](/images/replace.png)
+![Launch](../images/replace.png)
 
 11.	Scroll down and create the filter.
 
-![Launch](/images/createfilter.png)
+![Launch](../images/createfilter.png)
 
 You will later create another content filter HighSafetyAITest by moving thresholds to the highest settings, turning ON Prompt Shields (block), and enabling the block list in output filters.
 
@@ -348,7 +347,7 @@ Safety disclaimer: Use the relaxed filter configuration solely within this isola
 
 # Conclusion
 
-We have now been through the stand up and usage of the AI Red teaming agent through a Jupyter Python Notebook targeting and evaluating certain risks categories with differing attack strategies. We explored the results of these attacks in AI Red team evaluations in Azure AI Foundry, the attack success rates, and details of unique and novel prompt attacks. Finally we explored the alerting and further security elements within Azure AI Foundry and Defender for Cloud and Defender XDR portals.
+We have now been through the stand up and usage of the AI Red teaming agent through a Jupyter Python Notebook targeting and evaluating certain risks categories with differing attack strategies. We explored the results of these attacks in AI Red team evaluations in Microsoft Foundry (classic), the attack success rates, and details of unique and novel prompt attacks. Finally we explored the alerting and further security elements within Microsoft Foundry, Defender for Cloud, and Defender XDR portals.
 
 Going forward review material in workshop and
 

@@ -53,7 +53,8 @@
                     "family": "A",
                     "name": "standard"
                 },
-                "publicNetworkAccess": "Enabled"
+                "publicNetworkAccess": "Enabled",
+                "softDeleteRetentionInDays": 7
             }
         },
         {
