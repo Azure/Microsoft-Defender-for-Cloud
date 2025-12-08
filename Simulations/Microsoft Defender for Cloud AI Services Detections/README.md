@@ -1,4 +1,4 @@
-# Defender for AI Services Threat Protection and AI Red Team Workshop
+# AI Red Teaming Workshop
 
 This workshop deploys an environment for running the [Azure AI Red Teaming Agent](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/run-scans-ai-red-teaming-agent) in a secure, managed setup.
 
@@ -14,9 +14,13 @@ This workshop deploys an environment for running the [Azure AI Red Teaming Agent
 ## Deploy the Templates
 
 ### Deploy the Main Template
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Fmain%2FSimulations%2FMicrosoft%20Defender%20for%20Cloud%20AI%20Services%20Detections%2Fazuredeploy.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fswiftsolves-msft%2FAI-Red-Teaming-Workshop%2Fmain%2Fazuredeploy.json)
+
+### Deploy this Forked Template
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FThor-DraperJr%2FAI-Red-Teaming-Workshop%2Fmain%2Fazuredeploy.json)
 
 ## Deployment Guidance
+
 
 > Must be deployed in **East US 2** or another supported region for AI Red Teaming Agent.
 > Only a single parameter (`userObjectId`) is required.
@@ -80,6 +84,14 @@ Use a supported region for AI Red Teaming Agent (for example, East US 2). See th
 3. Run the generate-env.sh script to set up the Python environment variables.
 4. Run notebooks (e.g., `AIRT-AiHML.ipynb`) using the remote kernel on the provisioned compute instance.
 
+> Portal note: This workshop uses a **hub-based project** in **Microsoft Foundry (classic)**, backed by an Azure Machine Learning hub workspace. Microsoft Foundry (new) only shows Foundry projects; use the classic experience when navigating to evaluations and resources for this lab. To migrate from hub-based to Foundry projects later, see [Migrate from hub-based to Foundry projects](https://learn.microsoft.com/azure/ai-foundry/how-to/migrate-project).
+
 ## Participants Guide
 
-Proceed to the [Defender for AI Services - Participants Guide](./workshop/Module%20-%20Participant%20Guide.md)
+Proceed to the [AI Red Team workshop - Participants Guide](./workshop/Module%20-%20Participant%20Guide.md)
+
+## References
+
+- AI Red Teaming Agent docs: https://learn.microsoft.com/azure/ai-foundry/how-to/develop/run-scans-ai-red-teaming-agent
+- Hub & project concepts: https://learn.microsoft.com/azure/ai-foundry/concepts/ai-resources
+- Observability & evaluations: https://learn.microsoft.com/azure/ai-foundry/concepts/observability
