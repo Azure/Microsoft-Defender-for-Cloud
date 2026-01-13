@@ -1,0 +1,67 @@
+param (
+    [Parameter(Mandatory = $true)]
+    [string[]]$SubscriptionIds
+)
+
+# Extension details
+$extensionPublisher = 'Microsoft.Azure.AzureDefenderForSQL'
+$extensionType = 'AdvancedThreatProtection.Windows'
+$extensionTypeHandler = '2.0'
+
+# Create log file
+$timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+$logFile = "VMDefenderExtensionLog_$timestamp.txt"
+Start-Transcript -Path $logFile -Append
+
+# Required modules
+# Required: Az.Accounts, Az.Compute
+# Make sure these modules are installed before running the script:
+# Install-Module -Name Az.Accounts -Force -Scope CurrentUser
+# Install-Module -Name Az.Compute -Force -Scope CurrentUser
+Import-Module Az.Accounts
+Import-Module Az.Compute
+
+foreach ($subscriptionId in $SubscriptionIds) {
+    try {
+        Write-Host "Setting context to subscription $subscriptionId"
+        Set-AzContext -Subscription $subscriptionId
+
+        # Get all standalone Windows VMs that are running
+        $windowsVMs = Get-AzVM -Status | Where-Object {
+            $_.StorageProfile.OSDisk.OSType -eq 'Windows' -and $_.PowerState -eq 'VM running'
+        }
+
+        foreach ($vm in $windowsVMs) {
+            $existingExtension = ($vms[0].Extensions | Where-Object { $_.Id.Contains("DefenderForSQL") })
+            if ($existingExtension.Length -eq 0)
+            {
+                continue
+            }
+
+            $vmName = $vm.Name
+            $rgName = $vm.ResourceGroupName
+            $location = $vm.Location
+            $resourceParts = $existingExtension[0].Id.Split("/")
+            $extensionName = $resourceParts[$resourceParts.Length - 1]
+
+            Write-Host "Processing VM $vmName in $location"
+
+            Write-Host "Installing Defender for SQL extension on $vmName"
+            Set-AzVMExtension -Publisher $extensionPublisher `
+                              -ExtensionType $extensionType `
+                              -ResourceGroupName $rgName `
+                              -VMName $vmName `
+                              -Name $extensionName `
+                              -TypeHandlerVersion $extensionTypeHandler `
+                              -Location $location `
+                              -EnableAutomaticUpgrade $true `
+                              -AsJob
+        }
+    }
+    catch {
+        Write-Host "Error processing subscription $subscriptionId $_"
+    }
+}
+
+Stop-Transcript
+Write-Host "All done! Log saved to: $logFile"
