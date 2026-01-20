@@ -51,10 +51,9 @@
         "windowsOffer": "WindowsServer",
         "windowsSku": "2016-Datacenter",
         "windowsPublisher": "MicrosoftWindowsServer",
-        "linuxOffer": "UbuntuServer",
-        "linuxSku": "22_04-lts",
+        "linuxOffer": "0001-com-ubuntu-server-jammy",
+        "linuxSku": "22_04-lts-gen2",
         "linuxPublisher": "Canonical",
-
         "storageName": "[toLower(concat('asclabsa', uniqueString(subscription().subscriptionId)))]",
         "appServicePlanName": "asclab-splan",
         "appServiceName": "[toLower(concat('asclab-app-', uniqueString(subscription().subscriptionId)))]",
@@ -64,7 +63,6 @@
         "sqlServerName": "[toLower(concat('asclab-sql-',uniqueString(subscription().subscriptionId)))]",
         "sqlDatabaseName": "asclab-db",
         "aksClusterName": "asclab-aks",
-
         "aksDNSPrefix": "asclab-aks",
         "aksNetworkPlugin": "kubenet"
     },
@@ -421,7 +419,6 @@
                 }
             }
         },
-
         {
             "name": "[variables('storageName')]",
             "type": "Microsoft.Storage/storageAccounts",
