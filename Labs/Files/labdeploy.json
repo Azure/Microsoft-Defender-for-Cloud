@@ -51,20 +51,9 @@
         "windowsOffer": "WindowsServer",
         "windowsSku": "2016-Datacenter",
         "windowsPublisher": "MicrosoftWindowsServer",
-        "linuxOffer": "UbuntuServer",
-        "linuxSku": "18.04-LTS",
+        "linuxOffer": "0001-com-ubuntu-server-jammy",
+        "linuxSku": "22_04-lts-gen2",
         "linuxPublisher": "Canonical",
-        "windowsMgmtType": "MicrosoftMonitoringAgent",
-        "windowsMgmtVersion": "1.0",
-        "linuxMgmtType": "OmsAgentForLinux",
-        "linuxMgmtVersion": "1.4",
-        "workspaceSolutions": {
-            "Security": {
-                "name": "SecurityCenterFree",
-                "solutionName": "[concat('SecurityCenterFree', '(', variables('workspaceName'), ')')]",
-                "publisher": "Microsoft"
-            }
-        },
         "storageName": "[toLower(concat('asclabsa', uniqueString(subscription().subscriptionId)))]",
         "appServicePlanName": "asclab-splan",
         "appServiceName": "[toLower(concat('asclab-app-', uniqueString(subscription().subscriptionId)))]",
@@ -74,7 +63,6 @@
         "sqlServerName": "[toLower(concat('asclab-sql-',uniqueString(subscription().subscriptionId)))]",
         "sqlDatabaseName": "asclab-db",
         "aksClusterName": "asclab-aks",
-        "aksVersion": "1.31.1",
         "aksDNSPrefix": "asclab-aks",
         "aksNetworkPlugin": "kubenet"
     },
@@ -218,8 +206,11 @@
             "name": "[concat(variables('vmNameWindows'), '-pip')]",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('resourceTags')]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "dnsSettings": {
                     "domainNameLabel": "[toLower(concat(variables('vmNameWindows'), uniqueString(subscription().subscriptionId)))]"
                 }
@@ -231,8 +222,11 @@
             "name": "[concat(variables('vmNameLinux'), '-pip')]",
             "location": "[resourceGroup().location]",
             "tags": "[parameters('resourceTags')]",
+            "sku": {
+                "name": "Standard"
+            },
             "properties": {
-                "publicIPAllocationMethod": "Dynamic",
+                "publicIPAllocationMethod": "Static",
                 "dnsSettings": {
                     "domainNameLabel": "[toLower(concat(variables('vmNameLinux'), uniqueString(subscription().subscriptionId)))]"
                 }
@@ -426,24 +420,6 @@
             }
         },
         {
-            "name": "[variables('workspaceSolutions').Security.solutionName]",
-            "type": "Microsoft.OperationsManagement/solutions",
-            "apiVersion": "2015-11-01-preview",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[variables('workspaceName')]"
-            ],
-            "plan": {
-                "name": "[variables('workspaceSolutions').Security.solutionName]",
-                "product": "[concat('OMSGallery/', variables('workspaceSolutions').Security.name)]",
-                "publisher": "[variables('workspaceSolutions').Security.publisher]",
-                "promotionCode": ""
-            },
-            "properties": {
-                "workspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces/', variables('workspaceName'))]"
-            }
-        },
-        {
             "name": "[variables('storageName')]",
             "type": "Microsoft.Storage/storageAccounts",
             "location": "[resourceGroup().location]",
@@ -515,7 +491,7 @@
                 "enabledForTemplateDeployment": false
             },
             "dependsOn": [
-                "[resourceId('Microsoft.Web/sites', variables('appServiceName'))]"
+                "[resourceId('Microsoft.Web/sites', variables('functionName'))]"
             ],
             "tags": "[parameters('resourceTags')]"
         },
@@ -546,11 +522,11 @@
                         },
                         {
                             "name": "FUNCTIONS_EXTENSION_VERSION",
-                            "value": "~2"
+                            "value": "~4"
                         },
                         {
                             "name": "WEBSITE_NODE_DEFAULT_VERSION",
-                            "value": "~10"
+                            "value": "~18"
                         },
                         {
                             "name": "FUNCTIONS_WORKER_RUNTIME",
@@ -565,13 +541,12 @@
             "tags": "[parameters('resourceTags')]"
         },
         {
-            "apiVersion": "2020-03-01",
+            "apiVersion": "2023-09-01",
             "dependsOn": [],
             "type": "Microsoft.ContainerService/managedClusters",
             "location": "[resourceGroup().location]",
             "name": "[variables('aksClusterName')]",
             "properties": {
-                "kubernetesVersion": "[variables('aksVersion')]",
                 "dnsPrefix": "[variables('aksDNSPrefix')]",
                 "agentPoolProfiles": [
                     {
@@ -580,7 +555,7 @@
                         "vmSize": "Standard_B2s",
                         "osType": "Linux",
                         "storageProfile": "ManagedDisks",
-                        "type": "AvailabilitySet",
+                        "type": "VirtualMachineScaleSets",
                         "mode": "System"
                     }
                 ],
