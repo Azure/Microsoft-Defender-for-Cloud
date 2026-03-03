@@ -16,7 +16,7 @@
                 "name": "[variables('policyDefinitionName')]",
                 "properties": {
                     "policyType": "Custom",
-                    "mode": "Indexed",
+                    "mode": "All",
                     "displayName": "[variables('policyDefinitionDisplayName')]",
                     "description": "[variables('policyDefinitionDescription')]",
                     "version": "1.0.0",
