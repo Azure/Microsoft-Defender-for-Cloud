@@ -17,7 +17,6 @@
     },
 
     "DBUser": {
-      "Default": "admin",
       "Description" : "Username for MySQL database access",
       "Type": "String",
       "MinLength": "1",
@@ -27,7 +26,7 @@
     },
 
     "DBPassword": {
-      "Default": "HelloWorld",
+      
       "Description" : "Password for MySQL database access",
       "Type": "String",
       "MinLength": "1",
@@ -37,7 +36,7 @@
     },
 
     "DBRootPassword": {
-      "Default": "HelloWorld",
+      
       "Description" : "Root password for MySQL",
       "Type": "String",
       "MinLength": "1",
@@ -58,7 +57,6 @@
       "Type": "String",
       "MinLength": "9",
       "MaxLength": "18",
-      "Default": "0.0.0.0/0",
       "AllowedPattern": "(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3})/(\\d{1,2})",
       "ConstraintDescription": "must be a valid IP CIDR range of the form x.x.x.x/x."
     } 
@@ -181,8 +179,7 @@
                   "      $DBUser     = \"", {"Ref" : "DBUser"}, "\";\n",
                   "      $DBPassword = \"", {"Ref" : "DBPassword"}, "\";\n",
                   "      print \"Database = \" . $Database . \"<br />\";\n",
-                  "      $dbconnection = mysql_connect($Database, $DBUser, $DBPassword)\n",
-                  "                      or die(\"Could not connect: \" . mysql_error());\n",
+                  "
                   "      print (\"Connected to $Database successfully\");\n",
                   "      mysql_close($dbconnection);\n",
                   "    ?>\n",
@@ -201,8 +198,8 @@
 
               "/tmp/setup.mysql" : {
                 "content" : { "Fn::Join" : ["", [
-                  "CREATE DATABASE ", { "Ref" : "DBName" }, ";\n",
-                  "GRANT ALL ON ", { "Ref" : "DBName" }, ".* TO '", { "Ref" : "DBUser" }, "'@localhost IDENTIFIED BY '", { "Ref" : "DBPassword" }, "';\n"
+                  "CREATE DATABASE ", { "Ref" : "DBName" }, ";\n"
+                 
                   ]]},
                 "mode"  : "000400",
                 "owner" : "root",
@@ -213,10 +210,8 @@
                   "[main]\n",
                   "stack=", { "Ref" : "AWS::StackId" }, "\n",
                   "region=", { "Ref" : "AWS::Region" }, "\n"
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                ]]}
+                
               },
 
               "/etc/cfn/hooks.d/cfn-auto-reloader.conf" : {
@@ -230,10 +225,7 @@
                   "         --configsets InstallAndRun ",
                   "         --region ", { "Ref" : "AWS::Region" }, "\n",
                   "runas=root\n"
-                ]]},
-                "mode"    : "000400",
-                "owner"   : "root",
-                "group"   : "root"
+                ]]}
               },
 	"/tmp/sample.txt" : {
                 
@@ -258,21 +250,7 @@
             }
           },
 
-          "Configure" : {
-            "commands" : {
-              "01_set_mysql_root_password" : {
-                "command" : { "Fn::Join" : ["", ["mysqladmin -u root password '", { "Ref" : "DBRootPassword" }, "'"]]},
-                "test" : { "Fn::Join" : ["", ["$(mysql ", { "Ref" : "DBName" }, " -u root --password='", { "Ref" : "DBRootPassword" }, "' >/dev/null 2>&1 </dev/null); (( $? != 0 ))"]]}
-              },
-              "02_create_database" : {
-                "command" : { "Fn::Join" : ["", ["mysql -u root --password='", { "Ref" : "DBRootPassword" }, "' < /tmp/setup.mysql"]]},
-                "test" : { "Fn::Join" : ["", ["$(mysql ", { "Ref" : "DBName" }, " -u root --password='", { "Ref" : "DBRootPassword" }, "' >/dev/null 2>&1 </dev/null); (( $? != 0 ))"]]}
-              }
-            }
-          }
-        }
-      },
-      "Properties": {
+        "Properties": {
         "ImageId" : { "Fn::FindInMap" : [ "AWSRegionArch2AMI", { "Ref" : "AWS::Region" },
                           { "Fn::FindInMap" : [ "AWSInstanceType2Arch", { "Ref" : "InstanceType" }, "Arch" ] } ] },
         "InstanceType"   : { "Ref" : "InstanceType" },
