@@ -1,6 +1,6 @@
 
 # PowerShell & CLI sample scripts to onboard to Defender for APIs at scale
-In this section you can find 3 PowerShall samples and 3 CLI samples for onboarding APIs to Defender for APIs at scale.
+In this section you can find 3 PowerShell samples and 3 CLI samples for onboarding APIs to Defender for APIs at scale.
 
 ## Types of Onboarding scripts available
 1. Onboarding all of the APIs in an APIM (Azure API Management service) of your choice at scale. (Both CLI & Powershell)
