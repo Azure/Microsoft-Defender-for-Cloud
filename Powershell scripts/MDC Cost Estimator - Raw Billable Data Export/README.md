@@ -45,3 +45,29 @@ Connect-AzAccount
 
 # 2. Run the script
 .\AzureRawBillableDataScript.ps1
+```
+
+The script will prompt up-front for:
+
+- Whether to run **extended (consumption-based) data collection** — can take time on large tenants.
+- Whether to **include Container Registry images** — requires Azure CLI + `AcrPull`.
+
+After answering, the script runs unattended and writes
+`AzureRawBillableData_<timestamp>.csv` to the current directory.
+
+## Importing into the Sentinel Cost Estimator
+
+
+
+## Notes
+
+- All consumption metrics use a **30-day lookback window**.
+- AKS node VMs are excluded from **Servers** to avoid double-counting against the
+  **Containers** plan (detected via the `Microsoft.AKS` extension publisher).
+- The script issues **read-only** ARG / ARM calls; nothing is changed in your
+  environment.
+- Designed to be safe to interrupt and re-run.
+
+## Author
+
+Nessya123
