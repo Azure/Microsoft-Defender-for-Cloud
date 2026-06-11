@@ -9,15 +9,6 @@
 #   - PowerShell 7.0+
 #   - Az PowerShell module (Install-Module -Name Az)
 #   - Azure CLI (https://aka.ms/installazurecli) - required for Container Registry Images collection
-#
-# Optional parameters:
-#   -SubscriptionId <guid>  Only scan the given subscription (skips interactive prompts;
-#                            auto-enables extended data collection, skips ACR).
-
-[CmdletBinding()]
-param(
-    [string]$SubscriptionId
-)
 
 Set-StrictMode -Version Latest
 
@@ -73,15 +64,7 @@ try {
     if (-not $subscriptions) {
         throw "No subscriptions found."
     }
-    if ($SubscriptionId) {
-        $subscriptions = @($subscriptions | Where-Object { $_.Id -eq $SubscriptionId })
-        if (-not $subscriptions -or $subscriptions.Count -eq 0) {
-            throw "Subscription '$SubscriptionId' was not found in tenant '$($accountInfo.Tenant.Id)'."
-        }
-        Write-Host "Single-subscription mode: scoped to $($subscriptions[0].Name) ($SubscriptionId)" -ForegroundColor Yellow
-    } else {
-        Write-Host "Found $($subscriptions.Count) subscriptions" -ForegroundColor Yellow
-    }
+    Write-Host "Found $($subscriptions.Count) subscriptions" -ForegroundColor Yellow
 } catch {
     Write-Error "Failed to retrieve subscriptions. Error: $_"
     exit
@@ -90,29 +73,22 @@ try {
 # ============================================================================
 # USER CONFIGURATION (all prompts upfront so you can set and walk away)
 # ============================================================================
-if ($SubscriptionId) {
-    Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
-    Write-Host "Single-subscription mode: auto-enabling extended data collection, skipping ACR." -ForegroundColor Yellow
-    $runAdditionalDataCollection = 'y'
-    $runAcrCollection = 'n'
-} else {
-    Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
-    Write-Host "Please answer the following questions. Once done, the script will run unattended.`n" -ForegroundColor Yellow
+Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
+Write-Host "Please answer the following questions. Once done, the script will run unattended.`n" -ForegroundColor Yellow
 
-    $runAdditionalDataCollection = Read-Host "Do you want to run extended data collection for usage-based signals (Containers node count, API requests, CosmosDB RU/s, Malware Scanning GB, AI tokens, Container Registry Images)? This can take longer depending on the size of your environment. Selecting 'no' will skip all extended data collection. (y/n)"
+$runAdditionalDataCollection = Read-Host "Do you want to run extended data collection for usage-based signals (Containers node count, API requests, CosmosDB RU/s, Malware Scanning GB, AI tokens, Container Registry Images)? This can take longer depending on the size of your environment. Selecting 'no' will skip all extended data collection. (y/n)"
 
-    $runAcrCollection = 'n'
-    if ($runAdditionalDataCollection -eq 'yes' -or $runAdditionalDataCollection -eq 'y') {
-        $azCliAvailable = [bool](Get-Command az -ErrorAction SilentlyContinue)
-        if ($azCliAvailable) {
-            Write-Host ""
-            Write-Host "NOTE: Container Registry Images collection requires:" -ForegroundColor Yellow
-            Write-Host "  - 'AcrPull' role (or higher: AcrPush, Contributor, Owner) on each registry" -ForegroundColor Yellow
-            Write-Host "  - Azure CLI must be installed and logged in" -ForegroundColor Yellow
-            $runAcrCollection = Read-Host "`nDo you want to collect Container Registry Images? This requires AcrPull permissions on registries. (y/n)"
-        } else {
-            Write-Warning "Azure CLI not found. Container Registry Images collection will be skipped. Install from: https://aka.ms/installazurecli"
-        }
+$runAcrCollection = 'n'
+if ($runAdditionalDataCollection -eq 'yes' -or $runAdditionalDataCollection -eq 'y') {
+    $azCliAvailable = [bool](Get-Command az -ErrorAction SilentlyContinue)
+    if ($azCliAvailable) {
+        Write-Host ""
+        Write-Host "NOTE: Container Registry Images collection requires:" -ForegroundColor Yellow
+        Write-Host "  - 'AcrPull' role (or higher: AcrPush, Contributor, Owner) on each registry" -ForegroundColor Yellow
+        Write-Host "  - Azure CLI must be installed and logged in" -ForegroundColor Yellow
+        $runAcrCollection = Read-Host "`nDo you want to collect Container Registry Images? This requires AcrPull permissions on registries. (y/n)"
+    } else {
+        Write-Warning "Azure CLI not found. Container Registry Images collection will be skipped. Install from: https://aka.ms/installazurecli"
     }
 }
 

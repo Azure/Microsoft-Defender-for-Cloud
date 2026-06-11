@@ -2,9 +2,12 @@
 
 ## Description
 This PowerShell script scans an Azure tenant and exports a CSV containing the
-**raw billable units** for every subscription, ready to be imported into the
-**Microsoft Defender for Cloud Cost Estimator** (part of the MDC Next-Gen
-experience in Microsoft Sentinel).
+**raw billable units** for every subscription, ready to be used as a reference
+when filling in the **Microsoft Defender for Cloud Cost Estimator** (part of
+the MDC Next-Gen experience in Microsoft Sentinel).
+
+The cost estimator does **not** auto-import this file — use the CSV as a
+lookup while typing the values into the calculator manually.
 
 The script does **not** perform any pricing calculation. It only collects the
 inventory and usage metrics that the calculator needs in order to estimate
@@ -53,8 +56,6 @@ Output file: `AzureRawBillableData_<yyyyMMdd_HHmmss>.csv` (written to the curren
 The script verifies these prerequisites on start-up and exits early if any required Az submodule is missing. A missing Azure CLI only logs a warning; ACR collection is then skipped automatically.
 
 ## Usage
-
-### Scan every subscription in the tenant (interactive)
 ```powershell
 # 1. Sign in
 Connect-AzAccount
@@ -68,17 +69,13 @@ You will be asked two questions up-front, then the script runs unattended:
 1. **Run extended (consumption-based) data collection?** Adds metrics-based AKS node averages, APIM requests, CosmosDB RU/s, Malware Scanning ingress GB, AI tokens, and (optionally) Container Registry image counts. Can take a while on large tenants.
 2. **Include Container Registry images?** Only asked if you said yes to (1) and the Azure CLI is installed. Requires `AcrPull` on each registry.
 
-### Scan a single subscription (non-interactive)
-```powershell
-.\AzureRawBillableDataScript.ps1 -SubscriptionId <subscription-guid>
-```
-This bypasses both prompts: extended data collection is **auto-enabled** and Container Registry collection is **auto-skipped**. Useful for CI / scheduled runs.
-
 The script writes `AzureRawBillableData_<timestamp>.csv` to the current working directory.
 
-## Importing into the Sentinel Cost Estimator
+## Using the CSV with the Sentinel Cost Estimator
 
-
+The MDC Cost Estimator does not auto-import this file. Open the CSV side-by-side
+with the calculator and **type the per-plan values** from each subscription row
+into the matching fields in the UI.
 
 ## Notes
 
