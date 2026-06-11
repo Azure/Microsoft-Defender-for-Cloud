@@ -1,4 +1,4 @@
-# MDC Cost Estimator - Raw Billable Data Export
+# Azure Assets Discovery
 
 ## Description
 This PowerShell script scans an Azure tenant and exports a CSV containing the
@@ -61,7 +61,7 @@ The script verifies these prerequisites on start-up and exits early if any requi
 Connect-AzAccount
 
 # 2. Run the script
-.\AzureRawBillableDataScript.ps1
+.\AzureAssetsDiscovery.ps1
 ```
 
 You will be asked two questions up-front, then the script runs unattended:
