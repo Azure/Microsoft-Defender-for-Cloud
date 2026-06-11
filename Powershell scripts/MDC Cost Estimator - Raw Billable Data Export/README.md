@@ -22,8 +22,8 @@ The output CSV contains the following columns:
 | `SubscriptionID` | Subscription GUID |
 | `SubscriptionName` | Subscription display name |
 | `EnvironmentType` | Always `Azure` |
-| `Servers` | VM count (Servers P1/P2), **excluding AKS node-pool VMs** |
-| `Servers_All` | Total VM count **including** AKS node-pool VMs (for reference) |
+| `Servers` | **The value to use for the Servers plan.** VM count with AKS node-pool VMs already removed, because when both **Servers** and **Containers** plans are enabled those node VMs are billed under Containers — excluding them here prevents double-counting. |
+| `Servers_All` | **Reference only.** Total VM count *including* AKS node-pool VMs. Use this column instead of `Servers` if you do **not** plan to enable the Containers plan, so AKS nodes still get protected (and counted) under Servers. |
 | `Containers` | AKS node count — point-in-time from ARG, replaced by the 30-day average of `kube_node_status_condition` (Ready) when extended collection is enabled |
 | `AppServices` | Sum of workers from `microsoft.web/serverfarms` (Consumption-tier plans are excluded) |
 | `KeyVaults` | Count of Key Vaults |
@@ -80,9 +80,14 @@ into the matching fields in the UI.
 ## Notes
 
 - All consumption metrics use a **30-day lookback window**.
-- AKS node VMs are excluded from **Servers** to avoid double-counting against the
-  **Containers** plan (detected via the `Microsoft.AKS` extension publisher on VMSS).
-  The unfiltered total is kept in `Servers_All` for reference.
+- **`Servers` vs `Servers_All`:** The default assumption is that both the **Servers**
+  and **Containers** plans will be enabled, so AKS node-pool VMs are excluded from
+  the `Servers` column (they're billed under Containers — counting them in both
+  would double-bill). `Servers_All` is the unfiltered total VM count and is
+  provided for the case where the Containers plan will **not** be enabled — in
+  that scenario use `Servers_All` so AKS nodes are still covered (and counted)
+  under the Servers plan. AKS nodes are detected via the `Microsoft.AKS` extension
+  publisher on VMSS.
 - Container node counts start as a point-in-time ARG value and are replaced by the
   30-day average of the `kube_node_status_condition` Ready metric when extended
   collection is enabled — more accurate for clusters that use the autoscaler.
