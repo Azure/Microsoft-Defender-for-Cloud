@@ -9,14 +9,32 @@
 #   - PowerShell 7.0+
 #   - Az PowerShell module (Install-Module -Name Az)
 #   - Azure CLI (https://aka.ms/installazurecli) - required for Container Registry Images collection
+#
+# Optional parameters:
+#   -SubscriptionId <guid>  Only scan the given subscription (skips interactive prompts;
+#                            auto-enables extended data collection, skips ACR).
+
+[CmdletBinding()]
+param(
+    [string]$SubscriptionId
+)
 
 Set-StrictMode -Version Latest
 
 # ============================================================================
 # PREREQUISITES CHECK
 # ============================================================================
-if (-not (Get-Module -ListAvailable -Name Az.Accounts)) {
-    Write-Error "Az PowerShell module is not installed. Please install it: Install-Module -Name Az -Scope CurrentUser -Force"
+# Validate all Az submodules used by this script up front; without them the script would fail mid-run with a
+# cryptic command-not-found error.
+$requiredAzModules = @('Az.Accounts', 'Az.ResourceGraph', 'Az.Monitor')
+# Force array (@(...)) so .Count is always defined - a bare Where-Object can return
+# $null or a single scalar under Strict Mode, both of which lack the .Count property.
+$missingAzModules = @($requiredAzModules | Where-Object { -not (Get-Module -ListAvailable -Name $_) })
+
+if ($missingAzModules.Count -gt 0) {
+    $moduleList = ($missingAzModules -join ', ')
+    $installCmd = ($missingAzModules | ForEach-Object { "Install-Module -Name $_ -Scope CurrentUser -Force" }) -join '; '
+    Write-Error "Missing required Az PowerShell module(s): $moduleList. Please install them and re-run the script. Example: $installCmd"
     exit
 }
 
@@ -32,9 +50,13 @@ $accountInfo = $null
 try {
     $accountInfo = Get-AzContext
     if (-not $accountInfo) {
-        $accountInfo = Connect-AzAccount
-        if (-not $accountInfo) {
+        $loginResult = Connect-AzAccount
+        if (-not $loginResult) {
             throw "Failed to log in to Azure."
+        }
+        $accountInfo = $loginResult.Context
+        if (-not $accountInfo) {
+            throw "Failed to retrieve AzContext after login."
         }
     }
 } catch {
@@ -51,7 +73,15 @@ try {
     if (-not $subscriptions) {
         throw "No subscriptions found."
     }
-    Write-Host "Found $($subscriptions.Count) subscriptions" -ForegroundColor Yellow
+    if ($SubscriptionId) {
+        $subscriptions = @($subscriptions | Where-Object { $_.Id -eq $SubscriptionId })
+        if (-not $subscriptions -or $subscriptions.Count -eq 0) {
+            throw "Subscription '$SubscriptionId' was not found in tenant '$($accountInfo.Tenant.Id)'."
+        }
+        Write-Host "Single-subscription mode: scoped to $($subscriptions[0].Name) ($SubscriptionId)" -ForegroundColor Yellow
+    } else {
+        Write-Host "Found $($subscriptions.Count) subscriptions" -ForegroundColor Yellow
+    }
 } catch {
     Write-Error "Failed to retrieve subscriptions. Error: $_"
     exit
@@ -60,22 +90,29 @@ try {
 # ============================================================================
 # USER CONFIGURATION (all prompts upfront so you can set and walk away)
 # ============================================================================
-Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
-Write-Host "Please answer the following questions. Once done, the script will run unattended.`n" -ForegroundColor Yellow
+if ($SubscriptionId) {
+    Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
+    Write-Host "Single-subscription mode: auto-enabling extended data collection, skipping ACR." -ForegroundColor Yellow
+    $runAdditionalDataCollection = 'y'
+    $runAcrCollection = 'n'
+} else {
+    Write-Host "`n=== Configuration ===" -ForegroundColor Cyan
+    Write-Host "Please answer the following questions. Once done, the script will run unattended.`n" -ForegroundColor Yellow
 
-$runAdditionalDataCollection = Read-Host "Do you want to run extended data collection for consumption-based plans (Containers, API, CosmosDB, Malware Scanning, AI, Container Registry Images)? This can take longer depending on the size of your environment. Selecting 'no' will skip all consumption-based data collection. (y/n)"
+    $runAdditionalDataCollection = Read-Host "Do you want to run extended data collection for usage-based signals (Containers node count, API requests, CosmosDB RU/s, Malware Scanning GB, AI tokens, Container Registry Images)? This can take longer depending on the size of your environment. Selecting 'no' will skip all extended data collection. (y/n)"
 
-$runAcrCollection = 'n'
-if ($runAdditionalDataCollection -eq 'yes' -or $runAdditionalDataCollection -eq 'y') {
-    $azCliAvailable = [bool](Get-Command az -ErrorAction SilentlyContinue)
-    if ($azCliAvailable) {
-        Write-Host ""
-        Write-Host "NOTE: Container Registry Images collection requires:" -ForegroundColor Yellow
-        Write-Host "  - 'AcrPull' role (or higher: AcrPush, Contributor, Owner) on each registry" -ForegroundColor Yellow
-        Write-Host "  - Azure CLI must be installed and logged in" -ForegroundColor Yellow
-        $runAcrCollection = Read-Host "`nDo you want to collect Container Registry Images? This requires AcrPull permissions on registries. (y/n)"
-    } else {
-        Write-Warning "Azure CLI not found. Container Registry Images collection will be skipped. Install from: https://aka.ms/installazurecli"
+    $runAcrCollection = 'n'
+    if ($runAdditionalDataCollection -eq 'yes' -or $runAdditionalDataCollection -eq 'y') {
+        $azCliAvailable = [bool](Get-Command az -ErrorAction SilentlyContinue)
+        if ($azCliAvailable) {
+            Write-Host ""
+            Write-Host "NOTE: Container Registry Images collection requires:" -ForegroundColor Yellow
+            Write-Host "  - 'AcrPull' role (or higher: AcrPush, Contributor, Owner) on each registry" -ForegroundColor Yellow
+            Write-Host "  - Azure CLI must be installed and logged in" -ForegroundColor Yellow
+            $runAcrCollection = Read-Host "`nDo you want to collect Container Registry Images? This requires AcrPull permissions on registries. (y/n)"
+        } else {
+            Write-Warning "Azure CLI not found. Container Registry Images collection will be skipped. Install from: https://aka.ms/installazurecli"
+        }
     }
 }
 
@@ -131,7 +168,13 @@ function Invoke-AzGraphQueryPaged {
     $pageSize = 1000
     $skipToken = $null
 
-    while ($true) {
+    # Drive the loop off SkipToken — ARG's authoritative "more results?" signal.
+    # Two failure modes the old page-size-based termination had:
+    #   1. First page returns exactly $pageSize rows with SkipToken=$null → loop
+    #      never breaks (Count == pageSize) and re-runs the same query forever.
+    #   2. ARG is allowed to return fewer than -First rows on a page while still
+    #      setting SkipToken; breaking on partial pages silently drops results.
+    do {
         try {
             if ($skipToken) {
                 $pagedResults = Search-AzGraph -Query $Query -First $pageSize -SkipToken $skipToken -UseTenantScope
@@ -141,20 +184,14 @@ function Invoke-AzGraphQueryPaged {
 
             if ($pagedResults -and $pagedResults.Data) {
                 $results += $pagedResults.Data
-                $skipToken = $pagedResults.SkipToken
-                
-                if ($pagedResults.Data.Count -lt $pageSize) {
-                    break
-                }
-            } else {
-                break
             }
+            $skipToken = if ($pagedResults) { $pagedResults.SkipToken } else { $null }
         } catch {
             Write-Warning "Query failed: $_"
             break
         }
-    }
-    
+    } while ($skipToken)
+
     return $results
 }
 
@@ -175,7 +212,7 @@ $resourceQuery = @"
 | union 
 (resources
     | extend type = tolower(type)
-    | where type in ('microsoft.compute/virtualmachines', 'microsoft.classiccompute/virtualmachines', 'microsoft.hybridcompute/machines', 'microsoft.compute/virtualmachinescalesets', 'microsoft.sql/servers', 'microsoft.storage/storageaccounts', 'microsoft.documentdb/databaseaccounts', 'microsoft.keyvault/vaults', 'microsoft.web/serverfarms', 'microsoft.dbforpostgresql/servers', 'microsoft.dbforpostgresql/flexibleservers', 'microsoft.dbformysql/servers', 'microsoft.dbformysql/flexibleservers', 'microsoft.dbformariadb/servers', 'microsoft.apimanagement/service', 'microsoft.sqlvirtualmachine/sqlvirtualmachines', 'microsoft.azurearcdata/sqlserverinstances', 'microsoft.cognitiveservices/accounts', 'microsoft.web/sites')
+    | where type in ('microsoft.compute/virtualmachines', 'microsoft.classiccompute/virtualmachines', 'microsoft.hybridcompute/machines', 'microsoft.compute/virtualmachinescalesets', 'microsoft.sql/servers', 'microsoft.storage/storageaccounts', 'microsoft.documentdb/databaseaccounts', 'microsoft.keyvault/vaults', 'microsoft.web/serverfarms', 'microsoft.dbforpostgresql/servers', 'microsoft.dbforpostgresql/flexibleservers', 'microsoft.dbformysql/servers', 'microsoft.dbformysql/flexibleservers', 'microsoft.apimanagement/service', 'microsoft.sqlvirtualmachine/sqlvirtualmachines', 'microsoft.azurearcdata/sqlserverinstances', 'microsoft.cognitiveservices/accounts', 'microsoft.web/sites')
     | parse id with '/subscriptions/'subscriptionId'/'rest
     | extend bundleCount = 0, bundleName = pack_array('')
     | extend bundleCount = iff(type in ('microsoft.compute/virtualmachines','microsoft.classiccompute/virtualmachines'), 1 , bundleCount), bundleName = iff(type in ('microsoft.compute/virtualmachines','microsoft.classiccompute/virtualmachines'), pack_array('virtualmachines', 'cloudposture_servers'), bundleName)
@@ -184,7 +221,7 @@ $resourceQuery = @"
     | extend bundleCount = iff(type == 'microsoft.storage/storageaccounts', 1 , bundleCount), bundleName = iff(type == 'microsoft.storage/storageaccounts', pack_array('storageaccounts', 'cloudposture_storage'), bundleName)
     | extend bundleCount = iff(type == 'microsoft.keyvault/vaults', 1 , bundleCount), bundleName = iff(type == 'microsoft.keyvault/vaults', pack_array('keyvaults'), bundleName)
     | extend bundleCount = iff(type == 'microsoft.web/serverfarms' and isnotempty(sku) and tolower(sku.tier) != 'consumption', toint(properties.numberOfWorkers), bundleCount), bundleName = iff(type == 'microsoft.web/serverfarms' and isnotempty(sku) and tolower(sku.tier) != 'consumption', pack_array('appservices'), bundleName)
-    | extend bundleCount = iff((type == 'microsoft.dbforpostgresql/servers' or type == 'microsoft.dbforpostgresql/flexibleservers' or type == 'microsoft.dbformysql/servers' or type == 'microsoft.dbformysql/flexibleservers' or type == 'microsoft.dbformariadb/servers') and sku.tier !contains('basic'), 1, bundleCount), bundleName = iff((type =~ 'microsoft.dbforpostgresql/servers' or type =~ 'microsoft.dbforpostgresql/flexibleservers' or type =~ 'microsoft.dbformysql/servers' or type =~ 'microsoft.dbformysql/flexibleservers' or type =~ 'microsoft.dbformariadb/servers') and sku.tier !contains('basic'), pack_array('opensourcerelationaldatabases', 'cloudposture_databases'), bundleName)
+    | extend bundleCount = iff((type == 'microsoft.dbforpostgresql/servers' or type == 'microsoft.dbforpostgresql/flexibleservers' or type == 'microsoft.dbformysql/servers' or type == 'microsoft.dbformysql/flexibleservers') and sku.tier !contains('basic'), 1, bundleCount), bundleName = iff((type =~ 'microsoft.dbforpostgresql/servers' or type =~ 'microsoft.dbforpostgresql/flexibleservers' or type =~ 'microsoft.dbformysql/servers' or type =~ 'microsoft.dbformysql/flexibleservers') and sku.tier !contains('basic'), pack_array('opensourcerelationaldatabases', 'cloudposture_databases'), bundleName)
     | extend bundleCount = iff(type == 'microsoft.documentdb/databaseaccounts', 1 , bundleCount), bundleName = iff(type == 'microsoft.documentdb/databaseaccounts', pack_array('cosmosdbs', 'cloudposture_databases'), bundleName)
     | extend bundleCount = iff(type == 'microsoft.apimanagement/service', 1 , bundleCount), bundleName = iff(type == 'microsoft.apimanagement/service', pack_array('api'), bundleName)
     | extend bundleCount = iff(type == 'microsoft.sql/servers', 1 , bundleCount), bundleName = iff(type == 'microsoft.sql/servers', pack_array('sqlservers', 'cloudposture_databases'), bundleName)
@@ -345,8 +382,6 @@ try {
 # OPTIONAL: Extended Data Collection (Containers, API, CosmosDB, Malware Scanning, AI, Container Registry Images)
 # ============================================================================
 if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq "y") {
-    
-    $defaultBillableHours = 730
 
     # ========================================================================
     # Containers Plan - Enhanced node count using Azure Monitor metrics
@@ -411,7 +446,10 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
             Write-Host "  AKS Cluster: $($aks.name)"
 
             try {
-                $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "kube_node_status_condition" -StartTime $startTime -EndTime $endTime -AggregationType Average -TimeGrain 01:00:00 -MetricFilter "status eq 'true' and condition eq 'Ready'"
+                # -ErrorAction Stop turns Get-AzMetric's non-terminating errors (e.g. HTTP 429/529
+                # throttling) into terminating ones so the catch block actually fires instead of
+                # dumping the full stack trace to the host.
+                $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "kube_node_status_condition" -StartTime $startTime -EndTime $endTime -AggregationType Average -TimeGrain 01:00:00 -MetricFilter "status eq 'true' and condition eq 'Ready'" -ErrorAction Stop -WarningAction SilentlyContinue
                 if ($metrics -ne $null -and $metrics.Data -ne $null) {
                     $averageNodes = ($metrics.Data | Measure-Object Average -Average).Average
                     Write-Host "    Average ready nodes: $averageNodes"
@@ -420,7 +458,7 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
                     Write-Host "    No data available for node count metric."
                 }
             } catch {
-                Write-Warning "    Error retrieving node count metric: $_"
+                Write-Warning "    Error retrieving node count metric: $($_.Exception.Message)"
             }
         }
 
@@ -453,6 +491,13 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
         try {
             $apimServicesUri = "/subscriptions/$($sub.Id)/providers/Microsoft.ApiManagement/service?api-version=2024-05-01"
             $response = Invoke-AzRestMethod -Method GET -Path $apimServicesUri -ErrorAction Stop
+            # On 401/403 the response body is an error envelope, not the resource list;
+            # without this guard ($responseJson.value) would yield $null and we'd silently
+            # report "no APIM services" instead of a permission failure.
+            if ($response.StatusCode -ge 400) {
+                Write-Warning "Failed to list APIM services in Subscription: $($sub.Name) (Status: $($response.StatusCode)). Skipping."
+                continue
+            }
             $responseJson = $response.Content | ConvertFrom-Json
             $apimServices = if ($responseJson.PSObject.Properties['value']) { $responseJson.value } else { $null }
 
@@ -519,6 +564,11 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
         try {
             $cosmosDBAccountsUri = "/subscriptions/$($sub.Id)/providers/Microsoft.DocumentDB/databaseAccounts?api-version=2021-04-15"
             $response = Invoke-AzRestMethod -Method GET -Path $cosmosDBAccountsUri -ErrorAction Stop
+            # Guard against silent under-counting on 401/403 (see APIM section for rationale).
+            if ($response.StatusCode -ge 400) {
+                Write-Warning "Failed to list Cosmos DB accounts in Subscription: $($sub.Name) (Status: $($response.StatusCode)). Skipping."
+                continue
+            }
             $responseJson = $response.Content | ConvertFrom-Json
             $cosmosDBAccounts = if ($responseJson.PSObject.Properties['value']) { $responseJson.value } else { $null }
 
@@ -547,11 +597,24 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
                     $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "TotalRequestUnits" -StartTime $startTime -EndTime $endTime -AggregationType Total
                     if ($metrics -ne $null -and $metrics.Data -ne $null) {
                         $accountRUs = ($metrics.Data | Measure-Object Total -Sum).Sum
+                        # 0.00003125 is Microsoft's documented conversion factor that translates
+                        # 30-day serverless RU consumption into the equivalent RU/s figure used
+                        # by Defender for Cosmos pricing. See pricing page footnote
+                        # "For Azure Cosmos DB Serverless accounts, the total RU is converted
+                        # to provisioned throughput using a conversion factor of 0.00003125."
                         $accountRUs = $accountRUs * 0.00003125
-                        Write-Host "    RUs (Serverless): $accountRUs"
+                        Write-Host "    Equivalent RU/s (Serverless): $accountRUs"
                         $totalRUsForSubscription += $accountRUs
                     }
                 } else {
+                    # Cosmos bills the provisioned-throughput meter ("100 RU/s * 1 hour") once per
+                    # replica region. The ARM throughputSettings response returns a single per-region
+                    # value, and the ProvisionedThroughput metric is not split by Region dimension, so
+                    # we accumulate the single-region RU/s here and multiply by the replica count at
+                    # the end of the account block to match what Defender billing emits.
+                    $provisionedAccountRUs = 0
+                    $regionCount = if ($cosmosDB.properties.locations) { @($cosmosDB.properties.locations).Count } else { 1 }
+
                     $databasesUri = "$resourceId/sqlDatabases?api-version=2021-04-15"
                     $databasesResponse = Invoke-AzRestMethod -Method GET -Path $databasesUri -ErrorAction Stop
                     $databasesJson = $databasesResponse.Content | ConvertFrom-Json
@@ -560,8 +623,11 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
                     foreach ($database in $databases) {
                         $databaseId = $database.Id
                         try {
+                            # Invoke-AzRestMethod -Path expects an ARM path (e.g. /subscriptions/...),
+                            # not a full URL — it prepends the ARM endpoint itself. Use -Uri with the
+                            # absolute URL so the request hits the right endpoint.
                             $throughputUri = "https://management.azure.com/$databaseId/throughputSettings/default?api-version=2023-03-01-preview"
-                            $throughputResponse = Invoke-AzRestMethod -Method GET -Path $throughputUri -ErrorAction Stop
+                            $throughputResponse = Invoke-AzRestMethod -Method GET -Uri $throughputUri -ErrorAction Stop
 
                             $throughputSettings = $null
                             if ($throughputResponse.StatusCode -eq 200) {
@@ -570,17 +636,27 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
 
                             if ($throughputSettings -ne $null -and $throughputSettings.properties -ne $null) {
                                 if ($throughputSettings.properties.resource -ne $null -and $throughputSettings.properties.resource.PSObject.Properties.Match("autoscaleSettings").Count -gt 0) {
+                                    # Autoscale: read the provisioned RU/s capacity directly. The public
+                                    # ProvisionedThroughput metric is the same value the Defender billing
+                                    # pipeline reads internally as OfferThroughput (Cosmos /offers resource,
+                                    # property content.offerThroughput). For autoscale, it equals the RU/s
+                                    # the offer was scaled to during that hour (min Tmax/10, max Tmax),
+                                    # which is exactly what billing charges per hour. We then average the
+                                    # hourly maxes over the period to get an RU/s figure aligned with the
+                                    # other branches.
+                                    # Docs: https://learn.microsoft.com/en-us/azure/cosmos-db/monitor-reference
                                     $dimFilter = "$(New-AzMetricFilter -Dimension DatabaseName -Operator eq -Value $database.name)"
-                                    $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "TotalRequestUnits" -StartTime $startTime -EndTime $endTime -AggregationType Maximum -MetricFilter $dimFilter -TimeGrain 01:00:00
+                                    $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "ProvisionedThroughput" -StartTime $startTime -EndTime $endTime -AggregationType Maximum -MetricFilter $dimFilter -TimeGrain 01:00:00
                                     if ($metrics -ne $null -and $metrics.Data -ne $null) {
-                                        $accountRUs = ($metrics.Data | Measure-Object Maximum -Sum).Sum
-                                        Write-Host "    RUs (Database autoscale): $accountRUs"
-                                        $totalRUsForSubscription += $accountRUs
+                                        $avgHourlyMax = ($metrics.Data | Measure-Object Maximum -Average).Average
+                                        Write-Host "    Avg hourly max RU/s (Database autoscale): $avgHourlyMax"
+                                        $provisionedAccountRUs += $avgHourlyMax
                                     }
                                 } elseif ($throughputSettings.properties.resource -ne $null -and $throughputSettings.properties.resource.throughput -ne $null) {
+                                    # Provisioned throughput is already RU/s capacity; emit as-is.
                                     $throughput = $throughputSettings.properties.resource.throughput
-                                    Write-Host "    Provisioned throughput for database: $throughput"
-                                    $totalRUsForSubscription += $throughput * $defaultBillableHours
+                                    Write-Host "    Provisioned RU/s for database: $throughput"
+                                    $provisionedAccountRUs += $throughput
                                 }
                             } elseif ($throughputResponse.StatusCode -eq 404) {
                                 # Iterate over containers if database throughputSettings are not defined
@@ -605,17 +681,20 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
                                         }
 
                                         if ($null -ne $result.properties.resource -and $result.properties.resource.PSObject.Properties.Match("autoscaleSettings").Count -gt 0) {
+                                            # Average hourly max RU/s of the provisioned capacity (mirrors
+                                            # the internal OfferThroughput metric billing uses). See the
+                                            # database-autoscale comment above for details.
                                             $dimFilter = "$(New-AzMetricFilter -Dimension DatabaseName -Operator eq -Value $database.name) and $(New-AzMetricFilter -Dimension CollectionName -Operator eq -Value $container.name)"
-                                            $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "TotalRequestUnits" -StartTime $startTime -EndTime $endTime -AggregationType Maximum -MetricFilter $dimFilter -TimeGrain 01:00:00
+                                            $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "ProvisionedThroughput" -StartTime $startTime -EndTime $endTime -AggregationType Maximum -MetricFilter $dimFilter -TimeGrain 01:00:00
                                             if ($metrics -ne $null -and $metrics.Data -ne $null) {
-                                                $accountRUs = ($metrics.Data | Measure-Object Maximum -Sum).Sum
-                                                Write-Host "    RUs (Container autoscale): $accountRUs"
-                                                $totalRUsForSubscription += $accountRUs
+                                                $avgHourlyMax = ($metrics.Data | Measure-Object Maximum -Average).Average
+                                                Write-Host "    Avg hourly max RU/s (Container autoscale): $avgHourlyMax"
+                                                $provisionedAccountRUs += $avgHourlyMax
                                             }
                                         } elseif ($result.properties.resource -ne $null -and $result.properties.resource.throughput -ne $null) {
                                             $throughput = $result.properties.resource.throughput
-                                            Write-Host "    Provisioned throughput for container: $throughput"
-                                            $totalRUsForSubscription += $throughput * $defaultBillableHours
+                                            Write-Host "    Provisioned RU/s for container: $throughput"
+                                            $provisionedAccountRUs += $throughput
                                         }
                                     } catch {
                                         Write-Warning "    Error retrieving throughput for container: $_"
@@ -626,15 +705,21 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
                             Write-Warning "    Error retrieving throughput settings for database: $_"
                         }
                     }
+
+                    if ($regionCount -gt 1) {
+                        Write-Host "    Multiplying provisioned RU/s by $regionCount replica regions: $provisionedAccountRUs -> $($provisionedAccountRUs * $regionCount)"
+                    }
+                    $totalRUsForSubscription += $provisionedAccountRUs * $regionCount
                 }
             } catch {
                 Write-Warning "  Error retrieving metrics for Cosmos DB Account: $_"
             }
         }
 
-        $averageRUsPerHour = [math]::Round($totalRUsForSubscription / $defaultBillableHours)
-        Write-Host "  Average RUs/hour for subscription: $averageRUsPerHour"
-        $subscriptionResults[$sub.Id].CosmosDB_RUs = $averageRUsPerHour
+        # All branches contribute in RU/s; sum across the subscription with no global divide.
+        $totalRUsPerSec = [math]::Round($totalRUsForSubscription)
+        Write-Host "  Total RU/s for subscription: $totalRUsPerSec"
+        $subscriptionResults[$sub.Id].CosmosDB_RUs = $totalRUsPerSec
     }
     $swCosmos.Stop()
     Write-Progress -Id 1 -Activity "CosmosDB RU/s" -Completed
@@ -723,6 +808,11 @@ if ($runAdditionalDataCollection -eq "yes" -or $runAdditionalDataCollection -eq 
         $openAiUri = "/subscriptions/$($sub.Id)/providers/Microsoft.CognitiveServices/accounts?api-version=2023-05-01"
 
         $response = Invoke-AzRestMethod -Method GET -Path $openAiUri -ErrorAction Stop
+        # Guard against silent under-counting on 401/403 (see APIM section for rationale).
+        if ($response.StatusCode -ge 400) {
+            Write-Warning "Failed to list Cognitive Services accounts in Subscription: $($sub.Name) (Status: $($response.StatusCode)). Skipping."
+            continue
+        }
 
         $openAiResources = ($response.Content | ConvertFrom-Json).value | Where-Object {
             $_.kind -in @("OpenAI", "AIServices")
