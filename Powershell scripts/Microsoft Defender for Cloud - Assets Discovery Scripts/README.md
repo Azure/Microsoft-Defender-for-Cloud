@@ -1,4 +1,4 @@
-# Azure Assets Discovery
+# Microsoft Defender for Cloud - Azure Assets Discovery
 
 ## Description
 This PowerShell script scans an Azure tenant and exports a CSV containing the
