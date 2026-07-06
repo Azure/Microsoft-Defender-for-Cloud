@@ -60,8 +60,8 @@ try {
 # ============================================================================
 try {
     Write-Host "Scanning for subscriptions (this may take a moment)..." -ForegroundColor Yellow
-    $subscriptions = Get-AzSubscription -TenantId $accountInfo.Tenant.Id
-    if (-not $subscriptions) {
+    $subscriptions = @(Get-AzSubscription -TenantId $accountInfo.Tenant.Id)
+    if ($subscriptions.Count -eq 0) {
         throw "No subscriptions found."
     }
     Write-Host "Found $($subscriptions.Count) subscriptions" -ForegroundColor Yellow
