@@ -16,7 +16,6 @@ from typing import Any
 import httpx
 import pytest
 import respx
-
 from clients.ado_client import AdoClient, AdoClientError
 from models.briefing import WorkItemResult
 
