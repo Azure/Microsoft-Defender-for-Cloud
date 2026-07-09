@@ -6,7 +6,6 @@ import json
 from pathlib import Path
 
 import pytest
-
 from models.mdc_payload import MdcRecommendationPayload
 
 _FIXTURES = Path(__file__).resolve().parents[2] / "fixtures" / "sample_payloads"

@@ -12,7 +12,6 @@ from typing import Any
 
 import azure.durable_functions as df
 import azure.functions as func
-
 import function_app
 
 _RESOURCE_ID = (

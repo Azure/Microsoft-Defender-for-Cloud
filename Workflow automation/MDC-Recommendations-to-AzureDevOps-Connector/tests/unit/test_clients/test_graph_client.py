@@ -14,7 +14,6 @@ from typing import Any
 import httpx
 import pytest
 import respx
-
 from clients.graph_client import GraphClient, GraphClientError
 from models.enrichment import AadUser
 
