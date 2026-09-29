@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@0717577d45739eb3c851188b29f50ed6c0b2194e # v2.8.0
     - name: Login to Azure
-      uses: azure/login@v1
+      uses: azure/login@cb79c773a3cfa27f31f25eb3f677781210c9ce3d # v1.6.1
       with:
         creds: ${{secrets.AZURE_CREDENTIALS_d021cab6}}
         allow-no-subscriptions: true
     - name: Create or Update Azure Policies
-      uses: azure/manage-azure-policy@v0
+      uses: azure/manage-azure-policy@fdd67624e3b7f32cf227ffc112dca1717baf17b1 # v0
       with:
         paths: |
            Enable Disk Encryption on Windows VMs only /policies/Disk_encryption_should_be_applied_on_virtual_machines_-_Windows_VMs_only_862ffd01-390d-4311-85d9-6b576102c91b/**
