@@ -13,11 +13,10 @@ import time
 from types import SimpleNamespace
 from typing import Any
 
+import clients.arg_client as arg_mod
 import httpx
 import pytest
 import respx
-
-import clients.arg_client as arg_mod
 from clients import arg_queries
 from clients.arg_client import ArgClient, ArgClientError
 

@@ -16,7 +16,6 @@ from typing import Any
 import httpx
 import pytest
 import respx
-
 from clients.mdc_client import MdcAssignmentConflictError, MdcClient, MdcClientError
 
 _ARM_HOST = "management.azure.com"

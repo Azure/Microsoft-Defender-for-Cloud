@@ -6,11 +6,10 @@ import time
 from types import SimpleNamespace
 from typing import Any
 
+import activities.gather_enrichment as gather
 import httpx
 import pytest
 import respx
-
-import activities.gather_enrichment as gather
 from clients.arg_client import ArgClient
 from models.enrichment import EnrichmentBundle
 from models.mdc_payload import MdcRecommendationPayload

@@ -6,11 +6,10 @@ import time
 from types import SimpleNamespace
 from typing import Any
 
+import activities.resolve_owner as resolve
 import httpx
 import pytest
 import respx
-
-import activities.resolve_owner as resolve
 from clients.graph_client import GraphClient
 from models.enrichment import OwnerInfo
 
