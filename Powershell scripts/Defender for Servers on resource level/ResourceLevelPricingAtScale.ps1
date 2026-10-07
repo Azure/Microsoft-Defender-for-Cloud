@@ -9,6 +9,118 @@ $arcCount = 0
 $vmResponseMachines = $null
 $vmssResponseMachines = $null
 $arcResponseMachines = $null
+$pricingReport = [System.Collections.Generic.List[object]]::new()
+
+function Get-PricingReportEntry {
+	param (
+		[Parameter(Mandatory = $true)]
+		$Machine,
+
+		[Parameter(Mandatory = $true)]
+		[string]$ResourceType,
+
+		[Parameter(Mandatory = $true)]
+		[string]$PricingUrl,
+
+		[Parameter(Mandatory = $true)]
+		$Token,
+
+		[Parameter(Mandatory = $true)]
+		[string]$RequestedOperation,
+
+		[Parameter(Mandatory = $true)]
+		[string]$OperationStatus,
+
+		$OperationError
+	)
+
+	$resourceGroup = $null
+	if ($Machine.id -match '/resourceGroups/([^/]+)') {
+		$resourceGroup = $Matches[1]
+	}
+
+	try {
+		$pricingResponse = Invoke-RestMethod -Method Get -Uri $PricingUrl -Token $Token -Authentication Bearer -ContentType "application/json" -TimeoutSec 120
+		$pricingTier = $pricingResponse.properties.pricingTier
+		$subPlan = $pricingResponse.properties.subPlan
+		$effectivePlan = if ([string]::IsNullOrEmpty($subPlan)) { $pricingTier } else { "$pricingTier/$subPlan" }
+		$inherited = if ($null -eq $pricingResponse.properties.inherited) { $null } else { [System.Convert]::ToBoolean($pricingResponse.properties.inherited) }
+
+		return [PSCustomObject][ordered]@{
+			serverName          = $Machine.name
+			resourceType        = $ResourceType
+			resourceGroup       = $resourceGroup
+			resourceId          = $Machine.id
+			requestedOperation  = $RequestedOperation
+			operationStatus     = $OperationStatus
+			operationError      = $OperationError
+			effectivePlan       = $effectivePlan
+			pricingTier         = $pricingTier
+			subPlan             = $subPlan
+			inherited           = $inherited
+			inheritedFrom       = $pricingResponse.properties.inheritedFrom
+			pricingQueryStatus  = "Succeeded"
+			pricingQueryError   = $null
+		}
+	}
+	catch {
+		return [PSCustomObject][ordered]@{
+			serverName          = $Machine.name
+			resourceType        = $ResourceType
+			resourceGroup       = $resourceGroup
+			resourceId          = $Machine.id
+			requestedOperation  = $RequestedOperation
+			operationStatus     = $OperationStatus
+			operationError      = $OperationError
+			effectivePlan       = $null
+			pricingTier         = $null
+			subPlan             = $null
+			inherited           = $null
+			inheritedFrom       = $null
+			pricingQueryStatus  = "Failed"
+			pricingQueryError   = $_.Exception.Message
+		}
+	}
+}
+
+function Write-AzureRestError {
+	param (
+		[Parameter(Mandatory = $true)]
+		[System.Management.Automation.ErrorRecord]$ErrorRecord,
+
+		[Parameter(Mandatory = $true)]
+		[string]$Context,
+
+		[string]$Uri
+	)
+
+	Write-Host $Context -ForegroundColor Red
+	if (-not [string]::IsNullOrEmpty($Uri)) {
+		Write-Host "Request URI: $Uri" -ForegroundColor Red
+	}
+	Write-Host "Error: $($ErrorRecord.Exception.Message)" -ForegroundColor Red
+
+	$responseProperty = $ErrorRecord.Exception.PSObject.Properties['Response']
+	if ($null -ne $responseProperty -and $null -ne $responseProperty.Value) {
+		$response = $responseProperty.Value
+		$statusCodeProperty = $response.PSObject.Properties['StatusCode']
+		if ($null -ne $statusCodeProperty) {
+			Write-Host "Response StatusCode: $($statusCodeProperty.Value)" -ForegroundColor Red
+		}
+
+		$statusDescriptionProperty = $response.PSObject.Properties['StatusDescription']
+		if ($null -eq $statusDescriptionProperty) {
+			$statusDescriptionProperty = $response.PSObject.Properties['ReasonPhrase']
+		}
+		if ($null -ne $statusDescriptionProperty) {
+			Write-Host "Response StatusDescription: $($statusDescriptionProperty.Value)" -ForegroundColor Red
+		}
+	}
+
+	if ($null -ne $ErrorRecord.ErrorDetails -and -not [string]::IsNullOrEmpty($ErrorRecord.ErrorDetails.Message)) {
+		Write-Host "Response details: $($ErrorRecord.ErrorDetails.Message)" -ForegroundColor Red
+	}
+}
 
 # login:
 $needLogin = $true
@@ -52,11 +164,13 @@ while($mode.ToLower() -ne "rg" -and $mode.ToLower() -ne "tag"){
 if ($mode.ToLower() -eq "rg") {
     # Fetch resources under a given Resource Group
 	$resourceGroupName = Read-Host "Enter the name of the resource group"
+	$currentResourceUrl = $null
 	try
 	{
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachines?api-version=2021-04-01"
 		do{
+			$currentResourceUrl = $vmUrl
 			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Token $token -Authentication Bearer
 			$vmResponseMachines += $vmResponse.value 
 			$vmUrl = $vmResponse.nextLink
@@ -64,6 +178,7 @@ if ($mode.ToLower() -eq "rg") {
 
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.Compute/virtualMachineScaleSets?api-version=2021-04-01"
 		do{
+			$currentResourceUrl = $vmssUrl
 			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Token $token -Authentication Bearer
 			$vmssResponseMachines += $vmssResponse.value
 			$vmssUrl = $vmssResponse.nextLink
@@ -71,6 +186,7 @@ if ($mode.ToLower() -eq "rg") {
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resourceGroups/$resourceGroupName/providers/Microsoft.HybridCompute/machines?api-version=2022-12-27"
 		do{
+			$currentResourceUrl = $arcUrl
 			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Token $token -Authentication Bearer
 			$arcResponseMachines += $arcResponse.value
 			write-host $arcUrl
@@ -79,46 +195,46 @@ if ($mode.ToLower() -eq "rg") {
 	}
 	catch 
 	{
-		Write-Host "Failed to Get resources! " -ForegroundColor Red
-		Write-Host "Response StatusCode:" $_.Exception.Response.StatusCode.value__  -ForegroundColor Red
-		Write-Host "Response StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Red
-		Write-Host "Error from response:" $_.ErrorDetails -ForegroundColor Red
+		Write-AzureRestError -ErrorRecord $_ -Context "Failed to get resources." -Uri $currentResourceUrl
+		exit 1
 	}
 } elseif ($mode.ToLower() -eq "tag") {
     # Fetch resources with a given tagName and tagValue
     $tagName = Read-Host "Enter the name of the tag"
     $tagValue = Read-Host "Enter the value of the tag"
+	$currentResourceUrl = $null
 	
 	try
 	{
 		# Get all virtual machines, VMSSs, and ARC machines in the resource group based on the given tag
 		$vmUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachines'&api-version=2021-04-01"
 		do{
+			$currentResourceUrl = $vmUrl
 			$vmResponse = Invoke-RestMethod -Method Get -Uri $vmUrl -Token $token -Authentication Bearer
-			$vmResponseMachines += $vmResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$vmResponseMachines += $vmResponse.value | Where-Object {$_.tags.$tagName -eq $tagValue}
 			$vmUrl = $vmResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmUrl))
 		
 		$vmssUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.Compute/virtualMachineScaleSets'&api-version=2021-04-01"
 		do{
+			$currentResourceUrl = $vmssUrl
 			$vmssResponse = Invoke-RestMethod -Method Get -Uri $vmssUrl -Token $token -Authentication Bearer
-			$vmssResponseMachines += $vmssResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$vmssResponseMachines += $vmssResponse.value | Where-Object {$_.tags.$tagName -eq $tagValue}
 			$vmssUrl = $vmssResponse.nextLink
 		} while (![string]::IsNullOrEmpty($vmssUrl))
 		
 		$arcUrl = "https://management.azure.com/subscriptions/" + $SubscriptionId + "/resources?`$filter=resourceType eq 'Microsoft.HybridCompute/machines'&api-version=2023-07-01"
 		do{
+			$currentResourceUrl = $arcUrl
 			$arcResponse = Invoke-RestMethod -Method Get -Uri $arcUrl -Token $token -Authentication Bearer
-			$arcResponseMachines += $arcResponse.value | where {$_.tags.$tagName -eq $tagValue}
+			$arcResponseMachines += $arcResponse.value | Where-Object {$_.tags.$tagName -eq $tagValue}
 			$arcUrl = $arcResponse.nextLink
 		} while (![string]::IsNullOrEmpty($arcUrl))
 	}
 	catch 
 	{
-		Write-Host "Failed to Get resources! " -ForegroundColor Red
-		Write-Host "Response StatusCode:" $_.Exception.Response.StatusCode.value__  -ForegroundColor Red
-		Write-Host "Response StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Red
-		Write-Host "Error from response:" $_.ErrorDetails -ForegroundColor Red
+		Write-AzureRestError -ErrorRecord $_ -Context "Failed to get resources." -Uri $currentResourceUrl
+		exit 1
 	}
 } else {
     Write-Host "Entered invalid mode. Exiting script."
@@ -179,7 +295,7 @@ foreach ($machine in $vmResponseMachines) {
         $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
+		Write-host "New token expires on: $expireson - currentTime: $currentTime"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -201,6 +317,8 @@ foreach ($machine in $vmResponseMachines) {
 		}
 	}
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
+	$operationStatus = "Failed"
+	$operationError = $null
 	try 
 	{
 		if($PricingTier.ToLower() -eq "delete")
@@ -224,13 +342,15 @@ foreach ($machine in $vmResponseMachines) {
 			$successCount++
 			$vmSuccessCount++
 		}
+		$operationStatus = "Succeeded"
 	}
 	catch {
 		$failureCount++
-		Write-Host "Failed to update pricing configuration for $($machine.name)" -ForegroundColor Red
-		Write-Host "Response StatusCode:" $_.Exception.Response.StatusCode.value__  -ForegroundColor Red
-		Write-Host "Response StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Red
-		Write-Host "Error from response:" $_.ErrorDetails -ForegroundColor Red
+		$operationError = $_.Exception.Message
+		Write-AzureRestError -ErrorRecord $_ -Context "Failed to process pricing configuration for $($machine.name)." -Uri $pricingUrl
+	}
+	finally {
+		[void]$pricingReport.Add((Get-PricingReportEntry -Machine $machine -ResourceType "VirtualMachine" -PricingUrl $pricingUrl -Token $token -RequestedOperation $PricingTier -OperationStatus $operationStatus -OperationError $operationError))
 	}
 	write-host "`n"
 	Start-Sleep -Seconds 0.3
@@ -249,7 +369,7 @@ foreach ($machine in $vmssResponseMachines) {
         $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
+		Write-host "New token expires on: $expireson - currentTime: $currentTime"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -271,6 +391,8 @@ foreach ($machine in $vmssResponseMachines) {
 		}
 	}
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
+	$operationStatus = "Failed"
+	$operationError = $null
 	try 
 	{
 		
@@ -295,13 +417,15 @@ foreach ($machine in $vmssResponseMachines) {
             $successCount++
             $vmssSuccessCount++
         }
+		$operationStatus = "Succeeded"
 	}
 	catch {
 		$failureCount++
-		Write-Host "Failed to update pricing configuration for $($machine.name)" -ForegroundColor Red
-		Write-Host "Response StatusCode:" $_.Exception.Response.StatusCode.value__  -ForegroundColor Red
-		Write-Host "Response StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Red
-		Write-Host "Error from response:" $_.ErrorDetails -ForegroundColor Red
+		$operationError = $_.Exception.Message
+		Write-AzureRestError -ErrorRecord $_ -Context "Failed to process pricing configuration for $($machine.name)." -Uri $pricingUrl
+	}
+	finally {
+		[void]$pricingReport.Add((Get-PricingReportEntry -Machine $machine -ResourceType "VirtualMachineScaleSet" -PricingUrl $pricingUrl -Token $token -RequestedOperation $PricingTier -OperationStatus $operationStatus -OperationError $operationError))
 	}
 	write-host "`n"
 	Start-Sleep -Seconds 0.3
@@ -320,7 +444,7 @@ foreach ($machine in $arcResponseMachines) {
         $token = (Get-AzAccessToken -AsSecureString).token
         $expireson = Get-AzAccessToken | Select-Object -ExpandProperty expireson | Select-Object -ExpandProperty LocalDateTime
 
-        Write-host "New token expires on: $expireson - currentTime: $currentTime - New Token is: $token"
+		Write-host "New token expires on: $expireson - currentTime: $currentTime"
     }
 	
     $pricingUrl = "https://management.azure.com$($machine.id)/providers/Microsoft.Security/pricings/virtualMachines?api-version=2024-01-01"
@@ -342,6 +466,8 @@ foreach ($machine in $arcResponseMachines) {
 		}
 	}
 	Write-Host "Processing (setting or reading) pricing configuration for '$($machine.name)':"
+	$operationStatus = "Failed"
+	$operationError = $null
 	try 
 	{
 		
@@ -366,13 +492,15 @@ foreach ($machine in $arcResponseMachines) {
             $successCount++
             $arcSuccessCount++
         }
+		$operationStatus = "Succeeded"
 	}
 	catch {
 		$failureCount++
-		Write-Host "Failed to update pricing configuration for $($machine.name)" -ForegroundColor Red
-		Write-Host "Response StatusCode:" $_.Exception.Response.StatusCode.value__  -ForegroundColor Red
-		Write-Host "Response StatusDescription:" $_.Exception.Response.StatusDescription -ForegroundColor Red
-		Write-Host "Error from response:" $_.ErrorDetails -ForegroundColor Red
+		$operationError = $_.Exception.Message
+		Write-AzureRestError -ErrorRecord $_ -Context "Failed to process pricing configuration for $($machine.name)." -Uri $pricingUrl
+	}
+	finally {
+		[void]$pricingReport.Add((Get-PricingReportEntry -Machine $machine -ResourceType "ArcMachine" -PricingUrl $pricingUrl -Token $token -RequestedOperation $PricingTier -OperationStatus $operationStatus -OperationError $operationError))
 	}
 	write-host "`n"
 	Start-Sleep -Seconds 0.3
@@ -401,3 +529,29 @@ Write-Host "-------------------"
 Write-Host "Overall"
 Write-Host "Successfully processed (set or read) resources: $successCount" -ForegroundColor Green
 Write-Host "Failures processing (setting or reading) resources: $failureCount" -ForegroundColor $(if ($failureCount -gt 0) {'Red'} else {'Green'})
+
+$jsonReport = [PSCustomObject][ordered]@{
+	generatedAtUtc     = (Get-Date).ToUniversalTime().ToString("o")
+	subscriptionId     = $SubscriptionId
+	requestedOperation = $PricingTier
+	resourceCount      = $pricingReport.Count
+	servers            = @($pricingReport)
+}
+
+write-host "`n"
+Write-Host "JSON Pricing Report:"
+$jsonReport | ConvertTo-Json -Depth 10
+
+$tableProperties = @(
+	@{ Label = "VM Name"; Expression = { $_.serverName } }
+	@{ Label = "Resource Group"; Expression = { $_.resourceGroup } }
+	@{ Label = "Type"; Expression = { $_.resourceType } }
+	@{ Label = "Pricing Tier"; Expression = { $_.pricingTier } }
+	@{ Label = "Effective Plan"; Expression = { $_.effectivePlan } }
+	@{ Label = "Inherited"; Expression = { $_.inherited } }
+	@{ Label = "Query Status"; Expression = { $_.pricingQueryStatus } }
+)
+
+write-host "`n"
+Write-Host "Pricing Plan Summary:"
+$pricingReport | Sort-Object serverName | Format-Table -AutoSize -Property $tableProperties
