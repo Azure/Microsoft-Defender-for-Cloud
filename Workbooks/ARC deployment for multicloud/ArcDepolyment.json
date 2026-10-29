@@ -4,7 +4,7 @@
     {
       "type": 1,
       "content": {
-        "json": "# Azure Arc Connected Agent - for Defender for Server with multi-cloud deployments\r\n### Microsoft Defender for Servers plans require Azure Arc deployment on AWS/GCP machines. \r\nThis interactive workbook provides an overview of machines in your environment showing their Azure ARC Connected Machine agent deployment status."
+        "json": "# Azure Arc Connected Servers - Multicloud and Hybrid Inventory\r\nInventory Azure Arc-enabled servers across AWS, GCP, other clouds, and on-premises environments. The server lists query `Microsoft.HybridCompute/machines` directly and do not require a Defender for Servers plan or a Defender for Cloud security connector.\r\n\r\n**Scope:** All server lists use the selected Azure subscriptions and your resource read permissions. AWS account and GCP project filters apply only to the Defender for Cloud discovery tables. An Arc resource's presence or **Defender for Cloud: On** does not prove that its agent is connected.\r\n\r\n**Environment:** AWS and GCP are identified by `properties.cloudMetadata.provider`, not by the resource's Azure location, its name, tags such as `AWSPlatformDetails`, or the environment label in Defender for Cloud inventory. Missing provider metadata is displayed as **Environment = Unknown**. These servers remain visible under **Other / unknown** and **All Arc servers**; they are not classified as confirmed on-premises servers.\r\n\r\n**Missing metadata:** **Unknown** in CloudProvider, ConnectionStatus, or OSName means the Arc property is missing or reports an unknown value. It is not proof of agent connectivity, disconnection, or absence. **AgentVersion = Not reported** means no agent version was returned. ComputerName falls back to the Arc resource name when neither a computer name nor an FQDN is reported. Tags do not replace the reported provider or OS fields."
       },
       "name": "textDescriptionOfWorkbook"
     },
@@ -21,7 +21,7 @@
             "version": "KqlParameterItem/1.0",
             "name": "Subscriptions",
             "type": 6,
-            "description": "Please select one or several subscriptions",
+            "description": "Select the Azure subscriptions to search for Arc resources and Defender for Cloud discovery records.",
             "isRequired": true,
             "multiSelect": true,
             "quote": "'",
@@ -33,9 +33,6 @@
               "includeAll": false,
               "showDefault": false
             },
-            "timeContext": {
-              "durationMs": 86400000
-            },
             "defaultValue": "value::all",
             "value": [
               "value::all"
@@ -45,14 +42,14 @@
             "id": "ec9d7c56-e65e-47ae-a289-d37dd9d1ee49",
             "version": "KqlParameterItem/1.0",
             "name": "AWSSecurityConnectors",
-            "label": "AWS account",
+            "label": "AWS account (discovery only)",
             "type": 2,
-            "description": "Please select one or several AWS security connectors to allow the workbook to refelect Arc agent",
+            "description": "Filter Defender for Cloud EC2 discovery records by security connector. This does not filter the Azure Arc server inventory.",
             "isRequired": true,
             "multiSelect": true,
-            "quote": "",
+            "quote": "'",
             "delimiter": ",",
-            "query": "resources\r\n| where type == \"microsoft.security/securityconnectors\"\r\n| extend environmentName = tolower(tostring(properties['environmentName']))\r\n| extend hierarchyIdentifier = tostring(properties['hierarchyIdentifier'])\r\n| where environmentName == \"aws\"\r\n| project value = id, label = strcat(hierarchyIdentifier,\" (\",name,\")\")",
+            "query": "Resources\r\n| where type =~ 'microsoft.security/securityconnectors'\r\n| where tostring(properties.environmentName) =~ 'aws'\r\n| project value = tolower(id), label = strcat(tostring(properties.hierarchyIdentifier), ' (', name, ')')\r\n| order by label asc",
             "crossComponentResources": [
               "{Subscriptions}"
             ],
@@ -60,10 +57,8 @@
               "additionalResourceOptions": [
                 "value::all"
               ],
+              "selectAllValue": "*",
               "showDefault": false
-            },
-            "timeContext": {
-              "durationMs": 86400000
             },
             "defaultValue": "value::all",
             "queryType": 1,
@@ -76,14 +71,14 @@
             "id": "1296c8b8-4305-4a39-a08a-b3cc9fceff03",
             "version": "KqlParameterItem/1.0",
             "name": "GCPSecuityConnectors",
-            "label": "GCP Project",
+            "label": "GCP project (discovery only)",
             "type": 2,
-            "description": "Please select one or several GCP security connectors to allow the workbook to refelect Arc agent",
+            "description": "Filter Defender for Cloud GCP compute discovery records by security connector. This does not filter the Azure Arc server inventory.",
             "isRequired": true,
             "multiSelect": true,
-            "quote": "",
+            "quote": "'",
             "delimiter": ",",
-            "query": "resources\r\n| where type == \"microsoft.security/securityconnectors\"\r\n| extend environmentName = tolower(tostring(properties['environmentName']))\r\n| extend hierarchyIdentifier = tostring(properties['hierarchyIdentifier'])\r\n| where environmentName == \"gcp\"\r\n| project value = id, label = strcat(hierarchyIdentifier,\" (\",name,\")\")",
+            "query": "Resources\r\n| where type =~ 'microsoft.security/securityconnectors'\r\n| where tostring(properties.environmentName) =~ 'gcp'\r\n| project value = tolower(id), label = strcat(tostring(properties.hierarchyIdentifier), ' (', name, ')')\r\n| order by label asc",
             "crossComponentResources": [
               "{Subscriptions}"
             ],
@@ -91,6 +86,7 @@
               "additionalResourceOptions": [
                 "value::all"
               ],
+              "selectAllValue": "*",
               "showDefault": false
             },
             "defaultValue": "value::all",
@@ -99,6 +95,16 @@
             "value": [
               "value::all"
             ]
+          },
+          {
+            "id": "1ece193a-2394-48b3-a321-c0368eea5891",
+            "version": "KqlParameterItem/1.0",
+            "name": "SelectedTab",
+            "type": 1,
+            "isRequired": true,
+            "isHiddenWhenLocked": true,
+            "value": "All",
+            "defaultValue": "All"
           }
         ],
         "style": "pills",
@@ -114,10 +120,18 @@
         "style": "tabs",
         "links": [
           {
+            "id": "8edfa6bb-fdc2-4aa3-9992-3fce2b1ab123",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "All Arc servers",
+            "subTarget": "All",
+            "style": "link"
+          },
+          {
             "id": "ebbeddcc-ba58-4fed-ab79-d27446ca80c9",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "AWS Account",
+            "linkLabel": "AWS",
             "subTarget": "AWS",
             "style": "link"
           },
@@ -125,8 +139,16 @@
             "id": "e2b52ae9-03d2-40e2-98bf-753a2297dbc7",
             "cellValue": "SelectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "GCP Project",
+            "linkLabel": "GCP",
             "subTarget": "GCP",
+            "style": "link"
+          },
+          {
+            "id": "42bf4565-317a-4761-a7e4-f923161ce725",
+            "cellValue": "SelectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Other / unknown",
+            "subTarget": "Other",
             "style": "link"
           }
         ]
@@ -142,7 +164,55 @@
           {
             "type": 1,
             "content": {
-              "json": "## EC2 machines with Arc deployment"
+              "json": "## All Azure Arc-enabled servers\r\nEvery Arc server resource visible in the selected subscriptions is included, even without Defender for Cloud discovery records or cloud-provider metadata. Use **ConnectionStatus** to distinguish currently connected agents from disconnected or other states."
+            },
+            "name": "textDescAllArc"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n| extend environment = case(provider == 'aws', 'AWS', provider == 'gcp', 'GCP', isempty(provider), 'Unknown', 'Other cloud / on-premises')\r\n| project Server = name, ComputerName = coalesce(tostring(properties.osProfile.computerName), tostring(properties.machineFqdn), name), Environment = environment, CloudProvider = iff(isempty(provider), 'Unknown', tostring(properties.cloudMetadata.provider)), ConnectionStatus = coalesce(tostring(properties.status), 'Unknown'), OSName = coalesce(tostring(properties.osName), tostring(properties.osType), 'Unknown'), AgentVersion = coalesce(tostring(properties.agentVersion), 'Not reported'), SubscriptionId = subscriptionId, ResourceGroup = resourceGroup, Location = location, ResourceId = id\r\n| order by Server asc",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "noDataMessage": "No Azure Arc-enabled servers were found in the selected subscriptions. Check the subscription selection and your resource read permissions, or onboard servers to Azure Arc.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "ResourceId",
+                    "formatter": 5
+                  }
+                ]
+              }
+            },
+            "name": "queryAllArcServers"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "All"
+      },
+      "name": "All"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure Arc-enabled servers in AWS\r\nThese Arc resources report AWS in their cloud-provider metadata. The AWS account selector does not filter this list. Servers with unknown provider metadata remain visible in **All Arc servers** and **Other / unknown**."
             },
             "name": "textDescAWSIncludeArc"
           },
@@ -150,52 +220,60 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where subscriptionId == subscriptionId\r\n| where type == \"microsoft.security/assessments\"                        \r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| extend source = (// AssessmentsQueryBuilder.columnDefinitions.source\r\n                iff(type == \"microsoft.security/assessments\", trim(' ', tolower(tostring(properties.resourceDetails.Source))), dynamic(null)))\r\n| extend classificationResource = iff(type == \"microsoft.security/insights\" and id contains \"microsoft.security/insights/classification\", true , false)\r\n| extend multiCloudSource = iff(source == \"aws\" or source == \"gcp\", true, false)\r\n| extend resourceId = trim(\" \", tolower(tostring(case(source == \"azure\", resourceDetails.Id,\r\n                                                                    multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), resourceDetails.Id,\r\n                                                                    multiCloudSource == true and type == \"microsoft.security/softwareinventories\", extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id),\r\n                                                                    multiCloudSource == true, resourceDetails.AzureResourceId,\r\n                                                                    source == \"onpremise\", strcat(extract(\"^(.+)/(.+)/onpremisemachines/(.+)/providers/microsoft.security/assessments/.+$\",1,id),\"/workspacenameplaceholder/onpremisemachines/\", resourceDetails.MachineName,\"_\", resourceDetails.VMUUID),\r\n                                                                    type == \"microsoft.security/assessments\", extract(\"^(?i)(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),\r\n                                                                    classificationResource == true, tolower(properties.associatedResource),\r\n                                                                    extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id)))))\r\n| extend extractedResourceName = extract(@\"(.+)/(.+)\", 2, resourceId)\r\n| extend resourceName = iff(multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), tostring(additionalData.ResourceName), extractedResourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/aws-ecr-repository\", trim(\"aws-ecr-repository-\", substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName),'-',1,-1,3) - 1)), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/gcp-gar-repository\", tostring(additionalData.resourceName), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and type == \"microsoft.security/softwareinventories\", case(source == \"aws\", extract(\"aws-ec2-instance-(i-.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                source == \"gcp\", extract(\"gcp-instances-(.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                extractedResourceName),\r\n                                            resourceName)\r\n| extend resourceName = iff(isnotempty(additionalData.EnvironmentDisplayName) and tostring(additionalData.ResourceType) in (\"account\", \"account-in-region\") and source == \"aws\", additionalData.EnvironmentDisplayName, resourceName)\r\n| extend resourceName = iff(classificationResource == true and resourceId contains \"/securityentitydata/aws-s3\", trim(\"aws-s3-\", resourceName), resourceName)\r\n| extend resourceName = iff((resourceId contains \"/apicollectiondetails/\") and (resourceId contains \"/apicollections/\"), additionalData.ResourceName, resourceName)\r\n| extend resourceName = iff((resourceId contains \"/mdeservers/\"), substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName), \"_\", 0, -1) - 1), resourceName)\r\n| extend typeFullPath = (// AssessmentsQueryBuilder.columnDefinitions.typeFullPath\r\n                iff(type == \"microsoft.security/assessments\", tolower(properties.resourceDetails.ResourceType), dynamic(null)))\r\n| extend resourceType = typeFullPath\r\n| extend assessmentKey = iff(type == \"microsoft.security/assessments\", tostring(name), \"\")\r\n                // Filter for installedSoftware,installedSoftwareVersions not enabled\r\n| extend environment = tolower(tostring(resourceDetails[\"Source\"]))\r\n| extend environment = iff(environment == \"onpremise\", \"non-azure\", environment)\r\n                // Filter for awsAccount,gcpProject not enabled\r\n| extend osType = tostring(additionalData[\"OS Type\"])\r\n| where tolower(environment) in ('aws')                 \r\n| summarize\r\n                    resourceType = max(resourceType),\r\n                    typeFullPath = max(resourceType),\r\n                    resourceName = max(resourceName),\r\n                    name = max(name),\r\n                    environment = max(environment),\r\n                    osType = max(osType)                    \r\n                    by resourceId, subscriptionId\r\n| extend subscriptionPricing = dynamic(null), pricing = \"\"\r\n| extend selectedSecurityConnectors =  tolower('{AWSSecurityConnectors}')\r\n| extend securityConnectorId = tolower(tostring(split(resourceId,\"/securityentitydata/\")[0]))\r\n| where isnotempty(securityConnectorId)\r\n| where selectedSecurityConnectors has securityConnectorId\r\n| project  resourceName, resourceType,\r\n                            resourceId,                            \r\n                            environment,\r\n                            subscriptionId\r\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\r\n| order by resourceId, resourceName\r\n| where resourceType in ('microsoft.security/securityconnectors/ec2instance')\r\n| join kind = inner\r\n\t(resources\r\n    | where subscriptionId == subscriptionId\r\n\t| where type == 'microsoft.hybridcompute/machines'\r\n    | extend state = properties.status\r\n    | extend status = case(\r\n    state =~ 'Connected', 'Connected',\r\n    state =~ 'Disconnected', 'Offline',\r\n    state =~ 'Error', 'Error',\r\n    state =~ 'Expired', 'Expired',\r\n    '')\r\n\t| project name, ComputerName = tostring(properties.osProfile.computerName), OSName = tostring(properties.osName), status\r\n)  on $left.resourceName == $right.name",
+              "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n| where provider == 'aws'\r\n| project Server = name, ComputerName = coalesce(tostring(properties.osProfile.computerName), tostring(properties.machineFqdn), name), CloudProvider = tostring(properties.cloudMetadata.provider), ConnectionStatus = coalesce(tostring(properties.status), 'Unknown'), OSName = coalesce(tostring(properties.osName), tostring(properties.osType), 'Unknown'), AgentVersion = coalesce(tostring(properties.agentVersion), 'Not reported'), SubscriptionId = subscriptionId, ResourceGroup = resourceGroup, Location = location, ResourceId = id\r\n| order by Server asc",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
               "crossComponentResources": [
-                "value::selected"
+                "{Subscriptions}"
               ],
+              "noDataMessage": "No Azure Arc-enabled servers reporting AWS as their cloud provider were found in the selected subscriptions. Check All Arc servers and Other / unknown for servers with unknown or different provider metadata.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
               "gridSettings": {
                 "formatters": [
                   {
-                    "columnMatch": "name",
+                    "columnMatch": "ResourceId",
                     "formatter": 5
                   }
                 ]
               }
             },
-            "name": "querySecurityResource&Resource-ArcInclude-AWS"
+            "name": "queryAWSArcServers"
           },
           {
             "type": 1,
             "content": {
-              "json": "## EC2 machines without Arc deployment"
+              "json": "## EC2 instances discovered by Defender for Cloud\r\nThis separate discovery list uses the selected AWS security connectors. **ArcMatch** is a name-based hint, not proof of installation or absence: names can differ or be reused across accounts and regions, Arc resources can be in another subscription, and discovery records can lag. A possible match checks the Arc resource name, computer name, and FQDN within the same subscription; verify **PossibleArcResources** against the native instance identity. Do not treat an unmatched record as definitely without Arc."
             },
-            "name": "textDescAWSExclude"
+            "name": "textDescAWSDiscovery"
           },
           {
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where subscriptionId == subscriptionId\r\n| where type == \"microsoft.security/assessments\"                        \r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| extend source = (// AssessmentsQueryBuilder.columnDefinitions.source\r\n                iff(type == \"microsoft.security/assessments\", trim(' ', tolower(tostring(properties.resourceDetails.Source))), dynamic(null)))\r\n| extend classificationResource = iff(type == \"microsoft.security/insights\" and id contains \"microsoft.security/insights/classification\", true , false)\r\n| extend multiCloudSource = iff(source == \"aws\" or source == \"gcp\", true, false)\r\n| extend resourceId = trim(\" \", tolower(tostring(case(source == \"azure\", resourceDetails.Id,\r\n                                                                    multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), resourceDetails.Id,\r\n                                                                    multiCloudSource == true and type == \"microsoft.security/softwareinventories\", extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id),\r\n                                                                    multiCloudSource == true, resourceDetails.AzureResourceId,\r\n                                                                    source == \"onpremise\", strcat(extract(\"^(.+)/(.+)/onpremisemachines/(.+)/providers/microsoft.security/assessments/.+$\",1,id),\"/workspacenameplaceholder/onpremisemachines/\", resourceDetails.MachineName,\"_\", resourceDetails.VMUUID),\r\n                                                                    type == \"microsoft.security/assessments\", extract(\"^(?i)(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),\r\n                                                                    classificationResource == true, tolower(properties.associatedResource),\r\n                                                                    extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id)))))\r\n| extend extractedResourceName = extract(@\"(.+)/(.+)\", 2, resourceId)\r\n| extend resourceName = iff(multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), tostring(additionalData.ResourceName), extractedResourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/aws-ecr-repository\", trim(\"aws-ecr-repository-\", substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName),'-',1,-1,3) - 1)), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/gcp-gar-repository\", tostring(additionalData.resourceName), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and type == \"microsoft.security/softwareinventories\", case(source == \"aws\", extract(\"aws-ec2-instance-(i-.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                source == \"gcp\", extract(\"gcp-instances-(.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                extractedResourceName),\r\n                                            resourceName)\r\n| extend resourceName = iff(isnotempty(additionalData.EnvironmentDisplayName) and tostring(additionalData.ResourceType) in (\"account\", \"account-in-region\") and source == \"aws\", additionalData.EnvironmentDisplayName, resourceName)\r\n| extend resourceName = iff(classificationResource == true and resourceId contains \"/securityentitydata/aws-s3\", trim(\"aws-s3-\", resourceName), resourceName)\r\n| extend resourceName = iff((resourceId contains \"/apicollectiondetails/\") and (resourceId contains \"/apicollections/\"), additionalData.ResourceName, resourceName)\r\n| extend resourceName = iff((resourceId contains \"/mdeservers/\"), substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName), \"_\", 0, -1) - 1), resourceName)\r\n| extend name = resourceName\r\n| extend typeFullPath = (// AssessmentsQueryBuilder.columnDefinitions.typeFullPath\r\n                iff(type == \"microsoft.security/assessments\", tolower(properties.resourceDetails.ResourceType), dynamic(null)))\r\n| extend resourceType = typeFullPath\r\n| extend environment = tolower(tostring(resourceDetails[\"Source\"]))\r\n| extend environment = iff(environment == \"onpremise\", \"non-azure\", environment)\r\n| extend osType = tostring(additionalData[\"OS Type\"])\r\n| where tolower(environment) in ('aws') \r\n| summarize\r\n                    resourceType = max(resourceType),\r\n                    typeFullPath = max(resourceType),\r\n                    resourceName = max(resourceName),\r\n                    name = max(name),\r\n                    environment = max(environment),\r\n                    osType = max(osType)\r\n                    by resourceId, subscriptionId\r\n| extend subscriptionPricing = dynamic(null), pricing = \"\"\r\n| extend selectedSecurityConnectors =  tolower('{AWSSecurityConnectors}')\r\n| extend securityConnectorId = tolower(tostring(split(resourceId,\"/securityentitydata/\")[0]))\r\n| where isnotempty(securityConnectorId)\r\n| where selectedSecurityConnectors has securityConnectorId\r\n| project  resourceName, resourceType,\r\n                            resourceId,                            \r\n                            environment,\r\n                            subscriptionId\r\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\r\n| order by resourceId, resourceName\r\n| where resourceType in ('microsoft.security/securityconnectors/ec2instance')\r\n| join kind = leftouter\r\n\t(resources\r\n\t| where type == 'microsoft.hybridcompute/machines'\r\n\t| project name\r\n)  on $left.resourceName == $right.name\r\n| where name == ''",
+              "query": "SecurityResources\r\n| where type =~ 'microsoft.security/assessments'\r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| where tostring(resourceDetails.Source) =~ 'aws'\r\n| where tostring(resourceDetails.ResourceType) =~ 'microsoft.security/securityconnectors/ec2instance'\r\n| extend resourceId = tolower(coalesce(iff(tostring(resourceDetails.Id) startswith '/subscriptions/', tostring(resourceDetails.Id), ''), tostring(resourceDetails.AzureResourceId), extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, id))), nativeResourceId = coalesce(tostring(resourceDetails.NativeResourceId), iff(tostring(resourceDetails.Id) startswith '/subscriptions/', '', tostring(resourceDetails.Id)))\r\n| extend securityConnectorId = tolower(coalesce(tostring(resourceDetails.ConnectorId), extract('(?i)^(.+/providers/microsoft.security/securityconnectors/[^/]+)', 1, resourceId)))\r\n| where '*' in ({AWSSecurityConnectors}) or securityConnectorId in~ ({AWSSecurityConnectors})\r\n| extend reportedResourceName = tostring(additionalData.ResourceName), detailsResourceName = tostring(resourceDetails.ResourceName)\r\n| summarize reportedResourceName = max(reportedResourceName), detailsResourceName = max(detailsResourceName), nativeResourceId = max(nativeResourceId), securityConnectorId = max(securityConnectorId) by resourceId, subscriptionId\r\n| extend resourceName = coalesce(reportedResourceName, detailsResourceName, extract('([^/]+)$', 1, nativeResourceId), extract('([^/]+)$', 1, resourceId))\r\n| extend matchName = tolower(resourceName), subscriptionKey = tolower(subscriptionId)\r\n| join kind=leftouter (\r\n    Resources\r\n    | where type =~ 'microsoft.hybridcompute/machines'\r\n    | extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n    | where provider == 'aws' or isempty(provider)\r\n    | extend matchNames = pack_array(tolower(name), tolower(tostring(properties.osProfile.computerName)), tolower(tostring(properties.machineFqdn)))\r\n    | mv-expand matchName = matchNames\r\n    | extend matchName = tostring(matchName), subscriptionKey = tolower(subscriptionId)\r\n    | where isnotempty(matchName)\r\n    | summarize possibleArcResources = make_set(id) by matchName, subscriptionKey\r\n) on matchName, subscriptionKey\r\n| extend ArcMatch = iff(isempty(tostring(possibleArcResources)), 'Not verified - no name match in scope', 'Possible name match only - verify resource identity')\r\n| project ResourceName = resourceName, NativeResourceId = nativeResourceId, ArcMatch, PossibleArcResources = possibleArcResources, SubscriptionId = subscriptionId, ResourceGroup = tostring(split(resourceId, '/')[4]), ConnectorId = securityConnectorId, ResourceId = resourceId\r\n| order by ResourceName asc",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
               "crossComponentResources": [
-                "value::selected"
+                "{Subscriptions}"
               ],
+              "noDataMessage": "No AWS EC2 discovery records were found for the selected subscriptions and AWS security connectors. This does not prove that AWS has no instances. Check connector configuration, permissions, and discovery freshness; Arc resources are listed independently above.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
               "gridSettings": {
                 "formatters": [
                   {
-                    "columnMatch": "name",
+                    "columnMatch": "ResourceId",
                     "formatter": 5
                   }
                 ]
               }
             },
-            "name": "querySecurityResource&Resource-ArcExclude-AWS"
+            "name": "queryAWSDiscoveredInstances"
           }
         ]
       },
@@ -215,7 +293,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Virtual Machines with Arc deployment"
+              "json": "## Azure Arc-enabled servers in GCP\r\nThese Arc resources report GCP in their cloud-provider metadata. The GCP project selector does not filter this list. Servers with unknown provider metadata remain visible in **All Arc servers** and **Other / unknown**."
             },
             "name": "textDescGCPIncludeArc"
           },
@@ -223,57 +301,60 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where subscriptionId == subscriptionId\r\n| where type == \"microsoft.security/assessments\"\r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| extend source = (// AssessmentsQueryBuilder.columnDefinitions.source\r\n                iff(type == \"microsoft.security/assessments\", trim(' ', tolower(tostring(properties.resourceDetails.Source))), dynamic(null)))\r\n| extend classificationResource = iff(type == \"microsoft.security/insights\" and id contains \"microsoft.security/insights/classification\", true , false)\r\n| extend multiCloudSource = iff(source == \"aws\" or source == \"gcp\", true, false)\r\n| extend resourceId = trim(\" \", tolower(tostring(case(source == \"azure\", resourceDetails.Id,\r\n                                                                    multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), resourceDetails.Id,\r\n                                                                    multiCloudSource == true and type == \"microsoft.security/softwareinventories\", extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id),\r\n                                                                    multiCloudSource == true, resourceDetails.AzureResourceId,\r\n                                                                    source == \"onpremise\", strcat(extract(\"^(.+)/(.+)/onpremisemachines/(.+)/providers/microsoft.security/assessments/.+$\",1,id),\"/workspacenameplaceholder/onpremisemachines/\", resourceDetails.MachineName,\"_\", resourceDetails.VMUUID),\r\n                                                                    type == \"microsoft.security/assessments\", extract(\"^(?i)(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),\r\n                                                                    classificationResource == true, tolower(properties.associatedResource),\r\n                                                                    extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id)))))\r\n| extend extractedResourceName = extract(@\"(.+)/(.+)\", 2, resourceId)\r\n| extend resourceName = iff(multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), tostring(additionalData.ResourceName), extractedResourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/aws-ecr-repository\", trim(\"aws-ecr-repository-\", substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName),'-',1,-1,3) - 1)), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/gcp-gar-repository\", tostring(additionalData.resourceName), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and type == \"microsoft.security/softwareinventories\", case(source == \"aws\", extract(\"aws-ec2-instance-(i-.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                source == \"gcp\", extract(\"gcp-instances-(.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                extractedResourceName),\r\n                                            resourceName)\r\n| extend resourceName = iff(isnotempty(additionalData.EnvironmentDisplayName) and tostring(additionalData.ResourceType) in (\"account\", \"account-in-region\") and source == \"aws\", additionalData.EnvironmentDisplayName, resourceName)\r\n| extend resourceName = iff(classificationResource == true and resourceId contains \"/securityentitydata/aws-s3\", trim(\"aws-s3-\", resourceName), resourceName)\r\n| extend resourceName = iff((resourceId contains \"/apicollectiondetails/\") and (resourceId contains \"/apicollections/\"), additionalData.ResourceName, resourceName)\r\n| extend resourceName = iff((resourceId contains \"/mdeservers/\"), substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName), \"_\", 0, -1) - 1), resourceName)\r\n| extend typeFullPath = (// AssessmentsQueryBuilder.columnDefinitions.typeFullPath\r\n                iff(type == \"microsoft.security/assessments\", tolower(properties.resourceDetails.ResourceType), dynamic(null)))\r\n| extend resourceType = typeFullPath\r\n| extend environment = tolower(tostring(resourceDetails[\"Source\"]))\r\n| extend environment = iff(environment == \"onpremise\", \"non-azure\", environment)\r\n| extend osType = tostring(additionalData[\"OS Type\"])\r\n| where tolower(environment) in ('gcp') \r\n| summarize\r\n                    resourceType = max(resourceType),\r\n                    typeFullPath = max(resourceType),\r\n                    resourceName = max(resourceName),\r\n                    environment = max(environment),\r\n                    osType = max(osType)\r\n                        by resourceId, subscriptionId\r\n| extend subscriptionPricing = dynamic(null), pricing = \"\"                \r\n| extend selectedSecurityConnectors =  tolower('{GCPSecuityConnectors}')\r\n| extend securityConnectorId = tolower(tostring(split(resourceId,\"/securityentitydata/\")[0]))\r\n| where isnotempty(securityConnectorId)\r\n| where isnotempty(resourceName)\r\n| where selectedSecurityConnectors has securityConnectorId\r\n| project   resourceName, resourceType,\r\n                            resourceId,                            \r\n                            environment,subscriptionId\r\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\r\n| order by resourceId, resourceName\r\n| where resourceType in ('microsoft.security/securityconnectors/computeinstances')\r\n| join kind = inner\r\n\t(resources\r\n\t| where type == 'microsoft.hybridcompute/machines'\r\n    | extend state = properties.status\r\n    | extend status = case(\r\n    state =~ 'Connected', 'Connected',\r\n    state =~ 'Disconnected', 'Offline',\r\n    state =~ 'Error', 'Error',\r\n    state =~ 'Expired', 'Expired',\r\n    '')    \r\n    | extend ComputerName = tostring(properties.osProfile.computerName)\r\n\t| project name, ComputerName, OSName = tostring(properties.osName), status\r\n)  on $left.resourceName==$right.ComputerName",
+              "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n| where provider == 'gcp'\r\n| project Server = name, ComputerName = coalesce(tostring(properties.osProfile.computerName), tostring(properties.machineFqdn), name), CloudProvider = tostring(properties.cloudMetadata.provider), ConnectionStatus = coalesce(tostring(properties.status), 'Unknown'), OSName = coalesce(tostring(properties.osName), tostring(properties.osType), 'Unknown'), AgentVersion = coalesce(tostring(properties.agentVersion), 'Not reported'), SubscriptionId = subscriptionId, ResourceGroup = resourceGroup, Location = location, ResourceId = id\r\n| order by Server asc",
               "size": 0,
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
               "crossComponentResources": [
-                "value::selected"
+                "{Subscriptions}"
               ],
+              "noDataMessage": "No Azure Arc-enabled servers reporting GCP as their cloud provider were found in the selected subscriptions. Check All Arc servers and Other / unknown for servers with unknown or different provider metadata.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
               "gridSettings": {
                 "formatters": [
                   {
-                    "columnMatch": "name",
-                    "formatter": 5
-                  }
-                ]
-              },
-              "sortBy": []
-            },
-            "name": "querySecurityResource&Resource-ArcInclude-GCP"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "## Virtual Machines without Arc deployment"
-            },
-            "name": "textDescGCPExcludeArc"
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where subscriptionId == subscriptionId\r\n| where type == \"microsoft.security/assessments\"                        \r\n| extend assessmentStatusCode = tolower(tostring(properties.status.code)), id = tolower(id)\r\n| extend severity = iff(assessmentStatusCode == \"unhealthy\", tolower(tostring(properties.metadata.severity)), assessmentStatusCode)\r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| extend source = (// AssessmentsQueryBuilder.columnDefinitions.source\r\n                iff(type == \"microsoft.security/assessments\", trim(' ', tolower(tostring(properties.resourceDetails.Source))), dynamic(null)))\r\n| extend classificationResource = iff(type == \"microsoft.security/insights\" and id contains \"microsoft.security/insights/classification\", true , false)\r\n| extend multiCloudSource = iff(source == \"aws\" or source == \"gcp\", true, false)\r\n| extend resourceId = trim(\" \", tolower(tostring(case(source == \"azure\", resourceDetails.Id,\r\n                                                                    multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), resourceDetails.Id,\r\n                                                                    multiCloudSource == true and type == \"microsoft.security/softwareinventories\", extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id),\r\n                                                                    multiCloudSource == true, resourceDetails.AzureResourceId,\r\n                                                                    source == \"onpremise\", strcat(extract(\"^(.+)/(.+)/onpremisemachines/(.+)/providers/microsoft.security/assessments/.+$\",1,id),\"/workspacenameplaceholder/onpremisemachines/\", resourceDetails.MachineName,\"_\", resourceDetails.VMUUID),\r\n                                                                    type == \"microsoft.security/assessments\", extract(\"^(?i)(.+)/providers/Microsoft.Security/assessments/.+$\",1,id),\r\n                                                                    classificationResource == true, tolower(properties.associatedResource),\r\n                                                                    extract(\"^(.+)/providers/microsoft.security/softwareinventories/.+$\",1,id)))))\r\n| extend extractedResourceName = extract(@\"(.+)/(.+)\", 2, resourceId)\r\n| extend resourceName = iff(multiCloudSource == true and isnotempty(tostring(resourceDetails.ConnectorId)), tostring(additionalData.ResourceName), extractedResourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/aws-ecr-repository\", trim(\"aws-ecr-repository-\", substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName),'-',1,-1,3) - 1)), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and resourceId contains \"/securityentitydata/gcp-gar-repository\", tostring(additionalData.resourceName), resourceName)\r\n| extend resourceName = iff(multiCloudSource == true and type == \"microsoft.security/softwareinventories\", case(source == \"aws\", extract(\"aws-ec2-instance-(i-.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                source == \"gcp\", extract(\"gcp-instances-(.+?)-(.+)$\", 1, extractedResourceName),\r\n                                                                                                                                extractedResourceName),\r\n                                            resourceName)\r\n| extend resourceName = iff(isnotempty(additionalData.EnvironmentDisplayName) and tostring(additionalData.ResourceType) in (\"account\", \"account-in-region\") and source == \"aws\", additionalData.EnvironmentDisplayName, resourceName)\r\n| extend resourceName = iff(classificationResource == true and resourceId contains \"/securityentitydata/aws-s3\", trim(\"aws-s3-\", resourceName), resourceName)\r\n| extend resourceName = iff((resourceId contains \"/apicollectiondetails/\") and (resourceId contains \"/apicollections/\"), additionalData.ResourceName, resourceName)\r\n| extend resourceName = iff((resourceId contains \"/mdeservers/\"), substring(extractedResourceName, 0, strlen(extractedResourceName) - indexof(reverse(extractedResourceName), \"_\", 0, -1) - 1), resourceName)\r\n| extend typeFullPath = (// AssessmentsQueryBuilder.columnDefinitions.typeFullPath\r\n                iff(type == \"microsoft.security/assessments\", tolower(properties.resourceDetails.ResourceType), dynamic(null)))\r\n| extend resourceType = typeFullPath\r\n| extend assessmentKey = iff(type == \"microsoft.security/assessments\", tostring(name), \"\")\r\n                // Filter for installedSoftware,installedSoftwareVersions not enabled\r\n| extend environment = tolower(tostring(resourceDetails[\"Source\"]))\r\n| extend environment = iff(environment == \"onpremise\", \"non-azure\", environment)\r\n                // Filter for awsAccount,gcpProject not enabled\r\n| extend osType = tostring(additionalData[\"OS Type\"])\r\n| where tolower(environment) in ('gcp') \r\n| summarize\r\n                    resourceType = max(resourceType),\r\n                    typeFullPath = max(resourceType),\r\n                    resourceName = max(resourceName),                    \r\n                    assessmentsCount = dcount(assessmentKey),\r\n                    notApplicableAssessmentsCount = countif(severity == \"notapplicable\"),\r\n                    lowSeverityAssessmentsCount = countif(severity == \"low\"),\r\n                    mediumSeverityAssessmentsCount = countif(severity == \"medium\"),\r\n                    highSeverityAssessmentsCount = countif(severity == \"high\"),\r\n                    healthyAssessmentsCount = countif(severity == \"healthy\"),                    \r\n                    environment = max(environment),                    \r\n                    osType = max(osType)\r\n                    by resourceId, subscriptionId\r\n| extend assessmentsSummary = pack(\r\n                                                \"notapplicable\", notApplicableAssessmentsCount,\r\n                                                \"low\", lowSeverityAssessmentsCount,\r\n                                                \"medium\", mediumSeverityAssessmentsCount,\r\n                                                \"high\", highSeverityAssessmentsCount,\r\n                                                \"healthy\", healthyAssessmentsCount)\r\n| extend subscriptionPricing = dynamic(null), pricing = \"\"                \r\n| extend unhealthyAssessmentsCount = lowSeverityAssessmentsCount + mediumSeverityAssessmentsCount + highSeverityAssessmentsCount                \r\n| extend selectedSecurityConnectors =  tolower('{GCPSecuityConnectors}')\r\n| extend securityConnectorId = tolower(tostring(split(resourceId,\"/securityentitydata/\")[0]))\r\n| where isnotempty(securityConnectorId)\r\n| where selectedSecurityConnectors has securityConnectorId\r\n| where assessmentsCount <> 1\r\n| project   resourceName,\r\n                            resourceType,\r\n                            resourceId,\r\n                            environment, subscriptionId\r\n| extend resourceGroup = tolower(tostring(split(resourceId, \"/\")[4]))\r\n| order by resourceId, resourceName\r\n| where resourceType in ('microsoft.security/securityconnectors/computeinstances')\r\n| join kind = leftouter\r\n    (resources\r\n    | where type == 'microsoft.hybridcompute/machines'\r\n    | extend machineFqdn=tostring(properties.machineFqdn)\r\n    | project machineFqdn\r\n)  on $left.resourceName == $right.machineFqdn\r\n| where machineFqdn == ''\r\n",
-              "size": 0,
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "value::selected"
-              ],
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": "machineFqdn",
-                    "formatter": 5
-                  },
-                  {
-                    "columnMatch": "name",
+                    "columnMatch": "ResourceId",
                     "formatter": 5
                   }
                 ]
               }
             },
-            "name": "query - 1"
+            "name": "queryGCPArcServers"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "## GCP virtual machines discovered by Defender for Cloud\r\nThis separate discovery list uses the selected GCP security connectors. **ArcMatch** is a name-based hint, not proof of installation or absence: names can differ or be reused across projects and zones, Arc resources can be in another subscription, and discovery records can lag. A possible match checks the Arc resource name, computer name, and FQDN within the same subscription; verify **PossibleArcResources** against the native instance identity. Do not treat an unmatched record as definitely without Arc."
+            },
+            "name": "textDescGCPDiscovery"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "SecurityResources\r\n| where type =~ 'microsoft.security/assessments'\r\n| extend resourceDetails = properties.resourceDetails, additionalData = properties.additionalData\r\n| where tostring(resourceDetails.Source) =~ 'gcp'\r\n| where tostring(resourceDetails.ResourceType) =~ 'microsoft.security/securityconnectors/computeinstances'\r\n| extend resourceId = tolower(coalesce(iff(tostring(resourceDetails.Id) startswith '/subscriptions/', tostring(resourceDetails.Id), ''), tostring(resourceDetails.AzureResourceId), extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, id))), nativeResourceId = coalesce(tostring(resourceDetails.NativeResourceId), iff(tostring(resourceDetails.Id) startswith '/subscriptions/', '', tostring(resourceDetails.Id)))\r\n| extend securityConnectorId = tolower(coalesce(tostring(resourceDetails.ConnectorId), extract('(?i)^(.+/providers/microsoft.security/securityconnectors/[^/]+)', 1, resourceId)))\r\n| where '*' in ({GCPSecuityConnectors}) or securityConnectorId in~ ({GCPSecuityConnectors})\r\n| extend reportedResourceName = tostring(additionalData.ResourceName), detailsResourceName = tostring(resourceDetails.ResourceName)\r\n| summarize reportedResourceName = max(reportedResourceName), detailsResourceName = max(detailsResourceName), nativeResourceId = max(nativeResourceId), securityConnectorId = max(securityConnectorId) by resourceId, subscriptionId\r\n| extend resourceName = coalesce(reportedResourceName, detailsResourceName, extract('([^/]+)$', 1, nativeResourceId), extract('([^/]+)$', 1, resourceId))\r\n| extend matchName = tolower(resourceName), subscriptionKey = tolower(subscriptionId)\r\n| join kind=leftouter (\r\n    Resources\r\n    | where type =~ 'microsoft.hybridcompute/machines'\r\n    | extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n    | where provider == 'gcp' or isempty(provider)\r\n    | extend matchNames = pack_array(tolower(name), tolower(tostring(properties.osProfile.computerName)), tolower(tostring(properties.machineFqdn)))\r\n    | mv-expand matchName = matchNames\r\n    | extend matchName = tostring(matchName), subscriptionKey = tolower(subscriptionId)\r\n    | where isnotempty(matchName)\r\n    | summarize possibleArcResources = make_set(id) by matchName, subscriptionKey\r\n) on matchName, subscriptionKey\r\n| extend ArcMatch = iff(isempty(tostring(possibleArcResources)), 'Not verified - no name match in scope', 'Possible name match only - verify resource identity')\r\n| project ResourceName = resourceName, NativeResourceId = nativeResourceId, ArcMatch, PossibleArcResources = possibleArcResources, SubscriptionId = subscriptionId, ResourceGroup = tostring(split(resourceId, '/')[4]), ConnectorId = securityConnectorId, ResourceId = resourceId\r\n| order by ResourceName asc",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "noDataMessage": "No GCP virtual machine discovery records were found for the selected subscriptions and GCP security connectors. This does not prove that GCP has no instances. Check connector configuration, permissions, and discovery freshness; Arc resources are listed independently above.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "ResourceId",
+                    "formatter": 5
+                  }
+                ]
+              }
+            },
+            "name": "queryGCPDiscoveredInstances"
           }
         ]
       },
@@ -283,10 +364,55 @@
         "value": "GCP"
       },
       "name": "GCP"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Azure Arc-enabled servers in other or unknown environments\r\nIncludes private clouds, datacenters, edge locations, other reported providers, and servers without cloud-provider metadata. Missing provider metadata is displayed as **Environment = Unknown** and **CloudProvider = Unknown**, not as a confirmed on-premises location. Azure Arc resources can be labeled **Azure** in Defender for Cloud inventory because they are represented as Azure resources, regardless of where the server runs."
+            },
+            "name": "textDescOtherArc"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "Resources\r\n| where type =~ 'microsoft.hybridcompute/machines'\r\n| extend provider = tolower(trim(' ', tostring(properties.cloudMetadata.provider)))\r\n| where provider !in ('aws', 'gcp')\r\n| project Server = name, ComputerName = coalesce(tostring(properties.osProfile.computerName), tostring(properties.machineFqdn), name), Environment = iff(isempty(provider), 'Unknown', 'Other cloud / on-premises'), CloudProvider = iff(isempty(provider), 'Unknown', tostring(properties.cloudMetadata.provider)), ConnectionStatus = coalesce(tostring(properties.status), 'Unknown'), OSName = coalesce(tostring(properties.osName), tostring(properties.osType), 'Unknown'), AgentVersion = coalesce(tostring(properties.agentVersion), 'Not reported'), SubscriptionId = subscriptionId, ResourceGroup = resourceGroup, Location = location, ResourceId = id\r\n| order by Server asc",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "noDataMessage": "No Azure Arc-enabled servers with other or unknown cloud-provider metadata were found in the selected subscriptions. Check the AWS, GCP, or All Arc servers tabs, and verify your subscription selection and resource read permissions.",
+              "noDataMessageStyle": 0,
+              "showExportToExcel": true,
+              "showRefreshButton": true,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "ResourceId",
+                    "formatter": 5
+                  }
+                ]
+              }
+            },
+            "name": "queryOtherArcServers"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SelectedTab",
+        "comparison": "isEqualTo",
+        "value": "Other"
+      },
+      "name": "Other"
     }
-  ],
-  "fallbackResourceIds": [
-    "azure monitor"
   ],
   "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
 }
