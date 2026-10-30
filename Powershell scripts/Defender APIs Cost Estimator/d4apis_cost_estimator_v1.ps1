@@ -1,117 +1,125 @@
-# Ensure strict mode is enabled for catching common issues
+#requires -Version 7.2
+<#
+.SYNOPSIS
+Collects standalone Defender for APIs coverage and 30-day cost reports.
+.DESCRIPTION
+Read-only Azure commercial cloud collector. The historical filename is retained.
+The companion module and pricing JSON are required. This optional reporting tool
+is independent of the live workbook. Missing inventory or metrics never become
+zero-cost recommendations.
+.EXAMPLE
+.\d4apis_cost_estimator_v1.ps1 -SubscriptionId '00000000-0000-0000-0000-000000000000' -OutputDirectory .\ApiEstimate
+#>
+[CmdletBinding()]
+param(
+    [guid[]]$SubscriptionId,
+    [string]$OutputDirectory = (Join-Path (Get-Location).Path 'DefenderForApisEstimate'),
+    [string]$PricingPath = (Join-Path $PSScriptRoot 'pricing.json')
+)
+
 Set-StrictMode -Version Latest
-
-# Ensure you're logged in
-try {
-    $accountInfo = Connect-AzAccount
-    if (-not $accountInfo) {
-        throw "Failed to log in to Azure."
-    }
-} catch {
-    Write-Error "Failed to log in to Azure. Please ensure you have the Az PowerShell module installed and internet access. Error: $_"
-    exit
+$ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot 'DefenderForApisCostEstimator.psm1') -Force
+$pricing = Get-D4ApiPricing -Path $PricingPath
+if (-not (Get-Module -ListAvailable -Name Az.Accounts)) {
+    throw 'Az.Accounts is required. Install-Module Az.Accounts -Scope CurrentUser, then rerun the collector.'
 }
+Import-Module Az.Accounts
+$originalContext = Get-AzContext
+$summaries = [Collections.Generic.List[object]]::new()
+$apis = [Collections.Generic.List[object]]::new()
+$services = [Collections.Generic.List[object]]::new()
+$costs = [Collections.Generic.List[object]]::new()
+$issues = [Collections.Generic.List[object]]::new()
+$now = [datetime]::UtcNow
+$endTime = $now.AddTicks(-($now.Ticks % [TimeSpan]::TicksPerMinute))
+$startTime = $endTime.AddDays(-30)
 
-# Retrieve all subscriptions the user has access to
 try {
-    $subscriptions = Get-AzSubscription
-    if (-not $subscriptions) {
-        throw "No subscriptions found."
+    if (-not $originalContext) { $null = Connect-AzAccount -ErrorAction Stop }
+    $context = Get-AzContext
+    if ($context.Environment.Name -ne 'AzureCloud') {
+        throw 'Defender for APIs support and this estimator are limited to the Azure commercial cloud.'
     }
-} catch {
-    Write-Error "Failed to retrieve subscriptions. Error: $_"
-    exit
-}
-
-# Initialize a list to hold results for all subscriptions
-$allSubscriptionsResults = @()
-
-foreach ($sub in $subscriptions) {
-    # Set the Azure context to the current subscription
-    $context = Set-AzContext -SubscriptionId $sub.Id
-    Write-Host "Processing Subscription: $($sub.Name) - $($sub.Id)"
-
-    # Get all APIM services in the subscription
-    try {
-        $apimServices = Get-AzApiManagement
-        if (-not $apimServices) {
-            throw "No APIM services found."
+    $subscriptions = @(if ($SubscriptionId) {
+        $SubscriptionId | Select-Object -Unique | ForEach-Object {
+            Get-AzSubscription -SubscriptionId $_.ToString() -ErrorAction Stop
         }
-    } catch {
-        Write-Error "Failed to retrieve APIM services. Please ensure you have APIM services deployed in your subscription. Error: $_"
-        continue # Continue with the next subscription if this fails
-    }
-
-    # Define the time range for the last 30 days
-    $startTime = (Get-Date).AddDays(-30).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-    $endTime = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
-
-    # Initialize a variable to hold the total requests for the current subscription
-    $totalRequestsForSubscription = 0
-
-    foreach ($apim in $apimServices) {
-        Write-Host "APIM Service: $($apim.Name), Resource Group: $($apim.ResourceGroupName)"
-        
-        # Construct the resource ID for the APIM service using the correct subscription ID
-        $resourceId = "/subscriptions/$($sub.Id)/resourceGroups/$($apim.ResourceGroupName)/providers/Microsoft.ApiManagement/service/$($apim.Name)"
-        
-        Write-Host "Retrieving 'Requests' metric for APIM Service: $($apim.Name)"
+    } else {
+        Get-AzSubscription -ErrorAction Stop | Where-Object State -EQ 'Enabled'
+    })
+    if (-not $subscriptions.Count) { throw 'No enabled subscriptions were found in the signed-in tenant.' }
+    foreach ($subscription in $subscriptions) {
+        Write-Information "Collecting $($subscription.Name) ($($subscription.Id))" -InformationAction Continue
         try {
-            $metrics = Get-AzMetric -ResourceId $resourceId -MetricName "Requests" -StartTime $startTime -EndTime $endTime -AggregationType Total
-            if ($metrics -ne $null -and $metrics.Data -ne $null) {
-                $serviceRequests = ($metrics.Data | Measure-Object Total -Sum).Sum
-                Write-Host "`tTotal 'Requests' for the past 30 days: $serviceRequests"
-                $totalRequestsForSubscription += $serviceRequests
-            } else {
-                Write-Host "`tNo data available for 'Requests' metric for the past 30 days."
-            }
+            $null = Set-AzContext -SubscriptionId $subscription.Id -TenantId $subscription.TenantId -Scope Process -ErrorAction Stop
         } catch {
-            Write-Host "`tError retrieving 'Requests' metric: $_"
+            Write-Warning "Could not select subscription '$($subscription.Id)': $($_.Exception.Message)"
+            $issues.Add([pscustomobject]@{
+                SubscriptionID = $subscription.Id; SubscriptionName = $subscription.Name
+                Severity = 'Error'; Stage = 'Subscription context'; ResourceId = "/subscriptions/$($subscription.Id)"
+                Message = $_.Exception.Message
+            })
+            $unavailable = Get-D4ApiSubscriptionEstimate -SubscriptionID $subscription.Id -SubscriptionName $subscription.Name `
+                -Apis @() -Services @() -Plans $pricing.plans -InventoryComplete $false `
+                -OnboardingComplete $false -DefenderStatus Unknown -CurrentPlan ''
+            $summaries.Add($unavailable.Summary)
+            continue
         }
+        $result = Get-D4ApiSubscriptionReport -SubscriptionID $subscription.Id -SubscriptionName $subscription.Name `
+            -Plans $pricing.plans -StartTime $startTime -EndTime $endTime
+        $summaries.Add($result.Summary)
+        foreach ($api in $result.Apis) { $apis.Add($api) }
+        foreach ($service in $result.Services) { $services.Add($service) }
+        foreach ($cost in $result.PlanCosts) { $costs.Add($cost) }
+        foreach ($issue in $result.Issues) { $issues.Add($issue) }
     }
-
-    Write-Host "Total 'Requests' for the subscription over the past 30 days: $totalRequestsForSubscription"
-
-    # Calculate costs for each plan taking the limit into consideration
-    # Assuming plan details remain the same, and calculation logic applies per subscription
-    $plans = @(
-        @{ Name = "P1"; Fixed = 200; Overage = 0.00020; Limit = 1000000 },
-        @{ Name = "P2"; Fixed = 700; Overage = 0.00014; Limit = 5000000 },
-        @{ Name = "P3"; Fixed = 5000; Overage = 0.00010; Limit = 50000000 },
-        @{ Name = "P4"; Fixed = 7000; Overage = 0.00007; Limit = 100000000 },
-        @{ Name = "P5"; Fixed = 50000; Overage = 0.00005; Limit = 1000000000 }
-    )
-    $results = @()
-    foreach ($plan in $plans) {
-        if ($totalRequestsForSubscription -lt $plan.Limit) {
-            $totalCost = $plan.Fixed
-        } else {
-            $totalOverage = $totalRequestsForSubscription - $plan.Limit
-            $totalCost = $plan.Fixed + ($totalOverage * $plan.Overage)
-        }
-        $results += [PSCustomObject]@{
-            Plan = $plan.Name
-            TotalCost = $totalCost
-        }
+} finally {
+    if ($originalContext) {
+        $null = Set-AzContext -Context $originalContext -Scope Process -ErrorAction Stop
     }
-    # Find the plan with the lowest cost
-    $recommendedPlan = $results | Sort-Object TotalCost | Select-Object -First 1
-
-    # Compile the subscription results
-    $subscriptionResult = [PSCustomObject]@{
-        SubscriptionID = $sub.Id
-        SubscriptionName = $sub.Name
-        TotalRequests = $totalRequestsForSubscription
-        RecommendedPlan = $recommendedPlan.Plan
-        RecommendedPlanCost = $recommendedPlan.TotalCost
-    }
-
-    # Add this subscription's results to the list
-    $allSubscriptionsResults += $subscriptionResult
 }
 
-# Now, you can output or export $allSubscriptionsResults as needed
-# Example: Export to CSV
-$outputPath = "AllSubscriptionsPlanRecommendation.csv"
-$allSubscriptionsResults | Export-Csv -Path $outputPath -NoTypeInformation -Force
-Write-Host "Plan recommendations for all subscriptions exported to $outputPath successfully."
+$report = [ordered]@{
+    SchemaVersion = '1.0'
+    GeneratedAtUtc = [datetime]::UtcNow.ToString('o')
+    WindowStartUtc = $startTime.ToString('o')
+    WindowEndUtc = $endTime.ToString('o')
+    ReportStatus = $(if ($issues.Count) { 'Review data quality' } else { 'Collected' })
+    Pricing = $pricing
+    Subscriptions = $summaries.ToArray()
+    Apis = $apis.ToArray()
+    Services = $services.ToArray()
+    PlanCosts = $costs.ToArray()
+    Issues = $issues.ToArray()
+}
+$null = New-Item -ItemType Directory -Path $OutputDirectory -Force
+ConvertTo-Json -InputObject $report -Depth 50 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'DefenderForApisReport.json') -Encoding utf8
+$exports = @{
+    'AllSubscriptionsPlanRecommendation.csv' = $report.Subscriptions
+    'DefenderForApis-ApiInventory.csv' = $report.Apis
+    'DefenderForApis-ServiceInventory.csv' = $report.Services
+    'DefenderForApis-PlanComparisons.csv' = $report.PlanCosts
+    'DefenderForApis-Issues.csv' = $report.Issues
+}
+foreach ($file in $exports.Keys) {
+    $exports[$file] | ForEach-Object {
+        $row = [ordered]@{}
+        foreach ($property in $_.PSObject.Properties) {
+            $value = $property.Value
+            if ($value -is [string] -and $value -match '^[\s\p{C}]*[=+\-@\uFF1D\uFF0B\uFF0D\uFF20]') {
+                # Prefix CSV-only text before any whitespace/control characters; preserve raw JSON evidence.
+                $value = "'" + $value
+            }
+            $row[$property.Name] = $value
+        }
+        [pscustomobject]$row
+    } | Export-Csv -LiteralPath (Join-Path $OutputDirectory $file) -NoTypeInformation -Encoding utf8
+}
+Write-Information "Standalone JSON and CSV reports exported to '$OutputDirectory'." -InformationAction Continue
+if (@($issues | Where-Object Severity -EQ 'Error').Count) {
+    throw "Collection encountered errors. Partial evidence was exported to '$OutputDirectory'; review DefenderForApis-Issues.csv. Affected recommendations are withheld."
+}
+if ($issues.Count) {
+    Write-Warning "Some estimates need review. Check '$(Join-Path $OutputDirectory 'DefenderForApis-Issues.csv')' before using costs."
+}

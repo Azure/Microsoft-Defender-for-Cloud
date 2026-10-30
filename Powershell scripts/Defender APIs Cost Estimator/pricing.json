@@ -1,0 +1,14 @@
+{
+  "currency": "USD",
+  "verifiedOn": "2026-10-29",
+  "source": "https://azure.microsoft.com/pricing/details/defender-for-cloud/",
+  "retailSource": "https://prices.azure.com/api/retail/prices?$filter=productName%20eq%20%27Defender%20for%20APIs%27",
+  "basis": "Public monthly reference fees, approximately 730 hours. Actual billing uses hourly subscription meters and calendar-month entitlements. Taxes, agreements, credits and trials are not modeled.",
+  "plans": [
+    { "name": "P1", "monthlyFee": 200, "includedCalls": 1000000, "overagePerCall": 0.00020 },
+    { "name": "P2", "monthlyFee": 700, "includedCalls": 5000000, "overagePerCall": 0.00014 },
+    { "name": "P3", "monthlyFee": 5000, "includedCalls": 50000000, "overagePerCall": 0.00010 },
+    { "name": "P4", "monthlyFee": 7000, "includedCalls": 100000000, "overagePerCall": 0.00007 },
+    { "name": "P5", "monthlyFee": 50000, "includedCalls": 1000000000, "overagePerCall": 0.00005 }
+  ]
+}

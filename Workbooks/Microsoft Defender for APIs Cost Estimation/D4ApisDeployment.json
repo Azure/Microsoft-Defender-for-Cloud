@@ -1,0 +1,906 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "name": "Introduction",
+      "content": {
+        "json": "# Microsoft Defender for APIs - Price Estimation\n\n**Version 1.7** - Subscription coverage and compact cost/plan recommendations on one page. Service/API inventory and diagnostics are optional under Show details.\n\n**Read-only planning estimates in USD, not invoices.** This workbook does not enable paid plans or onboard APIs. Missing data is not zero.\n\n[Workbook guide on GitHub](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20APIs%20Cost%20Estimation#readme)"
+      }
+    },
+    {
+      "type": 1,
+      "name": "Scope instructions",
+      "content": {
+        "json": "#### Please select the scope\n\nChoose subscription(s) and APIM service(s). All shows subscription coverage; a single matching service enables metric-based cost recommendations. Keep Show details Off for the summary, or turn it On for service/API inventory, request metrics and diagnostics. The traffic window remains the last 30 days."
+      }
+    },
+    {
+      "type": 9,
+      "name": "Scope selectors",
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "eaf44142-7774-b0d5-b71c-63584e743b57",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscriptions",
+            "label": "Azure subscriptions",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "description": "Select all accessible subscriptions, several subscriptions, or one subscription for the coverage view.",
+            "quote": "'",
+            "delimiter": ",",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "75d0b028-abde-6af0-0176-986ad2db640f",
+            "version": "KqlParameterItem/1.0",
+            "name": "ApimServices",
+            "label": "APIM services",
+            "type": 5,
+            "isRequired": true,
+            "value": [
+              "value::all"
+            ],
+            "query": "resources\n| where type =~ 'microsoft.apimanagement/service'\n| project value=id, label=strcat(name, ' (', resourceGroup, ' / ', subscriptionId, ')')\n| order by label asc",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all",
+                "value::none"
+              ],
+              "includeAll": true,
+              "showDefault": false
+            },
+            "description": "Choose All APIM services, several services, or one service within the subscription scope. Detail metrics require exactly one matching service.",
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ","
+          },
+          {
+            "id": "5b7cd64a-de63-4d7f-9f62-ffbda641c52b",
+            "version": "KqlParameterItem/1.0",
+            "name": "SelectedApim",
+            "label": "Resolved single APIM service",
+            "type": 5,
+            "description": "Automatically selects the sole matching service; remains unresolved for an All/multiple-service scope.",
+            "isRequired": false,
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "defaultValue": "value::1",
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::1"
+              ],
+              "showDefault": false,
+              "resourceTypeFilter": {
+                "microsoft.apimanagement/service": true
+              }
+            },
+            "query": "resources\n| where type =~ 'microsoft.apimanagement/service'\n| where 'value::all' in~ ({ApimServices}) or id in~ ({ApimServices})\n| summarize MatchingServices=count(), ServiceId=max(id)\n| where MatchingServices == 1\n| project value=ServiceId"
+          },
+          {
+            "id": "2bda404a-af53-4ab9-a43b-c674f29aa4d2",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "label": "Detail subscription (automatic)",
+            "type": 1,
+            "description": "Derived from the selected APIM resource within the subscription scope; never the All selector value.",
+            "isRequired": false,
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "query": "resources\n| where type =~ 'microsoft.apimanagement/service' and id =~ '{SelectedApim}'\n| project value=subscriptionId"
+          },
+          {
+            "id": "ef8f6bb2-25fa-42e5-b45e-7dc3841b1daa",
+            "version": "KqlParameterItem/1.0",
+            "name": "SingleApimReady",
+            "label": "Single-service selection readiness",
+            "type": 1,
+            "isRequired": false,
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "query": "resources\n| where type =~ 'microsoft.apimanagement/service'\n| where 'value::all' in~ ({ApimServices}) or id in~ ({ApimServices})\n| summarize MatchingServices=count(), ServiceId=max(id), DetailSubscription=max(subscriptionId)\n| project value=iff(MatchingServices == 1 and ServiceId =~ '{SelectedApim}' and DetailSubscription == '{Subscription}', '1', '0')"
+          },
+          {
+            "id": "882385b8-21e5-ff3d-c75e-b8e5005f9ac2",
+            "version": "KqlParameterItem/1.0",
+            "name": "TimeRange",
+            "label": "Traffic window - last 30 days",
+            "type": 4,
+            "isRequired": true,
+            "isHiddenWhenLocked": true,
+            "value": {
+              "durationMs": 2592000000
+            },
+            "typeSettings": {
+              "selectableValues": [
+                {
+                  "durationMs": 2592000000
+                }
+              ],
+              "allowCustom": false
+            }
+          },
+          {
+            "id": "8fa3b06b-0f97-42c6-ad90-b61cf264a42e",
+            "version": "KqlParameterItem/1.0",
+            "name": "ShowDetails",
+            "label": "Show details",
+            "description": "Optional service/API inventory, request metrics, pricing assumptions and diagnostics. This changes presentation only, not the data used for cost calculations.",
+            "type": 2,
+            "isRequired": true,
+            "value": "0",
+            "jsonData": "[{\"value\":\"0\",\"label\":\"Off - summary only\",\"selected\":true},{\"value\":\"1\",\"label\":\"On - API and diagnostic details\"}]",
+            "typeSettings": {
+              "showDefault": false
+            }
+          }
+        ],
+        "style": "pills"
+      }
+    },
+    {
+      "type": 12,
+      "name": "Selected APIM subscription data",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "exportParameters": true,
+        "items": [
+          {
+            "type": 9,
+            "name": "Live subscription data",
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "be906bcf-ccf9-c478-2cf8-3a3455943b5a",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Services",
+                  "label": "Live subscription APIM inventory",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GETARRAY\",\"path\":\"/subscriptions/{Subscription}/providers/Microsoft.ApiManagement/service\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2024-05-01\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "e38a6e28-1226-f0aa-f343-cb04cdae2ed2",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "PlanDetails",
+                  "label": "Live Defender for APIs pricing configuration",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GET\",\"path\":\"/subscriptions/{Subscription}/providers/Microsoft.Security/pricings/Api\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2024-01-01\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "b8ea0e5e-1172-61c9-9ffe-0241fb90400b",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "OnboardedCollections",
+                  "label": "Live onboarded API collections",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GETARRAY\",\"path\":\"/subscriptions/{Subscription}/providers/Microsoft.Security/apiCollections\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-11-15\"}],\"batchDisabled\":false}"
+                }
+              ],
+              "style": "pills"
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SingleApimReady",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 12,
+      "name": "Subscription coverage section",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "name": "Coverage explanation",
+            "content": {
+              "json": "## Microsoft Defender for APIs coverage by subscription\n\nThis table lists each subscription in the selected scope without requiring an APIM selection. Enabled/P1 describes subscription configuration, not proof of API protection or an optimal plan. Zero APIM services can coexist with an enabled plan.\n\nWhen no onboarding assessment records are returned, assessed API counts are blank and explicitly Unknown, not zero eligible APIs. Records may be unavailable, delayed or outside your read permissions. Select one APIM service for full inventory and 30-day usage modeling; absent assessments alone do not prove that no APIs exist."
+            }
+          },
+          {
+            "type": 3,
+            "name": "Subscription coverage",
+            "content": {
+              "version": "KqlItem/1.0",
+              "title": "Subscription coverage and reported API onboarding",
+              "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| union resources\n| where type in~ ('microsoft.resources/subscriptions', 'microsoft.apimanagement/service')\n| summarize Subscription=max(iff(type =~ 'microsoft.resources/subscriptions', name, '')),\n    APIMServices=countif(type =~ 'microsoft.apimanagement/service') by subscriptionId\n| where isnotempty(Subscription)\n| join kind=leftouter (\n    securityresources\n    | where (type =~ 'microsoft.security/pricings' and name =~ 'Api' and id !contains '/resourceGroups/')\n        or (type =~ 'microsoft.security/assessments' and name == '1c0ba94f-e732-43c7-bf3a-05e80f45d642')\n    | summarize PricingTier=max(iff(type =~ 'microsoft.security/pricings', tostring(properties.pricingTier), '')),\n        ConfiguredPlan=max(iff(type =~ 'microsoft.security/pricings', tostring(properties.subPlan), '')),\n        TrialRemaining=max(iff(type =~ 'microsoft.security/pricings', tostring(properties.freeTrialRemainingTime), '')),\n        AssessmentRecords=countif(type =~ 'microsoft.security/assessments'),\n        AssessedEligible=countif(type =~ 'microsoft.security/assessments' and properties.status.code in ('Healthy', 'Unhealthy')),\n        AssessedOnboarded=countif(type =~ 'microsoft.security/assessments' and properties.status.code == 'Healthy'),\n        AssessedUnprotected=countif(type =~ 'microsoft.security/assessments' and properties.status.code == 'Unhealthy'),\n        AssessedNotApplicable=countif(type =~ 'microsoft.security/assessments' and properties.status.code == 'NotApplicable') by subscriptionId\n) on subscriptionId\n| extend ReturnedAssessments=coalesce(AssessmentRecords, 0),\n    DefenderForAPIs=case(PricingTier == 'Standard', 'Enabled', PricingTier == 'Free', 'Disabled', 'Unknown - pricing resource not returned'),\n    InTrial=case(isempty(TrialRemaining), 'Unknown', TrialRemaining == 'PT0S', 'No', 'Yes')\n| project Subscription, ['Subscription ID']=subscriptionId, ['Defender for APIs']=DefenderForAPIs,\n    ['Configured plan']=ConfiguredPlan, ['In trial']=InTrial, ['APIM services']=APIMServices,\n    ['Assessment records returned']=ReturnedAssessments,\n    ['Assessed eligible APIs']=iff(ReturnedAssessments > 0, AssessedEligible, long(null)),\n    ['Assessed onboarded APIs']=iff(ReturnedAssessments > 0, AssessedOnboarded, long(null)),\n    ['Assessed unprotected APIs']=iff(ReturnedAssessments > 0, AssessedUnprotected, long(null)),\n    ['Assessed not-applicable APIs']=iff(ReturnedAssessments > 0, AssessedNotApplicable, long(null)),\n    ['Assessment evidence']=iff(ReturnedAssessments == 0,\n        'No onboarding assessment records returned - eligibility and onboarding unknown',\n        'Reported assessments only - not a complete API inventory')",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "noDataMessage": "No live results. Inspect query errors, scope and permissions; missing data is not zero.",
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "rowLimit": 1000,
+                "filter": true,
+                "formatters": [
+                  {
+                    "columnMatch": "Defender for APIs",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "colors",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Enabled",
+                          "representation": "green",
+                          "text": "Enabled"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Disabled",
+                          "representation": "gray",
+                          "text": "Disabled"
+                        },
+                        {
+                          "operator": "Default",
+                          "text": "{0}{1}"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": 1,
+      "name": "Cost availability notice",
+      "content": {
+        "style": "info",
+        "json": "**Cost recommendations are not calculated until one valid APIM service is resolved.** Choose one service in the APIM selector. If one is already selected, check read permissions and enable Show details for diagnostics. All/multiple-service selections still show subscription coverage; their traffic is not assumed to be a complete cost total.\n\nAn unset automatic detail subscription is normal for All/multiple-service scope; it is not a required user input."
+      },
+      "conditionalVisibility": {
+        "parameterName": "SingleApimReady",
+        "comparison": "isNotEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 12,
+      "name": "APIM service overview",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "name": "APIM overview explanation",
+            "content": {
+              "json": "## APIM service overview\n\n**All APIM services** lists every visible service in the selected subscription scope. You can also choose several services or one service. This overview shows service inventory and reported API onboarding assessments, not a complete child-API inventory.\n\nFor full API inventory, per-API metrics and detailed cost comparisons, clear All and select **one service**. Those calls run only when the matching service count is exactly one (including an All scope that contains only one service). Selecting multiple services does not sum or extrapolate their traffic. For subscription-wide log modeling, select one service to identify the subscription, then use the optional log comparison."
+            }
+          },
+          {
+            "type": 3,
+            "name": "Live APIM service overview",
+            "content": {
+              "version": "KqlItem/1.0",
+              "title": "APIM services in the selected scope",
+              "query": "resources\n| where type =~ 'microsoft.apimanagement/service'\n| where 'value::all' in~ ({ApimServices}) or id in~ ({ApimServices})\n| extend ServiceId=tolower(id)\n| project ServiceId, subscriptionId, ServiceName=name, ResourceGroup=resourceGroup, Region=location, Tier=tostring(sku.name)\n| join kind=leftouter (\n    securityresources\n    | where type =~ 'microsoft.security/assessments' and name == '1c0ba94f-e732-43c7-bf3a-05e80f45d642'\n    | extend TargetId=tolower(coalesce(tostring(properties.resourceDetails.Id), tostring(properties.resourceDetails.id), id))\n    | extend ServiceId=extract('^(/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft.apimanagement/service/[^/]+)', 1, TargetId)\n    | where isnotempty(ServiceId)\n    | summarize AssessedEligible=countif(properties.status.code in ('Healthy', 'Unhealthy')),\n        AssessedOnboarded=countif(properties.status.code == 'Healthy'),\n        AssessedUnprotected=countif(properties.status.code == 'Unhealthy') by ServiceId\n) on ServiceId\n| project ['APIM service']=ServiceName, ['Subscription ID']=subscriptionId, ['Resource group']=ResourceGroup,\n    ['Region']=Region, ['APIM tier']=Tier, ['Assessed eligible APIs']=AssessedEligible,\n    ['Assessed onboarded APIs']=AssessedOnboarded, ['Assessed unprotected APIs']=AssessedUnprotected,\n    ['Assessment evidence']=iff(isnull(AssessedEligible), 'Not returned - not a complete API inventory', 'Reported assessments only'),\n    ['APIM service resource ID']=ServiceId\n| order by ['Subscription ID'] asc, ['APIM service'] asc",
+              "size": 0,
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscriptions}"
+              ],
+              "noDataMessage": "No APIM services match the selected scope. Check selection and read permissions; this is not proof that no APIs exist.",
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "rowLimit": 1000,
+                "filter": true,
+                "formatters": [
+                  {
+                    "columnMatch": "APIM service resource ID",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": "Resource",
+                      "showIcon": true
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "ShowDetails",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 12,
+      "name": "Live APIM data",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "name": "Live APIM sources",
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "5ec73848-164b-d75b-c33b-97c3509ec96c",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ApimDetails",
+                  "label": "Live APIM configuration",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GET\",\"path\":\"{SelectedApim}\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2024-05-01\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "c350b89f-2ec0-707a-e3a4-7f6116207566",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ApiInventory",
+                  "label": "Live API inventory - all ARM pages",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GETARRAY\",\"path\":\"{SelectedApim}/apis\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2024-05-01\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "3aa462a1-24ad-4f20-a2ea-13f1dfc0254b",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Gateways",
+                  "label": "Registered self-hosted gateway inventory",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GETARRAY\",\"path\":\"{SelectedApim}/gateways\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2024-05-01\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "23627bfe-31bb-9ad6-0136-58390a31232e",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ApiRequests",
+                  "label": "Live 30-day Requests by ApiId",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GET\",\"path\":\"{SelectedApim}/providers/Microsoft.Insights/metrics\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-10-01\"},{\"key\":\"metricnamespace\",\"value\":\"Microsoft.ApiManagement/service\"},{\"key\":\"metricnames\",\"value\":\"Requests\"},{\"key\":\"aggregation\",\"value\":\"Total\"},{\"key\":\"interval\",\"value\":\"FULL\"},{\"key\":\"timespan\",\"value\":\"{TimeRange:startISO}/{TimeRange:endISO}\"},{\"key\":\"$filter\",\"value\":\"ApiId eq '*'\"},{\"key\":\"top\",\"value\":\"10000\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "ba67d070-0227-52df-908a-ab09b720afd3",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "AllRequests",
+                  "label": "Live 30-day service Requests total",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 12,
+                  "query": "{\"version\":\"ARMEndpoint/1.0\",\"method\":\"GET\",\"path\":\"{SelectedApim}/providers/Microsoft.Insights/metrics\",\"urlParams\":[{\"key\":\"api-version\",\"value\":\"2023-10-01\"},{\"key\":\"metricnamespace\",\"value\":\"Microsoft.ApiManagement/service\"},{\"key\":\"metricnames\",\"value\":\"Requests\"},{\"key\":\"aggregation\",\"value\":\"Total\"},{\"key\":\"interval\",\"value\":\"FULL\"},{\"key\":\"timespan\",\"value\":\"{TimeRange:startISO}/{TimeRange:endISO}\"}],\"batchDisabled\":false}"
+                },
+                {
+                  "id": "2c5505ec-681b-7f57-48dd-100dfd493498",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ServiceSupport",
+                  "label": "Verified APIM tier and region eligibility",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| where subscriptionId == '{Subscription}'\n| extend Service = dynamic({ApimDetails})\n| extend Sku = tostring(Service.sku.name), PrimaryRegion = tostring(Service.location),\n    Locations = array_concat(pack_array(Service.location), coalesce(Service.properties.additionalLocations, dynamic([])))\n| mv-expand Location = Locations limit 2000\n| extend Region = tolower(replace_regex(iff(isempty(tostring(Location.location)), tostring(Location), tostring(Location.location)), @'\\s', ''))\n| extend SupportedRegion = Region in (\n    'southeastasia', 'eastasia', 'australiaeast', 'australiasoutheast', 'australiacentral', 'australiacentral2',\n    'brazilsouth', 'brazilsoutheast', 'canadacentral', 'canadaeast', 'westeurope', 'northeurope',\n    'francecentral', 'francesouth', 'germanywestcentral', 'germanynorth', 'centralindia', 'southindia',\n    'westindia', 'italynorth', 'japaneast', 'japanwest', 'koreacentral', 'koreasouth', 'norwayeast',\n    'norwaywest', 'southafricanorth', 'southafricawest', 'swedencentral', 'swedensouth', 'switzerlandnorth',\n    'switzerlandwest', 'uaecentral', 'uaenorth', 'uksouth', 'ukwest', 'eastus', 'eastus2', 'westus',\n    'westus2', 'westus3', 'centralus', 'northcentralus', 'southcentralus', 'westcentralus', 'eastus2euap', 'centraluseuap')\n| summarize UnverifiedRegions = countif(not(SupportedRegion)), Regions = count(), Sku = take_any(Sku), PrimaryRegion = take_any(PrimaryRegion)\n| extend Support = case(Sku == 'Consumption', 'Not eligible',\n    Sku !in ('Developer', 'Basic', 'Standard', 'Premium'), 'Review',\n    Regions == 0 or UnverifiedRegions > 0, 'Review', 'Eligible')\n| project value = tostring(pack('Status', Support, 'Sku', Sku, 'PrimaryRegion', PrimaryRegion))"
+                },
+                {
+                  "id": "5e86160c-1d6c-5458-86d4-012627866ed9",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "RequestQuality",
+                  "label": "Metric completeness and reconciliation",
+                  "type": 1,
+                  "isRequired": true,
+                  "isHiddenWhenLocked": true,
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n| extend Split = dynamic({ApiRequests}), Aggregate = dynamic({AllRequests}), Gateways = dynamic({Gateways}),\n    RequestedStart = datetime({TimeRange:startISO}), RequestedEnd = datetime({TimeRange:endISO})\n| extend GatewayCount=coalesce(array_length(Gateways.value), array_length(Gateways))\n| extend Series = Split.value[0].timeseries, SeriesCount = array_length(Split.value[0].timeseries),\n    AggregateCalls = toreal(Aggregate.value[0].timeseries[0].data[0].total),\n    AggregateSeriesCount = array_length(Aggregate.value[0].timeseries),\n    AggregatePointCount = array_length(Aggregate.value[0].timeseries[0].data),\n    SplitError = tostring(Split.value[0].errorCode), AggregateError = tostring(Aggregate.value[0].errorCode),\n    MetricNamesValid = tostring(Split.value[0].name.value) == 'Requests' and tostring(Aggregate.value[0].name.value) == 'Requests',\n    SplitStart = todatetime(split(tostring(Split['timespan']), '/')[0]), SplitEnd = todatetime(split(tostring(Split['timespan']), '/')[1]),\n    AggregateStart = todatetime(split(tostring(Aggregate['timespan']), '/')[0]), AggregateEnd = todatetime(split(tostring(Aggregate['timespan']), '/')[1])\n| extend WindowValid = abs(datetime_diff('second', SplitStart, RequestedStart)) <= 1\n    and abs(datetime_diff('second', SplitEnd, RequestedEnd)) <= 1\n    and abs(datetime_diff('second', AggregateStart, RequestedStart)) <= 1\n    and abs(datetime_diff('second', AggregateEnd, RequestedEnd)) <= 1\n| mv-expand Item = iff(SeriesCount > 0, Series, pack_array(dynamic({}))) limit 2000\n| extend PointCount = array_length(Item.data), Calls = toreal(Item.data[0].total),\n    DimensionValid = array_length(Item.metadatavalues) == 1 and tostring(Item.metadatavalues[0].name.value) == 'ApiId'\n| summarize GatewayCount=take_any(GatewayCount), SplitCalls = sum(Calls), InvalidSeries = countif(PointCount != 1 or isnull(Calls) or Calls < 0 or Calls % 1 != 0 or isnull(DimensionValid) or not(DimensionValid)),\n    SeriesCount = take_any(SeriesCount), AggregateCalls = take_any(AggregateCalls),\n    AggregateSeriesCount = take_any(AggregateSeriesCount), AggregatePointCount = take_any(AggregatePointCount),\n    SplitError = take_any(SplitError), AggregateError = take_any(AggregateError),\n    MetricNamesValid = take_any(MetricNamesValid), WindowValid = take_any(WindowValid)\n| extend State = case(isnull(GatewayCount), 'Gateway inventory unavailable',\n    GatewayCount > 0, 'Managed-gateway traffic unverified - self-hosted gateways configured',\n    isnull(SeriesCount) or SeriesCount == 0, 'No data',\n    SeriesCount > 2000, 'Truncated - more than 2000 ApiId series',\n    not(MetricNamesValid) or (isnotempty(SplitError) and SplitError != 'Success') or (isnotempty(AggregateError) and AggregateError != 'Success'), 'Metric error',\n    isnull(WindowValid) or not(WindowValid), 'Unexpected time window',\n    AggregateSeriesCount != 1 or AggregatePointCount != 1 or isnull(AggregateCalls) or AggregateCalls < 0 or AggregateCalls % 1 != 0, 'Incomplete service total',\n    InvalidSeries > 0, 'Incomplete ApiId samples',\n    SplitCalls != AggregateCalls, 'ApiId total does not reconcile to service total', 'Observed')\n| project value = tostring(pack('State', State, 'AllServiceCalls', AggregateCalls, 'ApiIdSeries', SeriesCount, 'SelfHostedGateways', GatewayCount))"
+                }
+              ],
+              "style": "pills"
+            }
+          },
+          {
+            "type": 12,
+            "name": "API coverage detail",
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 1,
+                  "name": "API inventory explanation",
+                  "content": {
+                    "json": "## Optional API inventory drill-down\n\nThese records explain the selected service's eligibility, onboarding and observed traffic. They are not another billing meter. The duplicate API totals grid has been removed; the main cost summaries retain their eligible/onboarded collection counts.\n\nThe cost models still read the underlying live inventory and metrics when Show details is Off. This switch does not repair query failures or treat missing data as zero. Scope, pagination and calculation limits still apply."
+                  }
+                },
+                {
+                  "type": 3,
+                  "name": "Live API inventory",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "title": "Live API eligibility, onboarding and 30-day usage",
+                    "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n| extend Raw = dynamic({ApiInventory})\n| extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n| mv-expand Api = Items limit 2000\n| where isnotempty(tostring(Api.name))\n| extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Api.name)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n    CurrentRevision = iff(Api.properties.isCurrent == true, 1, 0)\n| summarize arg_max(CurrentRevision, Api) by ApiName\n| extend ApiId = tolower(strcat('{SelectedApim}', '/apis/', ApiName)),\n    DisplayName = tostring(Api.properties.displayName),\n    ApiType = iff(isempty(tostring(Api.properties.type)), 'http', tostring(Api.properties.type)),\n    Support = dynamic({ServiceSupport}), Quality = dynamic({RequestQuality}), RawCollections = dynamic({OnboardedCollections})\n| extend CollectionInventoryCount = coalesce(array_length(RawCollections.value), array_length(RawCollections))\n| extend Eligibility = case(tostring(Support.Status) == 'Not eligible', 'Not eligible',\n    ApiType in ('soap', 'graphql', 'websocket', 'odata', 'mcp') or Api.properties.isOnline == false, 'Not eligible',\n    tostring(Support.Status) != 'Eligible' or ApiType != 'http', 'Review', 'Eligible')\n| join kind=leftouter (\n    resourcecontainers\n    | where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n    | extend Raw = dynamic({OnboardedCollections})\n    | extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n    | mv-expand Collection = Items limit 2000\n    | where isnotempty(tostring(Collection.name))\n    | extend ServiceId = tolower(iff(isnotempty(tostring(Collection.properties.discoveredVia)), tostring(Collection.properties.discoveredVia),\n        tostring(split(tolower(tostring(Collection.id)), '/providers/microsoft.security/apicollections/')[0])))\n    | extend ApiId = strcat(ServiceId, '/apis/', tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Collection.name)), '+', '%2B')), @'(?i);rev=[^;]+$', ''))),\n        ProvisioningState = tostring(Collection.properties.provisioningState)\n    | summarize ProvisioningState = take_any(ProvisioningState), CollectionRecords = count() by ApiId\n) on ApiId\n| join kind=leftouter (\n    resources\n    | where type =~ 'microsoft.apimanagement/service' and id =~ '{SelectedApim}'\n    | extend Raw = dynamic({ApiRequests})\n    | mv-expand Series = Raw.value[0].timeseries limit 2000\n    | extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Series.metadatavalues[0].value)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n        SampleCalls = toreal(Series.data[0].total)\n    | summarize ObservedCalls = sum(SampleCalls), MissingSamples = countif(isnull(SampleCalls)) by ApiName\n) on ApiName\n| extend Onboarding = case(\n    isnull(CollectionRecords) and (isnull(CollectionInventoryCount) or CollectionInventoryCount > 2000), 'Unknown - incomplete onboarding inventory',\n    isnull(CollectionRecords), 'Not onboarded',\n    isempty(ProvisioningState), 'Unknown - provisioning state not returned',\n    ProvisioningState == 'Succeeded', 'Onboarded', strcat('Review provisioning: ', ProvisioningState)),\n    Telemetry = case(tostring(Quality.State) != 'Observed', tostring(Quality.State), isnull(ObservedCalls) or MissingSamples > 0, 'No data', 'Observed')\n| extend Requests30Days = iff(Telemetry == 'Observed', ObservedCalls, real(null))\n| project ApiId, ApiName, DisplayName, ApiType, Eligibility, Onboarding, ProvisioningState, Requests30Days, Telemetry,\n    Sku = tostring(Support.Sku), PrimaryRegion = tostring(Support.PrimaryRegion),\n    Scope = 'Managed-gateway API collections; workspace APIs and self-hosted traffic excluded'\n| project ['API resource ID'] = ApiId, ['API identifier'] = ApiName, ['API display name'] = DisplayName,\n    ['API type'] = ApiType, Eligibility, ['Onboarding configuration'] = Onboarding,\n    ['Requests in 30 days'] = Requests30Days, ['Telemetry status'] = Telemetry,\n    ['APIM tier'] = Sku, ['Primary region'] = PrimaryRegion, ['Supported scope'] = Scope",
+                    "size": 0,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "No live results. Inspect query errors, scope and permissions; missing data is not zero.",
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "rowLimit": 1000,
+                      "filter": true,
+                      "formatters": [
+                        {
+                          "columnMatch": "API resource ID",
+                          "formatter": 13,
+                          "formatOptions": {
+                            "linkTarget": "Resource",
+                            "showIcon": true
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowDetails",
+              "comparison": "isEqualTo",
+              "value": "1"
+            }
+          },
+          {
+            "type": 12,
+            "name": "Cost estimation section",
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 1,
+                  "name": "Native cost explanation",
+                  "content": {
+                    "json": "## Cost and plan recommendations\n\n**Full rollout** models all eligible APIs. **Current coverage** compares the configured plan with the best fit for today's onboarded API set. All five plans, including overages, are compared internally; the tables show only the recommendation, costs and potential savings.\n\nThese are 30-day planning models, not invoices. A Plan fit warning means the affected estimate is not calculated, and inventory counts may be partial. Missing estimates are not zero. Enable Show details to inspect the supporting API records, service metrics and diagnostics.\n\nMetric-based guidance requires a successful gateway inventory with no registered self-hosted gateways. Requests has no gateway-type dimension, so any self-hosted or unknown gateway scope withholds the recommendation. Whole-service metrics remain diagnostic only. This models current configuration and does not reconstruct historical gateway changes."
+                  }
+                },
+                {
+                  "type": 10,
+                  "name": "APIM request metrics",
+                  "content": {
+                    "chartId": "c70fed57-3ef0-0415-3349-348e17196b79",
+                    "version": "MetricsItem/2.0",
+                    "title": "Whole-service requests - diagnostic only; may include self-hosted traffic",
+                    "size": 0,
+                    "chartType": 0,
+                    "resourceType": "microsoft.apimanagement/service",
+                    "metricScope": 0,
+                    "resourceParameter": "SelectedApim",
+                    "resourceIds": [
+                      "{SelectedApim}"
+                    ],
+                    "timeContextFromParameter": "TimeRange",
+                    "timeContext": {
+                      "durationMs": 2592000000
+                    },
+                    "metrics": [
+                      {
+                        "namespace": "microsoft.apimanagement/service",
+                        "metric": "microsoft.apimanagement/service-Gateway Requests-Requests",
+                        "aggregation": 1
+                      }
+                    ],
+                    "resourceLimit": 1,
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "Name",
+                          "formatter": 13,
+                          "formatOptions": {
+                            "linkTarget": "Resource",
+                            "showIcon": true
+                          }
+                        },
+                        {
+                          "columnMatch": "microsoft.apimanagement/service-Gateway Requests-Requests",
+                          "formatter": 1,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "decimal",
+                              "maximumFractionDigits": 0
+                            }
+                          }
+                        },
+                        {
+                          "columnMatch": "microsoft.apimanagement/service-Gateway Requests-Requests Timeline",
+                          "formatter": 5
+                        },
+                        {
+                          "columnMatch": "Requests Timeline",
+                          "formatter": 5
+                        }
+                      ]
+                    }
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "ShowDetails",
+                    "comparison": "isEqualTo",
+                    "value": "1"
+                  }
+                },
+                {
+                  "type": 3,
+                  "name": "Native rollout comparison",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "title": "Cost recommendation - all eligible APIs",
+                    "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n| extend Raw = dynamic({ApiInventory})\n| extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n| mv-expand Api = Items limit 2000\n| where isnotempty(tostring(Api.name))\n| extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Api.name)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n    CurrentRevision = iff(Api.properties.isCurrent == true, 1, 0)\n| summarize arg_max(CurrentRevision, Api) by ApiName\n| extend ApiId = tolower(strcat('{SelectedApim}', '/apis/', ApiName)),\n    DisplayName = tostring(Api.properties.displayName),\n    ApiType = iff(isempty(tostring(Api.properties.type)), 'http', tostring(Api.properties.type)),\n    Support = dynamic({ServiceSupport}), Quality = dynamic({RequestQuality}), RawCollections = dynamic({OnboardedCollections})\n| extend CollectionInventoryCount = coalesce(array_length(RawCollections.value), array_length(RawCollections))\n| extend Eligibility = case(tostring(Support.Status) == 'Not eligible', 'Not eligible',\n    ApiType in ('soap', 'graphql', 'websocket', 'odata', 'mcp') or Api.properties.isOnline == false, 'Not eligible',\n    tostring(Support.Status) != 'Eligible' or ApiType != 'http', 'Review', 'Eligible')\n| join kind=leftouter (\n    resourcecontainers\n    | where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n    | extend Raw = dynamic({OnboardedCollections})\n    | extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n    | mv-expand Collection = Items limit 2000\n    | where isnotempty(tostring(Collection.name))\n    | extend ServiceId = tolower(iff(isnotempty(tostring(Collection.properties.discoveredVia)), tostring(Collection.properties.discoveredVia),\n        tostring(split(tolower(tostring(Collection.id)), '/providers/microsoft.security/apicollections/')[0])))\n    | extend ApiId = strcat(ServiceId, '/apis/', tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Collection.name)), '+', '%2B')), @'(?i);rev=[^;]+$', ''))),\n        ProvisioningState = tostring(Collection.properties.provisioningState)\n    | summarize ProvisioningState = take_any(ProvisioningState), CollectionRecords = count() by ApiId\n) on ApiId\n| join kind=leftouter (\n    resources\n    | where type =~ 'microsoft.apimanagement/service' and id =~ '{SelectedApim}'\n    | extend Raw = dynamic({ApiRequests})\n    | mv-expand Series = Raw.value[0].timeseries limit 2000\n    | extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Series.metadatavalues[0].value)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n        SampleCalls = toreal(Series.data[0].total)\n    | summarize ObservedCalls = sum(SampleCalls), MissingSamples = countif(isnull(SampleCalls)) by ApiName\n) on ApiName\n| extend Onboarding = case(\n    isnull(CollectionRecords) and (isnull(CollectionInventoryCount) or CollectionInventoryCount > 2000), 'Unknown - incomplete onboarding inventory',\n    isnull(CollectionRecords), 'Not onboarded',\n    isempty(ProvisioningState), 'Unknown - provisioning state not returned',\n    ProvisioningState == 'Succeeded', 'Onboarded', strcat('Review provisioning: ', ProvisioningState)),\n    Telemetry = case(tostring(Quality.State) != 'Observed', tostring(Quality.State), isnull(ObservedCalls) or MissingSamples > 0, 'No data', 'Observed')\n| extend Requests30Days = iff(Telemetry == 'Observed', ObservedCalls, real(null))\n| project ApiId, ApiName, DisplayName, ApiType, Eligibility, Onboarding, ProvisioningState, Requests30Days, Telemetry,\n    Sku = tostring(Support.Sku), PrimaryRegion = tostring(Support.PrimaryRegion),\n    Scope = 'Managed-gateway API collections; workspace APIs and self-hosted traffic excluded'\n| summarize DiscoveredAPIs = count(), EligibleAPIs = countif(Eligibility == 'Eligible'),\n    ReviewAPIs = countif(Eligibility == 'Review'),\n    OnboardedAPIs = countif(Onboarding == 'Onboarded'),\n    MappedCollections = countif(isnotempty(ProvisioningState)),\n    PendingCollections = countif(isnotempty(ProvisioningState) and ProvisioningState != 'Succeeded'),\n    UnsupportedOnboarded = countif(Onboarding == 'Onboarded' and Eligibility != 'Eligible'),\n    MissingEligibleUsage = countif(Eligibility == 'Eligible' and Telemetry != 'Observed'),\n    MissingOnboardedUsage = countif(Onboarding == 'Onboarded' and Telemetry != 'Observed'),\n    EligibleCalls = sumif(Requests30Days, Eligibility == 'Eligible' and Telemetry == 'Observed'),\n    OnboardedCalls = sumif(Requests30Days, Onboarding == 'Onboarded' and Telemetry == 'Observed')\n| extend Services = dynamic({Services}), APIs = dynamic({ApiInventory}),\n    Collections = dynamic({OnboardedCollections}), Pricing = dynamic({PlanDetails}), Quality = dynamic({RequestQuality})\n| extend ServiceCount = coalesce(array_length(Services.value), array_length(Services)),\n    RawApiCount = coalesce(array_length(APIs.value), array_length(APIs)),\n    CollectionCount = coalesce(array_length(Collections.value), array_length(Collections)),\n    PricingTier = tostring(Pricing.properties.pricingTier), ConfiguredPlan = tostring(Pricing.properties.subPlan)\n| extend SharedQuality = case(isnull(ServiceCount) or isnull(RawApiCount) or isnull(CollectionCount) or (RawApiCount > 0 and DiscoveredAPIs == 0), 'Unexpected inventory response',\n    ServiceCount != 1, 'Multiple or no APIM services - use the subscription log comparison',\n    RawApiCount > 2000 or CollectionCount > 2000, 'Inventory exceeds the 2000-row calculation limit',\n    tostring(Quality.State) != 'Observed', tostring(Quality.State), 'Ready')\n| extend RolloutStatus = case(SharedQuality != 'Ready', SharedQuality, ReviewAPIs > 0, 'Review API eligibility',\n    EligibleAPIs == 0, 'No eligible APIs', MissingEligibleUsage > 0, 'Eligible API traffic is missing', 'Ready'),\n    CurrentStatus = case(SharedQuality != 'Ready', SharedQuality, PricingTier != 'Standard', 'Subscription plan disabled or unknown',\n    ConfiguredPlan !in ('P1', 'P2', 'P3', 'P4', 'P5'), 'Unknown configured subplan',\n    MappedCollections != CollectionCount or PendingCollections > 0, 'Incomplete or pending onboarding inventory',\n    UnsupportedOnboarded > 0, 'Review onboarded API eligibility',\n    MissingOnboardedUsage > 0, 'Onboarded API traffic is missing', 'Ready')\n| extend Subscription = '{Subscription}',\n    Scope = iff('rollout' == 'rollout', 'All eligible APIs - selected subscription', 'Currently onboarded APIs - selected subscription'),\n    Calls = iff('rollout' == 'rollout', EligibleCalls, OnboardedCalls),\n    Status = iff('rollout' == 'rollout', RolloutStatus, CurrentStatus)\n| extend Ready = Status == 'Ready',\n    CoverageNote = iff(OnboardedAPIs == 0, 'No onboarded APIs - review coverage', 'Current configuration modeled over the full 30 days')\n| extend P1 = iff(Ready, round(200.0 + max_of(Calls - 1000000.0, 0.0) * 0.0002, 2), real(null)),\n    P2 = iff(Ready, round(700.0 + max_of(Calls - 5000000.0, 0.0) * 0.00014, 2), real(null)),\n    P3 = iff(Ready, round(5000.0 + max_of(Calls - 50000000.0, 0.0) * 0.0001, 2), real(null)),\n    P4 = iff(Ready, round(7000.0 + max_of(Calls - 100000000.0, 0.0) * 0.00007, 2), real(null)),\n    P5 = iff(Ready, round(50000.0 + max_of(Calls - 1000000000.0, 0.0) * 0.00005, 2), real(null))\n| extend MinimumModeledCost = iff(Ready, min_of(P1, P2, P3, P4, P5), real(null)),\n    ConfiguredPlanModeledCost = case(PricingTier != 'Standard', real(null), ConfiguredPlan == 'P1', P1,\n        ConfiguredPlan == 'P2', P2, ConfiguredPlan == 'P3', P3, ConfiguredPlan == 'P4', P4, ConfiguredPlan == 'P5', P5, real(null))\n| extend RecommendedPlan = case(not(Ready), '',\n    isnotnull(ConfiguredPlanModeledCost) and ConfiguredPlanModeledCost == MinimumModeledCost, ConfiguredPlan,\n    P1 == MinimumModeledCost, 'P1', P2 == MinimumModeledCost, 'P2', P3 == MinimumModeledCost, 'P3', P4 == MinimumModeledCost, 'P4', 'P5')\n| extend PotentialMonthlySavings = iff(Ready and Scope startswith 'Currently onboarded' and isnotnull(ConfiguredPlanModeledCost),\n    ConfiguredPlanModeledCost - MinimumModeledCost, real(null)),\n    PlanFit = case(not(Ready), Status, Scope !startswith 'Currently onboarded', 'Prospective rollout model',\n        OnboardedAPIs == 0, 'Enabled with no onboarded APIs - review coverage',\n        ConfiguredPlanModeledCost == MinimumModeledCost, 'Best fit for modeled traffic', strcat('Review ', RecommendedPlan, ' for modeled traffic'))\n| project Subscription, Scope, DiscoveredAPIs, EligibleAPIs, OnboardedAPIs, Calls = iff(Ready, Calls, real(null)),\n    ConfiguredPlan, RecommendedPlan, MinimumModeledCost, ConfiguredPlanModeledCost, PotentialMonthlySavings,\n    PlanFit, Status, CoverageNote, P1, P2, P3, P4, P5\n| project ['Subscription ID'] = Subscription, ['Coverage scenario'] = Scope, ['Discovered API collections'] = DiscoveredAPIs, ['Eligible API collections'] = EligibleAPIs, ['Onboarded API collections'] = OnboardedAPIs, ['Requests in 30 days'] = Calls, ['Configured plan'] = ConfiguredPlan, ['Best-fit modeled plan'] = RecommendedPlan, ['Best-fit modeled monthly cost'] = MinimumModeledCost, ['Configured-plan modeled monthly cost'] = ConfiguredPlanModeledCost, ['Potential modeled monthly savings'] = PotentialMonthlySavings, ['Plan fit'] = PlanFit, ['Data quality'] = Status, ['Scope and assumptions'] = CoverageNote, ['P1 cost'] = P1, ['P2 cost'] = P2, ['P3 cost'] = P3, ['P4 cost'] = P4, ['P5 cost'] = P5\n| project ['Subscription ID'], ['Eligible API collections'], ['Requests in 30 days'], ['Best-fit modeled plan'], ['Best-fit modeled monthly cost'], ['Plan fit']",
+                    "size": 0,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "Rollout cost not calculated: eligible API inventory or traffic is unavailable. Enable Show details to inspect the source errors. Missing estimates are not zero.",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 1,
+                      "formatters": [
+                        {
+                          "columnMatch": "^Best-fit modeled monthly cost$",
+                          "formatter": 1,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "currency",
+                              "currency": "USD",
+                              "minimumFractionDigits": 2,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "type": 3,
+                  "name": "Native current plan comparison",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "title": "Plan optimization - currently onboarded APIs",
+                    "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n| extend Raw = dynamic({ApiInventory})\n| extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n| mv-expand Api = Items limit 2000\n| where isnotempty(tostring(Api.name))\n| extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Api.name)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n    CurrentRevision = iff(Api.properties.isCurrent == true, 1, 0)\n| summarize arg_max(CurrentRevision, Api) by ApiName\n| extend ApiId = tolower(strcat('{SelectedApim}', '/apis/', ApiName)),\n    DisplayName = tostring(Api.properties.displayName),\n    ApiType = iff(isempty(tostring(Api.properties.type)), 'http', tostring(Api.properties.type)),\n    Support = dynamic({ServiceSupport}), Quality = dynamic({RequestQuality}), RawCollections = dynamic({OnboardedCollections})\n| extend CollectionInventoryCount = coalesce(array_length(RawCollections.value), array_length(RawCollections))\n| extend Eligibility = case(tostring(Support.Status) == 'Not eligible', 'Not eligible',\n    ApiType in ('soap', 'graphql', 'websocket', 'odata', 'mcp') or Api.properties.isOnline == false, 'Not eligible',\n    tostring(Support.Status) != 'Eligible' or ApiType != 'http', 'Review', 'Eligible')\n| join kind=leftouter (\n    resourcecontainers\n    | where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n    | extend Raw = dynamic({OnboardedCollections})\n    | extend Items = iff(gettype(Raw.value) == 'array', Raw.value, Raw)\n    | mv-expand Collection = Items limit 2000\n    | where isnotempty(tostring(Collection.name))\n    | extend ServiceId = tolower(iff(isnotempty(tostring(Collection.properties.discoveredVia)), tostring(Collection.properties.discoveredVia),\n        tostring(split(tolower(tostring(Collection.id)), '/providers/microsoft.security/apicollections/')[0])))\n    | extend ApiId = strcat(ServiceId, '/apis/', tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Collection.name)), '+', '%2B')), @'(?i);rev=[^;]+$', ''))),\n        ProvisioningState = tostring(Collection.properties.provisioningState)\n    | summarize ProvisioningState = take_any(ProvisioningState), CollectionRecords = count() by ApiId\n) on ApiId\n| join kind=leftouter (\n    resources\n    | where type =~ 'microsoft.apimanagement/service' and id =~ '{SelectedApim}'\n    | extend Raw = dynamic({ApiRequests})\n    | mv-expand Series = Raw.value[0].timeseries limit 2000\n    | extend ApiName = tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Series.metadatavalues[0].value)), '+', '%2B')), @'(?i);rev=[^;]+$', '')),\n        SampleCalls = toreal(Series.data[0].total)\n    | summarize ObservedCalls = sum(SampleCalls), MissingSamples = countif(isnull(SampleCalls)) by ApiName\n) on ApiName\n| extend Onboarding = case(\n    isnull(CollectionRecords) and (isnull(CollectionInventoryCount) or CollectionInventoryCount > 2000), 'Unknown - incomplete onboarding inventory',\n    isnull(CollectionRecords), 'Not onboarded',\n    isempty(ProvisioningState), 'Unknown - provisioning state not returned',\n    ProvisioningState == 'Succeeded', 'Onboarded', strcat('Review provisioning: ', ProvisioningState)),\n    Telemetry = case(tostring(Quality.State) != 'Observed', tostring(Quality.State), isnull(ObservedCalls) or MissingSamples > 0, 'No data', 'Observed')\n| extend Requests30Days = iff(Telemetry == 'Observed', ObservedCalls, real(null))\n| project ApiId, ApiName, DisplayName, ApiType, Eligibility, Onboarding, ProvisioningState, Requests30Days, Telemetry,\n    Sku = tostring(Support.Sku), PrimaryRegion = tostring(Support.PrimaryRegion),\n    Scope = 'Managed-gateway API collections; workspace APIs and self-hosted traffic excluded'\n| summarize DiscoveredAPIs = count(), EligibleAPIs = countif(Eligibility == 'Eligible'),\n    ReviewAPIs = countif(Eligibility == 'Review'),\n    OnboardedAPIs = countif(Onboarding == 'Onboarded'),\n    MappedCollections = countif(isnotempty(ProvisioningState)),\n    PendingCollections = countif(isnotempty(ProvisioningState) and ProvisioningState != 'Succeeded'),\n    UnsupportedOnboarded = countif(Onboarding == 'Onboarded' and Eligibility != 'Eligible'),\n    MissingEligibleUsage = countif(Eligibility == 'Eligible' and Telemetry != 'Observed'),\n    MissingOnboardedUsage = countif(Onboarding == 'Onboarded' and Telemetry != 'Observed'),\n    EligibleCalls = sumif(Requests30Days, Eligibility == 'Eligible' and Telemetry == 'Observed'),\n    OnboardedCalls = sumif(Requests30Days, Onboarding == 'Onboarded' and Telemetry == 'Observed')\n| extend Services = dynamic({Services}), APIs = dynamic({ApiInventory}),\n    Collections = dynamic({OnboardedCollections}), Pricing = dynamic({PlanDetails}), Quality = dynamic({RequestQuality})\n| extend ServiceCount = coalesce(array_length(Services.value), array_length(Services)),\n    RawApiCount = coalesce(array_length(APIs.value), array_length(APIs)),\n    CollectionCount = coalesce(array_length(Collections.value), array_length(Collections)),\n    PricingTier = tostring(Pricing.properties.pricingTier), ConfiguredPlan = tostring(Pricing.properties.subPlan)\n| extend SharedQuality = case(isnull(ServiceCount) or isnull(RawApiCount) or isnull(CollectionCount) or (RawApiCount > 0 and DiscoveredAPIs == 0), 'Unexpected inventory response',\n    ServiceCount != 1, 'Multiple or no APIM services - use the subscription log comparison',\n    RawApiCount > 2000 or CollectionCount > 2000, 'Inventory exceeds the 2000-row calculation limit',\n    tostring(Quality.State) != 'Observed', tostring(Quality.State), 'Ready')\n| extend RolloutStatus = case(SharedQuality != 'Ready', SharedQuality, ReviewAPIs > 0, 'Review API eligibility',\n    EligibleAPIs == 0, 'No eligible APIs', MissingEligibleUsage > 0, 'Eligible API traffic is missing', 'Ready'),\n    CurrentStatus = case(SharedQuality != 'Ready', SharedQuality, PricingTier != 'Standard', 'Subscription plan disabled or unknown',\n    ConfiguredPlan !in ('P1', 'P2', 'P3', 'P4', 'P5'), 'Unknown configured subplan',\n    MappedCollections != CollectionCount or PendingCollections > 0, 'Incomplete or pending onboarding inventory',\n    UnsupportedOnboarded > 0, 'Review onboarded API eligibility',\n    MissingOnboardedUsage > 0, 'Onboarded API traffic is missing', 'Ready')\n| extend Subscription = '{Subscription}',\n    Scope = iff('current' == 'rollout', 'All eligible APIs - selected subscription', 'Currently onboarded APIs - selected subscription'),\n    Calls = iff('current' == 'rollout', EligibleCalls, OnboardedCalls),\n    Status = iff('current' == 'rollout', RolloutStatus, CurrentStatus)\n| extend Ready = Status == 'Ready',\n    CoverageNote = iff(OnboardedAPIs == 0, 'No onboarded APIs - review coverage', 'Current configuration modeled over the full 30 days')\n| extend P1 = iff(Ready, round(200.0 + max_of(Calls - 1000000.0, 0.0) * 0.0002, 2), real(null)),\n    P2 = iff(Ready, round(700.0 + max_of(Calls - 5000000.0, 0.0) * 0.00014, 2), real(null)),\n    P3 = iff(Ready, round(5000.0 + max_of(Calls - 50000000.0, 0.0) * 0.0001, 2), real(null)),\n    P4 = iff(Ready, round(7000.0 + max_of(Calls - 100000000.0, 0.0) * 0.00007, 2), real(null)),\n    P5 = iff(Ready, round(50000.0 + max_of(Calls - 1000000000.0, 0.0) * 0.00005, 2), real(null))\n| extend MinimumModeledCost = iff(Ready, min_of(P1, P2, P3, P4, P5), real(null)),\n    ConfiguredPlanModeledCost = case(PricingTier != 'Standard', real(null), ConfiguredPlan == 'P1', P1,\n        ConfiguredPlan == 'P2', P2, ConfiguredPlan == 'P3', P3, ConfiguredPlan == 'P4', P4, ConfiguredPlan == 'P5', P5, real(null))\n| extend RecommendedPlan = case(not(Ready), '',\n    isnotnull(ConfiguredPlanModeledCost) and ConfiguredPlanModeledCost == MinimumModeledCost, ConfiguredPlan,\n    P1 == MinimumModeledCost, 'P1', P2 == MinimumModeledCost, 'P2', P3 == MinimumModeledCost, 'P3', P4 == MinimumModeledCost, 'P4', 'P5')\n| extend PotentialMonthlySavings = iff(Ready and Scope startswith 'Currently onboarded' and isnotnull(ConfiguredPlanModeledCost),\n    ConfiguredPlanModeledCost - MinimumModeledCost, real(null)),\n    PlanFit = case(not(Ready), Status, Scope !startswith 'Currently onboarded', 'Prospective rollout model',\n        OnboardedAPIs == 0, 'Enabled with no onboarded APIs - review coverage',\n        ConfiguredPlanModeledCost == MinimumModeledCost, 'Best fit for modeled traffic', strcat('Review ', RecommendedPlan, ' for modeled traffic'))\n| project Subscription, Scope, DiscoveredAPIs, EligibleAPIs, OnboardedAPIs, Calls = iff(Ready, Calls, real(null)),\n    ConfiguredPlan, RecommendedPlan, MinimumModeledCost, ConfiguredPlanModeledCost, PotentialMonthlySavings,\n    PlanFit, Status, CoverageNote, P1, P2, P3, P4, P5\n| project ['Subscription ID'] = Subscription, ['Coverage scenario'] = Scope, ['Discovered API collections'] = DiscoveredAPIs, ['Eligible API collections'] = EligibleAPIs, ['Onboarded API collections'] = OnboardedAPIs, ['Requests in 30 days'] = Calls, ['Configured plan'] = ConfiguredPlan, ['Best-fit modeled plan'] = RecommendedPlan, ['Best-fit modeled monthly cost'] = MinimumModeledCost, ['Configured-plan modeled monthly cost'] = ConfiguredPlanModeledCost, ['Potential modeled monthly savings'] = PotentialMonthlySavings, ['Plan fit'] = PlanFit, ['Data quality'] = Status, ['Scope and assumptions'] = CoverageNote, ['P1 cost'] = P1, ['P2 cost'] = P2, ['P3 cost'] = P3, ['P4 cost'] = P4, ['P5 cost'] = P5\n| project ['Subscription ID'], ['Onboarded API collections'], ['Requests in 30 days'], ['Configured plan'], ['Configured-plan modeled monthly cost'], ['Best-fit modeled plan'], ['Best-fit modeled monthly cost'], ['Potential modeled monthly savings'], ['Plan fit']",
+                    "size": 0,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "Current-plan optimization not calculated: verify onboarding, configured plan and request data. Enable Show details for diagnostics. Missing estimates are not zero.",
+                    "showExportToExcel": true,
+                    "gridSettings": {
+                      "rowLimit": 1,
+                      "formatters": [
+                        {
+                          "columnMatch": "^.*modeled monthly (cost|savings)$",
+                          "formatter": 1,
+                          "numberFormat": {
+                            "unit": 0,
+                            "options": {
+                              "style": "currency",
+                              "currency": "USD",
+                              "minimumFractionDigits": 2,
+                              "maximumFractionDigits": 2
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "type": 12,
+            "name": "Estimate data quality",
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 3,
+                  "name": "Native metrics quality",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "title": "Live source quality for the selected APIM service",
+                    "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions' and subscriptionId == '{Subscription}'\n| extend Quality=dynamic({RequestQuality}), Support=dynamic({ServiceSupport})\n| project ['Metric quality']=tostring(Quality.State), ['All service requests']=toreal(Quality.AllServiceCalls), ['ApiId series']=toint(Quality.ApiIdSeries), ['APIM support']=tostring(Support.Status), ['Tier']=tostring(Support.Sku)\n| extend ['Registered self-hosted gateways']=toint(dynamic({RequestQuality}).SelfHostedGateways)",
+                    "size": 0,
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "No live results. Inspect query errors, scope and permissions; missing data is not zero.",
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "rowLimit": 1000,
+                      "filter": true
+                    }
+                  }
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowDetails",
+              "comparison": "isEqualTo",
+              "value": "1"
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "SingleApimReady",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 9,
+      "name": "Optional subscription comparison scope",
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "3396d020-fad3-24fe-5120-5625a6e483b8",
+            "version": "KqlParameterItem/1.0",
+            "name": "Workspace",
+            "label": "Optional Log Analytics workspace - multi-APIM comparisons",
+            "type": 5,
+            "isRequired": false,
+            "value": "value::none",
+            "defaultValue": "value::none",
+            "typeSettings": {
+              "resourceTypeFilter": {
+                "microsoft.operationalinsights/workspaces": true
+              },
+              "additionalResourceOptions": [
+                "value::none"
+              ],
+              "showDefault": false
+            }
+          },
+          {
+            "id": "24ac8276-2290-4caa-a9b9-bd2cbf48ab8f",
+            "version": "KqlParameterItem/1.0",
+            "name": "LogScopeReady",
+            "label": "Log comparison scope readiness",
+            "type": 1,
+            "isRequired": false,
+            "isHiddenWhenLocked": true,
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "crossComponentResources": [
+              "{Subscriptions}"
+            ],
+            "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| summarize VisibleSubscriptions=count()\n| project value=iff(VisibleSubscriptions > 0 and '{SingleApimReady}' == '1'\n    and isnotempty(extract(@'(?i)^/subscriptions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/resourceGroups/[^/]+/providers/Microsoft\\.OperationalInsights/workspaces/[^/]+$', 0, '{Workspace}')), '1', '0')"
+          }
+        ],
+        "style": "pills"
+      }
+    },
+    {
+      "type": 12,
+      "name": "Subscription log comparison",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "name": "Log comparison explanation",
+            "content": {
+              "json": "## Subscription-wide comparison from existing gateway logs\n\nUse an existing Analytics-plan Log Analytics table with **complete, unsampled, managed-gateway-only** logging for the full 30 days. Workspace API records are excluded. The query cannot prove sampling, exclusions, ingestion transformations or historic retention; confirmation below is required. It does not configure diagnostic settings or ingest data.\n\nThe current-scope model joins the **live onboarded collection list** to per-API gateway records. Missing onboarded APIs withhold current-plan guidance. A whole-service rollout model is enabled only after you verify that **every API** in the subscription is eligible; otherwise its traffic could include unsupported APIs. Observed log identifiers are not an API inventory. Basic/Auxiliary log tables are not supported by this Analytics query."
+            }
+          },
+          {
+            "type": 9,
+            "name": "Log data quality assumptions",
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "2fbe889c-0914-5897-8408-7936801944cc",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "DiagnosticsConfirmed",
+                  "label": "Verified unsampled managed-gateway logging, no exclusions, complete 30-day retention?",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "0",
+                  "jsonData": "[{\"value\":\"0\",\"label\":\"Not verified - withhold recommendations\",\"selected\":true},{\"value\":\"1\",\"label\":\"Verified for the required API scope and 30 days\"}]"
+                },
+                {
+                  "id": "2dded7f7-c101-47b3-0370-6f302927107e",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "AllApisEligible",
+                  "label": "Full rollout only: verified that every API in every service is eligible?",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "0",
+                  "jsonData": "[{\"value\":\"0\",\"label\":\"Not verified - current-scope comparison only\",\"selected\":true},{\"value\":\"1\",\"label\":\"All APIs verified eligible - model whole-service rollout\"}]"
+                },
+                {
+                  "id": "e191614a-ff8f-332d-2746-557fb2f95580",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "LogSchema",
+                  "label": "Gateway log schema",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "Auto",
+                  "jsonData": "[{\"value\":\"Auto\",\"label\":\"Automatic - block overlapping schemas\",\"selected\":true},{\"value\":\"Resource-specific\",\"label\":\"ApiManagementGatewayLogs only\"},{\"value\":\"Legacy\",\"label\":\"AzureDiagnostics GatewayLogs only\"}]"
+                }
+              ],
+              "style": "pills"
+            }
+          },
+          {
+            "type": 3,
+            "name": "Subscription log plan comparison",
+            "content": {
+              "version": "KqlItem/1.0",
+              "title": "Subscription log model - cost and plan guidance",
+              "query": "let WindowStart = datetime({TimeRange:startISO});\nlet WindowEnd = datetime({TimeRange:endISO});\nlet RawServices = dynamic({Services});\nlet RawCollections = dynamic({OnboardedCollections});\nlet Pricing = dynamic({PlanDetails});\nlet PricingTier = tostring(Pricing.properties.pricingTier);\nlet ConfiguredPlan = tostring(Pricing.properties.subPlan);\nlet ServiceInventory = print Raw = RawServices\n| extend Pages = iff(gettype(Raw) == 'array', Raw, pack_array(Raw))\n| mv-expand Page = Pages\n| extend Items = iff(gettype(Page.value) == 'array', Page.value, pack_array(Page))\n| mv-expand Service = Items\n| where isnotempty(tostring(Service.id))\n| extend ServiceId = tolower(tostring(Service.id)), Sku = tostring(Service.sku.name),\n    Locations = array_concat(pack_array(Service.location), coalesce(Service.properties.additionalLocations, dynamic([])))\n| mv-expand Location = Locations\n| extend Region = tolower(replace_regex(iff(isempty(tostring(Location.location)), tostring(Location), tostring(Location.location)), @'\\s', ''))\n| summarize UnverifiedRegions = countif(Region !in (\n    'southeastasia', 'eastasia', 'australiaeast', 'australiasoutheast', 'australiacentral', 'australiacentral2',\n    'brazilsouth', 'brazilsoutheast', 'canadacentral', 'canadaeast', 'westeurope', 'northeurope',\n    'francecentral', 'francesouth', 'germanywestcentral', 'germanynorth', 'centralindia', 'southindia',\n    'westindia', 'italynorth', 'japaneast', 'japanwest', 'koreacentral', 'koreasouth', 'norwayeast',\n    'norwaywest', 'southafricanorth', 'southafricawest', 'swedencentral', 'swedensouth', 'switzerlandnorth',\n    'switzerlandwest', 'uaecentral', 'uaenorth', 'uksouth', 'ukwest', 'eastus', 'eastus2', 'westus',\n    'westus2', 'westus3', 'centralus', 'northcentralus', 'southcentralus', 'westcentralus', 'eastus2euap', 'centraluseuap')) by ServiceId, Sku\n| extend Supported = Sku in ('Developer', 'Basic', 'Standard', 'Premium') and UnverifiedRegions == 0;\nlet ServiceIds = toscalar(ServiceInventory | summarize make_set(ServiceId, 1048576));\nlet ServiceCount = toscalar(ServiceInventory | count);\nlet UnsupportedServices = toscalar(ServiceInventory | summarize countif(not(Supported)));\nlet Collections = print Raw = RawCollections\n| extend Pages = iff(gettype(Raw) == 'array', Raw, pack_array(Raw))\n| mv-expand Page = Pages\n| extend Items = iff(gettype(Page.value) == 'array', Page.value, pack_array(Page))\n| mv-expand Collection = Items\n| where isnotempty(tostring(Collection.name))\n| extend ServiceId = tolower(iff(isnotempty(tostring(Collection.properties.discoveredVia)), tostring(Collection.properties.discoveredVia),\n    tostring(split(tolower(tostring(Collection.id)), '/providers/microsoft.security/apicollections/')[0])))\n| extend ApiId = strcat(ServiceId, '/apis/', tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(Collection.name)), '+', '%2B')), @'(?i);rev=[^;]+$', ''))),\n    ProvisioningState = tostring(Collection.properties.provisioningState)\n| summarize ProvisioningState = take_any(ProvisioningState) by ServiceId, ApiId\n| join kind=leftouter ServiceInventory on ServiceId;\nlet CollectionCount = toscalar(Collections | count);\nlet RawCollectionCount = coalesce(array_length(RawCollections.value), array_length(RawCollections));\nlet InvalidCollections = toscalar(Collections | summarize countif(ProvisioningState != 'Succeeded' or isnull(Supported) or not(Supported)));\nlet Members = Collections | where ProvisioningState == 'Succeeded' | project ApiId;\nlet OnboardedCount = toscalar(Members | count);\nlet GatewayRecords = union isfuzzy=true\n    (ApiManagementGatewayLogs\n        | where TimeGenerated >= WindowStart and TimeGenerated < WindowEnd\n        | project TimeGenerated, ServiceId = tolower(_ResourceId), ApiName = tostring(ApiId),\n            ApiWorkspace = tostring(column_ifexists('WorkspaceId', '')), LogSchema = 'Resource-specific'),\n    (AzureDiagnostics\n        | where TimeGenerated >= WindowStart and TimeGenerated < WindowEnd\n        | where ResourceProvider =~ 'MICROSOFT.APIMANAGEMENT' and Category == 'GatewayLogs'\n        | project TimeGenerated, ServiceId = tolower(_ResourceId), ApiName = tostring(column_ifexists('apiId_s', '')),\n            ApiWorkspace = tostring(column_ifexists('workspaceId_s', '')), LogSchema = 'Legacy')\n| where ServiceId in (ServiceIds) and isempty(ApiWorkspace)\n| where '{LogSchema}' == 'Auto' or LogSchema == '{LogSchema}';\nlet SeenServices = toscalar(GatewayRecords | summarize make_set(ServiceId, 1048576));\nlet MissingServices = array_length(set_difference(ServiceIds, SeenServices));\nlet DuplicateSchemaServices = toscalar(GatewayRecords\n    | summarize Schemas = make_set(LogSchema) by ServiceId\n    | summarize countif(array_length(Schemas) > 1));\nlet Observed = GatewayRecords\n| where isnotempty(ApiName) and ApiName !in~ ('None', 'null')\n| extend ApiId = strcat(ServiceId, '/apis/', tolower(replace_regex(url_decode(replace_string(extract('([^/]+)$', 1, tostring(ApiName)), '+', '%2B')), @'(?i);rev=[^;]+$', '')))\n| summarize Requests = count() by ApiId;\nlet MissingMembers = toscalar(Members | join kind=leftanti Observed on ApiId | count);\nlet CurrentCalls = toscalar(Members | join kind=inner Observed on ApiId | summarize sum(Requests));\nlet WholeServiceCalls = toscalar(Observed | summarize sum(Requests));\nlet ObservedAPIs = toscalar(Observed | count);\nlet SharedStatus = case('{DiagnosticsConfirmed}' != '1', 'Confirm unsampled, complete, managed-gateway logging for the full 30 days',\n    ServiceCount == 0, 'No APIM service inventory',\n    DuplicateSchemaServices > 0, 'Potential duplicate logging - select one log schema',\n    'Ready');\nlet RolloutStatus = case(SharedStatus != 'Ready', SharedStatus,\n    UnsupportedServices > 0, 'Review APIM tier or region eligibility',\n    MissingServices > 0, 'Some APIM services have no logs in this workspace',\n    '{AllApisEligible}' != '1', 'Verify every API in the subscription is eligible before using whole-service rollout traffic',\n    'Ready');\nlet CurrentStatus = case(SharedStatus != 'Ready', SharedStatus,\n    PricingTier != 'Standard', 'Subscription plan disabled or unknown',\n    ConfiguredPlan !in ('P1', 'P2', 'P3', 'P4', 'P5'), 'Unknown configured subplan',\n    isnull(RawCollectionCount) or RawCollectionCount != CollectionCount or InvalidCollections > 0, 'Incomplete or pending onboarding inventory',\n    MissingMembers > 0, 'Some onboarded APIs have no log records - zero traffic is not assumed',\n    'Ready');\nprint Subscription = '{Subscription}', DiscoveredAPIs = ObservedAPIs, EligibleAPIs = long(null), OnboardedAPIs = OnboardedCount,\n    Scenarios = pack_array(\n        pack('Scope', 'All eligible APIs - eligibility-confirmed whole-service log model', 'Calls', WholeServiceCalls, 'Status', RolloutStatus),\n        pack('Scope', 'Currently onboarded APIs - subscription log model', 'Calls', CurrentCalls, 'Status', CurrentStatus))\n| mv-expand Scenario = Scenarios\n| extend Scope = tostring(Scenario.Scope), Calls = toreal(Scenario.Calls), Status = tostring(Scenario.Status),\n    Ready = tostring(Scenario.Status) == 'Ready',\n    CoverageNote = strcat('Logged APIs are observed, not an inventory. Missing services: ', MissingServices,\n        '; onboarded APIs without records: ', MissingMembers, '. Sampling, exclusions and historical onboarding are not reconstructed.')\n| extend P1 = iff(Ready, round(200.0 + max_of(Calls - 1000000.0, 0.0) * 0.0002, 2), real(null)),\n    P2 = iff(Ready, round(700.0 + max_of(Calls - 5000000.0, 0.0) * 0.00014, 2), real(null)),\n    P3 = iff(Ready, round(5000.0 + max_of(Calls - 50000000.0, 0.0) * 0.0001, 2), real(null)),\n    P4 = iff(Ready, round(7000.0 + max_of(Calls - 100000000.0, 0.0) * 0.00007, 2), real(null)),\n    P5 = iff(Ready, round(50000.0 + max_of(Calls - 1000000000.0, 0.0) * 0.00005, 2), real(null))\n| extend MinimumModeledCost = iff(Ready, min_of(P1, P2, P3, P4, P5), real(null)),\n    ConfiguredPlanModeledCost = case(PricingTier != 'Standard', real(null), ConfiguredPlan == 'P1', P1,\n        ConfiguredPlan == 'P2', P2, ConfiguredPlan == 'P3', P3, ConfiguredPlan == 'P4', P4, ConfiguredPlan == 'P5', P5, real(null))\n| extend RecommendedPlan = case(not(Ready), '',\n    isnotnull(ConfiguredPlanModeledCost) and ConfiguredPlanModeledCost == MinimumModeledCost, ConfiguredPlan,\n    P1 == MinimumModeledCost, 'P1', P2 == MinimumModeledCost, 'P2', P3 == MinimumModeledCost, 'P3', P4 == MinimumModeledCost, 'P4', 'P5')\n| extend PotentialMonthlySavings = iff(Ready and Scope startswith 'Currently onboarded' and isnotnull(ConfiguredPlanModeledCost),\n    ConfiguredPlanModeledCost - MinimumModeledCost, real(null)),\n    PlanFit = case(not(Ready), Status, Scope !startswith 'Currently onboarded', 'Prospective rollout model',\n        OnboardedAPIs == 0, 'Enabled with no onboarded APIs - review coverage',\n        ConfiguredPlanModeledCost == MinimumModeledCost, 'Best fit for modeled traffic', strcat('Review ', RecommendedPlan, ' for modeled traffic'))\n| project Subscription, Scope, DiscoveredAPIs, EligibleAPIs, OnboardedAPIs, Calls = iff(Ready, Calls, real(null)),\n    ConfiguredPlan, RecommendedPlan, MinimumModeledCost, ConfiguredPlanModeledCost, PotentialMonthlySavings,\n    PlanFit, Status, CoverageNote, P1, P2, P3, P4, P5\n| project ['Subscription ID'] = Subscription, ['Coverage scenario'] = Scope, ['Observed API identifiers - not inventory'] = DiscoveredAPIs, ['Onboarded API collections'] = OnboardedAPIs, ['Requests in 30 days'] = Calls, ['Configured plan'] = ConfiguredPlan, ['Best-fit modeled plan'] = RecommendedPlan, ['Best-fit modeled monthly cost'] = MinimumModeledCost, ['Configured-plan modeled monthly cost'] = ConfiguredPlanModeledCost, ['Potential modeled monthly savings'] = PotentialMonthlySavings, ['Plan fit'] = PlanFit, ['Data quality'] = Status, ['Scope and assumptions'] = CoverageNote, ['P1 cost'] = P1, ['P2 cost'] = P2, ['P3 cost'] = P3, ['P4 cost'] = P4, ['P5 cost'] = P5\n| project ['Subscription ID'], ['Coverage scenario'], ['Requests in 30 days'], ['Configured plan'], ['Configured-plan modeled monthly cost'], ['Best-fit modeled plan'], ['Best-fit modeled monthly cost'], ['Potential modeled monthly savings'], ['Plan fit']",
+              "size": 0,
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{Workspace}"
+              ],
+              "timeContextFromParameter": "TimeRange",
+              "noDataMessage": "Log-based recommendations not calculated: verify workspace access and complete unsampled managed-gateway logs. Source failures are not zero usage.",
+              "showExportToExcel": true,
+              "gridSettings": {
+                "rowLimit": 2,
+                "formatters": [
+                  {
+                    "columnMatch": "^.*modeled monthly (cost|savings)$",
+                    "formatter": 1,
+                    "numberFormat": {
+                      "unit": 0,
+                      "options": {
+                        "style": "currency",
+                        "currency": "USD",
+                        "minimumFractionDigits": 2,
+                        "maximumFractionDigits": 2
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "LogScopeReady",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 12,
+      "name": "Cost estimation notes",
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "name": "Live data sources",
+            "content": {
+              "json": "## Native data sources\n\n| Data | Live source |\n| --- | --- |\n| Subscription enablement and reported onboarding | Azure Resource Graph |\n| Full selected-service API inventory and APIM configuration | ARM REST GET / GETARRAY |\n| Onboarded collections and configured P1-P5 plan | ARM REST GET / GETARRAY |\n| Last-30-day per-API and service call totals | Azure Monitor Metrics REST: Requests, Total, FULL interval |\n| Optional multi-service subscription comparison | Existing Log Analytics gateway logs |\n\n**No PowerShell is run by or needed for this workbook.** ARM authentication uses your signed-in portal identity, not an embedded token. GETARRAY follows ARM nextLink pagination. Read failures are not converted into Disabled or zero.\n\nResource Graph expansion is capped at 2,000 rows per array, and the inventory grid displays at most 1,000 rows. The metric query asks for 10,000 series but the calculation deliberately fails closed above its 2,000-row expansion capacity. Scope an APIM service and review counts/quality rather than treating a truncated view as a complete fleet inventory.\n\nMissing series and absent API log records are not assumed idle. Calendar billing, historical configuration, recent/deleted APIs, sampling and seasonality can differ from the current-configuration model. Log confirmations are stated assumptions, not an automatic audit. Never treat a displayed model as actual invoice reconciliation.\n\n**All subscriptions** applies to the per-subscription coverage table and APIM discovery. API details, ARM reads, metrics and the optional log comparison use only the selected APIM service's subscription. No ARM URL receives an All marker or a subscription list.\n\n**All APIM services** enables the service overview. Per-service ARM/Metrics requests and the optional log model are deferred unless the scope resolves to exactly one APIM service. Resource Graph assessment counts are not a full API inventory or a measured traffic total.\n\nOnboarding inventory truncation preserves Unknown for unmatched APIs. URI-decoded revision keys are shared across inventory, metrics and logs. Registered self-hosted gateways or unreadable gateway inventory prevent metric-based cost guidance. Current configuration, not historical gateway state, defines this planning assumption."
+            }
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "ShowDetails",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 1,
+      "name": "Accuracy and pricing",
+      "content": {
+        "json": "### Cost of Microsoft Defender for APIs\n\n| Plan | Monthly reference fee (USD) | Included calls | Overage per call (USD) |\n| --- | ---: | ---: | ---: |\n| P1 | 200 | 1,000,000 | 0.00020 |\n| P2 | 700 | 5,000,000 | 0.00014 |\n| P3 | 5,000 | 50,000,000 | 0.00010 |\n| P4 | 7,000 | 100,000,000 | 0.00007 |\n| P5 | 50,000 | 1,000,000,000 | 0.00005 |\n\n**Reference pricing verified 2026-10-29.** Monthly reference fees approximate 730-hour public rates. Calendar-month entitlements, hourly billing, trials and agreements can differ. The least-cost plan includes base fee **plus overage**. Check [current pricing](https://azure.microsoft.com/pricing/details/defender-for-cloud/).\n\nRead-only live workbook: no PowerShell, uploaded snapshots or extra ingestion. Importing it does not enable a paid plan or onboard APIs. **Enabled is not the same as onboarded.** Missing data means **not calculated**, never zero.",
+        "style": "info"
+      },
+      "conditionalVisibility": {
+        "parameterName": "ShowDetails",
+        "comparison": "isEqualTo",
+        "value": "1"
+      }
+    },
+    {
+      "type": 1,
+      "name": "References",
+      "content": {
+        "json": "[Workbook instructions](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20APIs%20Cost%20Estimation) | [Defender for APIs support](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-apis-prepare) | [Plan selection and billing](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-apis-deploy) | [Workbook live data sources](https://learn.microsoft.com/azure/azure-monitor/visualize/workbooks-data-sources)"
+      }
+    }
+  ],
+  "isLocked": false,
+  "fromTemplateId": "DefenderForApisCostEstimation",
+  "fallbackResourceIds": [
+    "azure security center"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
