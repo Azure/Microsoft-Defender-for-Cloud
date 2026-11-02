@@ -1,6 +1,9 @@
 const fs = require('fs');
 const { URL } = require('url');
+const crypto = require('crypto');
 const { extractWorkbookSource } = require('./workbookSource');
+const interactionHelpers = require('./workbookInteractions');
+const { normalizeCellAssertions, planInteractionScenarios, runInteractionScenarios, pendingInteractionReview } = interactionHelpers;
 
 function isAzurePortalUrl(value) {
     return /^https:\/\/portal\.azure\.(com|us|cn)(\/|$)/.test(value);
@@ -124,7 +127,8 @@ function createValidationPlan(workbookSource, options = {}) {
     if (!workbook || workbook.version !== 'Notebook/1.0' || !Array.isArray(workbook.items)) {
         throw new Error('Expected a Notebook/1.0 workbook with an items array.');
     }
-    checkObject(options, 'Browser validation options', ['tabs', 'panels', 'deferred', 'timeout', 'screenshots', 'tenant']);
+    checkObject(options, 'Browser validation options',
+        ['tabs', 'panels', 'deferred', 'timeout', 'screenshots', 'tenant', 'scenarios', 'instrumentation', 'evidenceMode']);
     const timeout = options.timeout === undefined ? 30000 : options.timeout;
     if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 120000) {
         throw new Error('timeout must be an integer between 1 and 120000 milliseconds.');
@@ -229,12 +233,16 @@ function createValidationPlan(workbookSource, options = {}) {
         if (columns && !columns.length) throw new Error('columns must contain at least one label.');
         const allowTruncated = check.allowTruncated === undefined ? false : check.allowTruncated;
         if (typeof allowTruncated !== 'boolean') throw new Error('allowTruncated must be a boolean.');
-        return { tab, heading, minRows: check.minRows, maxRows: check.maxRows, columns, allowTruncated };
+        const cells = normalizeCellAssertions(check.cells);
+        return { tab, heading, minRows: check.minRows, maxRows: check.maxRows, columns, allowTruncated, cells };
     }
-    const panelKeys = ['tab', 'heading', 'minRows', 'maxRows', 'columns', 'allowTruncated'];
+    const panelKeys = ['tab', 'heading', 'minRows', 'maxRows', 'columns', 'allowTruncated', 'cells'];
     const requestedPanels = options.panels === undefined ? [] : options.panels;
     if (!Array.isArray(requestedPanels)) throw new Error('panels must be an array.');
     const panels = requestedPanels.map(check => panelCheck(check, 'Panel check', panelKeys));
+    for (const panel of panels) {
+        if (panel.cells.some(cell => typeof cell.equals !== 'string')) throw new Error('Captured-cell references require an interaction scenario.');
+    }
     if (new Set(panels.map(check => JSON.stringify([check.tab, check.heading]))).size !== panels.length) {
         throw new Error('panels must have unique tab and heading pairs.');
     }
@@ -244,6 +252,7 @@ function createValidationPlan(workbookSource, options = {}) {
     }
     const deferred = requested.map(check => {
         const panel = panelCheck(check, 'Deferred-content check', [...panelKeys, 'trigger', 'hideTriggerAfterLoad']);
+        if (panel.cells.some(cell => typeof cell.equals !== 'string')) throw new Error('Captured-cell references require an interaction scenario.');
         const trigger = label(check.trigger, 'trigger');
         const hideTriggerAfterLoad = check.hideTriggerAfterLoad === undefined ? false : check.hideTriggerAfterLoad;
         if (typeof hideTriggerAfterLoad !== 'boolean') {
@@ -276,8 +285,9 @@ function createValidationPlan(workbookSource, options = {}) {
         }
         groups.get(key).checks.push(check);
     }
-    return { source, itemCount, tabs, panels, deferred, deferredGroups: Array.from(groups.values()),
-        sourceDiagnostics, timeout, screenshots, tenant };
+    const interactions = planInteractionScenarios(workbook, options, tabs, panelCheck);
+    return { source, importSource: interactions.importSource || source, itemCount, tabs, panels, deferred,
+        deferredGroups: Array.from(groups.values()), interactions, sourceDiagnostics, timeout, screenshots, tenant };
 }
 
 function markScreenshotMasks(body, settings) {
@@ -460,11 +470,70 @@ function restoreScreenshotIsolation(iframe, marker) {
     state.restore();
 }
 
+function bindCaptureDocument(body, marker) {
+    const document = body.ownerDocument;
+    if (!body.isConnected || document.body !== body || document.defaultView?.document !== document ||
+        document.__workbookValidationCapture) {
+        throw new Error('Cannot bind the active workbook screenshot document.');
+    }
+    document.__workbookValidationCapture = { marker, body, root: document.documentElement };
+}
+
+function verifyCaptureDocument(body, settings) {
+    const document = body.ownerDocument;
+    const state = document.__workbookValidationCapture;
+    if (!state || state.marker !== settings.marker || state.body !== body || state.root !== document.documentElement ||
+        !body.isConnected || document.body !== body || document.defaultView?.document !== document) {
+        throw new Error('The inner workbook document changed during screenshot capture.');
+    }
+    if (!settings.masked) return;
+    const styles = document.querySelectorAll(`[data-workbook-validation-style="${settings.marker}"]`);
+    if (body.getAttribute('data-workbook-validation-capture') !== settings.marker || styles.length !== 1 ||
+        styles[0].textContent !== settings.css ||
+        (body.getAttribute('data-workbook-validation-mask') !== settings.marker &&
+            !body.querySelector(`[data-workbook-validation-mask="${settings.marker}"]`))) {
+        throw new Error('The bound workbook document lost its screenshot redaction state.');
+    }
+    const probe = document.createElement('span');
+    probe.textContent = 'Screenshot verification probe';
+    if (settings.redaction !== 'auto') probe.setAttribute('data-workbook-validation-mask', settings.marker);
+    body.append(probe);
+    try {
+        const computed = document.defaultView.getComputedStyle(probe);
+        if (computed.color !== 'rgba(0, 0, 0, 0)' ||
+            computed.getPropertyValue('-webkit-text-fill-color') !== 'rgba(0, 0, 0, 0)') {
+            throw new Error('The bound workbook document is no longer redacted.');
+        }
+    } finally {
+        probe.remove();
+    }
+}
+
+function clearCaptureDocument(body, marker) {
+    const document = body.ownerDocument;
+    const state = document.__workbookValidationCapture;
+    if (!state || state.marker !== marker || state.body !== body) {
+        throw new Error('Cannot clean an unknown workbook capture document.');
+    }
+    for (const element of body.querySelectorAll(`[data-workbook-validation-mask="${marker}"]`)) {
+        element.removeAttribute('data-workbook-validation-mask');
+    }
+    for (const element of body.querySelectorAll(`[data-workbook-validation-label="${marker}"]`)) {
+        element.removeAttribute('data-workbook-validation-label');
+    }
+    body.removeAttribute('data-workbook-validation-mask');
+    body.removeAttribute('data-workbook-validation-label');
+    body.removeAttribute('data-workbook-validation-capture');
+    for (const style of document.querySelectorAll(`[data-workbook-validation-style="${marker}"]`)) style.remove();
+    delete document.__workbookValidationCapture;
+}
+
 async function captureWorkbookImage(page, target, settings, allowedLabels, index, timeout) {
     if (!Number.isSafeInteger(timeout) || timeout < 1 || timeout > 120000) throw new Error('Invalid screenshot operation timeout.');
     const outer = page.locator('iframe[name="Workbooks.ReactView"]');
     if (await outer.count() !== 1) throw new Error('Expected one workbook frame for screenshot isolation.');
-    const body = outer.contentFrame().locator('body');
+    const outerHandle = await outer.elementHandle();
+    if (!outerHandle) throw new Error('The workbook screenshot frame disappeared.');
     const marker = `capture-${Date.now().toString(36)}-${index}-${Math.random().toString(36).slice(2)}`;
     const file = `${marker}.png`;
     const separator = settings.directory.includes('\\') ? '\\' : '/';
@@ -472,50 +541,51 @@ async function captureWorkbookImage(page, target, settings, allowedLabels, index
     const masked = settings.redaction !== 'none';
     let maskedElements = 0;
     let isolated = false;
+    let body;
+    let bound = false;
     try {
-        if (masked) {
-            maskedElements = await body.evaluate(markScreenshotMasks, {
-                marker, allowedLabels, maskSelectors: settings.maskSelectors, redaction: settings.redaction
-            });
-            if (!maskedElements) throw new Error('No screenshot masks were applied; refusing to capture.');
-            const css = screenshotRedactionStyle(marker, settings.redaction);
-            await body.evaluate(applyScreenshotRedaction, { marker, css, redaction: settings.redaction });
-        }
-        await outer.evaluate(isolateScreenshotFrame, marker);
-        isolated = true;
-        await outer.evaluate(verifyScreenshotIsolation, marker);
-        await target.screenshot({
-            path,
-            type: 'png',
-            scale: 'css',
-            animations: 'disabled',
-            caret: 'hide',
-            timeout
-        });
-        await outer.evaluate(verifyScreenshotIsolation, marker);
-    } finally {
         try {
+            const frame = await outerHandle.contentFrame();
+            if (!frame) throw new Error('The workbook screenshot frame has no active document.');
+            body = await frame.locator('body').elementHandle();
+            if (!body) throw new Error('The workbook screenshot document disappeared.');
+            await body.evaluate(bindCaptureDocument, marker);
+            bound = true;
+            const css = masked ? screenshotRedactionStyle(marker, settings.redaction) : '';
             if (masked) {
-                await body.evaluate((element, marker) => {
-                    for (const masked of element.querySelectorAll(`[data-workbook-validation-mask="${marker}"]`)) {
-                        masked.removeAttribute('data-workbook-validation-mask');
-                    }
-                    for (const label of element.querySelectorAll(`[data-workbook-validation-label="${marker}"]`)) {
-                        label.removeAttribute('data-workbook-validation-label');
-                    }
-                    element.removeAttribute('data-workbook-validation-mask');
-                    element.removeAttribute('data-workbook-validation-label');
-                    element.removeAttribute('data-workbook-validation-capture');
-                    for (const style of element.ownerDocument.querySelectorAll(`[data-workbook-validation-style="${marker}"]`)) {
-                        style.remove();
-                    }
-                }, marker);
+                maskedElements = await body.evaluate(markScreenshotMasks, {
+                    marker, allowedLabels, maskSelectors: settings.maskSelectors, redaction: settings.redaction
+                });
+                if (!maskedElements) throw new Error('No screenshot masks were applied; refusing to capture.');
+                await body.evaluate(applyScreenshotRedaction, { marker, css, redaction: settings.redaction });
             }
+            await outerHandle.evaluate(isolateScreenshotFrame, marker);
+            isolated = true;
+            const verification = { marker, masked, css, redaction: settings.redaction };
+            await outerHandle.evaluate(verifyScreenshotIsolation, marker);
+            await body.evaluate(verifyCaptureDocument, verification);
+            await target.screenshot({ path, type: 'png', scale: 'css', animations: 'disabled', caret: 'hide', timeout });
+            await body.evaluate(verifyCaptureDocument, verification);
+            await outerHandle.evaluate(verifyScreenshotIsolation, marker);
         } finally {
-            if (isolated) await outer.evaluate(restoreScreenshotIsolation, marker);
+            try {
+                try {
+                    if (bound) await body.evaluate(clearCaptureDocument, marker);
+                } finally {
+                    if (isolated) await outerHandle.evaluate(restoreScreenshotIsolation, marker);
+                }
+            } finally {
+                try {
+                    if (body) await body.dispose();
+                } finally {
+                    await outerHandle.dispose();
+                }
+            }
         }
+    } catch (error) {
+        throw new Error(`${error.message} Discard local image ${file} if written; do not publish or reuse a failed capture.`, { cause: error });
     }
-    return { file, maskedElements, parentIsolated: true, redaction: settings.redaction,
+    return { file, maskedElements, parentIsolated: true, documentBound: true, redaction: settings.redaction,
         reviewRequired: true, publicationApproved: false };
 }
 
@@ -614,7 +684,28 @@ function waitForPanelReady(element, settings) {
                 finish(new Error('The requested panel contains multiple visible grids.'));
                 return;
             }
-            if (!busy && (!settings.requireGrid || grids.length === 1)) {
+            let cellsMatch = true;
+            if (settings.cells?.length && grids.length === 1) {
+                const normalize = value => (value || '').replace(/^[\uE000-\uF8FF\s]+/, '').replace(/\s+/g, ' ').trim();
+                const headers = Array.from(grids[0].querySelectorAll('[role="columnheader"]'), header => normalize(header.textContent));
+                const rows = Array.from(grids[0].querySelectorAll('[role="row"]'))
+                    .filter(row => visible(row) && row.querySelector('[role="gridcell"]'));
+                for (const check of settings.cells) {
+                    const indexes = headers.flatMap((header, index) => header === check.column ? [index] : []);
+                    const row = rows[check.row];
+                    const cells = row ? Array.from(row.querySelectorAll('[role="gridcell"]')) : [];
+                    let expected;
+                    if (typeof check.equals === 'string') expected = check.equals;
+                    else {
+                        const state = document.__workbookValidationInteractions;
+                        if (!state) throw new Error('Captured-cell observations are unavailable.');
+                        expected = state.resolve(check.equals);
+                    }
+                    if (indexes.length !== 1 || cells.length !== headers.length ||
+                        normalize(cells[indexes[0]]?.textContent) !== expected) cellsMatch = false;
+                }
+            }
+            if (!busy && cellsMatch && (!settings.requireGrid || grids.length === 1)) {
                 if (stableSince === undefined) stableSince = Date.now();
                 if (Date.now() - stableSince >= 250) {
                     finish(undefined, { settled: true, truncation });
@@ -639,8 +730,8 @@ async function validatePanelContract(frame, check, timeout) {
     if (await heading.count() !== 1) throw new Error('The requested panel heading is ambiguous.');
     const panel = heading.locator('xpath=ancestor::div[contains(@class,"styleWrapper-maximized")][1]');
     if (await panel.count() !== 1) throw new Error('Cannot locate the requested workbook panel.');
-    const requiresGrid = check.minRows !== undefined || check.maxRows !== undefined || check.columns !== undefined;
-    const ready = await panel.evaluate(waitForPanelReady, { timeout, requireGrid: requiresGrid });
+    const requiresGrid = check.minRows !== undefined || check.maxRows !== undefined || check.columns !== undefined || Boolean(check.cells?.length);
+    const ready = await panel.evaluate(waitForPanelReady, { timeout, requireGrid: requiresGrid, cells: check.cells || [] });
     if (ready.truncation && !check.allowTruncated) {
         throw new Error('The requested panel returned truncated results. Narrow the scope or explicitly allowTruncated.');
     }
@@ -659,6 +750,7 @@ async function validatePanelContract(frame, check, timeout) {
             throw new Error(`"${check.heading}" column labels differ from the requested contract.`);
         }
         result.grid = summary;
+        if (check.cells?.length) result.cellAssertions = check.cells.length;
     }
     return result;
 }
@@ -678,25 +770,46 @@ async function resolveParameterTrigger(frame, group, timeout) {
     return trigger;
 }
 
-async function activateWorkbookControl(locator, timeout) {
+async function activateWorkbookControl(locator, timeout, key = 'Enter') {
     await locator.waitFor({ state: 'visible', timeout });
     if (!await locator.isEnabled({ timeout })) {
         throw new Error('A requested workbook control is disabled; refusing to activate it.');
     }
     await locator.focus({ timeout });
-    await locator.press('Enter', { timeout });
+    await locator.press(key, { timeout });
 }
 
 async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
     const plan = createValidationPlan(workbookSource, options);
+    const progress = { phase: 'tenant-verification' };
+    try {
+        return await executeWorkbookValidation(page, plan, progress);
+    } catch (error) {
+        if (!error.report) {
+            error.report = {
+                status: 'blocked', phase: progress.phase,
+                sourceSha256: progress.sourceSha256, importedSourceSha256: progress.importedSourceSha256,
+                evidenceMode: plan.interactions.evidenceMode, workbookSaved: false,
+                instrumentation: { enabled: plan.interactions.scenarios.length > 0, productionSourceModified: false },
+                needsCloserLook: pendingInteractionReview(plan, 'validation-interrupted'),
+                discardLocalCaptures: Boolean(progress.captureFailed)
+            };
+        }
+        throw error;
+    }
+}
+
+async function executeWorkbookValidation(page, plan, progress) {
     await verifySelectedTenant(page, plan.tenant);
+    progress.phase = 'source-import';
     if (await page.getByRole('heading', { name: /\bUnsaved Workbook\b/ }).count() !== 1) {
         throw new Error('Open a new empty unsaved workbook. Existing workbook content will not be replaced.');
     }
     const frame = page.locator('iframe[name="Workbooks.ReactView"]').contentFrame();
     const editorInput = frame.getByRole('textbox', { name: 'Editor content', exact: true });
     await editorInput.waitFor({ state: 'visible', timeout: plan.timeout });
-    const sourceSha256 = await editorInput.evaluate(async (element, source) => {
+    const hashes = await editorInput.evaluate(async (element, request) => {
+        const source = request.importSource;
         const editors = globalThis.monaco?.editor?.getEditors?.() || [];
         const active = editors.filter(editor => editor.getDomNode()?.contains(element));
         if (active.length !== 1) {
@@ -723,10 +836,17 @@ async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
         if (model.getValue().replace(/\r\n/g, '\n') !== source) {
             throw new Error('Advanced Editor content differs from the requested source.');
         }
-        const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(source));
-        return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
-    }, plan.source);
+        async function hash(value) {
+            const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(value));
+            return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+        return { original: await hash(request.source), imported: await hash(source) };
+    }, { source: plan.source, importSource: plan.importSource });
+    const sourceSha256 = hashes.original;
+    progress.sourceSha256 = hashes.original;
+    progress.importedSourceSha256 = hashes.imported;
 
+    progress.phase = 'apply-source';
     await verifySelectedTenant(page, plan.tenant);
     await activateWorkbookControl(frame.getByRole('menuitem', { name: 'Apply', exact: true }), plan.timeout);
     const done = frame.getByRole('menuitem', { name: 'Done Editing', exact: true });
@@ -736,6 +856,7 @@ async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
     await frame.getByRole('menubar', { name: /^Workbooks toolbar/ })
         .getByRole('menuitem', { name: 'Edit', exact: true })
         .waitFor({ state: 'visible', timeout: plan.timeout });
+    progress.phase = 'panel-and-tab-contracts';
 
     const screenshots = [];
     const panelChecks = [];
@@ -746,9 +867,15 @@ async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
     }
     async function capture(target, allowedLabels, stage) {
         if (plan.screenshots) {
-            await verifySelectedTenant(page, plan.tenant);
-            const result = await captureWorkbookScreenshot(page, target, plan.screenshots, allowedLabels, screenshots.length, plan.timeout);
-            screenshots.push({ ...result, stage });
+            try {
+                await verifySelectedTenant(page, plan.tenant);
+                const result = await captureWorkbookScreenshot(page, target, plan.screenshots, allowedLabels, screenshots.length, plan.timeout);
+                screenshots.push({ ...result, stage });
+            } catch (error) {
+                progress.captureFailed = true;
+                error.validationCode = 'screenshot-capture-failed';
+                throw error;
+            }
         }
     }
     const tabsVisited = [];
@@ -813,17 +940,46 @@ async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
             }
         }
     }
-    const dataContractsChecked = [...panelChecks, ...deferredChecks].filter(check => check.grid).length;
-    return {
+    progress.phase = 'interaction-scenarios';
+    const interaction = await runInteractionScenarios(page, frame, plan, {
+        verifyTenant: () => verifySelectedTenant(page, plan.tenant),
+        activate: activateWorkbookControl,
+        async navigate(name) {
+            await verifySelectedTenant(page, plan.tenant);
+            await activateWorkbookControl(tablist.getByRole('tab', { name, exact: true }), plan.timeout);
+            await tablist.getByRole('tab', { name, exact: true, selected: true }).waitFor({ state: 'visible', timeout: plan.timeout });
+        },
+        async assertTab(name) {
+            await tablist.getByRole('tab', { name, exact: true, selected: true }).waitFor({ state: 'visible', timeout: plan.timeout });
+        },
+        checkPanel: check => validatePanelContract(frame, check, plan.timeout),
+        capture: labels => capture(page.locator('iframe[name="Workbooks.ReactView"]'), [...plan.tabs, ...labels], 'interaction')
+    });
+    const interactionDataContracts = interaction.scenarios.flatMap(scenario => scenario.steps)
+        .reduce((count, step) => count + (step.dataContracts || 0), 0);
+    const dataContractsChecked = [...panelChecks, ...deferredChecks].filter(check => check.grid).length + interactionDataContracts;
+    const report = {
         sourceSha256,
+        importedSourceSha256: hashes.imported,
+        evidenceMode: plan.interactions.evidenceMode,
+        instrumentation: { enabled: plan.interactions.scenarios.length > 0,
+            privateParameterProbes: plan.interactions.probes.length,
+            sourceBoundaryMarkers: plan.interactions.bindings.length * 2, productionSourceModified: false },
         tenantVerified: true,
         itemCount: plan.itemCount,
+        importedItemCount: plan.itemCount + plan.interactions.bindings.length * 2 + plan.interactions.probes.length,
         tabsVisited,
         parameterActionsClicked,
         panelChecks,
         deferredChecks,
         dataContractsChecked,
-        coverageLevel: dataContractsChecked ? 'requested-data-contracts' : 'smoke-only',
+        coverageLevel: interaction.scenarios.length ? 'interaction-contracts' :
+            dataContractsChecked ? 'requested-data-contracts' : 'smoke-only',
+        interactionScenarios: interaction.scenarios,
+        interactionStepsChecked: interaction.scenarios.flatMap(scenario => scenario.steps)
+            .filter(step => step.status === 'passed').length,
+        needsCloserLook: interaction.needsCloserLook,
+        reviewState: interaction.needsCloserLook.length ? 'needs-closer-look' : 'requested-checks-completed',
         sourceDiagnostics: plan.sourceDiagnostics,
         screenshots: {
             enabled: Boolean(plan.screenshots),
@@ -832,11 +988,22 @@ async function validateWorkbookInBrowser(page, workbookSource, options = {}) {
                 'Review every local image before sharing; nothing was uploaded. If auto redaction hides too much, ask the user to choose manual masks, AI-assisted mask selection, or explicitly approved unredacted capture. Never turn masking off automatically; no AI service is called.' :
                 'Optional screenshots are available with auto redaction by default. Ask the user whether to capture; manual/AI-assisted masks and unredacted local capture require explicit approval.'
         },
-        coverage: 'Only source import, primary tabs, and requested panels/contracts were checked; no-data is not proof of health. ' +
+        coverage: 'Only source import, primary tabs, and requested panels/interactions were checked; no-data is not proof of health. ' +
             (dataContractsChecked ? 'ARIA rows describe the displayed grid, not a complete resource inventory.' :
-                'No query-data contract was qualified; tab navigation is not query validation.'),
+                'No query-data contract was qualified; tab navigation is not query validation.') +
+            (interaction.scenarios.length ? ' Interaction assertions used an explicitly instrumented unsaved copy; exact published layout is not qualified.' : ''),
         workbookSaved: false
     };
+    if (interaction.scenarios.some(scenario => scenario.status !== 'passed')) {
+        const error = new Error('Requested interaction validation did not pass; inspect the aggregate report. Discard local captures if the report requires disposal.');
+        report.status = 'failed';
+        report.discardLocalCaptures = Boolean(progress.captureFailed);
+        error.report = report;
+        throw error;
+    }
+    progress.phase = 'complete';
+    report.status = 'checks-passed';
+    return report;
 }
 
 function loadValidationInput(workbookPath, checksPath, screenshotDirectory, runtime = {}) {
@@ -847,7 +1014,15 @@ function loadValidationInput(workbookPath, checksPath, screenshotDirectory, runt
         throw new Error('The checks file must be a non-empty path.');
     }
     const source = extractWorkbookSource(fs.readFileSync(workbookPath, 'utf8'));
-    let options = checksPath === undefined ? {} : JSON.parse(fs.readFileSync(checksPath, 'utf8'));
+    let options = {};
+    if (checksPath !== undefined) {
+        try {
+            options = JSON.parse(fs.readFileSync(checksPath, 'utf8'));
+        } catch (error) {
+            if (error instanceof SyntaxError) throw new Error('The checks profile must be valid JSON; private contents are not logged.');
+            throw error;
+        }
+    }
     if (!options || typeof options !== 'object' || Array.isArray(options)) {
         throw new Error('Browser validation options must be an object.');
     }
@@ -874,8 +1049,19 @@ function loadValidationInput(workbookPath, checksPath, screenshotDirectory, runt
             }
         };
     }
+    if (runtime.evidenceMode !== undefined) options = { ...options, evidenceMode: runtime.evidenceMode };
     const plan = createValidationPlan(source, options);
-    return { source, options, sourceDiagnostics: plan.sourceDiagnostics };
+    return {
+        source, options, sourceDiagnostics: plan.sourceDiagnostics,
+        reviewPlan: {
+            status: 'not-run',
+            plannedSourceSha256: crypto.createHash('sha256').update(plan.source).digest('hex'),
+            plannedImportedSourceSha256: crypto.createHash('sha256').update(plan.importSource).digest('hex'),
+            evidenceMode: plan.interactions.evidenceMode,
+            instrumentation: plan.interactions.scenarios.length > 0,
+            needsCloserLook: pendingInteractionReview(plan, 'not-executed')
+        }
+    };
 }
 
 function validateCdpEndpoint(value) {
@@ -897,13 +1083,15 @@ function validateCdpEndpoint(value) {
 function createPlaywrightScript(workbookSource, options = {}) {
     const plan = createValidationPlan(workbookSource, options);
     // Keep the emitted runner independent of Node imports and the browser tool's filesystem access.
-    const functions = [isAzurePortalUrl, normalizeTenantSelection, requireConfirmedTenant, verifySelectedTenant,
+    const functions = [...Object.values(interactionHelpers), isAzurePortalUrl, normalizeTenantSelection, requireConfirmedTenant, verifySelectedTenant,
         normalizeScreenshotOptions, createValidationPlan, markScreenshotMasks, screenshotRedactionStyle,
         applyScreenshotRedaction, isolateScreenshotFrame, verifyScreenshotIsolation, restoreScreenshotIsolation,
+        bindCaptureDocument, verifyCaptureDocument, clearCaptureDocument,
         captureWorkbookImage, captureMaskedScreenshot, captureWorkbookScreenshot, readGridSummary,
-        waitForPanelReady, validatePanelContract, resolveParameterTrigger, activateWorkbookControl, validateWorkbookInBrowser]
+        waitForPanelReady, validatePanelContract, resolveParameterTrigger, activateWorkbookControl,
+        executeWorkbookValidation, validateWorkbookInBrowser]
         .map(callback => callback.toString()).join('\n\n');
-    return `async (page) => {\n${functions}\nreturn validateWorkbookInBrowser(page, ${JSON.stringify(plan.source)}, ${JSON.stringify(options)});\n}\n`;
+    return `async (page) => {\n${functions}\ntry {\nreturn await validateWorkbookInBrowser(page, ${JSON.stringify(plan.source)}, ${JSON.stringify(options)});\n} catch (error) {\nif (error.report) console.error(JSON.stringify(error.report));\nthrow error;\n}\n}\n`;
 }
 
 module.exports = {
@@ -919,6 +1107,9 @@ module.exports = {
     isolateScreenshotFrame,
     verifyScreenshotIsolation,
     restoreScreenshotIsolation,
+    bindCaptureDocument,
+    verifyCaptureDocument,
+    clearCaptureDocument,
     captureMaskedScreenshot,
     captureWorkbookScreenshot,
     readGridSummary,

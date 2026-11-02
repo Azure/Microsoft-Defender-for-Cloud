@@ -19,6 +19,9 @@ const {
     isolateScreenshotFrame,
     verifyScreenshotIsolation,
     restoreScreenshotIsolation,
+    bindCaptureDocument,
+    verifyCaptureDocument,
+    clearCaptureDocument,
     captureMaskedScreenshot,
     captureWorkbookScreenshot,
     readGridSummary,
@@ -1011,11 +1014,19 @@ describe('Validating optional screenshot safeguards...', () => {
         assert.deepEqual(missing.cell.attributes, {});
     });
 
-    function screenshotPage({ fail = false, masks = 3, blockedRedaction = false, blockedIsolation = false, timeout = 30000 } = {}) {
+    function screenshotPage({ fail = false, masks = 3, blockedRedaction = false, blockedIsolation = false, timeout = 30000, reload = false } = {}) {
         const calls = [];
         const cleanedRootAttributes = [];
+        let replaced = false;
         const body = {
+            async dispose() { calls.push('dispose-document'); },
             async evaluate(callback, argument) {
+                if (callback === bindCaptureDocument) { calls.push('bind-document'); return; }
+                if (callback === verifyCaptureDocument) {
+                    calls.push('verify-document');
+                    if (replaced) throw new Error('Inner document changed');
+                    return;
+                }
                 if (callback === markScreenshotMasks) {
                     calls.push('mask');
                     assert.deepEqual(argument.allowedLabels, ['Approved heading']);
@@ -1030,23 +1041,20 @@ describe('Validating optional screenshot safeguards...', () => {
                     if (blockedRedaction) throw new Error('redaction blocked');
                     return;
                 }
+                assert.strictEqual(callback, clearCaptureDocument);
                 calls.push('cleanup');
-                callback({
-                    querySelectorAll: () => [],
-                    ownerDocument: { querySelectorAll: () => [] },
-                    removeAttribute: name => cleanedRootAttributes.push(name)
-                }, argument);
+                cleanedRootAttributes.push('data-workbook-validation-mask', 'data-workbook-validation-label', 'data-workbook-validation-capture');
             }
         };
         const frame = {
             locator(selector) {
                 assert.equal(selector, 'body');
-                return body;
+                return { elementHandle: async () => body };
             }
         };
-        const page = { locator: () => ({
-            count: async () => 1,
-            contentFrame: () => frame,
+        const outer = {
+            contentFrame: async () => frame,
+            async dispose() { calls.push('dispose-frame'); },
             async evaluate(callback) {
                 if (callback === isolateScreenshotFrame) {
                     calls.push('isolate');
@@ -1059,7 +1067,8 @@ describe('Validating optional screenshot safeguards...', () => {
                     throw new Error('Unexpected parent document callback.');
                 }
             }
-        }) };
+        };
+        const page = { locator: () => ({ count: async () => 1, elementHandle: async () => outer }) };
         const target = {
             async screenshot(options) {
                 calls.push('capture');
@@ -1069,6 +1078,7 @@ describe('Validating optional screenshot safeguards...', () => {
                 assert.equal(options.caret, 'hide');
                 assert.equal(options.timeout, timeout);
                 assert.match(options.path, /^C:\\private-evidence\\capture-[a-z0-9-]+\.png$/);
+                if (reload) replaced = true;
                 if (fail) throw new Error('simulated capture failure');
             }
         };
@@ -1079,8 +1089,9 @@ describe('Validating optional screenshot safeguards...', () => {
         const fixture = screenshotPage();
         const result = await captureMaskedScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence', maskSelectors: [] }, ['Approved heading'], 0);
-        assert.deepEqual(fixture.calls, ['mask', 'redact', 'isolate', 'verify-isolation', 'capture', 'verify-isolation', 'cleanup', 'restore-isolation']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'redact', 'isolate', 'verify-isolation', 'verify-document', 'capture', 'verify-document', 'verify-isolation', 'cleanup', 'restore-isolation', 'dispose-document', 'dispose-frame']);
         assert.isTrue(result.parentIsolated);
+        assert.isTrue(result.documentBound);
         assert.isTrue(result.reviewRequired);
         assert.equal(result.redaction, 'auto');
         assert.isFalse(result.publicationApproved);
@@ -1095,14 +1106,14 @@ describe('Validating optional screenshot safeguards...', () => {
         const fixture = screenshotPage({ fail: true });
         await rejects(captureMaskedScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence', maskSelectors: [] }, ['Approved heading'], 1), /simulated capture failure/);
-        assert.deepEqual(fixture.calls, ['mask', 'redact', 'isolate', 'verify-isolation', 'capture', 'cleanup', 'restore-isolation']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'redact', 'isolate', 'verify-isolation', 'verify-document', 'capture', 'cleanup', 'restore-isolation', 'dispose-document', 'dispose-frame']);
     });
 
     it('refuses mask-free captures while cleaning the temporary capture scope', async () => {
         const fixture = screenshotPage({ masks: 0 });
         await rejects(captureMaskedScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence', maskSelectors: [] }, ['Approved heading'], 2), /No screenshot masks/);
-        assert.deepEqual(fixture.calls, ['mask', 'cleanup']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'cleanup', 'dispose-document', 'dispose-frame']);
     });
 
     it('captures unredacted content only through a distinct explicitly approved path', async () => {
@@ -1112,7 +1123,7 @@ describe('Validating optional screenshot safeguards...', () => {
         assert.lengthOf(fixture.calls, 0);
         const result = await captureWorkbookScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence', redaction: 'none', allowSensitiveCapture: true }, [], 0);
-        assert.deepEqual(fixture.calls, ['isolate', 'verify-isolation', 'capture', 'verify-isolation', 'restore-isolation']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'isolate', 'verify-isolation', 'verify-document', 'capture', 'verify-document', 'verify-isolation', 'cleanup', 'restore-isolation', 'dispose-document', 'dispose-frame']);
         assert.equal(result.redaction, 'none');
         assert.equal(result.maskedElements, 0);
         assert.isTrue(result.reviewRequired);
@@ -1129,7 +1140,7 @@ describe('Validating optional screenshot safeguards...', () => {
             }, ['Approved heading'], 0);
             assert.equal(result.redaction, redaction);
             assert.isFalse(result.publicationApproved);
-            assert.deepEqual(fixture.calls, ['mask', 'redact', 'isolate', 'verify-isolation', 'capture', 'verify-isolation', 'cleanup', 'restore-isolation']);
+            assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'redact', 'isolate', 'verify-isolation', 'verify-document', 'capture', 'verify-document', 'verify-isolation', 'cleanup', 'restore-isolation', 'dispose-document', 'dispose-frame']);
         }
     });
 
@@ -1137,14 +1148,23 @@ describe('Validating optional screenshot safeguards...', () => {
         const fixture = screenshotPage({ blockedRedaction: true });
         await rejects(captureMaskedScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence', maskSelectors: [] }, ['Approved heading'], 3), /redaction blocked/);
-        assert.deepEqual(fixture.calls, ['mask', 'redact', 'cleanup']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'redact', 'cleanup', 'dispose-document', 'dispose-frame']);
     });
 
     it('never captures when parent-page overlay isolation is unavailable', async () => {
         const fixture = screenshotPage({ blockedIsolation: true });
         await rejects(captureMaskedScreenshot(fixture.page, fixture.target,
             { directory: 'C:\\private-evidence' }, ['Approved heading'], 4), /parent isolation blocked/);
-        assert.deepEqual(fixture.calls, ['mask', 'redact', 'isolate', 'cleanup']);
+        assert.deepEqual(fixture.calls, ['bind-document', 'mask', 'redact', 'isolate', 'cleanup', 'dispose-document', 'dispose-frame']);
+    });
+
+    it('rejects document replacement and explicitly requires disposal of any image already written', async () => {
+        const fixture = screenshotPage({ reload: true });
+        await rejects(captureMaskedScreenshot(fixture.page, fixture.target,
+            { directory: 'C:\\private-evidence' }, ['Approved heading'], 5), error =>
+            error.message.includes('Inner document changed') && error.message.includes('Discard local image'));
+        assert.include(fixture.calls, 'restore-isolation');
+        assert.deepEqual(fixture.calls.slice(-2), ['dispose-document', 'dispose-frame']);
     });
 
     it('passes the requested operation timeout through to screenshot capture', async () => {

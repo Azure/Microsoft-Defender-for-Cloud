@@ -5,14 +5,14 @@ const { loadValidationInput, createPlaywrightScript } = require('./workbookBrows
 
 function main(argv) {
     const args = minimist(argv, {
-        string: ['workbook', 'checks', 'output', 'screenshots', 'tenant', 'redaction'],
+        string: ['workbook', 'checks', 'output', 'screenshots', 'tenant', 'redaction', 'evidence-mode'],
         boolean: ['help', 'confirm-tenant', 'allow-sensitive-capture'],
         unknown() {
-            throw new Error('Unsupported argument. Use --workbook, --checks, --output, --screenshots, --tenant, --confirm-tenant, --redaction, --allow-sensitive-capture, or --help.');
+            throw new Error('Unsupported argument. Use --workbook, --checks, --output, --screenshots, --tenant, --confirm-tenant, --redaction, --allow-sensitive-capture, --evidence-mode, or --help.');
         }
     });
     if (args.help) {
-        console.log('Usage: npm run test:browser:script -- --workbook <file> [--checks <json>] [--tenant <guid> --confirm-tenant] [--screenshots <local-directory> --redaction <auto|manual|ai-assisted|none> --allow-sensitive-capture] --output <new-script.js>');
+        console.log('Usage: npm run test:browser:script -- --workbook <file> [--checks <json>] [--tenant <guid> --confirm-tenant] [--evidence-mode <synthetic|authenticated|unspecified>] [--screenshots <local-directory> --redaction <auto|manual|ai-assisted|none> --allow-sensitive-capture] --output <new-script.js>');
         return;
     }
     if (args._.length || typeof args.output !== 'string' || !args.output.trim()) {
@@ -25,13 +25,20 @@ function main(argv) {
         tenantId: args.tenant,
         confirmTenant: explicitFlag('confirm-tenant'),
         redaction: args.redaction,
-        allowSensitiveCapture: explicitFlag('allow-sensitive-capture')
+        allowSensitiveCapture: explicitFlag('allow-sensitive-capture'),
+        evidenceMode: args['evidence-mode']
     });
     fs.writeFileSync(args.output, createPlaywrightScript(input.source, input.options), { encoding: 'utf8', flag: 'wx' });
     console.log(`Created ${path.basename(args.output)}. Run it in a new empty unsaved workbook's Advanced Editor.`);
+    if (input.options.scenarios?.length) {
+        console.log('Interaction scenarios use an explicitly instrumented unsaved test copy with private parameter probes. Original/imported hashes are reported separately; production files are not changed.');
+    }
+    if (input.reviewPlan.needsCloserLook.length) {
+        console.log(`Needs closer look: ${input.reviewPlan.needsCloserLook.length} planned review items remain unexecuted. Generation is not validation.`);
+    }
     if (input.sourceDiagnostics.length) {
         console.warn(`Source risk diagnostics: ${input.sourceDiagnostics.map(finding =>
-            `${finding.code} (item ${finding.itemIndex})`).join(', ')}. Review these risks; source is not rewritten.`);
+            `${finding.code} (item ${finding.itemIndex})`).join(', ')}. Review these risks; diagnostics never rewrite production files.`);
     }
     if (!input.options.tenant?.confirmed) {
         console.log('PAUSED for live execution: ask which Azure tenant to use and wait for explicit user selection/confirmation, even in autopilot. Do not select a default.');

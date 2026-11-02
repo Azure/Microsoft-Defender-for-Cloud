@@ -1,0 +1,126 @@
+{
+  "instrumentation": true,
+  "evidenceMode": "synthetic",
+  "scenarios": [
+    {
+      "id": "scope-filter-reset",
+      "tab": "Overview",
+      "requiresAuthenticated": true,
+      "steps": [
+        {
+          "id": "drill-through",
+          "action": {
+            "type": "selectRow",
+            "item": "interaction_rows",
+            "row": { "index": 0 },
+            "capture": "picked"
+          },
+          "expect": {
+            "tab": "Details",
+            "parameters": [
+              {
+                "item": "interaction_parameters",
+                "parameter": "Selection",
+                "parse": "json",
+                "contains": {
+                  "Key": { "$cell": { "capture": "picked", "column": "Key" } },
+                  "Label": { "$cell": { "capture": "picked", "column": "Label" } }
+                }
+              },
+              {
+                "item": "interaction_parameters",
+                "parameter": "Filter",
+                "equals": "All"
+              }
+            ],
+            "panels": [
+              {
+                "heading": "Selection results",
+                "minRows": 1,
+                "maxRows": 1,
+                "columns": ["Key", "Label", "Filter"],
+                "cells": [
+                  { "row": 0, "column": "Key", "equals": { "$cell": { "capture": "picked", "column": "Key" } } },
+                  { "row": 0, "column": "Filter", "equals": "All" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "filter-preserves-scope",
+          "action": {
+            "type": "setParameter",
+            "item": "interaction_parameters",
+            "parameter": "Filter",
+            "value": "Failed"
+          },
+          "expect": {
+            "tab": "Details",
+            "parameters": [
+              {
+                "item": "interaction_parameters",
+                "parameter": "Filter",
+                "equals": "Failed"
+              },
+              {
+                "item": "interaction_parameters",
+                "parameter": "Selection",
+                "parse": "json",
+                "unchanged": true
+              }
+            ],
+            "panels": [
+              {
+                "heading": "Selection results",
+                "minRows": 1,
+                "maxRows": 1,
+                "columns": ["Key", "Label", "Filter"],
+                "cells": [
+                  { "row": 0, "column": "Key", "equals": { "$cell": { "capture": "picked", "column": "Key" } } },
+                  { "row": 0, "column": "Filter", "equals": "Failed" }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "id": "reset-preserves-filter",
+          "action": {
+            "type": "parameterLink",
+            "item": "interaction_reset",
+            "linkId": "3fc4bf6c-c964-43d6-a9c0-25cc64916039"
+          },
+          "expect": {
+            "tab": "Details",
+            "parameters": [
+              {
+                "item": "interaction_parameters",
+                "parameter": "Selection",
+                "parse": "json",
+                "equals": {}
+              },
+              {
+                "item": "interaction_parameters",
+                "parameter": "Filter",
+                "unchanged": true
+              }
+            ],
+            "panels": [
+              {
+                "heading": "Selection results",
+                "minRows": 1,
+                "maxRows": 1,
+                "columns": ["Key", "Label", "Filter"],
+                "cells": [
+                  { "row": 0, "column": "Key", "equals": "" },
+                  { "row": 0, "column": "Filter", "equals": "Failed" }
+                ]
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

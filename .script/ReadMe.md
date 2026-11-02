@@ -202,6 +202,9 @@ Supported options are:
 - `allowTruncated`: a boolean on a panel/deferred check, default `false`. A recognized portal result-limit
   warning fails the contract unless explicitly accepted. Accepted truncation is reported with aggregate
   returned/total counts; it does not qualify a complete inventory.
+- `cells`: optional assertions on specifically rendered cells, each with a zero-based rendered data-row
+  index, exact `column` label, and `equals` display text. A virtualized/unmounted row is not silently
+  replaced by another row. Captured-cell references are available only inside interaction scenarios.
 
 For example, validate an existing grid without requiring a deferred-load button:
 
@@ -241,7 +244,8 @@ Planning also returns nonfatal `sourceDiagnostics`: `non-string-threshold` flags
 that can crash the string-based portal renderer, and `global-input-export-cycle-risk` flags a query
 that exports a global parameter it directly consumes. These are review risks, not a complete KQL or
 dependency analysis; intentional global brushing can be valid. Diagnostics contain codes/item indexes,
-not source values, and never rewrite the exact workbook being imported.
+not source values, and never rewrite source or auto-fix risks. Optional scenario instrumentation is
+a separate explicitly requested operation, reported with its own imported-source hash.
 
 The JSON report includes the normalized source hash, visited labels, eager/deferred contract results,
 source diagnostics and aggregate counts, with explicit coverage limits and `workbookSaved: false`.
@@ -251,6 +255,89 @@ still describes only the explicit contracts, not workbook-wide certification. Di
 synthetic browser run from an actual authenticated portal run, and report which exact source revision
 was tested if the workbook changes afterward. Review even labels before
 publishing summaries; never publish generated scripts or browser profiles as test evidence.
+
+### Interaction scenarios and needs-closer-look items
+
+Use the telemetry-free [interaction workbook](./workbook-browser/fixtures/Interactions.workbook) and
+[scenario profile](./workbook-browser/fixtures/interaction-checks.json) as a starting point. The profile
+tests row drill-through, a filter that preserves selected scope, and a reset that preserves the filter.
+No workbook name, parameter name, resource type, tenant, or business value is built into the runner.
+
+An interactive workbook without scenario contracts is reported as
+`interaction-scenarios-not-configured`; tab or panel smoke does not close that gap.
+For each pending review item:
+
+1. Define a non-sensitive scenario/step `id` and the specific source item names to exercise.
+2. Select a row by an explicit rendered index or unique column match. `selectRow` requires a query
+   with declared parameter exports and activates only its native selection checkbox, not a row's
+   links. `expandRow` supports an explicitly selected collapsed group before selecting a leaf.
+3. Use `capture` to retain that row's displayed cells privately. References such as
+   `{ "$cell": { "capture": "picked", "column": "Key" } }` compare later results to the selected row;
+   they are display values, not hidden backend fields or resource IDs.
+4. Assert expected tab changes, runtime parameter values, and meaningful result panels/cells.
+   JSON parameters support exact `equals`, nonempty partial-object `contains`, or `unchanged`.
+   A partial object assertion proves only the selected keys. Supply private per-run expectations for
+   business-relevant hidden identifiers; do not infer them from friendly display names.
+5. Apply `setParameter` to an explicit single-value text/dropdown parameter. Assert the changed
+   parameter and that the selected scope remains unchanged. Resource/account/time-scope pickers,
+   passwords, arbitrary selectors/scripts, external links, and ARM actions are not automated.
+6. Invoke `parameterLink` by its verified source item and link ID for reset behavior. Assert the
+   cleared target and preserved unrelated filters, plus the resulting view/data. Do not treat
+   clicking a reset button or seeing an empty table as proof of correct parameter propagation.
+
+Scenarios require explicit `instrumentation: true`. Hidden values are observed through passive
+read-only Base64 probes placed in a separate **unsaved test copy**, with source-boundary markers
+around declared action producers. Parameter definitions, defaults, queries, exports and action links
+are not changed. Production files are never rewritten. The report retains the original `sourceSha256`
+and separate `importedSourceSha256`; instrumented layout is not a claim of exact published-layout
+qualification. Recheck unmodified-source panels/layout separately against the same original hash.
+
+The instrumentation proves source ownership even when a renderer generates unrelated step DOM IDs:
+controls must be uniquely between that source item's paired boundary headings. No frame-wide label
+fallback is used. Dropdown options must belong to the verified picker's `aria-controls`/`aria-owns`
+list. Missing, ambiguous, unsupported, or replaced bindings stop execution. Passive readiness polling
+is bounded; actions are not retried. Private comparison state and temporary action markers are
+cleaned after execution; passive probes remain in the unsaved copy until it is discarded.
+Base64 is **not encryption or redaction**: keep the test copy and generated script
+private, never save it, and discard it after testing. Instrumented captures support auto redaction
+only, to avoid exposing diagnostic values through selectively redacted/raw screenshots.
+
+Useful profile fields:
+
+| Field | Meaning |
+| --- | --- |
+| `instrumentation` | Must explicitly be `true` for scenarios. Ordinary runs still import exact unmodified source. |
+| `evidenceMode` | Caller-declared `synthetic`, `authenticated`, or default `unspecified`; never inferred from a portal-looking URL. |
+| `scenarios[].requiresAuthenticated` | Defaults to `true`; keep it true for pending Azure portal review items. |
+| `scenarios[].tab` / `steps[].tab` | Explicit setup navigation within the primary source tabset. |
+| `steps[].action` | `selectRow`, `expandRow`, `setParameter`, or `parameterLink`, with a source `item` and type-specific fields. |
+| `steps[].expect.tab` | Observe the resulting selected tab; the runner does not navigate there to manufacture a pass. |
+| `steps[].expect.parameters` | Identify source `item`/`parameter`, optional `parse: "json"`, and one comparison. |
+| `steps[].expect.panels` | Current-view panel/grid/cell contracts; no implicit tab navigation. |
+
+Set evidence mode per run with `--evidence-mode authenticated` or
+`WORKBOOK_BROWSER_EVIDENCE_MODE=authenticated` **only** for a real, user-confirmed signed-in portal
+session and agreed scopes. Never label mocked/intercepted browser data as authenticated evidence.
+Mode does not grant consent or bypass tenant verification. The supplied profile defaults to synthetic
+evidence; executing its UI assertions successfully leaves all three authenticated review items pending.
+
+Reports distinguish execution from qualification:
+
+- `interactionScenarios` contains per-step statuses and assertion counts, never captured row values,
+  parameter payloads, expected identifiers, or raw DOM/error details.
+- `needsCloserLook` retains unexecuted, failed, unsupported, or still-authentication-dependent items.
+  Generation reports `not-run`; missing consent/browser setup reports `blocked`, not a pass.
+- `reviewState: "needs-closer-look"` can remain even when synthetic UI checks pass. Only matching,
+  actually authenticated instrumented assertions can receive `authenticated-instrumented` qualification.
+  That still covers only explicit assertions, not exact production layout or every workflow.
+- On the first unsuccessful step, later actions are `not-run`. Failed interaction runs throw with an
+  aggregate `error.report`; CLI/generated runners print that report and still fail rather than
+  returning success-shaped fallbacks.
+
+To close a runtime review gap, retain exact original/imported hashes and revisions, fresh confirmed
+tenant evidence, passing scenario/parameter/rendered-cell contracts, and any remaining limits.
+Do not clear an authenticated pending item using unit tests, synthetic results, generation alone, or
+a previous source version. Expired sessions pause for user sign-in; the runner never changes tenants.
 
 ### Optional local screenshots
 
@@ -275,6 +362,12 @@ The isolation is monitored throughout capture and restored in `finally`, includi
 Blocked isolation and unsupported parent shadow-root/nested-frame environments refuse capture rather
 than falling back to an exposed image. This parent isolation also applies to selectively redacted and
 explicitly approved unredacted workbook captures.
+Capture is also bound to the original inner document/body and verifies document identity, mask
+markers, exact redaction CSS and a computed-style probe before and after the image is written.
+Iframe reloads, replacement bodies/documents or lost masks fail the capture even when parent
+isolation remains valid. Dispose of any local image already written by a failed capture immediately;
+do not publish or reuse it. Cleanup uses the bound handles, not locators that can retarget a replacement
+document, and always attempts parent restoration and handle disposal.
 Additional selectors add masks and must match at every capture stage. Redaction uses DOM CSS with a
 computed-style probe; blocked redaction fails capture without an unmasked fallback. Temporary
 markers/styles are removed even after errors. Output paths must be local, without URLs, network paths

@@ -1,6 +1,6 @@
 ---
 name: validate-workbook-browser
-description: 'Validate Microsoft Defender for Cloud Azure Workbooks, including native JSON and ARM templates, with Playwright or MCP. Use for workbook browser testing, eager/deferred panel contracts, Azure tenant selection, screenshots, and redaction. Requires a user-selected tenant and pauses live execution even in autopilot until confirmed.'
+description: 'Validate Microsoft Defender for Cloud Azure Workbooks with Playwright or MCP. Use for eager/deferred panels, drill-through/filter/reset scenarios, hidden parameter propagation, needs-closer-look review gaps, Azure tenant selection, screenshots, and redaction. Requires fresh tenant confirmation; synthetic checks never qualify pending authenticated portal validation.'
 ---
 
 # Validate a workbook in the browser
@@ -42,7 +42,38 @@ Manual, AI-assisted, and unredacted modes require explicit approval for potentia
    Result truncation fails contracts unless explicitly accepted, and accepted limits must remain in the report.
    Deferred actions require unique source producer/link identities mapped to DOM IDs. If that mapping is unavailable,
    stop instead of retrying against same-named controls elsewhere in the frame.
+   For runtime interaction gaps, follow the scenario procedure below; import/tab smoke is not a substitute.
 4. Report the exact tested source hash/revision, smoke-only versus requested-data-contract coverage, aggregate counts, selected redaction mode, and limits. Distinguish synthetic browser tests from actual authenticated portal execution; do not carry a live pass forward to a changed source. Do not include tenant IDs, account identities, record values, or raw screenshots in PR comments.
    Parent-document overlays must remain isolated throughout capture; cropping to an iframe is insufficient.
    If parent isolation or inner redaction fails, stop without an exposed fallback.
+   Inner-document reload/replacement invalidates capture even if the outer iframe remains.
+   Immediately discard any image already written by a failed capture; never publish it as auto-redacted evidence.
 5. Images remain `reviewRequired` and not approved for publication, even in auto mode. No automatic upload is permitted. Remove task-owned intermediate images and private per-run configuration when finished.
+
+## Qualify needs-closer-look runtime interactions
+
+1. Turn each runtime review gap into explicit, non-sensitive scenario/step IDs in a private checks profile.
+   Use the [generic scenario profile](../../../.script/workbook-browser/fixtures/interaction-checks.json)
+   and [telemetry-free workbook](../../../.script/workbook-browser/fixtures/Interactions.workbook) as examples.
+   Discover the reviewed source's query exports, parameter declarations, and reset link IDs; never hard-code
+   a tenant, workbook name, resource type, or default scope in the validator.
+2. For drill-through, explicitly select/expand a source row, capture displayed cells privately, and assert
+   the resulting tab, exported context fields, and actual result cells. Friendly names do not prove hidden
+   IDs; use agreed private expectations for relevant fields. Partial JSON assertions prove only those keys.
+3. For filtering, assert the changed parameter value, preserved context and rendered results.
+   For reset, assert the cleared target, unchanged unrelated filters, and resulting view/data.
+   Missing parameter/control hooks are needs-closer-look items, never inferred successful propagation.
+4. Obtain explicit opt-in via `instrumentation: true` for a separate unsaved test copy with passive source
+   boundaries/private Base64 probes. Keep production files, query/export definitions, defaults, and scopes
+   unchanged. Record original and imported hashes separately. Never save or publish the diagnostic copy.
+   Base64 is not redaction; instrumented screenshots allow auto redaction only.
+5. Declare `evidenceMode` honestly per run. Use `authenticated` only for an actual confirmed Azure session,
+   never a mock/intercepted page. Keep `requiresAuthenticated: true` for Azure portal review gaps.
+   Missing fresh confirmation, expired sign-in, wrong tenant, or unavailable browser pauses the run.
+6. Inspect `interactionScenarios`, per-step assertion counts, `reviewState`, and `needsCloserLook`, including
+   on thrown `error.report`. Unit/synthetic passes, generation, and not-run steps cannot clear authenticated
+   pending items. Failed steps stop later actions; there is no action retry, URL fallback, or success-shaped
+   conversion. Report aggregate status/codes, not private cells, parameter payloads, identifiers, or raw errors.
+7. Close only the specifically asserted behavior with matching tested revisions/hashes and actual
+   authenticated-instrumented evidence. Recheck unmodified-source layout separately. If the published source
+   changes, keep the affected item pending until revalidated; do not carry a previous live pass forward.
