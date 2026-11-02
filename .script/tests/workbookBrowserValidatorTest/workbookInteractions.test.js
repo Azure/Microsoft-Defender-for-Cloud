@@ -299,7 +299,15 @@ describe('Observing private runtime parameter propagation without publishing val
     });
 });
 
-function scenarioHost({ failAt, unavailable = false, captureFailure = false, failAfter, truncated = false } = {}) {
+function scenarioHost({
+    failAt,
+    unavailable = false,
+    captureFailure = false,
+    failAfter,
+    truncated = false,
+    tabResetAfterCapture = false,
+    reloadDuringLaterStep = false
+} = {}) {
     const planned = plan();
     if (truncated) {
         for (const step of planned.interactions.scenarios[0].steps) {
@@ -321,13 +329,20 @@ function scenarioHost({ failAt, unavailable = false, captureFailure = false, fai
                     argument.action.type === 'setParameter' ? 'select' : 'button' };
             }
             if (callback === interactions.waitForInteractionParameters) {
+                if (reloadDuringLaterStep && activeStep === 1 && !argument.snapshot) {
+                    throw new Error('The interaction document was replaced.');
+                }
                 if (!argument.snapshot && (activeStep === failAt ||
                     (failAfter !== undefined && activeStep === 0 && failAfter === stage))) {
                     return { ok: false, code: unavailable ? 'parameter-probe-unavailable' : 'parameter-assertion-mismatch' };
                 }
                 return { ok: true };
             }
-            if (callback === interactions.clearInteractionState) { cleared = true; return; }
+            if (callback === interactions.clearInteractionState) {
+                if (reloadDuringLaterStep) throw new Error('The original interaction document is unavailable.');
+                cleared = true;
+                return;
+            }
             throw new Error('Unexpected interaction callback');
         },
         async dispose() { disposed = true; }
@@ -337,7 +352,10 @@ function scenarioHost({ failAt, unavailable = false, captureFailure = false, fai
     const helpers = {
         async verifyTenant() { calls.push('verify'); },
         async navigate() {},
-        async assertTab() {},
+        async assertTab(name) {
+            calls.push(`assertTab:${name}`);
+            if (tabResetAfterCapture && stage === 'capture') throw new Error('The expected tab is no longer selected.');
+        },
         async activate(_target, _timeout, key) { calls.push(key || 'Enter'); },
         async checkPanel() {
             stage = 'panels';
@@ -353,7 +371,7 @@ function scenarioHost({ failAt, unavailable = false, captureFailure = false, fai
             }
         }
     };
-    return { planned, frame, helpers, calls, cleaned: () => cleared && disposed };
+    return { planned, frame, helpers, calls, cleaned: () => cleared && disposed, disposed: () => disposed };
 }
 
 describe('Reporting interaction execution separately from authenticated qualification...', () => {
@@ -506,6 +524,33 @@ describe('Reporting interaction execution separately from authenticated qualific
         assert.equal(report.scenarios[0].qualification, 'authenticated-instrumented');
         assert.deepEqual(report.needsCloserLook, []);
         assert.ok(host.cleaned());
+    });
+
+    it('rechecks the expected tab after panel and capture observations', async () => {
+        const host = scenarioHost({ tabResetAfterCapture: true });
+        host.planned.interactions.evidenceMode = 'authenticated';
+        const report = await interactions.runInteractionScenarios({}, host.frame, host.planned, host.helpers);
+        const step = report.scenarios[0].steps[0];
+        assert.equal(step.status, 'needs-closer-look');
+        assert.equal(step.phase, 'recheck-tab-after-observations');
+        assert.notEqual(report.scenarios[0].qualification, 'authenticated-instrumented');
+        assert.equal(host.calls.filter(call => call === 'assertTab:Details').length, 2);
+        assert.ok(host.cleaned());
+    });
+
+    it('preserves completed scenario evidence and interruption details when cleanup fails after a document reload', async () => {
+        const host = scenarioHost({ reloadDuringLaterStep: true, truncated: true });
+        host.planned.interactions.evidenceMode = 'authenticated';
+        const report = await interactions.runInteractionScenarios({}, host.frame, host.planned, host.helpers);
+        const scenario = report.scenarios[0];
+        assert.deepEqual(scenario.steps.map(step => step.status), ['passed', 'needs-closer-look', 'not-run']);
+        assert.equal(scenario.steps[0].panelResults[0].truncation.total, 1000);
+        assert.equal(scenario.steps[1].code, 'interaction-interrupted');
+        assert.equal(scenario.steps[1].phase, 'observe-parameters');
+        assert.equal(scenario.status, 'needs-closer-look');
+        assert.notEqual(scenario.qualification, 'authenticated-instrumented');
+        assert.ok(report.needsCloserLook.some(item => item.code === 'interaction-state-cleanup-failed'));
+        assert.ok(host.disposed());
     });
 
     it('stops after a real assertion mismatch, marks later actions unexecuted, and retains aggregate evidence only', async () => {

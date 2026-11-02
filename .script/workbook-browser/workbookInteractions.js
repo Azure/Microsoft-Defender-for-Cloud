@@ -860,6 +860,8 @@ async function runInteractionScenarios(page, frame, plan, helpers) {
                     );
                     outcome.phase = 'verify-session-after-observations';
                     await verifyTenant();
+                    outcome.phase = 'recheck-tab-after-observations';
+                    if (step.expect.tab !== undefined) await helpers.assertTab(step.expect.tab);
                     outcome.status = 'passed';
                     outcome.phase = 'complete';
                 } catch (error) {
@@ -898,10 +900,26 @@ async function runInteractionScenarios(page, frame, plan, helpers) {
             }
         }
     } finally {
+        const cleanupFailures = [];
+        if (initialized) {
+            try {
+                await body.evaluate(clearInteractionState, settings.namespace);
+            } catch (_error) {
+                cleanupFailures.push('interaction-state-cleanup-failed');
+            }
+        }
         try {
-            if (initialized) await body.evaluate(clearInteractionState, settings.namespace);
-        } finally {
             await body.dispose();
+        } catch (_error) {
+            cleanupFailures.push('interaction-document-disposal-failed');
+        }
+        if (cleanupFailures.length) {
+            const lastScenario = scenarios[scenarios.length - 1];
+            if (lastScenario) {
+                if (lastScenario.status === 'passed') lastScenario.status = 'needs-closer-look';
+                lastScenario.qualification = 'needs-closer-look';
+                for (const code of cleanupFailures) needsCloserLook.push({ scenario: lastScenario.id, code });
+            }
         }
     }
     return { scenarios, needsCloserLook };
