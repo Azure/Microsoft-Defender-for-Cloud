@@ -326,6 +326,8 @@ Reports distinguish execution from qualification:
 
 - `interactionScenarios` contains per-step statuses and assertion counts, never captured row values,
   parameter payloads, expected identifiers, or raw DOM/error details.
+  Each step retains safe `panelResults` (grid/column counts, checked labels and any accepted
+  returned/total truncation), so accepting a limit never discards that qualification boundary.
 - `needsCloserLook` retains unexecuted, failed, unsupported, or still-authentication-dependent items.
   Generation reports `not-run`; missing consent/browser setup reports `blocked`, not a pass.
 - `reviewState: "needs-closer-look"` can remain even when synthetic UI checks pass. Only matching,
@@ -334,6 +336,12 @@ Reports distinguish execution from qualification:
 - On the first unsuccessful step, later actions are `not-run`. Failed interaction runs throw with an
   aggregate `error.report`; CLI/generated runners print that report and still fail rather than
   returning success-shaped fallbacks.
+
+Parameter assertions require a bounded 250 ms matching-observation window, not the first matching
+read. Unchanged baselines are captured stably before the action and are never overwritten by later
+checks. All assertions are revalidated against those original baselines after panel readiness and
+again after capture. Delayed filter/scope resets therefore fail rather than inheriting an earlier
+transient match. Insufficient timeouts remain failures; they do not shorten the required stable window.
 
 To close a runtime review gap, retain exact original/imported hashes and revisions, fresh confirmed
 tenant evidence, passing scenario/parameter/rendered-cell contracts, and any remaining limits.

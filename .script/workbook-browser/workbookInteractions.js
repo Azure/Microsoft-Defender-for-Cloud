@@ -616,6 +616,8 @@ function waitForInteractionParameters(body, settings) {
         const state = document.__workbookValidationInteractions;
         const deadline = Date.now() + settings.timeout;
         let timer;
+        let stableSince;
+        let previous;
         const observer = new document.defaultView.MutationObserver(inspect);
         function finish(result) {
             observer.disconnect();
@@ -641,6 +643,7 @@ function waitForInteractionParameters(body, settings) {
                 return;
             }
             let code;
+            const observations = [];
             for (const assertion of settings.assertions) {
                 if (settings.snapshot && assertion.comparison !== 'unchanged') continue;
                 const result = state.read(assertion.probe, assertion.parse);
@@ -649,7 +652,7 @@ function waitForInteractionParameters(body, settings) {
                     break;
                 }
                 if (settings.snapshot) {
-                    state.snapshots.set(assertion.probe, result.value);
+                    observations.push({ probe: assertion.probe, value: result.value });
                     continue;
                 }
                 let expected;
@@ -664,13 +667,30 @@ function waitForInteractionParameters(body, settings) {
                     code = 'parameter-assertion-mismatch';
                     break;
                 }
+                observations.push({ probe: assertion.probe, value: result.value });
             }
             if (!code) {
-                finish({ ok: true });
-                return;
+                if (!observations.length) {
+                    finish({ ok: true });
+                    return;
+                }
+                if (stableSince === undefined || !state.same(observations, previous)) {
+                    stableSince = Date.now();
+                    previous = observations;
+                }
+                if (Date.now() - stableSince >= 250 && Date.now() <= deadline) {
+                    if (settings.snapshot) {
+                        for (const observation of observations) state.snapshots.set(observation.probe, observation.value);
+                    }
+                    finish({ ok: true });
+                    return;
+                }
+            } else {
+                stableSince = undefined;
+                previous = undefined;
             }
             if (Date.now() >= deadline) {
-                finish({ ok: false, code });
+                finish({ ok: false, code: code || 'parameter-observations-unstable' });
                 return;
             }
             document.defaultView.clearTimeout(timer);
@@ -743,7 +763,8 @@ async function runInteractionScenarios(page, frame, plan, helpers) {
                     parameterAssertions: 0,
                     panelAssertions: 0,
                     cellAssertions: 0,
-                    dataContracts: 0
+                    dataContracts: 0,
+                    panelResults: []
                 };
                 result.steps.push(outcome);
                 if (stopped) {
@@ -808,6 +829,7 @@ async function runInteractionScenarios(page, frame, plan, helpers) {
                     for (const panel of step.expect.panels) {
                         try {
                             const checked = await helpers.checkPanel(panel);
+                            outcome.panelResults.push(checked);
                             if (checked.grid) outcome.dataContracts++;
                         } catch (_error) {
                             const error = new Error('A requested interaction result panel or rendered-cell contract failed.');
@@ -818,15 +840,36 @@ async function runInteractionScenarios(page, frame, plan, helpers) {
                     outcome.parameterAssertions = step.expect.parameters.length;
                     outcome.panelAssertions = step.expect.panels.length;
                     outcome.cellAssertions = step.expect.panels.reduce((count, panel) => count + panel.cells.length, 0);
+                    outcome.phase = 'recheck-parameters-after-panels';
+                    requireResult(
+                        await body.evaluate(waitForInteractionParameters, {
+                            ...settings,
+                            assertions: step.expect.parameters,
+                            timeout: plan.timeout
+                        })
+                    );
                     outcome.phase = 'capture-result';
                     await helpers.capture(step.expect.panels.flatMap(panel => [panel.heading, ...(panel.columns || [])]));
+                    outcome.phase = 'recheck-parameters-after-capture';
+                    requireResult(
+                        await body.evaluate(waitForInteractionParameters, {
+                            ...settings,
+                            assertions: step.expect.parameters,
+                            timeout: plan.timeout
+                        })
+                    );
                     outcome.phase = 'verify-session-after-observations';
                     await verifyTenant();
                     outcome.status = 'passed';
                     outcome.phase = 'complete';
                 } catch (error) {
                     const code = error.validationCode || 'interaction-interrupted';
-                    outcome.status = ['parameter-assertion-mismatch', 'parameter-json-invalid', 'panel-contract-failed'].includes(code)
+                    outcome.status = [
+                        'parameter-assertion-mismatch',
+                        'parameter-json-invalid',
+                        'parameter-observations-unstable',
+                        'panel-contract-failed'
+                    ].includes(code)
                         ? 'failed'
                         : 'needs-closer-look';
                     outcome.code = code;

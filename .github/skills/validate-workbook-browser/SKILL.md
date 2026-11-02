@@ -63,6 +63,8 @@ Manual, AI-assisted, and unredacted modes require explicit approval for potentia
 3. For filtering, assert the changed parameter value, preserved context and rendered results.
    For reset, assert the cleared target, unchanged unrelated filters, and resulting view/data.
    Missing parameter/control hooks are needs-closer-look items, never inferred successful propagation.
+   Require stable matching parameter observations and the runner's rechecks after panels and capture
+   against the original pre-action snapshots; a transient initial match does not close the gap.
 4. Obtain explicit opt-in via `instrumentation: true` for a separate unsaved test copy with passive source
    boundaries/private base64 probes. Keep production files, query/export definitions, defaults, and scopes
    unchanged. Record original and imported hashes separately. Never save or publish the diagnostic copy.
@@ -74,6 +76,8 @@ Manual, AI-assisted, and unredacted modes require explicit approval for potentia
    on thrown `error.report`. Unit/synthetic passes, generation, and not-run steps cannot clear authenticated
    pending items. Failed steps stop later actions; there is no action retry, URL fallback, or success-shaped
    conversion. Report aggregate status/codes, not private cells, parameter payloads, identifiers, or raw errors.
+   Review step `panelResults` as well: accepted truncation and grid evidence must survive into the report,
+   including returned/total limits. Explicitly accepted truncation is never complete resource coverage.
 7. Close only the specifically asserted behavior with matching tested revisions/hashes and actual
    authenticated-instrumented evidence. Recheck unmodified-source layout separately. If the published source
    changes, keep the affected item pending until revalidated; do not carry a previous live pass forward.

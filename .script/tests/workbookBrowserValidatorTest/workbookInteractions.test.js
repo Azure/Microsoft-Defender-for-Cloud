@@ -193,7 +193,7 @@ describe('Observing private runtime parameter propagation without publishing val
         const state = fixture.document.__workbookValidationInteractions;
         state.captures.set('picked', { Key: 'item-one', Label: 'Private Unicode \u03b1' });
         const result = await interactions.waitForInteractionParameters(fixture.body, {
-            ...fixture.settings, assertions: fixture.steps[0].expect.parameters, timeout: 100
+            ...fixture.settings, assertions: fixture.steps[0].expect.parameters, timeout: 1000
         });
         assert.deepEqual(result, { ok: true });
         assert.ok(!JSON.stringify(result).includes('Private Unicode'));
@@ -207,19 +207,19 @@ describe('Observing private runtime parameter propagation without publishing val
         state.captures.set('picked', { Key: 'item-one', Label: 'Private Unicode \u03b1' });
         interactions.prepareInteractionStep(fixture.body, { ...fixture.settings, startScenario: false });
         await interactions.waitForInteractionParameters(fixture.body, {
-            ...fixture.settings, assertions: fixture.steps[1].expect.parameters, timeout: 100, snapshot: true
+            ...fixture.settings, assertions: fixture.steps[1].expect.parameters, timeout: 1000, snapshot: true
         });
         fixture.values.set('Filter', 'Failed');
         assert.deepEqual(await interactions.waitForInteractionParameters(fixture.body, {
-            ...fixture.settings, assertions: fixture.steps[1].expect.parameters, timeout: 100
+            ...fixture.settings, assertions: fixture.steps[1].expect.parameters, timeout: 1000
         }), { ok: true });
         interactions.prepareInteractionStep(fixture.body, { ...fixture.settings, startScenario: false });
         await interactions.waitForInteractionParameters(fixture.body, {
-            ...fixture.settings, assertions: fixture.steps[2].expect.parameters, timeout: 100, snapshot: true
+            ...fixture.settings, assertions: fixture.steps[2].expect.parameters, timeout: 1000, snapshot: true
         });
         fixture.values.set('Selection', '{}');
         assert.deepEqual(await interactions.waitForInteractionParameters(fixture.body, {
-            ...fixture.settings, assertions: fixture.steps[2].expect.parameters, timeout: 100
+            ...fixture.settings, assertions: fixture.steps[2].expect.parameters, timeout: 1000
         }), { ok: true });
         fixture.values.set('Filter', 'All');
         const failure = await interactions.waitForInteractionParameters(fixture.body, {
@@ -254,14 +254,63 @@ describe('Observing private runtime parameter propagation without publishing val
         assert.ok(!JSON.stringify(result).includes('Private'));
         interactions.clearInteractionState(fixture.body, fixture.settings.namespace);
     });
+
+    it('does not pass on a transient matching value before a delayed scope reset', async () => {
+        const fixture = probeDocument();
+        fixture.document.__workbookValidationInteractions.captures.set('picked',
+            { Key: 'item-one', Label: 'Private Unicode \u03b1' });
+        const timer = setTimeout(() => fixture.values.set('Selection', '{}'), 40);
+        try {
+            const result = await interactions.waitForInteractionParameters(fixture.body, {
+                ...fixture.settings, assertions: fixture.steps[0].expect.parameters, timeout: 400
+            });
+            assert.deepEqual(result, { ok: false, code: 'parameter-assertion-mismatch' });
+        } finally {
+            clearTimeout(timer);
+            interactions.clearInteractionState(fixture.body, fixture.settings.namespace);
+        }
+    });
+
+    it('waits for legitimate delayed propagation and a full matching observation interval', async () => {
+        const fixture = probeDocument();
+        const timer = setTimeout(() => fixture.values.set('Filter', 'Failed'), 40);
+        const start = Date.now();
+        try {
+            const result = await interactions.waitForInteractionParameters(fixture.body, {
+                ...fixture.settings, assertions: fixture.steps[1].expect.parameters.filter(assertion =>
+                    assertion.comparison !== 'unchanged'), timeout: 1000
+            });
+            assert.deepEqual(result, { ok: true });
+            assert.ok(Date.now() - start >= 250);
+        } finally {
+            clearTimeout(timer);
+            interactions.clearInteractionState(fixture.body, fixture.settings.namespace);
+        }
+    });
+
+    it('does not shorten the required stable window when the caller provides an insufficient timeout', async () => {
+        const fixture = probeDocument();
+        const assertions = fixture.steps[0].expect.parameters.filter(assertion => assertion.parse === 'text');
+        const result = await interactions.waitForInteractionParameters(fixture.body, {
+            ...fixture.settings, assertions, timeout: 100
+        });
+        assert.deepEqual(result, { ok: false, code: 'parameter-observations-unstable' });
+        interactions.clearInteractionState(fixture.body, fixture.settings.namespace);
+    });
 });
 
-function scenarioHost({ failAt, unavailable = false, captureFailure = false } = {}) {
+function scenarioHost({ failAt, unavailable = false, captureFailure = false, failAfter, truncated = false } = {}) {
     const planned = plan();
+    if (truncated) {
+        for (const step of planned.interactions.scenarios[0].steps) {
+            for (const panel of step.expect.panels) panel.allowTruncated = true;
+        }
+    }
     const calls = [];
     let activeStep = -1;
     let cleared = false;
     let disposed = false;
+    let stage;
     const body = {
         async evaluate(callback, argument) {
             if (callback === interactions.initializeInteractionState) return;
@@ -272,7 +321,8 @@ function scenarioHost({ failAt, unavailable = false, captureFailure = false } = 
                     argument.action.type === 'setParameter' ? 'select' : 'button' };
             }
             if (callback === interactions.waitForInteractionParameters) {
-                if (!argument.snapshot && activeStep === failAt) {
+                if (!argument.snapshot && (activeStep === failAt ||
+                    (failAfter !== undefined && activeStep === 0 && failAfter === stage))) {
                     return { ok: false, code: unavailable ? 'parameter-probe-unavailable' : 'parameter-assertion-mismatch' };
                 }
                 return { ok: true };
@@ -289,8 +339,13 @@ function scenarioHost({ failAt, unavailable = false, captureFailure = false } = 
         async navigate() {},
         async assertTab() {},
         async activate(_target, _timeout, key) { calls.push(key || 'Enter'); },
-        async checkPanel() { return { grid: { rows: 1 } }; },
+        async checkPanel() {
+            stage = 'panels';
+            return { heading: 'Safe summary', settled: true, grid: { rows: 1, columns: ['Label', 'Count'] },
+                ...(truncated ? { truncation: { returned: 100, total: 1000 } } : {}) };
+        },
         async capture() {
+            stage = 'capture';
             if (captureFailure) {
                 const error = new Error('Private error value must not be reported');
                 error.validationCode = 'screenshot-capture-failed';
@@ -311,6 +366,31 @@ describe('Reporting interaction execution separately from authenticated qualific
         assert.ok(report.needsCloserLook.every(item => item.code === 'authenticated-validation-pending'));
         assert.ok(host.calls.includes('Space'));
         assert.ok(host.calls.filter(call => call === 'verify').length >= 7);
+        assert.ok(host.cleaned());
+    });
+
+    for (const stage of ['panels', 'capture']) {
+        it(`rechecks the original parameter snapshots after ${stage} observations`, async () => {
+            const host = scenarioHost({ failAfter: stage });
+            const report = await interactions.runInteractionScenarios({}, host.frame, host.planned, host.helpers);
+            assert.equal(report.scenarios[0].steps[0].status, 'failed');
+            assert.equal(report.scenarios[0].steps[0].code, 'parameter-assertion-mismatch');
+            assert.equal(report.scenarios[0].steps[0].phase, `recheck-parameters-after-${stage}`);
+            assert.ok(report.scenarios[0].steps.slice(1).every(step => step.status === 'not-run'));
+            assert.ok(host.cleaned());
+        });
+    }
+
+    it('preserves accepted truncation and safe grid evidence in scenario step reports', async () => {
+        const host = scenarioHost({ truncated: true });
+        host.planned.interactions.evidenceMode = 'authenticated';
+        const report = await interactions.runInteractionScenarios({}, host.frame, host.planned, host.helpers);
+        assert.equal(report.scenarios[0].qualification, 'authenticated-instrumented');
+        for (const step of report.scenarios[0].steps) {
+            assert.deepEqual(step.panelResults[0].truncation, { returned: 100, total: 1000 });
+            assert.deepEqual(step.panelResults[0].grid, { rows: 1, columns: ['Label', 'Count'] });
+        }
+        assert.ok(!JSON.stringify(report).includes('item-one'));
         assert.ok(host.cleaned());
     });
 
