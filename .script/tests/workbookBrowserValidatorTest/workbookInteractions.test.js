@@ -47,6 +47,20 @@ describe('Planning generalized drill-through, filter and reset scenarios...', ()
         assert.ok(!script.includes("require('"));
     });
 
+    it('reuses shared panel defaults while preserving exact per-step contract overrides', () => {
+        const result = plan();
+        const panels = result.interactions.scenarios[0].steps.map(step => step.expect.panels[0]);
+        assert.ok(panels.every(panel => panel.minRows === 1 && panel.maxRows === 1));
+        assert.ok(panels.every(panel => JSON.stringify(panel.columns) === JSON.stringify(['Key', 'Label', 'Filter'])));
+        const profile = clone(checks);
+        profile.scenarios[0].steps[1].expect.panels[0].maxRows = 2;
+        const overridden = validator.createValidationPlan(source, profile);
+        assert.equal(overridden.interactions.scenarios[0].steps[0].expect.panels[0].maxRows, 1);
+        assert.equal(overridden.interactions.scenarios[0].steps[1].expect.panels[0].maxRows, 2);
+        profile.scenarios[0].panelDefaults.selector = '#unsafe';
+        assert.throws(() => validator.createValidationPlan(source, profile), /panel defaults/);
+    });
+
     it('records unexecuted needs-closer-look items during offline profile loading', () => {
         const input = validator.loadValidationInput(workbookPath, checksPath);
         assert.equal(input.reviewPlan.status, 'not-run');

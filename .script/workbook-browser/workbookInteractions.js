@@ -121,7 +121,7 @@ function planInteractionScenarios(workbook, options, tabs, normalizePanel) {
     }
     const scenarioIds = new Set();
     const scenarios = requested.map(scenario => {
-        object(scenario, ['id', 'tab', 'requiresAuthenticated', 'steps'], 'Invalid scenario fields.');
+        object(scenario, ['id', 'tab', 'requiresAuthenticated', 'steps', 'panelDefaults'], 'Invalid scenario fields.');
         const scenarioId = id(scenario.id);
         if (scenarioIds.has(scenarioId)) throw new Error('Scenario IDs must be unique.');
         scenarioIds.add(scenarioId);
@@ -129,6 +129,15 @@ function planInteractionScenarios(workbook, options, tabs, normalizePanel) {
         if (typeof requiresAuthenticated !== 'boolean' || !Array.isArray(scenario.steps) || !scenario.steps.length) {
             throw new Error('Scenarios require steps and a boolean requiresAuthenticated choice.');
         }
+        const panelDefaults = scenario.panelDefaults === undefined ? {} : scenario.panelDefaults;
+        object(panelDefaults, ['minRows', 'maxRows', 'columns', 'allowTruncated'], 'Invalid shared scenario panel defaults.');
+        normalizePanel({ ...panelDefaults, heading: 'Scenario defaults' }, 'Scenario panel defaults', [
+            'heading',
+            'minRows',
+            'maxRows',
+            'columns',
+            'allowTruncated'
+        ]);
         const captures = new Set();
         const stepIds = new Set();
         const steps = scenario.steps.map(step => {
@@ -303,15 +312,11 @@ function planInteractionScenarios(workbook, options, tabs, normalizePanel) {
             if (!Array.isArray(panelRequests)) throw new Error('Step panels must be an array.');
             const panels = panelRequests.map(panel => {
                 if (panel.tab !== undefined) throw new Error('Step panels apply to the observed current tab; use expect.tab instead.');
-                const result = normalizePanel({ ...panel, tab: step.expect.tab || step.tab || scenario.tab || tabs[0] }, 'Scenario panel', [
-                    'tab',
-                    'heading',
-                    'minRows',
-                    'maxRows',
-                    'columns',
-                    'allowTruncated',
-                    'cells'
-                ]);
+                const result = normalizePanel(
+                    { ...panelDefaults, ...panel, tab: step.expect.tab || step.tab || scenario.tab || tabs[0] },
+                    'Scenario panel',
+                    ['tab', 'heading', 'minRows', 'maxRows', 'columns', 'allowTruncated', 'cells']
+                );
                 for (const cell of result.cells) expected(cell.equals, captures);
                 return result;
             });

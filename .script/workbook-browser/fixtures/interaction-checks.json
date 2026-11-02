@@ -6,6 +6,11 @@
       "id": "scope-filter-reset",
       "tab": "Overview",
       "requiresAuthenticated": true,
+      "panelDefaults": {
+        "minRows": 1,
+        "maxRows": 1,
+        "columns": ["Key", "Label", "Filter"]
+      },
       "steps": [
         {
           "id": "drill-through",
@@ -36,9 +41,6 @@
             "panels": [
               {
                 "heading": "Selection results",
-                "minRows": 1,
-                "maxRows": 1,
-                "columns": ["Key", "Label", "Filter"],
                 "cells": [
                   { "row": 0, "column": "Key", "equals": { "$cell": { "capture": "picked", "column": "Key" } } },
                   { "row": 0, "column": "Filter", "equals": "All" }
@@ -73,10 +75,8 @@
             "panels": [
               {
                 "heading": "Selection results",
-                "minRows": 1,
-                "maxRows": 1,
-                "columns": ["Key", "Label", "Filter"],
                 "cells": [
+                  { "row": 0, "column": "Label", "equals": { "$cell": { "capture": "picked", "column": "Label" } } },
                   { "row": 0, "column": "Key", "equals": { "$cell": { "capture": "picked", "column": "Key" } } },
                   { "row": 0, "column": "Filter", "equals": "Failed" }
                 ]
@@ -109,9 +109,6 @@
             "panels": [
               {
                 "heading": "Selection results",
-                "minRows": 1,
-                "maxRows": 1,
-                "columns": ["Key", "Label", "Filter"],
                 "cells": [
                   { "row": 0, "column": "Key", "equals": "" },
                   { "row": 0, "column": "Filter", "equals": "Failed" }

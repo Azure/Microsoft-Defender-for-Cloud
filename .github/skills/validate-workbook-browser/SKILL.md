@@ -64,9 +64,9 @@ Manual, AI-assisted, and unredacted modes require explicit approval for potentia
    For reset, assert the cleared target, unchanged unrelated filters, and resulting view/data.
    Missing parameter/control hooks are needs-closer-look items, never inferred successful propagation.
 4. Obtain explicit opt-in via `instrumentation: true` for a separate unsaved test copy with passive source
-   boundaries/private Base64 probes. Keep production files, query/export definitions, defaults, and scopes
+   boundaries/private base64 probes. Keep production files, query/export definitions, defaults, and scopes
    unchanged. Record original and imported hashes separately. Never save or publish the diagnostic copy.
-   Base64 is not redaction; instrumented screenshots allow auto redaction only.
+   base64 is not redaction; instrumented screenshots allow auto redaction only.
 5. Declare `evidenceMode` honestly per run. Use `authenticated` only for an actual confirmed Azure session,
    never a mock/intercepted page. Keep `requiresAuthenticated: true` for Azure portal review gaps.
    Missing fresh confirmation, expired sign-in, wrong tenant, or unavailable browser pauses the run.

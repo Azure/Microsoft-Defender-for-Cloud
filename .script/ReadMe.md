@@ -244,7 +244,7 @@ Planning also returns nonfatal `sourceDiagnostics`: `non-string-threshold` flags
 that can crash the string-based portal renderer, and `global-input-export-cycle-risk` flags a query
 that exports a global parameter it directly consumes. These are review risks, not a complete KQL or
 dependency analysis; intentional global brushing can be valid. Diagnostics contain codes/item indexes,
-not source values, and never rewrite source or auto-fix risks. Optional scenario instrumentation is
+not source values, and never rewrite source or autofix risks. Optional scenario instrumentation is
 a separate explicitly requested operation, reported with its own imported-source hash.
 
 The JSON report includes the normalized source hash, visited labels, eager/deferred contract results,
@@ -286,7 +286,7 @@ For each pending review item:
    clicking a reset button or seeing an empty table as proof of correct parameter propagation.
 
 Scenarios require explicit `instrumentation: true`. Hidden values are observed through passive
-read-only Base64 probes placed in a separate **unsaved test copy**, with source-boundary markers
+read-only base64 probes placed in a separate **unsaved test copy**, with source-boundary markers
 around declared action producers. Parameter definitions, defaults, queries, exports and action links
 are not changed. Production files are never rewritten. The report retains the original `sourceSha256`
 and separate `importedSourceSha256`; instrumented layout is not a claim of exact published-layout
@@ -298,7 +298,7 @@ fallback is used. Dropdown options must belong to the verified picker's `aria-co
 list. Missing, ambiguous, unsupported, or replaced bindings stop execution. Passive readiness polling
 is bounded; actions are not retried. Private comparison state and temporary action markers are
 cleaned after execution; passive probes remain in the unsaved copy until it is discarded.
-Base64 is **not encryption or redaction**: keep the test copy and generated script
+base64 is **not encryption or redaction**: keep the test copy and generated script
 private, never save it, and discard it after testing. Instrumented captures support auto redaction
 only, to avoid exposing diagnostic values through selectively redacted/raw screenshots.
 
@@ -309,6 +309,7 @@ Useful profile fields:
 | `instrumentation` | Must explicitly be `true` for scenarios. Ordinary runs still import exact unmodified source. |
 | `evidenceMode` | Caller-declared `synthetic`, `authenticated`, or default `unspecified`; never inferred from a portal-looking URL. |
 | `scenarios[].requiresAuthenticated` | Defaults to `true`; keep it true for pending Azure portal review items. |
+| `scenarios[].panelDefaults` | Shared `minRows`, `maxRows`, `columns`, and `allowTruncated` defaults for that scenario's result panels; explicit step-panel values override them. |
 | `scenarios[].tab` / `steps[].tab` | Explicit setup navigation within the primary source tabset. |
 | `steps[].action` | `selectRow`, `expandRow`, `setParameter`, or `parameterLink`, with a source `item` and type-specific fields. |
 | `steps[].expect.tab` | Observe the resulting selected tab; the runner does not navigate there to manufacture a pass. |
