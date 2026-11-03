@@ -1268,7 +1268,7 @@
           {
             "type": 1,
             "content": {
-              "json": "#### Setup instructions — continuous export\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**.\n2. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the **same workspace**. Review enabled status, subscription-wide scope and source filters against the findings below.\n3. Verify destination permissions before saving configuration. A central destination can be in another subscription; a configuration pass is not proof that data has arrived.\n\nMicrosoft Learn: [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) · [Configure continuous export at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy)."
+              "json": "#### Setup instructions — continuous export\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**.\n2. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the **same workspace**. Review enabled status, subscription-wide scope and source filters against the findings below.\n3. Verify destination permissions before saving configuration. A central destination can be in another subscription; a configuration pass is not proof that data has arrived.\n\nMicrosoft Learn: [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) · [Configure continuous export at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy).\n\nInspect the detailed switches, scopes, destinations and source-filter tables below. API field reference: [Security automation settings, sources, actions and rules](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/2023-12-01-preview/automations)."
             },
             "name": "ReadinessNextSteps",
             "conditionalVisibility": {
@@ -1346,6 +1346,197 @@
               }
             },
             "name": "ReadinessConfigurations"
+          },
+          {
+            "type": 1,
+            "name": "ReadinessSettingsGuidance",
+            "content": {
+              "json": "#### Observed continuous-export and automation settings\nThe inventories below show **all visible security automations**, not just Regulatory compliance or workspace destinations. Match **Automation ID** across the three tables: every source and rule applies to that automation's listed scopes and destinations. **On / Off** is the reported automation switch, not a per-source delivery check; missing values remain **Unknown**. A subscription with no visible automation remains **Not observed**, never Off.\n\nSource rows show the API event name and frequency (snapshot sources use the documented weekly schedule; it is not a custom interval setting). Only configured sources are listed: an absent data type is **not observed**, not proven disabled. Rule sets are combined with **OR**, rules within a set with **AND**; rule-set and rule numbers preserve those groups. Review filters against the intended coverage, including recommendation severity, assessment state and alert severity where configured.\n\nDestination details include workspace, Event Hub and Logic App resource IDs, plus Event Hub trusted-service status. Connection strings and signed trigger URLs are deliberately excluded. Resource Graph cannot establish delivery, destination access, retention, workspace costs or every portal-specific setting. Arrays are capped at 2,000 entries per level and flagged when incomplete; narrow the subscription selection if result limits apply."
+            }
+          },
+          {
+            "type": 3,
+            "name": "ReadinessAutomationScopes",
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend subscriptionId = tolower(subscriptionId), Automation = name, AutomationId = id, Location = location,\r\n        EnabledValue = tolower(tostring(properties.isEnabled)),\r\n        ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | extend Enabled = case(EnabledValue == 'true', 'On', EnabledValue == 'false', 'Off', 'Unknown / not reported')\r\n    | extend Description = tostring(properties.description),\r\n        ScopeList = iff(coalesce(ScopeCount, 0) > 0, properties.scopes, dynamic([{}]))\r\n    | mv-expand Scope = ScopeList limit 2000\r\n    | extend ScopePath = tostring(Scope.scopePath), ScopeDescription = tostring(Scope.description),\r\n        Lists = strcat('Scopes: ', tostring(ScopeCount), '; destinations: ', tostring(ActionCount), '; sources: ', tostring(SourceCount)),\r\n        Review = strcat(iff(isnull(ScopeCount) or ScopeCount == 0, 'Scope list missing, empty or invalid; ', ''),\r\n            iff(isnull(ActionCount) or ActionCount == 0, 'Destination list missing, empty or invalid; ', ''),\r\n            iff(isnull(SourceCount) or SourceCount == 0, 'Source list missing, empty or invalid; ', ''),\r\n            iff(ScopeCount > 2000 or ActionCount > 2000 or SourceCount > 2000, 'List exceeds 2000: inventory incomplete; ', ''),\r\n            iff(isempty(tostring(Scope.scopePath)), 'Scope path not reported; ', ''))\r\n    | project subscriptionId, Automation, AutomationId, Location, Enabled, Description, ScopePath, ScopeDescription, Lists, Review\r\n) on subscriptionId\r\n| extend Automation = iff(isempty(AutomationId), 'Not observed', Automation), Enabled = iff(isempty(AutomationId), 'Not observed', Enabled)\r\n| extend ScopePath = iff(isempty(ScopePath), 'Not reported', ScopePath),\r\n    Review = case(isempty(AutomationId), 'No visible automation; verify read access before configuring export.', isempty(Review), 'None observed; configuration only, not delivery evidence.', Review)\r\n| project Subscription, Automation, Enabled, Location, ScopePath, ScopeDescription, Lists, Review, Description, AutomationId, subscriptionId\r\n| order by Subscription asc, Automation asc, ScopePath asc\r\n",
+              "size": 0,
+              "title": "Export automation switches and scopes",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "Enabled",
+                    "label": "Automation enabled"
+                  },
+                  {
+                    "columnId": "ScopePath",
+                    "label": "Scope path"
+                  },
+                  {
+                    "columnId": "ScopeDescription",
+                    "label": "Scope description"
+                  },
+                  {
+                    "columnId": "Lists",
+                    "label": "Configured list counts"
+                  },
+                  {
+                    "columnId": "Review",
+                    "label": "Review findings"
+                  },
+                  {
+                    "columnId": "AutomationId",
+                    "label": "Automation ID"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 3,
+            "name": "ReadinessAutomationDestinations",
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend subscriptionId = tolower(subscriptionId), Automation = name, AutomationId = id, Location = location,\r\n        EnabledValue = tolower(tostring(properties.isEnabled)),\r\n        ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | extend Enabled = case(EnabledValue == 'true', 'On', EnabledValue == 'false', 'Off', 'Unknown / not reported')\r\n    | extend ActionList = iff(coalesce(ActionCount, 0) > 0, properties.actions, dynamic([{}]))\r\n    | mv-expand Action = ActionList limit 2000\r\n    | extend DestinationType = tostring(Action.actionType),\r\n        Workspace = tostring(Action.workspaceResourceId), EventHub = tostring(Action.eventHubResourceId), LogicApp = tostring(Action.logicAppResourceId),\r\n        TrustedValue = tolower(tostring(Action.isTrustedServiceEnabled))\r\n    | extend TrustedService = case(DestinationType !~ 'EventHub', 'Not applicable', TrustedValue == 'true', 'On', TrustedValue == 'false', 'Off', 'Unknown / not reported'),\r\n        Review = strcat(iff(isnull(ActionCount) or ActionCount == 0, 'Destination list missing, empty or invalid; ', ''),\r\n            iff(ActionCount > 2000, 'More than 2000 destinations: inventory incomplete; ', ''),\r\n            iff(DestinationType !in~ ('Workspace', 'EventHub', 'LogicApp'), 'Missing or unsupported destination type; ', ''),\r\n            iff((DestinationType =~ 'Workspace' and isempty(Workspace)) or (DestinationType =~ 'EventHub' and isempty(EventHub)) or (DestinationType =~ 'LogicApp' and isempty(LogicApp)), 'Destination resource ID not reported; ', ''))\r\n    | project subscriptionId, Automation, AutomationId, Enabled, DestinationType, Workspace, EventHub, LogicApp, TrustedService, Review\r\n) on subscriptionId\r\n| extend Automation = iff(isempty(AutomationId), 'Not observed', Automation), Enabled = iff(isempty(AutomationId), 'Not observed', Enabled)\r\n| extend DestinationType = iff(isempty(DestinationType), 'Not reported', DestinationType),\r\n    Review = case(isempty(AutomationId), 'No visible automation; destination settings not observed.', isempty(Review), 'None observed; verify destination permissions and delivery.', Review)\r\n| project Subscription, Automation, Enabled, DestinationType, Workspace, EventHub, LogicApp, TrustedService, Review, AutomationId, subscriptionId\r\n| order by Subscription asc, Automation asc, DestinationType asc\r\n",
+              "size": 0,
+              "title": "Export destination settings",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "Enabled",
+                    "label": "Automation enabled"
+                  },
+                  {
+                    "columnId": "DestinationType",
+                    "label": "Destination type"
+                  },
+                  {
+                    "columnId": "Workspace",
+                    "label": "Workspace resource ID"
+                  },
+                  {
+                    "columnId": "EventHub",
+                    "label": "Event Hub resource ID"
+                  },
+                  {
+                    "columnId": "LogicApp",
+                    "label": "Logic App resource ID"
+                  },
+                  {
+                    "columnId": "TrustedService",
+                    "label": "Event Hub trusted service"
+                  },
+                  {
+                    "columnId": "Review",
+                    "label": "Review findings"
+                  },
+                  {
+                    "columnId": "AutomationId",
+                    "label": "Automation ID"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 3,
+            "name": "ReadinessAutomationSources",
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend subscriptionId = tolower(subscriptionId), Automation = name, AutomationId = id, Location = location,\r\n        EnabledValue = tolower(tostring(properties.isEnabled)),\r\n        ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | extend Enabled = case(EnabledValue == 'true', 'On', EnabledValue == 'false', 'Off', 'Unknown / not reported')\r\n    | extend SourceList = iff(coalesce(SourceCount, 0) > 0, properties.sources, dynamic([{}]))\r\n    | mv-expand Source = SourceList limit 2000\r\n    | extend EventSource = tostring(Source.eventSource), RuleSetCount = array_length(Source.ruleSets)\r\n    | extend RuleSetList = iff(coalesce(RuleSetCount, 0) > 0, Source.ruleSets, dynamic([{}])),\r\n        FilterState = case(isnull(Source.ruleSets) or RuleSetCount == 0, 'No rule sets reported', isnull(RuleSetCount), 'Invalid rule-set list / review', 'Filtered / review')\r\n    | mv-expand with_itemindex=RuleSetIndex RuleSet = RuleSetList limit 2000\r\n    | extend RuleCount = array_length(RuleSet.rules)\r\n    | extend RuleList = iff(coalesce(RuleCount, 0) > 0, RuleSet.rules, dynamic([{}]))\r\n    | mv-expand with_itemindex=RuleIndex Rule = RuleList limit 2000\r\n    | extend Frequency = case(EventSource in~ ('AssessmentsSnapshot', 'SubAssessmentsSnapshot', 'SecureScoresSnapshot', 'SecureScoreControlsSnapshot', 'RegulatoryComplianceAssessmentSnapshot', 'AttackPathsSnapshot'), 'Weekly snapshots', EventSource in~ ('Alerts', 'Assessments', 'SubAssessments', 'SecureScores', 'SecureScoreControls', 'RegulatoryComplianceAssessment', 'AttackPaths'), 'Streaming updates', 'Unknown / review'),\r\n        Property = tostring(Rule.propertyJPath), PropertyType = tostring(Rule.propertyType), Operator = tostring(Rule.operator), ExpectedValue = tostring(Rule.expectedValue),\r\n        Review = strcat(iff(isnull(SourceCount) or SourceCount == 0, 'Source list missing, empty or invalid; ', ''),\r\n            iff(SourceCount > 2000 or RuleSetCount > 2000 or RuleCount > 2000, 'List exceeds 2000: inventory incomplete; ', ''),\r\n            iff(isempty(EventSource), 'Event source not reported; ', ''),\r\n            iff(isnotnull(Source.ruleSets) and isnull(RuleSetCount), 'Invalid rule-set list; ', ''),\r\n            iff(RuleSetCount > 0 and (isnull(RuleCount) or RuleCount == 0), 'Rule set has missing, empty or invalid rules; ', ''),\r\n            iff(RuleCount > 0 and (isempty(tostring(Rule.propertyJPath)) or isempty(tostring(Rule.propertyType)) or isempty(tostring(Rule.operator)) or isnull(Rule.expectedValue)), 'Incomplete rule fields; ', ''))\r\n    | project subscriptionId, Automation, AutomationId, Enabled, EventSource, Frequency, FilterState, RuleSetIndex, RuleIndex, Property, PropertyType, Operator, ExpectedValue, Review\r\n) on subscriptionId\r\n| extend Automation = iff(isempty(AutomationId), 'Not observed', Automation), Enabled = iff(isempty(AutomationId), 'Not observed', Enabled)\r\n| extend EventSource = iff(isempty(EventSource), 'Not reported', EventSource),\r\n    FilterState = iff(isempty(AutomationId), 'Not observed', FilterState),\r\n    Frequency = iff(isempty(AutomationId), 'Not observed', Frequency),\r\n    RuleSet = iff(FilterState == 'Filtered / review', tostring(RuleSetIndex + 1), ''),\r\n    RuleNumber = iff(isnotempty(Property) or isnotempty(Operator), tostring(RuleIndex + 1), ''),\r\n    Review = case(isempty(AutomationId), 'No visible automation; source settings not observed.', isempty(Review), 'None observed; configured source only, not delivery evidence.', Review)\r\n| project Subscription, Automation, Enabled, EventSource, Frequency, FilterState, RuleSet, RuleNumber, Property, PropertyType, Operator, ExpectedValue, Review, AutomationId, subscriptionId\r\n| order by Subscription asc, Automation asc, EventSource asc, RuleSet asc, RuleNumber asc\r\n",
+              "size": 0,
+              "title": "Export data types, frequencies and filter rules",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "Enabled",
+                    "label": "Automation enabled"
+                  },
+                  {
+                    "columnId": "EventSource",
+                    "label": "Exported event type"
+                  },
+                  {
+                    "columnId": "FilterState",
+                    "label": "Source filters"
+                  },
+                  {
+                    "columnId": "RuleSet",
+                    "label": "Rule set (OR)"
+                  },
+                  {
+                    "columnId": "RuleNumber",
+                    "label": "Rule (AND)"
+                  },
+                  {
+                    "columnId": "Property",
+                    "label": "Filter property"
+                  },
+                  {
+                    "columnId": "PropertyType",
+                    "label": "Value type"
+                  },
+                  {
+                    "columnId": "Operator",
+                    "label": "Comparison"
+                  },
+                  {
+                    "columnId": "ExpectedValue",
+                    "label": "Configured filter value"
+                  },
+                  {
+                    "columnId": "Review",
+                    "label": "Review findings"
+                  },
+                  {
+                    "columnId": "AutomationId",
+                    "label": "Automation ID"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  }
+                ]
+              }
+            }
           },
           {
             "type": 1,
