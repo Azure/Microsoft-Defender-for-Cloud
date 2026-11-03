@@ -1,0 +1,1586 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 1,
+      "content": {
+        "json": "# Microsoft Defender for Cloud - Regulatory Compliance"
+      },
+      "name": "headertext"
+    },
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "crossComponentResources": [
+          "value::selected"
+        ],
+        "parameters": [
+          {
+            "id": "b859a03f-2283-43dd-8536-42714bbfced6",
+            "version": "KqlParameterItem/1.0",
+            "name": "Subscription",
+            "type": 6,
+            "isRequired": true,
+            "multiSelect": true,
+            "quote": "'",
+            "delimiter": ",",
+            "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project value = id, label = name\r\n| order by label asc",
+            "crossComponentResources": [
+              "value::selected"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources",
+            "value": [
+              "value::all"
+            ]
+          },
+          {
+            "id": "4bb21693-252d-4124-ad62-f37c0f6582b4",
+            "version": "KqlParameterItem/1.0",
+            "name": "Control",
+            "label": "Compliance standard",
+            "type": 2,
+            "isRequired": true,
+            "isGlobal": true,
+            "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| project value = name, label = name\r\n| distinct value, label\r\n| order by label asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "*",
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "value": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
+          },
+          {
+            "id": "1552df0b-285f-4de5-9d99-bae04069ef1e",
+            "version": "KqlParameterItem/1.0",
+            "name": "selectedTab",
+            "type": 1,
+            "isRequired": true,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "Overview"
+          },
+          {
+            "id": "a8f3b011-c3aa-4ca5-aab5-77068eb42cc0",
+            "version": "KqlParameterItem/1.0",
+            "name": "DetailScope",
+            "type": 1,
+            "isRequired": true,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "{}"
+          }
+        ],
+        "style": "pills",
+        "queryType": 1,
+        "resourceType": "microsoft.resourcegraph/resources"
+      },
+      "name": "top-params"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "Explore Microsoft Defender for Cloud regulatory compliance by subscription, workload, and control. The subscription filter scopes all views. The compliance-standard filter applies to Overview, Workloads, and Compliance Detail; history has its own standard selector, while export and delivery checks examine all standards. Current posture and observed history are not certification evidence."
+      },
+      "name": "abouttext"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "00bbb3ff-809c-4c98-baaf-4535f45f6213",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "Overview",
+            "style": "link"
+          },
+          {
+            "id": "abe14384-8870-4bfc-aae7-b16ac3fd33ee",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Workloads",
+            "subTarget": "Workloads",
+            "style": "link"
+          },
+          {
+            "id": "ef9da66d-adb9-45c1-b6ec-45e4872eb2ef",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Compliance Detail",
+            "subTarget": "Detail",
+            "style": "link"
+          },
+          {
+            "id": "caa26946-e406-4efb-81fc-18c84af3d51c",
+            "cellValue": "selectedTab",
+            "linkTarget": "parameter",
+            "linkLabel": "Export & compliance history",
+            "subTarget": "Readiness",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "links - 3"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n    | summarize ReportingStandards = count(), AssessedStandards = countif(toint(properties.passedControls) + toint(properties.failedControls) > 0), FailingStandards = countif(toint(properties.failedControls) > 0) by subscriptionId\r\n) on subscriptionId\r\n| summarize SelectedSubscriptions = count(), ReportingSubscriptions = countif(ReportingStandards > 0), AssessedStandards = sum(AssessedStandards), FailingStandards = sum(FailingStandards)\r\n| project Tiles = pack_array(pack('Title', 'Subscriptions reporting', 'Value', ReportingSubscriptions, 'Context', strcat('of ', SelectedSubscriptions, ' selected subscriptions')), pack('Title', 'Standards assessed', 'Value', AssessedStandards, 'Context', 'Subscription-standard pairs with assessed controls'), pack('Title', 'Standards with failures', 'Value', FailingStandards, 'Context', 'Subscription-standard pairs with failed controls'))\r\n| mv-expand Tile = Tiles limit 3\r\n| project Title = tostring(Tile.Title), Value = tolong(Tile.Value), Context = tostring(Tile.Context)",
+              "size": 3,
+              "title": "Compliance coverage",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "tiles",
+              "tileSettings": {
+                "titleContent": {
+                  "columnMatch": "Title",
+                  "formatter": 1
+                },
+                "leftContent": {
+                  "columnMatch": "Value",
+                  "formatter": 12
+                },
+                "secondaryContent": {
+                  "columnMatch": "Context",
+                  "formatter": 1
+                },
+                "showBorder": true,
+                "size": "auto"
+              },
+              "noDataMessage": "No subscription metadata is available in the selected scope. Check subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2
+            },
+            "name": "ComplianceCoverage"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Control outcomes\nThe chart sums the four standard-reported control counts for subscription-standard results in scope. It excludes rows with missing or negative counts. The same control can occur in multiple subscriptions or standards, so these are **not unique controls or a compliance score**. Other control states are available in Compliance Detail."
+            },
+            "name": "OverviewControlOutcomesGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n| extend Passed = tolong(properties.passedControls), Failed = tolong(properties.failedControls), Skipped = tolong(properties.skippedControls), Unsupported = tolong(properties.unsupportedControls)\r\n| where isnotnull(Passed) and isnotnull(Failed) and isnotnull(Skipped) and isnotnull(Unsupported) and Passed >= 0 and Failed >= 0 and Skipped >= 0 and Unsupported >= 0\r\n| summarize CompleteRows = count(), Passed = sum(Passed), Failed = sum(Failed), Skipped = sum(Skipped), Unsupported = sum(Unsupported)\r\n| where CompleteRows > 0\r\n| project Outcomes = pack_array(pack('State', 'Failed', 'Results', Failed), pack('State', 'Passed', 'Results', Passed), pack('State', 'Skipped', 'Results', Skipped), pack('State', 'Unsupported', 'Results', Unsupported))\r\n| mv-expand Outcome = Outcomes limit 4\r\n| project State = tostring(Outcome.State), Results = tolong(Outcome.Results)",
+              "size": 0,
+              "title": "Control outcomes across selected standards",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Failed",
+                    "color": "red"
+                  },
+                  {
+                    "seriesName": "Passed",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Skipped",
+                    "color": "yellow"
+                  },
+                  {
+                    "seriesName": "Unsupported",
+                    "color": "gray"
+                  }
+                ]
+              },
+              "noDataMessage": "No standards with complete nonnegative control counts were returned. Check the filters and read access, and review the table below.",
+              "noDataMessageStyle": 2
+            },
+            "name": "OverviewControlOutcomes"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Compliance by subscription\nExpand a subscription, then select a **standard row** to open its controls in Compliance Detail. Subscriptions with failing standards appear first. Subscription status is the worst child result; a standard with no assessed controls or incomplete counts is not marked passed.\n\nCounts and pass percentages are **per standard**. Pass % = passed / (passed + failed); skipped and unsupported controls are excluded. No assessed controls is **N/A**. Overlapping standards are not combined into a subscription compliance percentage."
+            },
+            "name": "OverviewGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n| extend Passed = toint(properties.passedControls), Failed = toint(properties.failedControls), Skipped = toint(properties.skippedControls), Unsupported = toint(properties.unsupportedControls), StandardState = tostring(properties.state)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and Passed >= 0 and Failed >= 0, round(100.0 * Passed / Assessed, 1), real(null)), Status = case(Failed > 0 or StandardState =~ 'Failed', 2, isnull(Passed) or isnull(Failed) or Passed < 0 or Failed < 0 or Assessed == 0 or StandardState !~ 'Passed', 1, 0)\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n    | summarize SubscriptionFailingStandards = countif(toint(properties.failedControls) > 0), SubscriptionFailedResults = sum(toint(properties.failedControls)) by subscriptionId\r\n) on subscriptionId\r\n| project subscriptionId, name, Status, Failed, Passed, Skipped, Unsupported, PassPercent, SubscriptionFailingStandards, SubscriptionFailedResults, DetailTab = 'Detail'\r\n| order by SubscriptionFailingStandards desc, SubscriptionFailedResults desc, subscriptionId asc, Failed desc, name asc",
+              "size": 0,
+              "title": "Subscription and standard results",
+              "noDataMessage": "No regulatory compliance standards were returned. Check the subscription/standard filters, Reader permissions, and enabled Microsoft Defender for Cloud compliance initiatives.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "exportedParameters": [
+                {
+                  "fieldName": "",
+                  "parameterName": "DetailScope",
+                  "parameterType": 1,
+                  "defaultValue": "{}"
+                },
+                {
+                  "fieldName": "DetailTab",
+                  "parameterName": "selectedTab",
+                  "parameterType": 1,
+                  "defaultValue": "Overview"
+                }
+              ],
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "showIcon": true,
+                      "customColumnWidthSetting": "32ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "48ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "Status",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "aggregation": "Max",
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "2",
+                          "representation": "3",
+                          "text": "Failed"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "1",
+                          "representation": "Unavailable",
+                          "text": "Not assessed / unknown"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "0",
+                          "representation": "success",
+                          "text": "Passed"
+                        },
+                        {
+                          "operator": "Default",
+                          "representation": "Blank",
+                          "text": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "Passed",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "green",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "Failed",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "red",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Skipped|Unsupported)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "PassPercent",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "green",
+                      "min": 0,
+                      "max": 100,
+                      "aggregation": "None"
+                    },
+                    "numberFormat": {
+                      "options": {
+                        "maximumFractionDigits": 1
+                      },
+                      "emptyValCustomText": "N/A"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(SubscriptionFailingStandards|SubscriptionFailedResults)$",
+                    "formatter": 5,
+                    "formatOptions": {
+                      "aggregation": "Max"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(subscriptionId|DetailTab)$",
+                    "formatter": 5,
+                    "formatOptions": {
+                      "aggregation": "None"
+                    }
+                  }
+                ],
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "subscriptionId"
+                  ],
+                  "expandTopLevel": false
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "SubscriptionFailingStandards",
+                    "sortOrder": 2
+                  },
+                  {
+                    "itemKey": "SubscriptionFailedResults",
+                    "sortOrder": 2
+                  },
+                  {
+                    "itemKey": "Failed",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription"
+                  },
+                  {
+                    "columnId": "name",
+                    "label": "Compliance Standard"
+                  },
+                  {
+                    "columnId": "Status",
+                    "label": "Status"
+                  },
+                  {
+                    "columnId": "Failed",
+                    "label": "Failed"
+                  },
+                  {
+                    "columnId": "Passed",
+                    "label": "Passed"
+                  },
+                  {
+                    "columnId": "Skipped",
+                    "label": "Skipped"
+                  },
+                  {
+                    "columnId": "Unsupported",
+                    "label": "Unsupported"
+                  },
+                  {
+                    "columnId": "PassPercent",
+                    "label": "Pass % (assessed controls)"
+                  }
+                ]
+              }
+            },
+            "name": "regulatorycompliancesummary"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Overview"
+      },
+      "name": "RegulatoryComplianceOverview"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "8eb54e18-cdb6-48b3-a917-9cd07fd5f3af",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "Workload",
+                  "label": "Workload",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": [
+                    "value::all"
+                  ],
+                  "jsonData": "[{\"value\":\"Compute\",\"label\":\"Compute\"},{\"value\":\"Containers\",\"label\":\"Containers\"},{\"value\":\"Databases\",\"label\":\"Databases\"},{\"value\":\"Storage\",\"label\":\"Storage\"},{\"value\":\"Key Vault\",\"label\":\"Key Vault\"},{\"value\":\"Networking\",\"label\":\"Networking\"},{\"value\":\"App Services\",\"label\":\"App Services\"},{\"value\":\"Subscription-level\",\"label\":\"Subscription-level\"},{\"value\":\"Other/unmapped\",\"label\":\"Other/unmapped\"}]",
+                  "multiSelect": true,
+                  "quote": "'",
+                  "delimiter": ",",
+                  "defaultValue": "value::all",
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "selectAllValue": "*",
+                    "showDefault": false
+                  }
+                },
+                {
+                  "id": "275b4df5-b74a-4a56-b11f-0c1a85575b95",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "WorkloadState",
+                  "label": "Resource detail state",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "All",
+                  "jsonData": "[{\"value\":\"All\",\"label\":\"All states\"},{\"value\":\"Failed\",\"label\":\"Failed only\"},{\"value\":\"Passed\",\"label\":\"Passed\"},{\"value\":\"Not applicable\",\"label\":\"Not applicable\"},{\"value\":\"Unknown\",\"label\":\"Unknown\"},{\"value\":\"Unmapped\",\"label\":\"No resource assessment\"}]"
+                }
+              ],
+              "style": "pills"
+            },
+            "name": "WorkloadFilters"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Resource posture by workload\nWorkloads are classified by **provider-qualified resource type**, not by application name or business tags. Compliance recommendations are matched to resource assessments within each subscription, then deduplicated by resource identity and assessment key so mappings to multiple controls/standards do not inflate counts.\n\nThe summary uses **all assessment states** in the selected subscription, standard, and workload scope; the state filter affects **resource detail only**. Assessed resources have at least one passed or failed assessment. A resource with any failed assessment is counted once under resources with failures. Not-applicable and unknown results are separate, not passes. High-severity findings are failed assessments only.\n\nRecommendations without a resource assessment, and findings without an identifiable resource, remain visible in **Other/unmapped** but are excluded from resource totals. Non-Azure resources without a recognized provider-qualified type also remain in Other/unmapped. This is resource posture, **not a regulatory compliance percentage**."
+            },
+            "name": "WorkloadGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Failed', StatusCode =~ 'Healthy', 'Passed', StatusCode =~ 'NotApplicable', 'Not applicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Failed', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'Not applicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| summarize AssessedPairs = countif(State in ('Passed', 'Failed')), FailedPairs = countif(State == 'Failed'), HighPairs = countif(State == 'Failed' and Severity == 'High'), NotApplicablePairs = countif(State == 'Not applicable'), UnknownPairs = countif(State == 'Unknown'), UnmappedPairs = countif(State == 'Unmapped'), HasIdentity = max(iff(isnotempty(ResourceId), 1, 0)) by Workload, subscriptionId, ResourceKey\r\n| summarize AssessedResources = countif(HasIdentity == 1 and AssessedPairs > 0), ResourcesWithFailures = countif(HasIdentity == 1 and FailedPairs > 0), FailedFindings = sum(FailedPairs), HighSeverityFindings = sum(HighPairs), NotApplicableFindings = sum(NotApplicablePairs), UnknownFindings = sum(UnknownPairs), UnmappedRecommendations = sum(UnmappedPairs) by Workload\r\n| order by ResourcesWithFailures desc, HighSeverityFindings desc, FailedFindings desc, Workload asc",
+              "size": 0,
+              "title": "Workload summary - all assessment states",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "noDataMessage": "No compliance recommendations matched the selected subscriptions, standard, and workload. Check filters, permissions, and enabled compliance initiatives.",
+              "noDataMessageStyle": 2,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "Workload",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "22ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(ResourcesWithFailures|FailedFindings|HighSeverityFindings)$",
+                    "formatter": 3,
+                    "formatOptions": {
+                      "palette": "red"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "AssessedResources",
+                    "label": "Assessed resources"
+                  },
+                  {
+                    "columnId": "ResourcesWithFailures",
+                    "label": "Resources with failures"
+                  },
+                  {
+                    "columnId": "FailedFindings",
+                    "label": "Failed findings"
+                  },
+                  {
+                    "columnId": "HighSeverityFindings",
+                    "label": "High-severity failures"
+                  },
+                  {
+                    "columnId": "NotApplicableFindings",
+                    "label": "Not applicable"
+                  },
+                  {
+                    "columnId": "UnknownFindings",
+                    "label": "Unknown state"
+                  },
+                  {
+                    "columnId": "UnmappedRecommendations",
+                    "label": "Unmapped recommendations"
+                  }
+                ],
+                "filter": true,
+                "sortBy": [
+                  {
+                    "itemKey": "ResourcesWithFailures",
+                    "sortOrder": 2
+                  }
+                ]
+              }
+            },
+            "name": "WorkloadSummary"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Resource findings\nExpand **workload > subscription > resource** to see recommendations. Azure Resource Graph result limits apply to detail grids and exports; exports contain returned rows, not an unlimited inventory. Narrow subscription, standard, workload, or state filters for large scopes. Summary counts are calculated before result-row limits."
+            },
+            "name": "WorkloadDetailGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Failed', StatusCode =~ 'Healthy', 'Passed', StatusCode =~ 'NotApplicable', 'Not applicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Failed', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'Not applicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '{WorkloadState}' == 'All' or State == '{WorkloadState}'\r\n| project Workload, SubscriptionResourceId = strcat('/subscriptions/', subscriptionId), ResourceKey, ResourceDisplay, Recommendation, State, Severity, ResourceType, ResourceGroup, ResourceSource, ResourceId, AssessmentKey, RecommendationLink, StatusRank, SeverityRank\r\n| order by StatusRank desc, SeverityRank desc, Workload asc, SubscriptionResourceId asc, ResourceDisplay asc, Recommendation asc",
+              "size": 0,
+              "title": "Resource findings - {WorkloadState:label}",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "noDataMessage": "No resource findings matched the selected filters. Check the all-state summary and try All workloads / All states; an empty filtered view does not prove compliance.",
+              "noDataMessageStyle": 2,
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "showIcon": true,
+                      "customColumnWidthSetting": "48ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Recommendation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "linkTarget": "Url",
+                      "linkColumn": "RecommendationLink",
+                      "customColumnWidthSetting": "60ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "ResourceDisplay",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "showIcon": true,
+                      "customColumnWidthSetting": "24ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "State",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "aggregation": "None",
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Failed",
+                          "representation": "3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Passed",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Not applicable",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unknown",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unmapped",
+                          "representation": "warning",
+                          "text": "No resource assessment"
+                        },
+                        {
+                          "operator": "Default",
+                          "representation": "Blank",
+                          "text": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Severity|ResourceType|ResourceGroup|ResourceSource)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Workload|SubscriptionResourceId|ResourceKey|ResourceId|AssessmentKey|RecommendationLink|StatusRank|SeverityRank)$",
+                    "formatter": 5,
+                    "formatOptions": {
+                      "aggregation": "None"
+                    }
+                  }
+                ],
+                "filter": true,
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "Workload",
+                    "SubscriptionResourceId",
+                    "ResourceKey"
+                  ],
+                  "expandTopLevel": false
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "StatusRank",
+                    "sortOrder": 2
+                  },
+                  {
+                    "itemKey": "SeverityRank",
+                    "sortOrder": 2
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "ResourceType",
+                    "label": "Provider-qualified resource type"
+                  },
+                  {
+                    "columnId": "ResourceGroup",
+                    "label": "Resource group"
+                  },
+                  {
+                    "columnId": "ResourceSource",
+                    "label": "Cloud source"
+                  },
+                  {
+                    "columnId": "ResourceDisplay",
+                    "label": "Resource (reported ID)"
+                  }
+                ]
+              }
+            },
+            "name": "WorkloadResourceFindings"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Workloads"
+      },
+      "name": "RegulatoryComplianceWorkloads"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "de358972-9609-4ad2-ade2-37eb145b62cb",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "DetailState",
+                  "label": "Control state",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "value::all",
+                  "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| project value = State, label = iff(State == 'Failed', 'Failed only', State)\r\n| distinct value, label\r\n| order by value asc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [
+                      "value::all"
+                    ],
+                    "selectAllValue": "All",
+                    "showDefault": false
+                  },
+                  "defaultValue": "value::all"
+                }
+              ],
+              "style": "pills"
+            },
+            "name": "reg-comp-selection"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Control results - {Control:label}\nOverview drill-through restricts this tab to the selected subscription and standard. Use **Clear Overview drill-through** below to clear the selected subscription and standard; the top subscription and compliance-standard filters remain in effect.\n\nExpand a subscription and standard to see controls. Select a description to read its full text. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon. Azure Resource Graph result limits apply; the export includes returned rows. An empty Failed-only view is not proof of complete coverage."
+            },
+            "name": "text - 2"
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "toolbar",
+              "links": [
+                {
+                  "id": "16ea38e1-4bbb-4c7b-8d81-bccdb30ce2dc",
+                  "cellValue": "DetailScope",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Clear Overview drill-through",
+                  "subTarget": "{}",
+                  "style": "link"
+                }
+              ]
+            },
+            "name": "ResetDetailScope"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| where '{DetailState}' == 'All' or State == '{DetailState}'\r\n| extend FailureOrder = iff(State == 'Failed', 1, 0)\r\n| project subscriptionId, ComplianceStandard, name, Description, State, Passed, Failed, Skipped, FailureOrder\r\n| order by FailureOrder desc, Failed desc, name asc",
+              "size": 0,
+              "title": "Controls - {Control:label}",
+              "noDataMessage": "No controls matched the selected standard, Overview drill-through scope, and state. Try All controls or Clear Overview drill-through, and verify compliance coverage and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "gridSettings": {
+                "formatters": [
+                  {
+                    "columnMatch": "$gen_group",
+                    "formatter": 15,
+                    "formatOptions": {
+                      "showIcon": true,
+                      "customColumnWidthSetting": "30ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "name",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "12ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "ComplianceStandard",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Description",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "linkTarget": "CellDetails",
+                      "customColumnWidthSetting": "65ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "State",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "aggregation": "None",
+                      "customColumnWidthSetting": "14ch",
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Passed",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unsupported",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Failed",
+                          "representation": "3",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Skipped",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Unknown",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Not applicable",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "representation": "Blank",
+                          "text": ""
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Passed|Failed|Skipped)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "aggregation": "None",
+                      "customColumnWidthSetting": "12ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(subscriptionId|FailureOrder)$",
+                    "formatter": 5
+                  }
+                ],
+                "hierarchySettings": {
+                  "treeType": 1,
+                  "groupBy": [
+                    "subscriptionId",
+                    "ComplianceStandard"
+                  ],
+                  "expandTopLevel": true
+                },
+                "sortBy": [
+                  {
+                    "itemKey": "FailureOrder",
+                    "sortOrder": 2
+                  },
+                  {
+                    "itemKey": "Failed",
+                    "sortOrder": 2
+                  },
+                  {
+                    "itemKey": "name",
+                    "sortOrder": 1
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "name",
+                    "label": "Control"
+                  },
+                  {
+                    "columnId": "ComplianceStandard"
+                  },
+                  {
+                    "columnId": "Description"
+                  },
+                  {
+                    "columnId": "State"
+                  },
+                  {
+                    "columnId": "Passed",
+                    "label": "Passed assessments"
+                  },
+                  {
+                    "columnId": "Failed",
+                    "label": "Failed assessments"
+                  },
+                  {
+                    "columnId": "Skipped",
+                    "label": "Skipped assessments"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription"
+                  }
+                ]
+              }
+            },
+            "name": "RegulatoryComplianceBreakdown"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Detail"
+      },
+      "name": "RegulatoryComplianceDetail"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 1,
+            "content": {
+              "json": "## Export & compliance history\nThis read-only view checks regulatory-compliance reporting and continuous-export configuration per selected subscription. A **configuration pass** means an enabled, subscription-wide, unfiltered Regulatory compliance stream and snapshot target the **same Log Analytics workspace**. It does **not** prove delivery, workspace access, retention, or historical readiness.\n\n**Not observed** is not proof of a disabled configuration: Azure Resource Graph returns only resources you can read. Resource-group-only scope, filters, invalid destinations, disabled settings, or oversized configuration lists need review. The chart counts each subscription once by its best observed destination; inspect the table for additional findings. The compliance-standard filter does not scope these checks."
+            },
+            "name": "ReadinessIntroduction"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| summarize BestConfiguration = min(case(Configuration == 'Configuration pass', 0, Configuration == 'Unknown / not observed', 2, 1)) by subscriptionId\r\n| summarize Subscriptions = count() by BestConfiguration\r\n| extend Status = case(BestConfiguration == 0, 'Config pass', BestConfiguration == 1, 'Needs review', 'Not observed')\r\n| project Status, Subscriptions\r\n| order by Subscriptions desc\r\n",
+              "size": 0,
+              "title": "Continuous-export configuration overview",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Config pass",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Needs review",
+                    "color": "orange"
+                  },
+                  {
+                    "seriesName": "Not observed",
+                    "color": "gray"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessConfigurationChart"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Regulatory-compliance reporting\nStandards and assessed-control results are evidence that Defender for Cloud has returned regulatory-compliance data. Missing results may also reflect access, assignment, or reporting delays; they do not prove that Defender for Cloud is disabled."
+            },
+            "name": "ReadinessStandardsGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId, Subscription = name\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | summarize Standards = count(), AssessedStandards = countif(toint(properties.passedControls) + toint(properties.failedControls) > 0) by subscriptionId\r\n) on subscriptionId\r\n| extend Standards = coalesce(Standards, 0), AssessedStandards = coalesce(AssessedStandards, 0)\r\n| extend Evidence = case(AssessedStandards > 0, 'Assessed results observed', Standards > 0, 'Standards observed; no assessed controls', 'Not observed / verify')\r\n| extend Recommendation = case(AssessedStandards > 0, 'Review relevant standards and their reporting scope.', Standards > 0, 'Check assessment coverage and allow time for results.', 'Verify read access, Defender for Cloud enablement and assigned standards.')\r\n| project Subscription, subscriptionId, Evidence, Standards, AssessedStandards, Recommendation\r\n| order by Evidence asc, Subscription asc",
+              "size": 0,
+              "title": "Regulatory-compliance reporting by subscription",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  },
+                  {
+                    "columnId": "AssessedStandards",
+                    "label": "Standards with assessed controls"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessStandards"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Continuous export by subscription and destination\nStreaming and snapshots must both pass **on the same workspace row**. A pass can coexist with additional filtered, partial, disabled, or unknown configurations, which remain listed under Findings. Event Hub-only destinations do not meet the Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
+            },
+            "name": "ReadinessConfigurationGuidance"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| project Subscription, subscriptionId, Workspace, Configuration, Streaming, Snapshots, Findings, Recommendation\r\n| order by Configuration asc, Subscription asc, Workspace asc\r\n",
+              "size": 0,
+              "title": "Continuous-export configuration by workspace",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  },
+                  {
+                    "columnId": "Workspace",
+                    "label": "Destination workspace"
+                  },
+                  {
+                    "columnId": "Configuration",
+                    "label": "Configuration only"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessConfigurations"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Compliance history and data availability\nChoose one destination workspace and select **Run check**. Delivery evidence below examines all standards for the selected source subscriptions. The historical panels have their own **History standard** selector so standards present only in exported history remain available.\n\nA missing table or insufficient workspace access stays a query error, not a pass. No rows or snapshots can reflect a new export, retention, access, or an unmatched source scope. Snapshots are weekly; allow at least one week for the first snapshot and additional time to build history. Streaming occurs on change and is shown as delivery evidence only, not mixed into the snapshot charts. Queries read up to 90 days and can incur Log Analytics query costs."
+            },
+            "name": "ReadinessHistoryGuidance"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "13837811-3f21-4119-bd8a-f8bd000e377d",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "HistoryWorkspace",
+                  "label": "History workspace",
+                  "type": 5,
+                  "description": "Choose an accessible Log Analytics destination; it can be in another subscription.",
+                  "isRequired": false,
+                  "multiSelect": false,
+                  "query": "resources\r\n| where type =~ 'microsoft.operationalinsights/workspaces'\r\n| project id",
+                  "crossComponentResources": [
+                    "value::all"
+                  ],
+                  "value": "",
+                  "typeSettings": {
+                    "resourceTypeFilter": {
+                      "microsoft.operationalinsights/workspaces": true
+                    },
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources"
+                },
+                {
+                  "id": "4f29710a-75bf-4f4b-9ae7-34858e91011c",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "CheckHistory",
+                  "label": "Query history",
+                  "type": 2,
+                  "isRequired": true,
+                  "value": "Off",
+                  "jsonData": "[{\"value\":\"Off\",\"label\":\"Not checked\"},{\"value\":\"On\",\"label\":\"Run check\"}]"
+                }
+              ],
+              "style": "pills"
+            },
+            "name": "ReadinessHistoryParameters"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "let RecordedHistory = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| summarize SnapshotRecords = countif(IsSnapshot == true), FirstSnapshot = minif(TimeGenerated, IsSnapshot == true), LatestSnapshot = maxif(TimeGenerated, IsSnapshot == true), StreamingRecords = countif(IsSnapshot == false), LatestStreaming = maxif(TimeGenerated, IsSnapshot == false), UnknownFrequencyRecords = countif(isnull(IsSnapshot)), IncompleteSnapshotRecords = countif(IsSnapshot == true and (isempty(ComplianceStandard) or isempty(ComplianceControl) or isempty(RecommendationId))) by SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), WorkspaceId = tostring(TenantId);\r\ndatatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription)\r\n| join kind=leftouter (RecordedHistory) on SourceSubscription\r\n| extend SnapshotRecords = coalesce(SnapshotRecords, 0), StreamingRecords = coalesce(StreamingRecords, 0), UnknownFrequencyRecords = coalesce(UnknownFrequencyRecords, 0), IncompleteSnapshotRecords = coalesce(IncompleteSnapshotRecords, 0)\r\n| extend SnapshotObservation = case(SnapshotRecords == 0, 'No snapshot observed in 90 days', LatestSnapshot < ago(8d), 'No snapshot in the last 8 days', LatestSnapshot - FirstSnapshot < 6d, 'Recent snapshot; history still limited', 'Snapshot records span at least 6 days')\r\n| extend StreamingObservation = iff(StreamingRecords > 0, 'Stream records observed', 'None observed; changes trigger streaming')\r\n| extend Recommendation = case(SnapshotRecords == 0, 'Check the destination, permissions and retention; a first weekly snapshot may still be pending.', LatestSnapshot < ago(8d), 'Review export delivery, workspace access and retention; no recent weekly snapshot was observed.', LatestSnapshot - FirstSnapshot < 6d, 'Wait for additional weekly snapshots before relying on a trend.', 'Open Compliance Over Time and review the observed history, access and retention.')\r\n| extend WorkspaceId = iff(isempty(WorkspaceId), 'Not observed', WorkspaceId)\r\n| project SourceSubscription, WorkspaceId, SnapshotObservation, FirstSnapshot, LatestSnapshot, SnapshotRecords, StreamingObservation, LatestStreaming, StreamingRecords, UnknownFrequencyRecords, IncompleteSnapshotRecords, Recommendation\r\n| order by LatestSnapshot desc, SourceSubscription asc",
+              "size": 0,
+              "title": "History delivery evidence (all standards)",
+              "timeContext": {
+                "durationMs": 7776000000
+              },
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces",
+              "crossComponentResources": [
+                "{HistoryWorkspace}"
+              ],
+              "noDataMessage": "No selected source subscriptions or history were returned. Check the selection, destination, table and permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "SourceSubscription",
+                    "label": "Source subscription ID"
+                  },
+                  {
+                    "columnId": "WorkspaceId",
+                    "label": "Log Analytics workspace ID"
+                  },
+                  {
+                    "columnId": "UnknownFrequencyRecords",
+                    "label": "Unknown-frequency records"
+                  },
+                  {
+                    "columnId": "IncompleteSnapshotRecords",
+                    "label": "Snapshot records with incomplete identifiers"
+                  }
+                ]
+              }
+            },
+            "conditionalVisibility": {
+              "parameterName": "CheckHistory",
+              "comparison": "isEqualTo",
+              "value": "On"
+            },
+            "name": "ReadinessHistory"
+          },
+          {
+            "type": 12,
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 9,
+                  "content": {
+                    "version": "KqlParameterItem/1.0",
+                    "parameters": [
+                      {
+                        "id": "145c0200-f1ee-457d-9888-aac6abe57ee0",
+                        "version": "KqlParameterItem/1.0",
+                        "name": "HistoryStandard",
+                        "label": "History standard",
+                        "type": 2,
+                        "isRequired": true,
+                        "query": "let SelectedSubscriptions = datatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription);\r\nlet HistoryRows = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| extend SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), Standard = tostring(ComplianceStandard), ControlId = tostring(ComplianceControl)\r\n| join kind=inner (SelectedSubscriptions) on SourceSubscription\r\n;\r\nHistoryRows\r\n| where IsSnapshot == true and isnotempty(Standard)\r\n| distinct value = Standard, label = Standard\r\n| order by label asc",
+                        "queryType": 0,
+                        "resourceType": "microsoft.operationalinsights/workspaces",
+                        "crossComponentResources": [
+                          "{HistoryWorkspace}"
+                        ],
+                        "defaultValue": "value::all",
+                        "value": "value::all",
+                        "typeSettings": {
+                          "additionalResourceOptions": [
+                            "value::all"
+                          ],
+                          "selectAllValue": "*",
+                          "showDefault": false
+                        }
+                      }
+                    ],
+                    "style": "pills"
+                  },
+                  "name": "HistoryStandardParameters"
+                },
+                {
+                  "type": 1,
+                  "content": {
+                    "json": "### Observed snapshot posture and changes\nEach result stays within one **source subscription and standard**; there is no cross-standard compliance score. Records are grouped by UTC snapshot day and deduplicated by control, recommendation and assessed resource, using the latest assessment record. Failed evidence wins; unknown evidence is not passed. A control is assessed only when its resulting state is Passed or Failed. **Pass % = passed / (passed + failed)**; other states are reported separately. Missing identifiers suppress affected percentages instead of manufacturing a pass.\n\nThe comparison is against the **previous observed snapshot day**, not necessarily seven days earlier. **Change (pp)** uses only controls assessed in both snapshots; read **Matched controls** and the actual dates. Newly observed and no-longer-observed controls appear separately below, not as remediation. The weekly charts use the latest observed day in each UTC week, without carrying records into missing weeks. Rates can change with assessment coverage, so inspect the companion count chart. Charts show observed weekly points only. Missing weeks and unusable rates are omitted, not plotted as zero or connected by lines; chart timestamps may display in your local time zone. Narrow the source subscriptions or history standard for readable series; native chart/result limits still apply.\n\nSnapshot history is separate from the current ARG Overview and can lag it. [Microsoft's Compliance Over Time template](https://github.com/microsoft/Application-Insights-Workbooks/blob/master/Workbooks/Azure%20Security%20Center/Compliance/Compliance.workbook) is the reference for this view; these panels intentionally keep unknown states and subscription boundaries explicit."
+                  },
+                  "name": "HistorySnapshotGuidance"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let SelectedSubscriptions = datatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription);\r\nlet HistoryRows = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| extend SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), Standard = tostring(ComplianceStandard), ControlId = tostring(ComplianceControl)\r\n| join kind=inner (SelectedSubscriptions) on SourceSubscription\r\n\r\n| where \"{HistoryStandard:escapejson}\" == '*' or Standard == \"{HistoryStandard:escapejson}\"\r\n| extend SnapshotDay = startofday(TimeGenerated);\r\nlet SnapshotRows = HistoryRows\r\n| where IsSnapshot == true and isnotempty(Standard);\r\nlet SnapshotDays = SnapshotRows\r\n| summarize LastRecord = max(TimeGenerated), IncompleteRecords = countif(isempty(ControlId) or isempty(RecommendationId)) by SourceSubscription, Standard, SnapshotDay;\r\nlet ControlDays = SnapshotRows\r\n| where isnotempty(ControlId)\r\n| extend StateRank = case(State =~ 'Failed', 6, isempty(RecommendationId), 5, State =~ 'Passed', 4, State =~ 'Skipped', 3, State =~ 'NotApplicable' or State =~ 'Not applicable', 2, State =~ 'Unsupported', 1, 5)\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId, TimeGenerated\r\n| summarize arg_max(TimeGenerated, StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId\r\n| extend ControlState = case(StateRank == 6, 'Failed', StateRank == 5, 'Unknown', StateRank == 4, 'Passed', StateRank == 3, 'Skipped', StateRank == 2, 'Not applicable', 'Unsupported');\r\nlet DayPosture = SnapshotDays\r\n| join kind=leftouter (\r\n    ControlDays\r\n    | summarize Passed = countif(ControlState == 'Passed'), Failed = countif(ControlState == 'Failed'), Other = countif(ControlState !in ('Passed', 'Failed')) by SourceSubscription, Standard, SnapshotDay\r\n) on SourceSubscription, Standard, SnapshotDay\r\n| extend Passed = coalesce(Passed, 0), Failed = coalesce(Failed, 0), Other = coalesce(Other, 0)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and IncompleteRecords == 0, 100.0 * Passed / Assessed, real(null));\r\nlet LatestDays = SnapshotDays\r\n| summarize LatestDay = max(SnapshotDay) by SourceSubscription, Standard;\r\nlet PairDays = SnapshotDays\r\n| join kind=inner (LatestDays) on SourceSubscription, Standard\r\n| summarize LatestDay = max(LatestDay), PreviousDay = maxif(SnapshotDay, SnapshotDay < LatestDay), ObservedDays = count() by SourceSubscription, Standard;\r\nlet CurrentControls = ControlDays\r\n| join kind=inner (PairDays | where isnotnull(PreviousDay)) on SourceSubscription, Standard\r\n| where SnapshotDay == LatestDay\r\n| project SourceSubscription, Standard, ControlId, CurrentState = ControlState;\r\nlet PreviousControls = ControlDays\r\n| join kind=inner (PairDays | where isnotnull(PreviousDay)) on SourceSubscription, Standard\r\n| where SnapshotDay == PreviousDay\r\n| project PreviousSubscription = SourceSubscription, PreviousStandard = Standard, PreviousControl = ControlId, PreviousState = ControlState;\r\nlet ControlComparison = CurrentControls\r\n| join kind=fullouter (PreviousControls) on $left.SourceSubscription == $right.PreviousSubscription, $left.Standard == $right.PreviousStandard, $left.ControlId == $right.PreviousControl\r\n| extend SourceSubscription = coalesce(SourceSubscription, PreviousSubscription), Standard = coalesce(Standard, PreviousStandard), ControlId = coalesce(ControlId, PreviousControl)\r\n| extend Comparable = CurrentState in ('Passed', 'Failed') and PreviousState in ('Passed', 'Failed')\r\n| extend Change = case(isempty(CurrentState), 'Not observed in latest snapshot', isempty(PreviousState), 'Newly observed control', CurrentState == PreviousState, 'Unchanged', CurrentState == 'Failed', 'Became failed', PreviousState == 'Failed' and CurrentState == 'Passed', 'Recovered to passed', 'Other state change');\r\nlet ComparisonCounts = ControlComparison\r\n| summarize MatchedControls = countif(Comparable), PassedDifference = sum(iff(Comparable, iff(CurrentState == 'Passed', 1, 0) - iff(PreviousState == 'Passed', 1, 0), 0)) by SourceSubscription, Standard;\r\nlet PriorQuality = DayPosture\r\n| project SourceSubscription, Standard, PreviousDay = SnapshotDay, PreviousIncomplete = IncompleteRecords;\r\nDayPosture\r\n| join kind=inner (PairDays) on SourceSubscription, Standard\r\n| where SnapshotDay == LatestDay\r\n| join kind=leftouter (PriorQuality) on SourceSubscription, Standard, PreviousDay\r\n| join kind=leftouter (ComparisonCounts) on SourceSubscription, Standard\r\n| extend MatchedControls = coalesce(MatchedControls, 0)\r\n| extend ChangePp = iff(MatchedControls > 0 and IncompleteRecords == 0 and PreviousIncomplete == 0, 100.0 * PassedDifference / MatchedControls, real(null))\r\n| extend Observation = case(IncompleteRecords > 0, 'Incomplete identifiers; results partial', LastRecord < ago(8d), 'Stale snapshot; review delivery', ObservedDays < 2, 'First observed snapshot day; no comparison', MatchedControls == 0, 'No common assessed controls', PreviousIncomplete > 0, 'Previous snapshot identifiers incomplete', 'Observed snapshots; completeness not established')\r\n| project SourceSubscription, Standard, Passed, Failed, Other, PassPercent = round(PassPercent, 1), ChangePp = round(ChangePp, 1), MatchedControls, PreviousDay = format_datetime(PreviousDay, 'yyyy-MM-dd'), LatestDay = format_datetime(LatestDay, 'yyyy-MM-dd'), Observation\r\n| order by Failed desc, Standard asc, SourceSubscription asc",
+                    "size": 0,
+                    "title": "Latest observed snapshot by standard",
+                    "timeContext": {
+                      "durationMs": 7776000000
+                    },
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "crossComponentResources": [
+                      "{HistoryWorkspace}"
+                    ],
+                    "noDataMessage": "No usable snapshots in this scope. Review delivery evidence, the source subscriptions, history standard, workspace access and retention.",
+                    "noDataMessageStyle": 2,
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "filter": true,
+                      "hierarchySettings": {
+                        "treeType": 1,
+                        "groupBy": [
+                          "SourceSubscription"
+                        ],
+                        "expandTopLevel": true
+                      },
+                      "formatters": [
+                        {
+                          "columnMatch": "$gen_group",
+                          "formatter": 15,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "28ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "SourceSubscription",
+                          "formatter": 5,
+                          "formatOptions": {
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "Standard",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "customColumnWidthSetting": "28ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "^(Passed|Failed|Other|MatchedControls)$",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "customColumnWidthSetting": "8ch"
+                          },
+                          "numberFormat": {
+                            "options": {
+                              "maximumFractionDigits": 1
+                            },
+                            "emptyValCustomText": "N/A"
+                          }
+                        },
+                        {
+                          "columnMatch": "^(PassPercent|ChangePp)$",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "customColumnWidthSetting": "10ch"
+                          },
+                          "numberFormat": {
+                            "options": {
+                              "maximumFractionDigits": 1
+                            },
+                            "emptyValCustomText": "N/A"
+                          }
+                        }
+                      ],
+                      "labelSettings": [
+                        {
+                          "columnId": "Standard",
+                          "label": "Standard"
+                        },
+                        {
+                          "columnId": "Other",
+                          "label": "Other states"
+                        },
+                        {
+                          "columnId": "PassPercent",
+                          "label": "Pass % (assessed)"
+                        },
+                        {
+                          "columnId": "ChangePp",
+                          "label": "Matched change (pp)"
+                        },
+                        {
+                          "columnId": "MatchedControls",
+                          "label": "Matched controls"
+                        },
+                        {
+                          "columnId": "PreviousDay",
+                          "label": "Previous day (UTC)"
+                        },
+                        {
+                          "columnId": "LatestDay",
+                          "label": "Latest day (UTC)"
+                        }
+                      ]
+                    }
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "CheckHistory",
+                    "comparison": "isEqualTo",
+                    "value": "On"
+                  },
+                  "name": "HistoryLatestPosture"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let SelectedSubscriptions = datatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription);\r\nlet HistoryRows = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| extend SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), Standard = tostring(ComplianceStandard), ControlId = tostring(ComplianceControl)\r\n| join kind=inner (SelectedSubscriptions) on SourceSubscription\r\n\r\n| where \"{HistoryStandard:escapejson}\" == '*' or Standard == \"{HistoryStandard:escapejson}\"\r\n| extend SnapshotDay = startofday(TimeGenerated);\r\nlet SnapshotRows = HistoryRows\r\n| where IsSnapshot == true and isnotempty(Standard);\r\nlet SnapshotDays = SnapshotRows\r\n| summarize LastRecord = max(TimeGenerated), IncompleteRecords = countif(isempty(ControlId) or isempty(RecommendationId)) by SourceSubscription, Standard, SnapshotDay;\r\nlet ControlDays = SnapshotRows\r\n| where isnotempty(ControlId)\r\n| extend StateRank = case(State =~ 'Failed', 6, isempty(RecommendationId), 5, State =~ 'Passed', 4, State =~ 'Skipped', 3, State =~ 'NotApplicable' or State =~ 'Not applicable', 2, State =~ 'Unsupported', 1, 5)\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId, TimeGenerated\r\n| summarize arg_max(TimeGenerated, StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId\r\n| extend ControlState = case(StateRank == 6, 'Failed', StateRank == 5, 'Unknown', StateRank == 4, 'Passed', StateRank == 3, 'Skipped', StateRank == 2, 'Not applicable', 'Unsupported');\r\nlet DayPosture = SnapshotDays\r\n| join kind=leftouter (\r\n    ControlDays\r\n    | summarize Passed = countif(ControlState == 'Passed'), Failed = countif(ControlState == 'Failed'), Other = countif(ControlState !in ('Passed', 'Failed')) by SourceSubscription, Standard, SnapshotDay\r\n) on SourceSubscription, Standard, SnapshotDay\r\n| extend Passed = coalesce(Passed, 0), Failed = coalesce(Failed, 0), Other = coalesce(Other, 0)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and IncompleteRecords == 0, 100.0 * Passed / Assessed, real(null));\r\nlet WeeklyPosture = DayPosture\r\n| extend Week = startofweek(SnapshotDay)\r\n| summarize arg_max(SnapshotDay, *) by SourceSubscription, Standard, Week;\r\nlet Weeks = range Week from startofweek(ago(90d)) to startofweek(now()) step 7d;\r\nlet Pairs = SnapshotDays\r\n| distinct SourceSubscription, Standard\r\n| extend JoinKey = 1;\r\nPairs\r\n| join kind=inner (Weeks | extend JoinKey = 1) on JoinKey\r\n| join kind=leftouter (WeeklyPosture) on SourceSubscription, Standard, Week\r\n| extend Series = strcat(Standard, ' | ', SourceSubscription)\r\n| where isnotnull(PassPercent)\r\n| project Week, Series, PassPercent\r\n| order by Week asc",
+                    "size": 0,
+                    "title": "Weekly observed assessed-control pass %",
+                    "timeContext": {
+                      "durationMs": 7776000000
+                    },
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "crossComponentResources": [
+                      "{HistoryWorkspace}"
+                    ],
+                    "noDataMessage": "No usable snapshots in this scope. Review delivery evidence, the source subscriptions, history standard, workspace access and retention.",
+                    "noDataMessageStyle": 2,
+                    "visualization": "scatterchart",
+                    "chartSettings": {
+                      "xAxis": "Week",
+                      "yAxis": [
+                        "PassPercent"
+                      ],
+                      "group": "Series",
+                      "showLegend": true,
+                      "showMetrics": false,
+                      "ySettings": {
+                        "min": 0,
+                        "max": 100
+                      }
+                    }
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "CheckHistory",
+                    "comparison": "isEqualTo",
+                    "value": "On"
+                  },
+                  "name": "HistoryWeeklyPassRate"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let SelectedSubscriptions = datatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription);\r\nlet HistoryRows = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| extend SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), Standard = tostring(ComplianceStandard), ControlId = tostring(ComplianceControl)\r\n| join kind=inner (SelectedSubscriptions) on SourceSubscription\r\n\r\n| where \"{HistoryStandard:escapejson}\" == '*' or Standard == \"{HistoryStandard:escapejson}\"\r\n| extend SnapshotDay = startofday(TimeGenerated);\r\nlet SnapshotRows = HistoryRows\r\n| where IsSnapshot == true and isnotempty(Standard);\r\nlet SnapshotDays = SnapshotRows\r\n| summarize LastRecord = max(TimeGenerated), IncompleteRecords = countif(isempty(ControlId) or isempty(RecommendationId)) by SourceSubscription, Standard, SnapshotDay;\r\nlet ControlDays = SnapshotRows\r\n| where isnotempty(ControlId)\r\n| extend StateRank = case(State =~ 'Failed', 6, isempty(RecommendationId), 5, State =~ 'Passed', 4, State =~ 'Skipped', 3, State =~ 'NotApplicable' or State =~ 'Not applicable', 2, State =~ 'Unsupported', 1, 5)\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId, TimeGenerated\r\n| summarize arg_max(TimeGenerated, StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId\r\n| extend ControlState = case(StateRank == 6, 'Failed', StateRank == 5, 'Unknown', StateRank == 4, 'Passed', StateRank == 3, 'Skipped', StateRank == 2, 'Not applicable', 'Unsupported');\r\nlet DayPosture = SnapshotDays\r\n| join kind=leftouter (\r\n    ControlDays\r\n    | summarize Passed = countif(ControlState == 'Passed'), Failed = countif(ControlState == 'Failed'), Other = countif(ControlState !in ('Passed', 'Failed')) by SourceSubscription, Standard, SnapshotDay\r\n) on SourceSubscription, Standard, SnapshotDay\r\n| extend Passed = coalesce(Passed, 0), Failed = coalesce(Failed, 0), Other = coalesce(Other, 0)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and IncompleteRecords == 0, 100.0 * Passed / Assessed, real(null));\r\nlet WeeklyPosture = DayPosture\r\n| extend Week = startofweek(SnapshotDay)\r\n| summarize arg_max(SnapshotDay, *) by SourceSubscription, Standard, Week;\r\nlet Weeks = range Week from startofweek(ago(90d)) to startofweek(now()) step 7d;\r\nlet Pairs = SnapshotDays\r\n| distinct SourceSubscription, Standard\r\n| extend JoinKey = 1;\r\nPairs\r\n| join kind=inner (Weeks | extend JoinKey = 1) on JoinKey\r\n| join kind=leftouter (WeeklyPosture) on SourceSubscription, Standard, Week\r\n| extend Series = strcat(Standard, ' | ', SourceSubscription)\r\n| project Week, Series, AssessedControls = iff(isnotnull(SnapshotDay), Assessed, long(null))\r\n| where isnotnull(AssessedControls)\r\n| order by Week asc",
+                    "size": 0,
+                    "title": "Weekly observed assessed-control coverage",
+                    "timeContext": {
+                      "durationMs": 7776000000
+                    },
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "crossComponentResources": [
+                      "{HistoryWorkspace}"
+                    ],
+                    "noDataMessage": "No usable snapshots in this scope. Review delivery evidence, the source subscriptions, history standard, workspace access and retention.",
+                    "noDataMessageStyle": 2,
+                    "visualization": "scatterchart",
+                    "chartSettings": {
+                      "xAxis": "Week",
+                      "yAxis": [
+                        "AssessedControls"
+                      ],
+                      "group": "Series",
+                      "showLegend": true,
+                      "showMetrics": false,
+                      "ySettings": {
+                        "min": 0
+                      }
+                    }
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "CheckHistory",
+                    "comparison": "isEqualTo",
+                    "value": "On"
+                  },
+                  "name": "HistoryWeeklyCoverage"
+                },
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "let SelectedSubscriptions = datatable(SourceSubscription:string)[{Subscription:subid}]\r\n| extend SourceSubscription = tolower(SourceSubscription);\r\nlet HistoryRows = SecurityRegulatoryCompliance\r\n| where TimeGenerated >= ago(90d)\r\n| extend SourceSubscription = tolower(tostring(RegulatoryComplianceSubscriptionId)), Standard = tostring(ComplianceStandard), ControlId = tostring(ComplianceControl)\r\n| join kind=inner (SelectedSubscriptions) on SourceSubscription\r\n\r\n| where \"{HistoryStandard:escapejson}\" == '*' or Standard == \"{HistoryStandard:escapejson}\"\r\n| extend SnapshotDay = startofday(TimeGenerated);\r\nlet SnapshotRows = HistoryRows\r\n| where IsSnapshot == true and isnotempty(Standard);\r\nlet SnapshotDays = SnapshotRows\r\n| summarize LastRecord = max(TimeGenerated), IncompleteRecords = countif(isempty(ControlId) or isempty(RecommendationId)) by SourceSubscription, Standard, SnapshotDay;\r\nlet ControlDays = SnapshotRows\r\n| where isnotempty(ControlId)\r\n| extend StateRank = case(State =~ 'Failed', 6, isempty(RecommendationId), 5, State =~ 'Passed', 4, State =~ 'Skipped', 3, State =~ 'NotApplicable' or State =~ 'Not applicable', 2, State =~ 'Unsupported', 1, 5)\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId, TimeGenerated\r\n| summarize arg_max(TimeGenerated, StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId, RecommendationId, AssessedResourceId\r\n| summarize StateRank = max(StateRank) by SourceSubscription, Standard, SnapshotDay, ControlId\r\n| extend ControlState = case(StateRank == 6, 'Failed', StateRank == 5, 'Unknown', StateRank == 4, 'Passed', StateRank == 3, 'Skipped', StateRank == 2, 'Not applicable', 'Unsupported');\r\nlet DayPosture = SnapshotDays\r\n| join kind=leftouter (\r\n    ControlDays\r\n    | summarize Passed = countif(ControlState == 'Passed'), Failed = countif(ControlState == 'Failed'), Other = countif(ControlState !in ('Passed', 'Failed')) by SourceSubscription, Standard, SnapshotDay\r\n) on SourceSubscription, Standard, SnapshotDay\r\n| extend Passed = coalesce(Passed, 0), Failed = coalesce(Failed, 0), Other = coalesce(Other, 0)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and IncompleteRecords == 0, 100.0 * Passed / Assessed, real(null));\r\nlet LatestDays = SnapshotDays\r\n| summarize LatestDay = max(SnapshotDay) by SourceSubscription, Standard;\r\nlet PairDays = SnapshotDays\r\n| join kind=inner (LatestDays) on SourceSubscription, Standard\r\n| summarize LatestDay = max(LatestDay), PreviousDay = maxif(SnapshotDay, SnapshotDay < LatestDay), ObservedDays = count() by SourceSubscription, Standard;\r\nlet CurrentControls = ControlDays\r\n| join kind=inner (PairDays | where isnotnull(PreviousDay)) on SourceSubscription, Standard\r\n| where SnapshotDay == LatestDay\r\n| project SourceSubscription, Standard, ControlId, CurrentState = ControlState;\r\nlet PreviousControls = ControlDays\r\n| join kind=inner (PairDays | where isnotnull(PreviousDay)) on SourceSubscription, Standard\r\n| where SnapshotDay == PreviousDay\r\n| project PreviousSubscription = SourceSubscription, PreviousStandard = Standard, PreviousControl = ControlId, PreviousState = ControlState;\r\nlet ControlComparison = CurrentControls\r\n| join kind=fullouter (PreviousControls) on $left.SourceSubscription == $right.PreviousSubscription, $left.Standard == $right.PreviousStandard, $left.ControlId == $right.PreviousControl\r\n| extend SourceSubscription = coalesce(SourceSubscription, PreviousSubscription), Standard = coalesce(Standard, PreviousStandard), ControlId = coalesce(ControlId, PreviousControl)\r\n| extend Comparable = CurrentState in ('Passed', 'Failed') and PreviousState in ('Passed', 'Failed')\r\n| extend Change = case(isempty(CurrentState), 'Not observed in latest snapshot', isempty(PreviousState), 'Newly observed control', CurrentState == PreviousState, 'Unchanged', CurrentState == 'Failed', 'Became failed', PreviousState == 'Failed' and CurrentState == 'Passed', 'Recovered to passed', 'Other state change');\r\nControlComparison\r\n| where Change != 'Unchanged'\r\n| join kind=inner (PairDays) on SourceSubscription, Standard\r\n| project SourceSubscription, Standard, ControlId, Change, PreviousState = iff(isempty(PreviousState), 'Not observed', PreviousState), CurrentState = iff(isempty(CurrentState), 'Not observed', CurrentState), PreviousDay = format_datetime(PreviousDay, 'yyyy-MM-dd'), LatestDay = format_datetime(LatestDay, 'yyyy-MM-dd')\r\n| order by Change asc, Standard asc, SourceSubscription asc, ControlId asc",
+                    "size": 0,
+                    "title": "Control changes since the previous observed snapshot",
+                    "timeContext": {
+                      "durationMs": 7776000000
+                    },
+                    "queryType": 0,
+                    "resourceType": "microsoft.operationalinsights/workspaces",
+                    "crossComponentResources": [
+                      "{HistoryWorkspace}"
+                    ],
+                    "noDataMessage": "No changed controls or no earlier usable snapshot in this scope. Check the latest-snapshot table and delivery evidence; this is not proof of no change.",
+                    "noDataMessageStyle": 2,
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "filter": true,
+                      "hierarchySettings": {
+                        "treeType": 1,
+                        "groupBy": [
+                          "SourceSubscription"
+                        ],
+                        "expandTopLevel": true
+                      },
+                      "formatters": [
+                        {
+                          "columnMatch": "$gen_group",
+                          "formatter": 15,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "28ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "SourceSubscription",
+                          "formatter": 5,
+                          "formatOptions": {
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "Standard",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "customColumnWidthSetting": "28ch"
+                          }
+                        }
+                      ],
+                      "labelSettings": [
+                        {
+                          "columnId": "ControlId",
+                          "label": "Control"
+                        },
+                        {
+                          "columnId": "PreviousState",
+                          "label": "Previous state"
+                        },
+                        {
+                          "columnId": "CurrentState",
+                          "label": "Latest state"
+                        },
+                        {
+                          "columnId": "PreviousDay",
+                          "label": "Previous day (UTC)"
+                        },
+                        {
+                          "columnId": "LatestDay",
+                          "label": "Latest day (UTC)"
+                        }
+                      ]
+                    }
+                  },
+                  "conditionalVisibility": {
+                    "parameterName": "CheckHistory",
+                    "comparison": "isEqualTo",
+                    "value": "On"
+                  },
+                  "name": "HistoryControlChanges"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "CheckHistory",
+              "comparison": "isEqualTo",
+              "value": "On"
+            },
+            "name": "ComplianceHistoryViews"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Setup and next steps\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the same workspace. [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export).\n2. Verify workspace read access, table availability, data retention and expected ingestion/retention costs. Configuration alone does not establish data delivery.\n3. Use **Open Compliance Over Time** below to open Microsoft's published template, then choose the workspace in that workbook. Alternatively, open the built-in workbook from the [Defender for Cloud workbooks gallery](https://portal.azure.com/#view/Microsoft_Azure_Security/SecurityMenuBlade/~/28) (commercial Azure), or follow the [Microsoft workbook guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook). In other clouds, open **Defender for Cloud > Workbooks** in that cloud's portal.\n\nThis view does not change settings, assign policies, create workspaces, or enable billable services."
+            },
+            "name": "ReadinessNextSteps"
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "nav",
+              "links": [
+                {
+                  "linkTarget": "WorkbookTemplate",
+                  "linkLabel": "Open Compliance Over Time",
+                  "style": "secondary",
+                  "workbookContext": {
+                    "componentIdSource": "static",
+                    "componentId": "Azure Monitor",
+                    "resourceIdsSource": "workbook",
+                    "templateIdSource": "static",
+                    "templateId": "Community-Workbooks/Azure Security Center/Compliance",
+                    "typeSource": "default",
+                    "gallerySource": "default",
+                    "locationSource": "default",
+                    "passSpecificParams": true,
+                    "templateParameters": []
+                  }
+                }
+              ]
+            },
+            "name": "OpenComplianceOverTime"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "selectedTab",
+        "comparison": "isEqualTo",
+        "value": "Readiness"
+      },
+      "name": "ComplianceOverTimeReadiness"
+    }
+  ],
+  "fallbackResourceIds": [
+    "Azure Monitor"
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}
