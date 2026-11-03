@@ -2380,7 +2380,7 @@
             "type": 1,
             "name": "ReadinessSettingsGuidance",
             "content": {
-              "json": "#### Observed continuous-export and automation settings\nThe inventories below show **all visible security automations**, not just Regulatory compliance or workspace destinations. Match **Automation ID** across the three tables: every source and rule applies to that automation's listed scopes and destinations. **On / Off** is the reported automation switch, not a per-source delivery check; missing values remain **Unknown**. A subscription with no visible automation remains **Not observed**, never Off.\n\nSource rows show the API event name and frequency (snapshot sources use the documented weekly schedule; it is not a custom interval setting). Only configured sources are listed: an absent data type is **not observed**, not proven disabled. Rule sets are combined with **OR**, rules within a set with **AND**; rule-set and rule numbers preserve those groups. Review filters against the intended coverage, including recommendation severity, assessment state and alert severity where configured.\n\nDestination details include workspace, Event Hub and Logic App resource IDs, plus Event Hub trusted-service status. Connection strings and signed trigger URLs are deliberately excluded. Resource Graph cannot establish delivery, destination access, retention, workspace costs or every portal-specific setting. Arrays are capped at 2,000 entries per level and flagged when incomplete; narrow the subscription selection if result limits apply."
+              "json": "#### Observed continuous-export and automation settings\nThe inventories below show **all visible security automations**, not just Regulatory compliance or workspace destinations. Match **Automation ID** across the three tables: every source and rule applies to that automation's listed scopes and destinations. **On / Off** is the reported automation switch, not a per-source delivery check; missing values remain **Unknown**. A subscription with no visible automation remains **Not observed**, never Off.\n\n**Export data types by automation** summarizes Security recommendations, Secure score, Security alerts, Regulatory compliance and Security attack paths. For each automation it shows streaming and snapshot source configuration as **On**, **Off**, **Partially on**, **On (filtered)**, **Unknown / review**, **Not observed**, or **Not applicable**. The automation's master enabled switch appears separately: a configured source under an Off automation is not active export. Missing or incomplete source inventories are never reported as Off. Alerts do not have a snapshot source. This inventory reports configuration, not delivery.\n\nSource rows show the API event name and frequency (snapshot sources use the documented weekly schedule; it is not a custom interval setting). Only configured sources are listed: an absent data type is **not observed**, not proven disabled. Rule sets are combined with **OR**, rules within a set with **AND**; rule-set and rule numbers preserve those groups. Review filters against the intended coverage, including recommendation severity, assessment state and alert severity where configured.\n\nDestination details include workspace, Event Hub and Logic App resource IDs, plus Event Hub trusted-service status. Connection strings and signed trigger URLs are deliberately excluded. Resource Graph cannot establish delivery, destination access, retention, workspace costs or every portal-specific setting. Arrays are capped at 2,000 entries per level and flagged when incomplete; narrow the subscription selection if result limits apply."
             }
           },
           {
@@ -2624,6 +2624,104 @@
                     "formatter": 1,
                     "formatOptions": {
                       "customColumnWidthSetting": "50ch",
+                      "aggregation": "None"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 3,
+            "name": "ReadinessAutomationDataTypes",
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\n| where type =~ 'microsoft.resources/subscriptions'\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\n| join kind=leftouter (\n    resources\n    | where type =~ 'microsoft.security/automations'\n    | extend subscriptionId = tolower(subscriptionId), Automation = name, AutomationId = id,\n        EnabledValue = tolower(tostring(properties.isEnabled)), SourceCount = array_length(properties.sources)\n    | extend SourceList = iff(isnull(SourceCount) or SourceCount == 0 or SourceCount > 2000, dynamic([{}]), properties.sources)\n    | mv-expand Source = SourceList limit 2000\n    | extend EventSource = tostring(Source.eventSource), RuleSetCount = array_length(Source.ruleSets)\n    | summarize ConfiguredSources = make_set_if(EventSource, isnotempty(EventSource)),\n    FilteredSources = make_set_if(EventSource, isnotempty(EventSource) and RuleSetCount > 0),\n    MalformedSources = countif(isempty(EventSource)),\n    InvalidRuleSets = countif(isnotnull(Source.ruleSets) and isnull(RuleSetCount)),\n    UnknownSources = make_set_if(EventSource, EventSource !in~ ('Assessments', 'SubAssessments', 'Alerts', 'SecureScores', 'SecureScoreControls', 'RegulatoryComplianceAssessment', 'AttackPaths', 'AssessmentsSnapshot', 'SubAssessmentsSnapshot', 'SecureScoresSnapshot', 'SecureScoreControlsSnapshot', 'RegulatoryComplianceAssessmentSnapshot', 'AttackPathsSnapshot'))\n        by subscriptionId, Automation, AutomationId, EnabledValue, SourceCount\n) on subscriptionId\n| extend Automation = iff(isempty(AutomationId), 'Not observed', Automation),\n    Enabled = case(isempty(AutomationId), 'Not observed', EnabledValue == 'true', 'On', EnabledValue == 'false', 'Off', 'Unknown / not reported')\n| extend Automation = case(Automation == 'Not observed', Automation,\n    AutomationId matches regex '(?i)^/subscriptions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/(resourcegroups/[^/]+/)?providers/microsoft[.]security/automations/[^/]+/?$', AutomationId,\n    strcat('Unresolved: ', Automation))\n| extend DataTypes = dynamic([\n    {'DataType':'Security recommendations','StreamingEvents':['Assessments','SubAssessments'],'SnapshotEvents':['AssessmentsSnapshot','SubAssessmentsSnapshot']},\n    {'DataType':'Secure score','StreamingEvents':['SecureScores','SecureScoreControls'],'SnapshotEvents':['SecureScoresSnapshot','SecureScoreControlsSnapshot']},\n    {'DataType':'Security alerts','StreamingEvents':['Alerts'],'SnapshotEvents':[]},\n    {'DataType':'Regulatory compliance','StreamingEvents':['RegulatoryComplianceAssessment'],'SnapshotEvents':['RegulatoryComplianceAssessmentSnapshot']},\n    {'DataType':'Security attack paths','StreamingEvents':['AttackPaths'],'SnapshotEvents':['AttackPathsSnapshot']}\n])\n| mv-expand DataTypeItem = DataTypes\n| extend DataType = tostring(DataTypeItem.DataType),\n    StreamingEvents = DataTypeItem.StreamingEvents, SnapshotEvents = DataTypeItem.SnapshotEvents\n| extend StreamingFound = array_length(set_intersect(ConfiguredSources, StreamingEvents)),\n    StreamingExpected = array_length(StreamingEvents),\n    StreamingFiltered = array_length(set_intersect(FilteredSources, StreamingEvents)),\n    SnapshotFound = array_length(set_intersect(ConfiguredSources, SnapshotEvents)),\n    SnapshotExpected = array_length(SnapshotEvents),\n    SnapshotFiltered = array_length(set_intersect(FilteredSources, SnapshotEvents)),\n    InventoryComplete = isnotnull(SourceCount) and SourceCount <= 2000 and MalformedSources == 0 and InvalidRuleSets == 0\n| extend StreamingStatus = case(isempty(AutomationId), 'Not observed',\n    not(InventoryComplete), 'Unknown / review',\n    StreamingFound == 0, 'Off',\n    StreamingFound < StreamingExpected, 'Partially on',\n    StreamingFiltered > 0, 'On (filtered)', 'On'),\n    SnapshotStatus = case(isempty(AutomationId), 'Not observed',\n    SnapshotExpected == 0, 'Not applicable',\n    not(InventoryComplete), 'Unknown / review',\n    SnapshotFound == 0, 'Off',\n    SnapshotFound < SnapshotExpected, 'Partially on',\n    SnapshotFiltered > 0, 'On (filtered)', 'On')\n| extend Review = case(isempty(AutomationId), 'No visible automation; verify read access.',\n    isnull(SourceCount), 'Source list not reported; item states are unknown.',\n    SourceCount > 2000, 'Source list exceeds 2000 entries; item states are unknown.',\n    MalformedSources > 0 or InvalidRuleSets > 0, 'Malformed source or rule-set data; item states are unknown.',\n    array_length(UnknownSources) > 0, 'Unmapped event source exists; review the detailed source inventory.',\n    'Source configuration only. Export enablement and delivery are shown separately.')\n| project Subscription, SubscriptionResourceId, Automation, AutomationId, Enabled, DataType,\n    StreamingStatus, SnapshotStatus, Review, subscriptionId\n| order by Subscription asc, Automation asc, DataType asc\n",
+              "size": 3,
+              "title": "Export data types by automation — configured on/off",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No subscription automation data was returned. Check subscription scope and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "rowLimit": 10000,
+                "filter": true,
+                "labelSettings": [
+                  {
+                    "columnId": "Enabled",
+                    "label": "Automation enabled"
+                  },
+                  {
+                    "columnId": "DataType",
+                    "label": "Exported data type"
+                  },
+                  {
+                    "columnId": "StreamingStatus",
+                    "label": "Streaming updates configured"
+                  },
+                  {
+                    "columnId": "SnapshotStatus",
+                    "label": "Snapshots configured"
+                  },
+                  {
+                    "columnId": "Review",
+                    "label": "Inventory / delivery note"
+                  },
+                  {
+                    "columnId": "AutomationId",
+                    "label": "Automation ID"
+                  },
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  }
+                ],
+                "formatters": [
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "linkTarget": "Resource",
+                      "linkColumn": "SubscriptionResourceId"
+                    }
+                  },
+                  {
+                    "columnMatch": "SubscriptionResourceId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Automation",
+                    "formatter": 13,
+                    "formatOptions": {
+                      "linkTarget": "Resource",
+                      "showIcon": true,
+                      "customColumnWidthSetting": "28ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "AutomationId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "^(StreamingStatus|SnapshotStatus|Enabled)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch",
+                      "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "Review",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "60ch",
+                      "linkTarget": "CellDetails",
                       "aggregation": "None"
                     }
                   }
