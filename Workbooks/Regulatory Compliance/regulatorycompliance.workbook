@@ -2163,14 +2163,14 @@
           {
             "type": 1,
             "content": {
-              "json": "### 3. Continuous export configuration\nA **configuration pass** requires enabled, subscription-wide, unfiltered Regulatory compliance streaming and snapshots targeting **the same valid Log Analytics workspace**. Inspect every destination row and its findings. A pass can coexist with partial, disabled or unknown configurations and does not establish data delivery. Event Hub-only destinations do not meet this workbook's Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
+              "json": "### 3. Continuous export configuration\nEach row compares one setting with its recommended value for a subscription and destination workspace: **✅ Matches**, **❌ Does not match**, or a neutral marker when the value is not observed or unknown (never treated as Off). The goal is subscription-wide, unfiltered Regulatory compliance streaming and snapshots to **the same valid Log Analytics workspace**. A match is configuration evidence only and does not establish data delivery. Event Hub-only destinations do not meet this workbook's Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
             },
             "name": "ReadinessConfigurationGuidance"
           },
           {
             "type": 1,
             "content": {
-              "json": "#### Setup instructions — continuous export\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**.\n2. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the **same workspace**. Review enabled status, subscription-wide scope and source filters against the findings below.\n3. Verify destination permissions before saving configuration. A central destination can be in another subscription; a configuration pass is not proof that data has arrived.\n\nMicrosoft Learn: [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) · [Configure continuous export at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy).\n\nInspect the detailed switches, scopes, destinations and source-filter tables below. API field reference: [Security automation settings, sources, actions and rules](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/2023-12-01-preview/automations)."
+              "json": "#### Setup instructions — continuous export\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**.\n2. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the **same workspace**. Review enabled status, subscription-wide scope and source filters against the setting checks below.\n3. Verify destination permissions before saving configuration. A central destination can be in another subscription; a ✅ match is not proof that data has arrived.\n\nMicrosoft Learn: [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) · [Configure continuous export at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy).\n\nInspect the detailed switches, scopes, destinations and source-filter tables below. API field reference: [Security automation settings, sources, actions and rules](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/2023-12-01-preview/automations)."
             },
             "name": "ReadinessNextSteps",
             "conditionalVisibility": {
@@ -2180,12 +2180,25 @@
             }
           },
           {
+            "type": 1,
+            "name": "ReadinessExportSettingChecksTips",
+            "content": {
+              "json": "#### Setup tips — what each setting check means\nThe table below lists one row per setting for each subscription and destination workspace. **✅ Matches** means the observed value equals the recommended value; **❌ Does not match** means it is observed and differs; the neutral marker means the value is not observed or unknown, which is **not** the same as Off.\n\n| Setting | Recommended | What it checks and why |\n|---|---|---|\n| Streaming updates | On | An enabled automation exporting the **Regulatory compliance assessment** data type. It sends each assessment change as it happens, so Compliance Over Time can show when a control changed state. |\n| Snapshots | On | An enabled automation exporting **Regulatory compliance assessment snapshots**, a weekly full-state copy. Snapshots give a complete baseline that streaming alone cannot reconstruct. |\n| Export scope | Whole subscription | The automation scope path equals the subscription. A narrower resource-group scope exports only part of the data and gives misleading trends. |\n| Source filters | None (all data) | No rule sets are applied. Filters (for example by state or severity) silently drop rows, so history and coverage counts would be incomplete. |\n| Destination workspace | Valid Log Analytics workspace | The action is a Log Analytics workspace with a well-formed resource ID. Event Hub or Logic App destinations do not feed the Compliance Over Time workbook. |\n| Same workspace for both | Both target this workspace | Streaming and snapshots land in one workspace so the workbook can join them. |\n| Configuration list size | Complete | Scopes, actions and sources are each read up to 2,000 entries; larger or invalid lists make the check incomplete. |\n\nA green check is **configuration evidence only**. It does not prove data has arrived, that you can read the workspace, or what retention and ingestion will cost. Change a setting in **Defender for Cloud > Environment settings > Continuous export**; see [Continuous export](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) and [Configure at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy)."
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            }
+          },
+          {
             "type": 3,
+            "name": "ReadinessExportSettingChecks",
             "content": {
               "version": "KqlItem/1.0",
-              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| extend WorkspaceResource = iff(Workspace matches regex '(?i)^/subscriptions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+/?$', Workspace, '')\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Workspace, WorkspaceResource, Configuration, Streaming, Snapshots, Findings, Recommendation\r\n| order by Configuration asc, Subscription asc, Workspace asc\r\n",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend StreamingRows = StreamingPass + StreamingPartial + StreamingDisabled + StreamingUnknown, SnapshotRows = SnapshotPass + SnapshotPartial + SnapshotDisabled + SnapshotUnknown, StreamingOn = StreamingPass + StreamingPartial, SnapshotOn = SnapshotPass + SnapshotPartial\r\n| extend AnyOn = StreamingOn + SnapshotOn > 0\r\n| extend Checks = iff(ConfigurationRows == 0, dynamic([0]), dynamic([1, 2, 3, 4, 5, 6, 7]))\r\n| mv-expand Check = Checks to typeof(long)\r\n| extend Setting = case(Check == 0, 'Regulatory compliance continuous export', Check == 1, 'Streaming updates', Check == 2, 'Snapshots', Check == 3, 'Export scope', Check == 4, 'Source filters', Check == 5, 'Destination workspace', Check == 6, 'Same workspace for both', 'Configuration list size')\r\n| extend Observed = case(\r\n    Check == 0, 'Not observed',\r\n    Check == 1, case(StreamingOn > 0, 'On', StreamingDisabled > 0, 'Off', StreamingUnknown > 0, 'Unknown', 'Not observed'),\r\n    Check == 2, case(SnapshotOn > 0, 'On', SnapshotDisabled > 0, 'Off', SnapshotUnknown > 0, 'Unknown', 'Not observed'),\r\n    Check == 3, case(not(AnyOn), 'Not observed (nothing enabled)', ScopeIssues > 0, 'Narrower or unreported scope', 'Whole subscription'),\r\n    Check == 4, case(not(AnyOn), 'Not observed (nothing enabled)', FilterIssues > 0, 'Filtered', 'None (all data)'),\r\n    Check == 5, case(not(AnyOn), 'Not observed (nothing enabled)', DestinationIssues > 0, 'Not a valid Log Analytics workspace ID', 'Valid Log Analytics workspace'),\r\n    Check == 6, case(StreamingRows > 0 and SnapshotRows > 0, 'Both target this workspace', StreamingRows > 0, 'Streaming only', SnapshotRows > 0, 'Snapshots only', 'Not observed'),\r\n    case(not(AnyOn), 'Not observed (nothing enabled)', ExpansionIssues > 0, 'Large or invalid lists: incomplete', 'Complete'))\r\n| extend Recommended = case(Check == 0, 'Export configured', Check in (1, 2), 'On', Check == 3, 'Whole subscription', Check == 4, 'None (all data)', Check == 5, 'Valid Log Analytics workspace', Check == 6, 'Both target this workspace', 'Complete')\r\n| extend Result = case(Observed startswith 'Not observed' or Observed == 'Unknown', 'Not observed', Observed == Recommended, 'Matches', 'Does not match')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| extend WorkspaceResource = iff(Workspace matches regex '(?i)^/subscriptions/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+/?$', Workspace, '')\r\n| project Subscription, SubscriptionResourceId, Workspace, WorkspaceResource, Setting, Observed, Recommended, Result, Check\r\n| order by Subscription asc, Workspace asc, Check asc\r\n| project-away Check\r\n",
               "size": 0,
-              "title": "Continuous-export configuration by workspace",
+              "title": "Continuous-export settings checked against recommended values",
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
               "crossComponentResources": [
@@ -2199,20 +2212,24 @@
                 "filter": true,
                 "labelSettings": [
                   {
-                    "columnId": "subscriptionId",
-                    "label": "Subscription ID"
-                  },
-                  {
                     "columnId": "Workspace",
                     "label": "Destination workspace"
                   },
                   {
-                    "columnId": "Configuration",
-                    "label": "Configuration only"
-                  },
-                  {
                     "columnId": "WorkspaceResource",
                     "label": "Open workspace"
+                  },
+                  {
+                    "columnId": "Observed",
+                    "label": "Observed value"
+                  },
+                  {
+                    "columnId": "Recommended",
+                    "label": "Recommended value"
+                  },
+                  {
+                    "columnId": "Result",
+                    "label": "Matches recommendation?"
                   }
                 ],
                 "formatters": [
@@ -2242,14 +2259,41 @@
                     "columnMatch": "Workspace",
                     "formatter": 1,
                     "formatOptions": {
-                      "customColumnWidthSetting": "50ch",
+                      "customColumnWidthSetting": "24ch",
                       "aggregation": "None"
+                    }
+                  },
+                  {
+                    "columnMatch": "Result",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "aggregation": "None",
+                      "customColumnWidthSetting": "22ch",
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Matches",
+                          "representation": "success",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Does not match",
+                          "representation": "failed",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        }
+                      ]
                     }
                   }
                 ]
               }
-            },
-            "name": "ReadinessConfigurations"
+            }
           },
           {
             "type": 1,
