@@ -1261,7 +1261,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### 3. Continuous export configuration\nA **configuration pass** requires enabled, subscription-wide, unfiltered Regulatory compliance streaming and snapshots targeting **the same valid Log Analytics workspace**. The chart counts each subscription once by its best observed destination; inspect every destination row and its findings. A pass can coexist with partial, disabled or unknown configurations and does not establish data delivery. Event Hub-only destinations do not meet this workbook's Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
+              "json": "### 3. Continuous export configuration\nA **configuration pass** requires enabled, subscription-wide, unfiltered Regulatory compliance streaming and snapshots targeting **the same valid Log Analytics workspace**. Inspect every destination row and its findings. A pass can coexist with partial, disabled or unknown configurations and does not establish data delivery. Event Hub-only destinations do not meet this workbook's Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
             },
             "name": "ReadinessConfigurationGuidance"
           },
@@ -1276,40 +1276,6 @@
               "comparison": "isEqualTo",
               "value": "On"
             }
-          },
-          {
-            "type": 3,
-            "content": {
-              "version": "KqlItem/1.0",
-              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| summarize BestConfiguration = min(case(Configuration == 'Configuration pass', 0, Configuration == 'Unknown / not observed', 2, 1)) by subscriptionId\r\n| summarize Subscriptions = count() by BestConfiguration\r\n| extend Status = case(BestConfiguration == 0, 'Config pass', BestConfiguration == 1, 'Needs review', 'Not observed')\r\n| project Status, Subscriptions\r\n| order by Subscriptions desc\r\n",
-              "size": 0,
-              "title": "Continuous-export configuration overview",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscription}"
-              ],
-              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
-              "noDataMessageStyle": 2,
-              "visualization": "barchart",
-              "chartSettings": {
-                "seriesLabelSettings": [
-                  {
-                    "seriesName": "Config pass",
-                    "color": "green"
-                  },
-                  {
-                    "seriesName": "Needs review",
-                    "color": "orange"
-                  },
-                  {
-                    "seriesName": "Not observed",
-                    "color": "gray"
-                  }
-                ]
-              }
-            },
-            "name": "ReadinessConfigurationChart"
           },
           {
             "type": 3,
