@@ -53,22 +53,24 @@ Azure identities are case-normalized; native cloud identities retain case. Multi
 
 The summary always includes all assessment states within the selected subscription, standard, and workload scope:
 
-- **Assessed resources:** identifiable resources with at least one healthy or unhealthy assessment.
-- **Resources with failures:** assessed resources with at least one unhealthy assessment, counted once.
-- **Failed findings:** unique unhealthy resource/assessment pairs, or assessment identities when a resource ID is unavailable.
-- **High-severity failures:** failed findings whose assessment severity is High; healthy High-severity recommendations are excluded.
-- **Not applicable / Unknown state:** separate finding counts, never treated as passed.
+- **Assessed resources:** identifiable resources with at least one Healthy or Unhealthy assessment.
+- **Resources with failures:** assessed resources with at least one Unhealthy assessment, counted once.
+- **Failed findings:** unique Unhealthy resource/assessment pairs, or assessment identities when a resource ID is unavailable.
+- **High-severity failures:** Unhealthy findings whose assessment severity is High; Healthy High-severity recommendations are excluded.
+- **Not applicable / Unknown state:** separate finding counts, never treated as Healthy.
 - **Unmapped recommendations:** regulatory recommendations with no matching resource assessment. These remain visible but are not counted as assessed resources.
 
-The **Resource detail state** filter, including **Failed only**, filters the resource detail grid only; it does not shrink the summary's coverage denominator. Findings without an identifiable resource are retained but excluded from resource totals. Workload results describe **resource posture**, not a regulatory compliance percentage or certification.
+The **Resource detail state** selector uses checkboxes and defaults to **All**. Select one or more of **Unhealthy**, **Healthy**, **Not applicable**, **Unknown**, or **No resource assessment** to filter the resource detail grid only; the summary's coverage denominator remains unchanged.
+**Not applicable** corresponds to the `NotApplicable` assessment status. **Unknown** indicates a missing or unrecognized status; **No resource assessment** indicates a recommendation without a matching resource assessment.
+Findings without an identifiable resource are retained but excluded from resource totals. Workload results describe **resource posture**, not a regulatory compliance percentage or certification.
 
 ### Compliance Detail
 
-Control results are grouped by subscription and standard. The **Control state** selector defaults to **All** and detects the normalized states present in the selected subscription, standard, and Overview drill-through scope, independently of the current state selection.
-Available states can include **Failed only**, **Passed**, **Skipped**, **Unsupported**, **Not applicable**, and **Unknown**. Missing or unrecognized states remain **Unknown**, not passed.
+Control results are grouped by subscription and standard. The **Control state** selector uses checkboxes, defaults to **All**, and detects the normalized states present in the selected subscription, standard, and Overview drill-through scope, independently of the current state selection.
+Select one or more available states, which can include **Failed**, **Passed**, **Skipped**, **Unsupported**, **Not applicable**, and **Unknown**. Missing or unrecognized states remain **Unknown**, not passed.
 Changing scope refreshes the available states; a state absent from the scope is not offered as if matching results existed.
 
-Use **Failed only** to prioritize remediation. Descriptions have more display space and open their full text when selected. Passed/failed/skipped values are assessment counts per control, not unique resource counts. Group rows do not default to a green success icon.
+Use **Failed** to prioritize remediation. Descriptions have more display space and open their full text when selected. Passed/failed/skipped values are assessment counts per control, not unique resource counts. Group rows do not default to a green success icon.
 
 An Overview selection scopes this tab to the selected subscription and standard. **Clear Overview drill-through** clears that row selection's scope; the main subscription and standard filters remain active. If the main filters exclude the drilled selection, clear the drill-through scope rather than interpreting the empty result as compliance.
 
