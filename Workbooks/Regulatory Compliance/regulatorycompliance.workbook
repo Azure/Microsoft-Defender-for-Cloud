@@ -1161,6 +1161,15 @@
               "version": "KqlParameterItem/1.0",
               "parameters": [
                 {
+                  "id": "09f48b49-9aa4-461c-befd-13d219720724",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ControlSearch",
+                  "label": "Control contains",
+                  "type": 1,
+                  "isRequired": false,
+                  "value": ""
+                },
+                {
                   "id": "de358972-9609-4ad2-ade2-37eb145b62cb",
                   "version": "KqlParameterItem/1.0",
                   "name": "DetailState",
@@ -1170,7 +1179,7 @@
                   "value": [
                     "value::all"
                   ],
-                  "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| project value = State, label = State\r\n| distinct value, label\r\n| order by value asc",
+                  "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| where isempty(\"{ControlSearch:escapejson}\") or name contains \"{ControlSearch:escapejson}\" or Description contains \"{ControlSearch:escapejson}\"\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| project value = State, label = State\r\n| distinct value, label\r\n| order by value asc",
                   "queryType": 1,
                   "resourceType": "microsoft.resourcegraph/resources",
                   "crossComponentResources": [
@@ -1196,7 +1205,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Control results - {Control:label}\n**Compliance Detail scope** restricts this tab to the selected subscription and standard. Use **Clear detail scope** below to clear it; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Select an individual control row to list its mapped recommendations below; group rows do not select a control. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon.\n\nThe grid display limit is **10,000 rows**, the [Azure Workbooks maximum](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), instead of the default 250. Query and Resource Graph limits still apply. If a limit warning appears, narrow **Subscription**, **Compliance standard** or **Control state**, or select one subscription and standard in **Compliance Detail scope**. Grid search filters returned data only; it does not fetch omitted controls. Excel export includes returned data, not a guaranteed complete inventory. An empty Failed selection is not proof of complete coverage."
+              "json": "### Control results - {Control:label}\n**Compliance Detail scope** restricts this tab to the selected subscription and standard. Use **Clear detail scope** below to clear it; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Select an individual control row to list its mapped recommendations below; group rows do not select a control. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon.\n\n**Control contains** searches control IDs and descriptions before results are returned. Check **Matching controls** below; an oversized selection prompts you to narrow the filters."
             },
             "name": "text - 2"
           },
@@ -1228,12 +1237,84 @@
           },
           {
             "type": 3,
+            "name": "ControlResultCoverage",
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| where '*' in ({DetailState}) or State in ({DetailState})\r\n| extend FailureOrder = iff(State == 'Failed', 1, 0)\r\n| project subscriptionId, ComplianceStandard, name, Description, State, Passed, Failed, Skipped, FailureOrder\r\n| order by FailureOrder desc, Failed desc, name asc",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| where isempty(\"{ControlSearch:escapejson}\") or name contains \"{ControlSearch:escapejson}\" or Description contains \"{ControlSearch:escapejson}\"\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| where '*' in ({DetailState}) or State in ({DetailState})\r\n| summarize MatchingControls = count()\r\n| extend RowBudget = case(MatchingControls == 0, 'No matching controls / verify scope',\r\n    MatchingControls > 10000, 'Over 10,000 controls / incomplete list',\r\n    'Within control row budget')\r\n| extend NextStep = case(MatchingControls == 0, 'Review subscription, standard, detail scope, state and Control contains. No matches is not proof of compliance.',\r\n    MatchingControls > 10000, 'Narrow Subscription, Compliance standard, Control state or Control contains before reviewing or exporting. The grid cannot include every matching control.',\r\n    'Select a control below for its recommendations. This query-time count is not proof of complete source visibility; grid search and export use returned rows only.')\r\n| project MatchingControls, RowBudget, NextStep",
+              "size": 3,
+              "title": "Matching controls",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No count was returned. Check the current filters and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "gridSettings": {
+                "rowLimit": 10,
+                "labelSettings": [
+                  {
+                    "columnId": "MatchingControls",
+                    "label": "Matching controls"
+                  },
+                  {
+                    "columnId": "RowBudget",
+                    "label": "Control-list row budget"
+                  },
+                  {
+                    "columnId": "NextStep",
+                    "label": "Next step"
+                  }
+                ],
+                "formatters": [
+                  {
+                    "columnMatch": "MatchingControls",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "14ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "NextStep",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "90ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "RowBudget",
+                    "formatter": 18,
+                    "formatOptions": {
+                      "thresholdsOptions": "icons",
+                      "thresholdsGrid": [
+                        {
+                          "operator": "==",
+                          "thresholdValue": "Over 10,000 controls / incomplete list",
+                          "representation": "warning",
+                          "text": "{0}{1}"
+                        },
+                        {
+                          "operator": "Default",
+                          "representation": "Unavailable",
+                          "text": "{0}{1}"
+                        }
+                      ],
+                      "customColumnWidthSetting": "34ch"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| where isempty(\"{ControlSearch:escapejson}\") or name contains \"{ControlSearch:escapejson}\" or Description contains \"{ControlSearch:escapejson}\"\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| where '*' in ({DetailState}) or State in ({DetailState})\r\n| extend FailureOrder = iff(State == 'Failed', 1, 0)\r\n| project subscriptionId, ComplianceStandard, name, Description, State, Passed, Failed, Skipped, FailureOrder\r\n| order by FailureOrder desc, Failed desc, name asc",
               "size": 0,
               "title": "Controls - {Control:label}",
-              "noDataMessage": "No controls matched the selected standard, detail scope, and state. Try All or Clear detail scope, and verify compliance coverage and Reader permissions.",
+              "noDataMessage": "No controls matched the selected standard, detail scope, state and control search. Clear Control contains, try All or Clear detail scope, and verify compliance coverage and Reader permissions.",
               "noDataMessageStyle": 2,
               "showExportToExcel": true,
               "exportToExcelOptions": "all",
@@ -1429,7 +1510,7 @@
                   "name": "SelectedControlCoverage",
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\"), DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| where isnotempty(SelectedSubscription) and isnotempty(SelectedStandard) and isnotempty(SelectedControl)\r\n| where subscriptionId == SelectedSubscription\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id), ControlName = extract('(?i)/regulatorycompliancecontrols/([^/]+)/', 1, id)\r\n| where ComplianceStandard == SelectedStandard and ControlName == SelectedControl\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| where '*' in ({DetailState}) or tostring(Selection.State) in ({DetailState})\r\n| summarize MappedAssessments = count()\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\")\r\n| extend Coverage = case(isempty(tostring(Selection.subscriptionId)) or isempty(tostring(Selection.ComplianceStandard)) or isempty(tostring(Selection.name)), 'Select an individual control row',\r\n    MappedAssessments == 0, 'No matches in the current selection and filters',\r\n    MappedAssessments > 10000, 'Over 10,000 assessments / incomplete list',\r\n    'Within 10,000-assessment row budget')\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| extend SubscriptionResource = iff(SelectedSubscription matches regex '(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', strcat('/subscriptions/', SelectedSubscription), '')\r\n| project SubscriptionResource, SelectedStandard, SelectedControl, MappedAssessments, Coverage",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\"), DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| where isempty(\"{ControlSearch:escapejson}\") or SelectedControl contains \"{ControlSearch:escapejson}\" or tostring(Selection.Description) contains \"{ControlSearch:escapejson}\"\r\n| where isnotempty(SelectedSubscription) and isnotempty(SelectedStandard) and isnotempty(SelectedControl)\r\n| where subscriptionId == SelectedSubscription\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id), ControlName = extract('(?i)/regulatorycompliancecontrols/([^/]+)/', 1, id)\r\n| where ComplianceStandard == SelectedStandard and ControlName == SelectedControl\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| where '*' in ({DetailState}) or tostring(Selection.State) in ({DetailState})\r\n| summarize MappedAssessments = count()\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\")\r\n| extend Coverage = case(isempty(tostring(Selection.subscriptionId)) or isempty(tostring(Selection.ComplianceStandard)) or isempty(tostring(Selection.name)), 'Select an individual control row',\r\n    MappedAssessments == 0, 'No matches in the current selection and filters',\r\n    MappedAssessments > 10000, 'Over 10,000 assessments / incomplete list',\r\n    'Within 10,000-assessment row budget')\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| extend SubscriptionResource = iff(SelectedSubscription matches regex '(?i)^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$', strcat('/subscriptions/', SelectedSubscription), '')\r\n| project SubscriptionResource, SelectedStandard, SelectedControl, MappedAssessments, Coverage",
                     "size": 0,
                     "title": "Selected control - mapped assessment count",
                     "queryType": 1,
@@ -1484,7 +1565,7 @@
                   "name": "SelectedControlAssessmentList",
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\"), DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| where isnotempty(SelectedSubscription) and isnotempty(SelectedStandard) and isnotempty(SelectedControl)\r\n| where subscriptionId == SelectedSubscription\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id), ControlName = extract('(?i)/regulatorycompliancecontrols/([^/]+)/', 1, id)\r\n| where ComplianceStandard == SelectedStandard and ControlName == SelectedControl\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| where '*' in ({DetailState}) or tostring(Selection.State) in ({DetailState})\r\n| extend Recommendation = coalesce(tostring(properties.description), name), State = tostring(properties.state),\r\n    PassedResources = tolong(properties.passedResources), FailedResources = tolong(properties.failedResources), SkippedResources = tolong(properties.skippedResources),\r\n    SourceLink = tostring(properties.assessmentDetailsLink)\r\n| extend RecommendationLink = case(SourceLink matches regex '(?i)^https://portal[.]azure[.](com|us|cn)([/?#]|$)', SourceLink, SourceLink matches regex '(?i)^portal[.]azure[.](com|us|cn)([/?#]|$)', strcat('https://', SourceLink), '')\r\n| project Recommendation, State, FailedResources, PassedResources, SkippedResources, AssessmentKey = name, RecommendationLink\r\n| order by FailedResources desc, Recommendation asc",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend Selection = parse_json(\"{SelectedControlScope:escapejson}\"), DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| extend SelectedSubscription = tostring(Selection.subscriptionId), SelectedStandard = tostring(Selection.ComplianceStandard), SelectedControl = tostring(Selection.name)\r\n| where isempty(\"{ControlSearch:escapejson}\") or SelectedControl contains \"{ControlSearch:escapejson}\" or tostring(Selection.Description) contains \"{ControlSearch:escapejson}\"\r\n| where isnotempty(SelectedSubscription) and isnotempty(SelectedStandard) and isnotempty(SelectedControl)\r\n| where subscriptionId == SelectedSubscription\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id), ControlName = extract('(?i)/regulatorycompliancecontrols/([^/]+)/', 1, id)\r\n| where ComplianceStandard == SelectedStandard and ControlName == SelectedControl\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| where '*' in ({DetailState}) or tostring(Selection.State) in ({DetailState})\r\n| extend Recommendation = coalesce(tostring(properties.description), name), State = tostring(properties.state),\r\n    PassedResources = tolong(properties.passedResources), FailedResources = tolong(properties.failedResources), SkippedResources = tolong(properties.skippedResources),\r\n    SourceLink = tostring(properties.assessmentDetailsLink)\r\n| extend RecommendationLink = case(SourceLink matches regex '(?i)^https://portal[.]azure[.](com|us|cn)([/?#]|$)', SourceLink, SourceLink matches regex '(?i)^portal[.]azure[.](com|us|cn)([/?#]|$)', strcat('https://', SourceLink), '')\r\n| project Recommendation, State, FailedResources, PassedResources, SkippedResources, AssessmentKey = name, RecommendationLink\r\n| order by FailedResources desc, Recommendation asc",
                     "size": 0,
                     "title": "Recommendations for selected control",
                     "queryType": 1,
