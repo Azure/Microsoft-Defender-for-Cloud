@@ -72,6 +72,8 @@ Changing scope refreshes the available states; a state absent from the scope is 
 
 Use **Failed** to prioritize remediation. Descriptions have more display space and open their full text when selected. Passed/failed/skipped values are assessment counts per control, not unique resource counts. Group rows do not default to a green success icon.
 
+The grid explicitly sets the [Azure Workbooks maximum display limit of **10,000 rows**](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), replacing the default 250-row cap. This does not bypass query or Resource Graph limits. If a limit warning appears, narrow the subscription, standard or control-state filters, or drill into one subscription and standard from Overview. Grid search filters returned data only and cannot retrieve omitted controls; Excel export likewise includes returned data, not a guaranteed complete inventory.
+
 An Overview selection scopes this tab to the selected subscription and standard. **Clear Overview drill-through** clears that row selection's scope; the main subscription and standard filters remain active. If the main filters exclude the drilled selection, clear the drill-through scope rather than interpreting the empty result as compliance.
 
 ### Regulatory Compliance Configuration

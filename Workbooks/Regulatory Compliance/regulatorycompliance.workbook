@@ -791,7 +791,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Control results - {Control:label}\nOverview drill-through restricts this tab to the selected subscription and standard. Use **Clear Overview drill-through** below to clear the selected subscription and standard; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon. Azure Resource Graph result limits apply; the export includes returned rows. An empty Failed selection is not proof of complete coverage."
+              "json": "### Control results - {Control:label}\nOverview drill-through restricts this tab to the selected subscription and standard. Use **Clear Overview drill-through** below to clear the selected subscription and standard; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon.\n\nThe grid display limit is **10,000 rows**, the [Azure Workbooks maximum](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), instead of the default 250. Query and Resource Graph limits still apply. If a limit warning appears, narrow **Subscription**, **Compliance standard** or **Control state**, or drill into one subscription and standard from Overview. Grid search filters returned data only; it does not fetch omitted controls. Excel export includes returned data, not a guaranteed complete inventory. An empty Failed selection is not proof of complete coverage."
             },
             "name": "text - 2"
           },
@@ -977,7 +977,9 @@
                     "columnId": "subscriptionId",
                     "label": "Subscription"
                   }
-                ]
+                ],
+                "rowLimit": 10000,
+                "filter": true
               }
             },
             "name": "RegulatoryComplianceBreakdown"
