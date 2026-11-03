@@ -1,0 +1,144 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "name": "interaction_parameters",
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "32da6d46-e751-44e1-9c60-355a03654314",
+            "version": "KqlParameterItem/1.0",
+            "name": "Selection",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "{}"
+          },
+          {
+            "id": "2e6df90a-9006-4bfc-a51e-8e17a7f81036",
+            "version": "KqlParameterItem/1.0",
+            "name": "Filter",
+            "label": "Result state",
+            "type": 2,
+            "isGlobal": true,
+            "value": "All",
+            "jsonData": "[{\"value\":\"All\",\"label\":\"All states\"},{\"value\":\"Failed\",\"label\":\"Failed only\"}]"
+          },
+          {
+            "id": "df7889c4-56b5-4588-975f-9195a7f9b350",
+            "version": "KqlParameterItem/1.0",
+            "name": "view",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "overview"
+          }
+        ],
+        "style": "pills"
+      }
+    },
+    {
+      "type": 11,
+      "name": "interaction_tabs",
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "b992f885-e726-4698-a4c6-ce8c34a8c21e",
+            "cellValue": "view",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "overview",
+            "style": "link"
+          },
+          {
+            "id": "a51d1926-ff39-4e31-b50d-96731c38c09e",
+            "cellValue": "view",
+            "linkTarget": "parameter",
+            "linkLabel": "Details",
+            "subTarget": "details",
+            "style": "link"
+          }
+        ]
+      }
+    },
+    {
+      "type": 3,
+      "name": "interaction_rows",
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "content": {
+        "version": "KqlItem/1.0",
+        "title": "Selectable rows",
+        "queryType": 8,
+        "query": "{\"version\":\"1.0.0\",\"content\":\"[{\\\"Key\\\":\\\"item-one\\\",\\\"Label\\\":\\\"First\\\",\\\"TargetView\\\":\\\"details\\\"},{\\\"Key\\\":\\\"item-two\\\",\\\"Label\\\":\\\"Second\\\",\\\"TargetView\\\":\\\"details\\\"}]\",\"transformers\":null}",
+        "size": 1,
+        "exportedParameters": [
+          {
+            "fieldName": "",
+            "parameterName": "Selection",
+            "parameterType": 1,
+            "defaultValue": "{}"
+          },
+          {
+            "fieldName": "TargetView",
+            "parameterName": "view",
+            "parameterType": 1,
+            "defaultValue": "overview"
+          }
+        ]
+      }
+    },
+    {
+      "type": 12,
+      "name": "interaction_details",
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "details"
+      },
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "items": [
+          {
+            "type": 3,
+            "name": "interaction_result",
+            "content": {
+              "version": "KqlItem/1.0",
+              "title": "Selection results",
+              "queryType": 8,
+              "query": "{\"version\":\"1.0.0\",\"content\":\"[{\\\"Key\\\":\\\"{Selection:$.Key}\\\",\\\"Label\\\":\\\"{Selection:$.Label}\\\",\\\"Filter\\\":\\\"{Filter}\\\"}]\",\"transformers\":null}",
+              "size": 1
+            }
+          },
+          {
+            "type": 11,
+            "name": "interaction_reset",
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "toolbar",
+              "links": [
+                {
+                  "id": "3fc4bf6c-c964-43d6-a9c0-25cc64916039",
+                  "cellValue": "Selection",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Clear selection",
+                  "subTarget": "{}",
+                  "style": "link"
+                }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

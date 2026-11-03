@@ -1,0 +1,160 @@
+{
+  "version": "Notebook/1.0",
+  "items": [
+    {
+      "type": 9,
+      "content": {
+        "version": "KqlParameterItem/1.0",
+        "parameters": [
+          {
+            "id": "4654acc3-285f-4bdb-b46e-f76a5ea25459",
+            "version": "KqlParameterItem/1.0",
+            "name": "ShowDetails",
+            "type": 1,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "false"
+          }
+        ],
+        "style": "above"
+      },
+      "name": "browser_fixture_parameters"
+    },
+    {
+      "type": 11,
+      "content": {
+        "version": "LinkItem/1.0",
+        "style": "tabs",
+        "links": [
+          {
+            "id": "b9e67bd2-8cdc-415e-8672-2dd41d86ed18",
+            "cellValue": "view",
+            "linkTarget": "parameter",
+            "linkLabel": "Overview",
+            "subTarget": "overview",
+            "style": "link"
+          },
+          {
+            "id": "3691c322-2faf-4c48-b486-b705db94dced",
+            "cellValue": "view",
+            "linkTarget": "parameter",
+            "linkLabel": "Details",
+            "subTarget": "details",
+            "style": "link"
+          }
+        ]
+      },
+      "name": "browser_fixture_tabs"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Browser validation example\nThis fixture contains only static text and inline JSON. It does not query Azure resources."
+      },
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "name": "browser_fixture_overview"
+    },
+    {
+      "type": 12,
+      "content": {
+        "version": "NotebookGroup/1.0",
+        "groupType": "editable",
+        "title": "On-demand example",
+        "items": [
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "toolbar",
+              "links": [
+                {
+                  "id": "33d53060-3af8-4aeb-82aa-73de4192e197",
+                  "cellValue": "ShowDetails",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Show details",
+                  "subTarget": "true",
+                  "style": "link"
+                }
+              ]
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowDetails",
+              "comparison": "isNotEqualTo",
+              "value": "true"
+            },
+            "name": "browser_fixture_show_details"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "title": "Deferred table",
+              "query": "{\"version\":\"1.0.0\",\"content\":\"[{\\\"Label\\\":\\\"First\\\",\\\"Count\\\":1},{\\\"Label\\\":\\\"Second\\\",\\\"Count\\\":2}]\",\"transformers\":null}",
+              "queryType": 8,
+              "size": 1,
+              "visualization": "table"
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowDetails",
+              "comparison": "isEqualTo",
+              "value": "true"
+            },
+            "name": "browser_fixture_deferred_table"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Loaded details\nThe same action reveals both this text and the table."
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowDetails",
+              "comparison": "isEqualTo",
+              "value": "true"
+            },
+            "name": "browser_fixture_loaded_details"
+          }
+        ]
+      },
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "overview"
+      },
+      "name": "browser_fixture_group"
+    },
+    {
+      "type": 1,
+      "content": {
+        "json": "## Details tab\nThis tab verifies navigation without requiring tenant telemetry."
+      },
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "details"
+      },
+      "name": "browser_fixture_details"
+    },
+    {
+      "type": 3,
+      "content": {
+        "version": "KqlItem/1.0",
+        "title": "Ready table",
+        "query": "{\"version\":\"1.0.0\",\"content\":\"[{\\\"Label\\\":\\\"First\\\",\\\"Count\\\":1},{\\\"Label\\\":\\\"Second\\\",\\\"Count\\\":2}]\",\"transformers\":null}",
+        "queryType": 8,
+        "size": 1,
+        "visualization": "table"
+      },
+      "conditionalVisibility": {
+        "parameterName": "view",
+        "comparison": "isEqualTo",
+        "value": "details"
+      },
+      "name": "browser_fixture_ready_table"
+    }
+  ],
+  "$schema": "https://github.com/Microsoft/Application-Insights-Workbooks/blob/master/schema/workbook.json"
+}

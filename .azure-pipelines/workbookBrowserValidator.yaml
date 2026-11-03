@@ -1,0 +1,15 @@
+---
+jobs:
+  - job: WorkbookBrowserValidator
+    displayName: Workbook validation regression tests (offline)
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+      - task: UseNode@1
+        inputs:
+          version: "24.x"
+        displayName: Use Node.js 24
+      - script: npm ci
+        displayName: Install dependencies without downloading browsers
+      - script: npm run test:workbook
+        displayName: Test workbook contracts and browser safeguards without Azure

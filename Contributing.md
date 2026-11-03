@@ -2,11 +2,11 @@
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.microsoft.com.
+the rights to use your contribution. For details, visit <https://cla.microsoft.com>.
 
 ## How to contribute
 
-Please note that this project is released with a [Contributor Code of Conduct](https://opensource.microsoft.com/codeofconduct/). By participating in this project you agree to abide by its terms.
+Please note that this project is released with a [Contributor Code of Conduct][code-of-conduct]. By participating in this project you agree to abide by its terms.
 
 - [Contributing](#contributing)
   - [How to contribute](#how-to-contribute)
@@ -24,16 +24,16 @@ Please note that this project is released with a [Contributor Code of Conduct](h
 
 ### Related repositories
 
-This is the repository for Microsoft Defender for Cloud. Please ensure that you are opening issues in the right repository. Other repos you might be looking for:
+This is the repository for Microsoft Defender for Cloud. Please ensure that you are opening issues in the right repository. Other repositories you might be looking for:
 
-- [Azure Monitor Community](https://github.com/microsoft/AzureMonitorCommunity#azure-monitor-community) repo, with query, alerts, workbook samples.
-- [Azure Monitor Workbook Templates](https://github.com/microsoft/Application-Insights-Workbooks) repo - contains workbook templates shown in the workbook galleries for Azure Monitor workbooks
-- [Log Analytics Query Examples](https://github.com/MicrosoftDocs/LogAnalyticsExamples) repo - contains example log analytics queries
-- [Azure Sentinel](https://github.com/azure/azure-sentinel) repo - contains queries, dashboards, templates used by Azure Sentinel
+- [Azure Monitor Community](https://github.com/microsoft/AzureMonitorCommunity#azure-monitor-community) repository, with query, alerts, workbook samples.
+- [Azure Monitor Workbook Templates](https://github.com/microsoft/Application-Insights-Workbooks) repository - contains workbook templates shown in the workbook galleries for Azure Monitor workbooks
+- [Log Analytics Query Examples](https://github.com/MicrosoftDocs/LogAnalyticsExamples) repository - contains example log analytics queries
+- [Azure Sentinel](https://github.com/azure/azure-sentinel) repository - contains queries, dashboards, templates used by Azure Sentinel
 
 ## Recommended setup for contributing
 
-- To contribute your own examples, [fork the repo](https://help.github.com/articles/about-forks), [create a new branch](https://help.github.com/articles/about-branches), make your changes or additions, and then [submit a pull request](https://help.github.com/articles/about-pull-requests/).
+- To contribute your own examples, [fork the repository](https://help.github.com/articles/about-forks), [create a new branch](https://help.github.com/articles/about-branches), make your changes or additions, and then [submit a pull request](https://help.github.com/articles/about-pull-requests/).
 
 - If you submit a pull request, we'll add a comment to the pull request asking you to submit an online [CLA](https://cla.microsoft.com) (Contribution License Agreement). We'll need you to complete the online form before we can accept your pull request.
 
@@ -41,11 +41,16 @@ This is the repository for Microsoft Defender for Cloud. Please ensure that you 
 
 ## Commit messages
 
-When creating commits, always try to create useful commit messages explaining what that commit contains. Avoid commit messages like "fix" or "commit". If you're fixing something that's been reported as an issue in the repo, refer to the issue number in commit messages.
+When creating commits, always try to create useful commit messages explaining what that commit contains. Avoid commit messages like "fix" or "commit". If you're fixing something that's been reported as an issue in the repository, refer to the issue number in commit messages.
 
 ## Pull Requests
 
-When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change. Make sure to provide a [readme](https://github.com/Azure/Azure-Security-Center/wiki/Readme.md-Template) file so people will know what your artifact will do. Once your pull request is submitted, we will automatically verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
+When creating a pull request, please create a good title, fill the description with content, and ideally, explain what your PR will change. Make sure to provide a [readme](https://github.com/Azure/Azure-Security-Center/wiki/Readme.md-Template) file so people will know what your artifact will do.
+Once your pull request is submitted, we will automatically verify you've signed the CLA agreement, and that your code passes a set of CI build tests.
+
+For workbook changes, see [workbook browser validation](.script/ReadMe.md#workbook-browser-validation-opt-in).
+Offline regression tests run in CI; authenticated portal testing is a separate, explicitly approved local step.
+For query-result coverage, supply eager-panel or deferred grid contracts rather than reporting import/tab smoke as query validation.
 
 [code-of-conduct]: https://opensource.microsoft.com/codeofconduct/
 [new-issue]: https://github.com/Azure/Microsoft-Defender-for-Cloud/issues/new

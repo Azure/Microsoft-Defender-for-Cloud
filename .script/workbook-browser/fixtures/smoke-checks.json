@@ -1,0 +1,30 @@
+{
+  "tabs": ["Overview", "Details"],
+  "timeout": 30000,
+  "panels": [
+    {
+      "tab": "Details",
+      "heading": "Ready table",
+      "minRows": 2,
+      "maxRows": 2,
+      "columns": ["Label", "Count"]
+    }
+  ],
+  "deferred": [
+    {
+      "tab": "Overview",
+      "trigger": "Show details",
+      "heading": "Deferred table",
+      "hideTriggerAfterLoad": true,
+      "minRows": 2,
+      "maxRows": 2,
+      "columns": ["Label", "Count"]
+    },
+    {
+      "tab": "Overview",
+      "trigger": "Show details",
+      "heading": "Loaded details",
+      "hideTriggerAfterLoad": true
+    }
+  ]
+}

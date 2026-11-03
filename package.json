@@ -19,11 +19,16 @@
     "@types/chai": "^4.2.7",
     "@types/chai-as-promised": "^7.1.2",
     "chai": "^4.2.0",
-    "chai-as-promised": "^7.1.1"
+    "chai-as-promised": "^7.1.1",
+    "minimist": "^1.2.8",
+    "playwright-core": "^1.64.1"
   },
   "scripts": {
     "tsc": "tsc",
-    "test": " mocha --recursive --require ts-node/register .script/tests/**/*.test.ts"
+    "test": "mocha --recursive --require ts-node/register \".script/tests/**/*.test.ts\" \".script/tests/**/*.test.js\"",
+    "test:workbook": "mocha --timeout 10000 \".script/tests/workbookBrowserValidatorTest/**/*.test.js\"",
+    "test:browser": "mocha --timeout 180000 .script/workbook-browser/workbookValidation.test.js",
+    "test:browser:script": "node .script/workbook-browser/generateScript.js"
   },
   "repository": {
     "type": "git",
