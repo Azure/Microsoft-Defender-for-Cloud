@@ -1771,14 +1771,14 @@
           {
             "type": 1,
             "content": {
-              "json": "### 2. Defender plan configuration\nThese are visible **subscription-level pricing settings**, not an installation or sensor-health inventory. **Standard** means a paid tier is configured, not that every resource is protected; **Free** is not automatically a failure. Resource-level overrides, inherited settings and monitoring-component health must be reviewed separately. Missing settings remain not observed, not disabled."
+              "json": "### 2. CSPM levels, features and Defender plans\n**Foundational CSPM (free)** is the baseline; **Defender CSPM (paid)** adds advanced posture capabilities. The summary explicitly shows whether the paid plan is **Enabled** or **Disabled**. Missing or unrecognized evidence is **Not observed / verify**, not Disabled.\n\nThese are visible **subscription-level configuration settings**, not an installation, scanning or protection-health inventory. A paid plan or feature switch being enabled is not a compliance pass. Other Defender plans can provide overlapping capabilities; a disabled CSPM switch does not establish that a resource has no equivalent coverage. Review supported workloads, resource overrides, exclusions and actual findings separately."
             },
             "name": "ReadinessPlansGuidance"
           },
           {
             "type": 1,
             "content": {
-              "json": "#### Setup instructions — Defender plans\n1. In **Defender for Cloud > Environment settings**, select the source subscription and review **Defender plans** and the relevant plan settings.\n2. Compare the configured tier and subplan with the workloads and regulatory-standard prerequisites you need. Review resource-level overrides and required monitoring components; a pricing row alone does not confirm component installation or protection.\n3. Review permissions, licensing, trial limits and expected charges before enabling or changing a paid plan. Do not enable all plans solely to make this workbook look complete.\n\nMicrosoft Learn: [Connect subscriptions and configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security) · [Coverage workbook](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#coverage-workbook)."
+              "json": "#### Setup instructions - CSPM levels, feature settings and Defender plans\n**Choose the appropriate CSPM level.** [Foundational CSPM (free)](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management) includes inventory, Microsoft Cloud Security Benchmark assessments, secure score and basic recommendations. **Defender CSPM (paid)** adds advanced posture capabilities such as attack paths, security explorer, risk prioritization, regulatory-compliance assessments and agentless insights. Foundational is not a failed configuration; select the level that meets your requirements. Workload threat-protection plans are separate.\n\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Defender plans**. To enable the paid plan if required, set **Defender CSPM** to **On** and **Save**.\n2. Select **Settings** for Defender CSPM, review the applicable components below, select **Continue**, then **Save**. Use **Edit configuration** for machine-scanning exclusion tags. The workbook only reports settings; it never enables a plan or changes exclusions.\n3. Use a **Subscription Owner** to enable all features and required permissions. A user with fewer permissions can enable the paid plan without fully activating agentless scanning. Confirm supported clouds, regions, service tiers and workloads, onboarding permissions, resource-level overrides and actual results before considering coverage complete.\n4. Review [Defender for Cloud pricing](https://azure.microsoft.com/en-us/pricing/details/defender-for-cloud/), trial status, billable resource scope and possible supporting-service charges before enabling components. Sensitive-data discovery accesses customer data; review its permissions and scan scope. Do not enable every paid feature solely to make the dashboard look complete.\n\n| Monitored component | Why review it and what to configure |\n|---|---|\n| Agentless scanning for machines | Adds machine vulnerability, secret and software context. Review the switch, **Edit configuration** exclusion tags, required permissions and actual scan coverage. [Setup and exclusions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-agentless-scanning-vms). |\n| Kubernetes API access / agentless discovery | Supplies cluster configuration, identity and network context for attack paths. Review **Kubernetes API access** and supported clusters. [Agentless container setup](https://learn.microsoft.com/en-us/azure/defender-for-cloud/how-to-enable-agentless-containers). |\n| Registry access / image vulnerability assessment | Enables supported image vulnerability assessments. Review **Registry access**, registry permissions and actual findings; an enabled extension is not proof every image is assessed. [Registry and Kubernetes settings](https://learn.microsoft.com/en-us/azure/defender-for-cloud/how-to-enable-agentless-containers). |\n| Sensitive data discovery | Adds data-sensitivity context for risk prioritization. Review the switch, supported stores, data-access permissions and [data sensitivity configuration](https://learn.microsoft.com/en-us/azure/defender-for-cloud/data-sensitivity-settings). [Prerequisites, scope and costs](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-data-security-posture-prepare). |\n| Identity and permissions (CIEM) | Identifies excessive and unused permissions. Review the CIEM switch, collection prerequisites and resulting recommendations. Existing Defender for Cloud CIEM is distinct from the retired standalone Entra Permissions Management product. [CIEM guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/permissions-management). |\n| API security posture | Discovers and assesses supported APIs. Enable **API security posture management** when appropriate; review region, service tier and sensitive-data prerequisites. This is not the separate Defender for APIs workload-protection plan. [API setup and limitations](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-api-security-posture). |\n| Serverless protection | Adds posture for supported Web Apps and Functions. Review the **Serverless protection** switch, eligibility, scan coverage and billing impact. [Serverless guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/serverless-protection). |\n| Serverless containers | Adds posture for supported Container Apps and Container Instances, not runtime threat detection. Review **Serverless Containers** and **Registry access** for full features, cloud availability and charges. [Serverless container setup](https://learn.microsoft.com/en-us/azure/defender-for-cloud/posture-for-serverless-containers). |\n\n**Also verify in the portal:** actual scan/recommendation coverage, AI posture and other workload eligibility, connector permissions for AWS/GCP, data-sensitivity rules and resource overrides. Attack paths and security explorer are capabilities, not independently inferred On/Off switches here. Additional reported extensions remain visible; unsupported or portal-only settings require manual verification. Allow time for onboarding and data collection.\n\n**Other Defender plans:** compare each reported tier and subplan against the workload protection and regulatory prerequisites you need; review installation, sensor health, overrides and costs separately. **Standard** means the paid tier is enabled in the subscription pricing record; **Free** means that paid tier is disabled, not that every free capability or every resource is disabled.\n\nMicrosoft Learn: [Enable CSPM and components](https://learn.microsoft.com/en-us/azure/defender-for-cloud/tutorial-enable-cspm-plan) | [CSPM levels and capabilities](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management) | [Plan/extension API fields and enforcement](https://learn.microsoft.com/en-us/azure/templates/microsoft.security/2024-01-01/pricings) | [Configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security) | [Coverage workbook](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#coverage-workbook)."
             },
             "conditionalVisibility": {
               "parameterName": "ShowSetupTips",
@@ -1789,9 +1789,292 @@
           },
           {
             "type": 3,
+            "name": "ReadinessCspmSummary",
             "content": {
               "version": "KqlItem/1.0",
-              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/pricings'\r\n    | where id =~ strcat('/subscriptions/', subscriptionId, '/providers/Microsoft.Security/pricings/', name)\r\n    | project subscriptionId = tolower(subscriptionId), Plan = name, PricingTier = tostring(properties.pricingTier), SubPlan = tostring(properties.subPlan)\r\n) on subscriptionId\r\n| extend Configuration = case(isempty(Plan), 'Not observed / verify', PricingTier =~ 'Standard', 'Paid tier configured', PricingTier =~ 'Free', 'Free tier configured', 'Unknown tier / review')\r\n| extend NextStep = case(isempty(Plan), 'Verify read access and review subscription Defender plan settings.', PricingTier =~ 'Standard', 'Review plan suitability, resource-level overrides, monitoring components and cost; configuration alone does not establish protection.', PricingTier =~ 'Free', 'Review whether the free capabilities meet your requirements; paid plans are an explicit cost decision.', 'Review the reported pricing tier in Defender for Cloud; no protection state is inferred.')\r\n| extend Plan = iff(isempty(Plan), 'Not observed', Plan), PricingTier = iff(isempty(PricingTier), 'Not reported', PricingTier), SubPlan = iff(isempty(SubPlan), 'Not reported', SubPlan)\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Plan, Configuration, PricingTier, SubPlan, NextStep\r\n| order by Subscription asc, Plan asc",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/pricings' and name =~ 'CloudPosture'\r\n    | where id =~ strcat('/subscriptions/', subscriptionId, '/providers/Microsoft.Security/pricings/', name)\r\n    | project subscriptionId = tolower(subscriptionId), PlanId = id, PricingTier = tostring(properties.pricingTier), Enforce = tostring(properties.enforce), ExtensionCount = array_length(properties.extensions)\r\n) on subscriptionId\r\n| extend DefenderCSPM = case(isempty(PlanId), 'Not observed / verify', PricingTier =~ 'Standard', 'Enabled (paid)', PricingTier =~ 'Free', 'Disabled', 'Unknown tier / review')\r\n| extend CSPMLevel = case(PricingTier =~ 'Standard', 'Defender CSPM + Foundational CSPM', PricingTier =~ 'Free', 'Foundational CSPM (free)', 'Not established / verify')\r\n| extend FoundationalCSPM = iff(PricingTier in~ ('Standard', 'Free'), 'Included (free)', 'Available free; verify onboarding')\r\n| extend Enforcement = case(Enforce =~ 'True', 'Enforced; overrides blocked', Enforce =~ 'False', 'Overrides allowed', 'Not reported / verify')\r\n| extend ExtensionInventory = case(isempty(PlanId), 'Plan not observed', isnull(ExtensionCount), 'Settings not reported / invalid', ExtensionCount > 1992, 'Too many settings / review', ExtensionCount == 0, 'No extension settings reported', 'Reported settings available')\r\n| extend NextStep = case(isempty(PlanId), 'Verify subscription read access, Defender for Cloud onboarding and the CloudPosture pricing record; absence does not prove disabled.', PricingTier =~ 'Free', 'Foundational CSPM is the free baseline. Decide whether advanced posture and regulatory-compliance capabilities justify Defender CSPM and its charges.', PricingTier =~ 'Standard', 'Review the feature switches and VM exclusions below, supported workloads and actual coverage. A paid plan being enabled does not prove scanning or protection.', 'Review the reported pricing tier in Environment settings; do not infer an enabled or disabled plan.')\r\n| extend PricingTier = iff(isempty(PricingTier), 'Not reported', PricingTier)\r\n| project Subscription, SubscriptionResourceId, subscriptionId, CSPMLevel, FoundationalCSPM, DefenderCSPM, PricingTier, Enforcement, ExtensionCount, ExtensionInventory, NextStep\r\n| order by Subscription asc",
+              "size": 0,
+              "title": "CSPM level and paid-plan enabled state by subscription",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "rowLimit": 10000,
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "SubscriptionResourceId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch",
+                      "linkTarget": "Resource",
+                      "linkColumn": "SubscriptionResourceId"
+                    }
+                  },
+                  {
+                    "columnMatch": "CSPMLevel",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "35ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "FoundationalCSPM",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "25ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "DefenderCSPM",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Enforcement",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "27ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ExtensionInventory",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "32ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "NextStep",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "65ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "CSPMLevel",
+                    "label": "CSPM level"
+                  },
+                  {
+                    "columnId": "FoundationalCSPM",
+                    "label": "Foundational CSPM (free)"
+                  },
+                  {
+                    "columnId": "DefenderCSPM",
+                    "label": "Defender CSPM (paid)"
+                  },
+                  {
+                    "columnId": "PricingTier",
+                    "label": "Reported pricing tier"
+                  },
+                  {
+                    "columnId": "Enforcement",
+                    "label": "Reported plan enforcement"
+                  },
+                  {
+                    "columnId": "ExtensionCount",
+                    "label": "Reported extension count"
+                  },
+                  {
+                    "columnId": "ExtensionInventory",
+                    "label": "Settings inventory evidence"
+                  },
+                  {
+                    "columnId": "NextStep",
+                    "label": "Recommended review"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 1,
+            "name": "ReadinessCspmFeaturesGuidance",
+            "content": {
+              "json": "#### CSPM feature switches and review findings\n**Enabled / Disabled** comes only from the reported extension switch, separately from its paid parent plan. **Not reported** is not Disabled. Expected components remain visible even without a switch; unknown/new extensions remain visible for review.\n\nThis subscription-only audit does not establish effective resource coverage, inherited or connector settings, completed scans or protection supplied by another plan. The grid shows reported **VM exclusion tags** and additional-property **names**, not arbitrary property values or secrets. **Not reported** is not proof that no exclusions exist. Missing/invalid arrays, duplicate or unrecognized switches, and settings arrays exceeding the 2,000-entry expansion budget are review findings. Narrow the subscription selection if a result-limit warning appears; grid search and export cannot retrieve omitted rows. Use cell details for the full review guidance."
+            }
+          },
+          {
+            "type": 3,
+            "name": "ReadinessCspmFeatures",
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/pricings' and name =~ 'CloudPosture'\r\n    | where id =~ strcat('/subscriptions/', subscriptionId, '/providers/Microsoft.Security/pricings/', name)\r\n    | project subscriptionId = tolower(subscriptionId), PlanId = id, PricingTier = tostring(properties.pricingTier), Extensions = properties.extensions\r\n) on subscriptionId\r\n| extend ExtensionCount = array_length(Extensions)\r\n| extend ExpectedSettings = dynamic([{\"name\":\"AgentlessVmScanning\"},{\"name\":\"AgentlessDiscoveryForKubernetes\"},{\"name\":\"ContainerRegistriesVulnerabilityAssessments\"},{\"name\":\"SensitiveDataDiscovery\"},{\"name\":\"EntraPermissionsManagement\"},{\"name\":\"ApiPosture\"},{\"name\":\"AgentlessServerlessPosture\"},{\"name\":\"ServerlessContainers\"}])\r\n| extend Settings = array_concat(ExpectedSettings, iff(isnotnull(ExtensionCount), Extensions, dynamic([])))\r\n| mv-expand with_itemindex=SettingIndex Setting = Settings limit 2000\r\n| extend SettingId = tolower(tostring(Setting.name)), IsReported = SettingIndex >= 8, RawState = tostring(Setting.isEnabled)\r\n| extend InventoryComplete = isnotnull(ExtensionCount) and ExtensionCount <= 1992\r\n| summarize ReportedRows = countif(IsReported), EnabledRows = countif(IsReported and RawState =~ 'True'), DisabledRows = countif(IsReported and RawState =~ 'False'), UnknownRows = countif(IsReported and RawState !in~ ('True', 'False')), ExclusionValues = make_set(Setting.additionalExtensionProperties.ExclusionTags), PropertyNames = make_set(bag_keys(Setting.additionalExtensionProperties)), ReportedNames = make_set(Setting.name)\r\n    by subscriptionId, Subscription, SubscriptionResourceId, PlanId, PricingTier, SettingId, InventoryComplete\r\n| extend Feature = case(SettingId == 'agentlessvmscanning', 'Agentless scanning for machines', SettingId == 'agentlessdiscoveryforkubernetes', 'Kubernetes API access / agentless discovery', SettingId == 'containerregistriesvulnerabilityassessments', 'Registry access / image vulnerability assessment', SettingId == 'sensitivedatadiscovery', 'Sensitive data discovery', SettingId == 'entrapermissionsmanagement', 'Identity and permissions (CIEM)', SettingId == 'apiposture', 'API security posture', SettingId == 'agentlessserverlessposture', 'Serverless protection', SettingId == 'serverlesscontainers', 'Serverless containers', isempty(SettingId), 'Unnamed setting / review', strcat('Additional reported setting: ', tostring(ReportedNames[0])))\r\n| extend ReportedSwitch = case(ReportedRows == 0, 'Not reported', EnabledRows > 0 and DisabledRows > 0, 'Conflicting / review', UnknownRows > 0, 'Unknown / review', EnabledRows == ReportedRows, 'Enabled', DisabledRows == ReportedRows, 'Disabled', 'Unknown / review')\r\n| extend DefenderCSPM = case(isempty(PlanId), 'Not observed', PricingTier =~ 'Standard', 'Enabled (paid)', PricingTier =~ 'Free', 'Disabled', 'Unknown tier')\r\n| extend Finding = case(isempty(PlanId), 'Plan not observed / verify', not(InventoryComplete), 'Incomplete settings inventory / verify', PricingTier !in~ ('Standard', 'Free'), 'Unknown plan tier / verify', ReportedRows > 1, 'Duplicate setting rows / review', PricingTier =~ 'Free' and ReportedSwitch == 'Enabled', 'Switch enabled; paid plan disabled', PricingTier =~ 'Free', 'Paid plan disabled', ReportedSwitch == 'Enabled', 'Enabled configuration; verify coverage', ReportedSwitch == 'Disabled', 'Disabled; assess workload requirements', 'Setting not established / verify')\r\n| extend Exclusions = case(SettingId != 'agentlessvmscanning', 'Not applicable', array_length(ExclusionValues) == 0, 'Not reported', tostring(ExclusionValues))\r\n| extend AdditionalPropertyNames = iff(array_length(PropertyNames) == 0, 'None reported', tostring(PropertyNames))\r\n| extend WhyReview = case(SettingId == 'agentlessvmscanning', 'Provides machine vulnerability and secret-scanning context. Review exclusion tags and actual scan coverage; Subscription Owner permissions are required for full activation.', SettingId == 'agentlessdiscoveryforkubernetes', 'Provides Kubernetes configuration, identity and network context for security explorer and attack paths. Verify supported cluster coverage.', SettingId == 'containerregistriesvulnerabilityassessments', 'Finds vulnerabilities in supported registry images. Verify registry access, supported images and actual assessment results.', SettingId == 'sensitivedatadiscovery', 'Adds sensitive-data context for risk prioritization. This accesses customer data; review permissions, supported stores and scanning scope.', SettingId == 'entrapermissionsmanagement', 'Identifies excessive and unused permissions. Verify identity data collection and resulting recommendations; collection can take time.', SettingId == 'apiposture', 'Discovers and assesses supported APIs. Review service tier, region and sensitive-data-discovery prerequisites; this is separate from the Defender for APIs paid workload plan.', SettingId == 'agentlessserverlessposture', 'Assesses supported Web Apps and Functions. Review workload eligibility and billable-resource impact before enabling.', SettingId == 'serverlesscontainers', 'Adds posture for supported Container Apps and Container Instances. Review Registry access separately for full features, cloud availability and charges.', 'Review this reported extension in Defender CSPM Settings; no purpose or coverage is inferred from an unknown API name.')\r\n| extend NextStep = case(isempty(PlanId) or not(InventoryComplete) or ReportedSwitch !in ('Enabled', 'Disabled'), 'Verify read access and the reported plan settings; missing or invalid values are not Disabled.', PricingTier =~ 'Free', 'Decide whether Defender CSPM is needed before enabling paid features; a saved extension switch does not enable its parent plan.', PricingTier !~ 'Standard', 'Establish the plan tier before interpreting feature availability.', ReportedSwitch == 'Disabled', 'If needed for supported workloads, enable this component in Environment settings > subscription > Defender plans > Defender CSPM > Settings, then Continue and Save.', 'Verify actual coverage, permissions and exclusions; do not treat an enabled switch as a protection or compliance pass.')\r\n| extend Documentation = case(SettingId == 'agentlessvmscanning', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-agentless-scanning-vms', SettingId == 'agentlessdiscoveryforkubernetes' or SettingId == 'containerregistriesvulnerabilityassessments', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/how-to-enable-agentless-containers', SettingId == 'sensitivedatadiscovery', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-data-security-posture-prepare', SettingId == 'entrapermissionsmanagement', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/permissions-management', SettingId == 'apiposture', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-api-security-posture', SettingId == 'agentlessserverlessposture', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/serverless-protection', SettingId == 'serverlesscontainers', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/posture-for-serverless-containers', 'https://learn.microsoft.com/en-us/azure/defender-for-cloud/tutorial-enable-cspm-plan#enable-the-components-of-the-defender-cspm-plan')\r\n| extend ReportedSetting = iff(isempty(SettingId), 'Name not reported', tostring(ReportedNames[0]))\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Feature, ReportedSwitch, DefenderCSPM, Finding, ReportedSetting, Exclusions, AdditionalPropertyNames, WhyReview, NextStep, Documentation\r\n| order by Subscription asc, Feature asc",
+              "size": 0,
+              "title": "CSPM feature settings - reported switch, parent plan and required review",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "rowLimit": 10000,
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "SubscriptionResourceId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch",
+                      "linkTarget": "Resource",
+                      "linkColumn": "SubscriptionResourceId"
+                    }
+                  },
+                  {
+                    "columnMatch": "Feature",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "43ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ReportedSwitch",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "23ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "DefenderCSPM",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "23ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "Finding",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "42ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "ReportedSetting",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "42ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "Exclusions",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "35ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "AdditionalPropertyNames",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "28ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "WhyReview",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "65ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "NextStep",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "65ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  },
+                  {
+                    "columnMatch": "Documentation",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "22ch",
+                      "linkTarget": "Url",
+                      "linkLabel": "Microsoft Learn"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "ReportedSwitch",
+                    "label": "Reported feature switch"
+                  },
+                  {
+                    "columnId": "DefenderCSPM",
+                    "label": "Defender CSPM (paid)"
+                  },
+                  {
+                    "columnId": "Finding",
+                    "label": "Configuration finding"
+                  },
+                  {
+                    "columnId": "ReportedSetting",
+                    "label": "Setting ID (expected / reported)"
+                  },
+                  {
+                    "columnId": "Exclusions",
+                    "label": "VM exclusion tags (reported)"
+                  },
+                  {
+                    "columnId": "AdditionalPropertyNames",
+                    "label": "Additional property names"
+                  },
+                  {
+                    "columnId": "WhyReview",
+                    "label": "Why review / prerequisites"
+                  },
+                  {
+                    "columnId": "NextStep",
+                    "label": "Recommended next step"
+                  },
+                  {
+                    "columnId": "Documentation",
+                    "label": "Technical documentation"
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/pricings'\r\n    | where id =~ strcat('/subscriptions/', subscriptionId, '/providers/Microsoft.Security/pricings/', name)\r\n    | project subscriptionId = tolower(subscriptionId), Plan = name, PricingTier = tostring(properties.pricingTier), SubPlan = tostring(properties.subPlan)\r\n) on subscriptionId\r\n| extend Configuration = case(Plan =~ 'CloudPosture' and PricingTier =~ 'Standard', 'Defender CSPM enabled (paid)', Plan =~ 'CloudPosture' and PricingTier =~ 'Free', 'Defender CSPM disabled; Foundational free', isempty(Plan), 'Not observed / verify', PricingTier =~ 'Standard', 'Enabled (paid tier)', PricingTier =~ 'Free', 'Paid tier disabled (Free)', 'Unknown tier / review')\r\n| extend NextStep = case(isempty(Plan), 'Verify read access and review subscription Defender plan settings.', PricingTier =~ 'Standard', 'Review plan suitability, resource-level overrides, monitoring components and cost; configuration alone does not establish protection.', PricingTier =~ 'Free', 'Review whether the free capabilities meet your requirements; paid plans are an explicit cost decision.', 'Review the reported pricing tier in Defender for Cloud; no protection state is inferred.')\r\n| extend PlanId = iff(isempty(Plan), 'Not observed', Plan)\r\n| extend Plan = case(Plan =~ 'CloudPosture', 'Defender CSPM', Plan =~ 'VirtualMachines', 'Defender for Servers', Plan =~ 'StorageAccounts', 'Defender for Storage', Plan =~ 'AppServices', 'Defender for App Service', Plan =~ 'Containers', 'Defender for Containers', Plan =~ 'ContainerRegistry', 'Container registry (legacy plan)', Plan =~ 'KeyVaults', 'Defender for Key Vault', Plan =~ 'Arm', 'Defender for Resource Manager', Plan =~ 'Api', 'Defender for APIs', Plan =~ 'AI', 'Defender for AI', Plan)\r\n| extend Plan = iff(isempty(Plan), 'Not observed', Plan), PricingTier = iff(isempty(PricingTier), 'Not reported', PricingTier), SubPlan = iff(isempty(SubPlan), 'Not reported', SubPlan)\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Plan, Configuration, PlanId, PricingTier, SubPlan, NextStep\r\n| order by Subscription asc, Plan asc",
               "size": 0,
               "title": "Observed subscription Defender plan settings",
               "queryType": 1,
@@ -1830,7 +2113,7 @@
                     "columnMatch": "^(Evidence|Configuration)$",
                     "formatter": 1,
                     "formatOptions": {
-                      "customColumnWidthSetting": "28ch"
+                      "customColumnWidthSetting": "43ch"
                     }
                   },
                   {
@@ -1862,8 +2145,17 @@
                   {
                     "columnId": "SubPlan",
                     "label": "Reported subplan"
+                  },
+                  {
+                    "columnId": "Configuration",
+                    "label": "Paid-plan enabled state"
+                  },
+                  {
+                    "columnId": "PlanId",
+                    "label": "Reported plan ID"
                   }
-                ]
+                ],
+                "rowLimit": 10000
               }
             },
             "name": "ReadinessDefenderPlans"
