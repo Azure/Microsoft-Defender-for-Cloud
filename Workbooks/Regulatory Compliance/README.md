@@ -64,11 +64,23 @@ The **Resource detail state** selector uses checkboxes and defaults to **All**. 
 **Not applicable** corresponds to the `NotApplicable` assessment status. **Unknown** indicates a missing or unrecognized status; **No resource assessment** indicates a recommendation without a matching resource assessment.
 Findings without an identifiable resource are retained but excluded from resource totals. Workload results describe **resource posture**, not a regulatory compliance percentage or certification.
 
-Resource findings use a **resource-first browser**, not an unscoped resource-recommendation table that can exceed Workbooks' 10,000-result ceiling. **Detail subscription** starts unset; the resource browser is hidden until one selected source subscription is chosen, and recommendation queries remain hidden until a resource row is selected. **Resource contains** filters reported resource ID, resource group and provider-qualified type in the query, before output limits. These detail-only filters do not change the all-state workload summary.
+Resource findings use a **resource-first browser**, not an unscoped resource-recommendation table that can exceed Workbooks' 10,000-result ceiling.
+**Detail subscription** starts unset; the resource browser is hidden until one selected source subscription is chosen, and recommendation queries remain hidden until a resource row is selected.
+**Resource contains** filters reported resource ID, resource group and provider-qualified type in the query, before output limits. These detail-only filters do not change the all-state workload summary.
 
-The resource list aggregates matching recommendation pairs to one row per workload, subscription and cloud-aware resource identity. Its counts follow the current detail-state filter; the overview remains all-state. Missing-identity and unmapped rows remain selectable identity groups. Selecting a resource exports a separate scope parameter; the resource-list query never reads its own exported parameter, avoiding a refresh cycle. Recommendation queries require the selected workload, subscription and exact resource key and reapply the current subscription, standard, workload, state and search filters. A stale selection excluded by those filters returns no matches, never a broader inventory; **Clear resource selection** clears only that selection.
+The resource list aggregates matching recommendation pairs to one row per workload, subscription and cloud-aware resource identity. Its counts follow the current detail-state filter; the overview remains all-state.
+Missing-identity and unmapped rows remain selectable identity groups. Selecting a resource exports a separate scope parameter; the resource-list query never reads its own exported parameter, avoiding a refresh cycle.
+Recommendation queries require the selected workload, subscription and exact resource key and reapply the current subscription, standard, workload, state and search filters.
+A stale selection excluded by those filters returns no matches, never a broader inventory; **Clear resource selection** clears only that selection.
 
-Two server-side count tables show the matching resource/identity-group and finding totals, and the selected resource's matching recommendation count, before output-row limits. They explicitly flag scopes above 10,000 resources or recommendations. Both grids have an explicit 10,000-row display limit. Narrow Workload or Resource contains for an oversized resource list; narrow standard or state for oversized selected-resource detail. A below-limit count is a row-budget observation, not proof of complete source visibility. Counts and lists use separate requests and can change between refreshes.
+Select a resource row outside its link to show its recommendations. Recognized Azure resource names open their Azure resource overview; AWS, Google Cloud, missing and malformed identities remain text.
+Recommendation names open the resource-specific Defender destination when a valid source-provided link is available, or the reported general recommendation otherwise.
+The workbook adds HTTPS to recognized scheme-less Azure portal destinations and does not create links for unrecognized hosts.
+
+Two server-side count tables show the matching resource/identity-group and finding totals, and the selected resource's matching recommendation count, before output-row limits.
+They explicitly flag scopes above 10,000 resources or recommendations. Both grids have an explicit 10,000-row display limit.
+Narrow Workload or Resource contains for an oversized resource list; narrow standard or state for oversized selected-resource detail.
+A below-limit count is a row-budget observation, not proof of complete source visibility. Counts and lists use separate requests and can change between refreshes.
 
 Native grid search and Excel export operate on returned data only; they cannot retrieve omitted rows or provide an unlimited tenant inventory. The resource list exports resource aggregates; the selected-resource table exports that resource's returned recommendations. Query errors and native service-limit warnings remain visible.
 
@@ -80,7 +92,15 @@ Changing scope refreshes the available states; a state absent from the scope is 
 
 Use **Failed** to prioritize remediation. Descriptions have more display space and open their full text when selected. Passed/failed/skipped values are assessment counts per control, not unique resource counts. Group rows do not default to a green success icon.
 
-The grid explicitly sets the [Azure Workbooks maximum display limit of **10,000 rows**](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), replacing the default 250-row cap. This does not bypass query or Resource Graph limits. If a limit warning appears, narrow the subscription, standard or control-state filters, or drill into one subscription and standard from Overview. Grid search filters returned data only and cannot retrieve omitted controls; Excel export likewise includes returned data, not a guaranteed complete inventory.
+Select an individual control row to show its mapped recommendations below the grid.
+The query requires its exact subscription, standard and control, and reapplies the current subscription, standard, Overview drill-through and state filters.
+Group rows, missing identities and stale selections cannot open an unscoped recommendation list. **Clear control selection** removes only this selection.
+Recommendation names link to valid Defender destinations supplied by the assessment; their resource counts are not unique-resource totals across recommendations.
+The separate count shows the matching row budget; the grid, search and export remain subject to the 10,000-row and source limits.
+
+The grid explicitly sets the [Azure Workbooks maximum display limit of **10,000 rows**](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), replacing the default 250-row cap.
+This does not bypass query or Resource Graph limits. If a limit warning appears, narrow the subscription, standard or control-state filters, or drill into one subscription and standard from Overview.
+Grid search filters returned data only and cannot retrieve omitted controls; Excel export likewise includes returned data, not a guaranteed complete inventory.
 
 An Overview selection scopes this tab to the selected subscription and standard. **Clear Overview drill-through** clears that row selection's scope; the main subscription and standard filters remain active. If the main filters exclude the drilled selection, clear the drill-through scope rather than interpreting the empty result as compliance.
 
@@ -88,10 +108,15 @@ An Overview selection scopes this tab to the selected subscription and standard.
 
 This read-only tab separates **standards rollout and reporting**, **Defender plan configuration**, **continuous export configuration**, and **history and workspace data** for the selected subscriptions. It does not configure exports, assign policies, install components, create workspaces, or change retention.
 
-The shared **Setup tips** control at the top defaults to **On**. It shows each section's setup instructions and Microsoft Learn links; **Off** hides those four help blocks without hiding the data, section headings, evidence limitations or operational warnings. **Open Compliance Over Time** remains available either way. Setup tips never runs history queries or changes Azure settings; **Query history** remains a separate, default-off opt-in.
+Subscription names and recognized Azure automation, scope and destination resource IDs open their corresponding resource overviews. Missing or malformed values remain visible without an Azure link. Historical rows can open the source subscription but do not link a historical control to a potentially unrelated current result.
+
+The shared **Setup tips** control at the top defaults to **On**. It shows each section's setup instructions and Microsoft Learn links; **Off** hides those four help blocks without hiding the data, section headings, evidence limitations or operational warnings.
+**Open Compliance Over Time** remains available either way. Setup tips never runs history queries or changes Azure settings; **Query history** remains a separate, default-off opt-in.
 
 - **Regulatory-compliance reporting** counts standards returned by Azure Resource Graph and those with assessed controls. Missing results can reflect permissions, missing assignments, or reporting delays; they do not prove Defender for Cloud is disabled.
-- **Reported standards by subscription** names the standards actually returned, their observed assessment coverage, and a recommended next step. It includes a not-observed row for a selected subscription with no standard results. Invalid or missing assessed-control counts remain unknown, not zero or passed.
+- **Reported standards by subscription** names the standards actually returned, their observed assessment coverage, and a recommended next step.
+  Select a reported-standard row outside its subscription link to open its scoped controls in Compliance Detail; the top standard filter still applies.
+  A not-observed row does not open a standard. Invalid or missing assessed-control counts remain unknown, not zero or passed.
   Reporting is not a complete assignment inventory: an assigned standard can have no relevant assessed resources and be absent. Confirm assignments, inherited scopes, exclusions and exemptions through **Manage compliance policies**. See [Assign regulatory compliance standards](https://learn.microsoft.com/en-us/azure/defender-for-cloud/assign-regulatory-compliance-standards).
 - **Observed subscription Defender plan settings** lists visible subscription-level `Microsoft.Security/pricings` resources, including the reported tier and subplan. **Standard** is a configured paid tier, not proof of installed agents or effective resource protection; **Free** is not automatically a failure. Missing configuration remains not observed, not disabled.
   Resource-level overrides and monitoring-component health are not inventoried here. Review applicable permissions, regulatory-standard prerequisites and costs before changing plans; see [Configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security).
