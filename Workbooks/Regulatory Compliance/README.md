@@ -74,13 +74,17 @@ Use **Failed** to prioritize remediation. Descriptions have more display space a
 
 An Overview selection scopes this tab to the selected subscription and standard. **Clear Overview drill-through** clears that row selection's scope; the main subscription and standard filters remain active. If the main filters exclude the drilled selection, clear the drill-through scope rather than interpreting the empty result as compliance.
 
-### Export & compliance history
+### Regulatory Compliance Configuration
 
-This read-only tab examines regulatory-compliance reporting and Defender for Cloud continuous export for each selected subscription. It does not configure exports, assign policies, create workspaces, or change retention.
+This read-only tab separates **standards rollout and reporting**, **Defender plan configuration**, **continuous export configuration**, and **history and workspace data** for the selected subscriptions. It does not configure exports, assign policies, install components, create workspaces, or change retention.
 
-At the top of the tab, set **Setup tips** to **On** to show the setup and next steps; it defaults to **Off**. **Open Compliance Over Time** remains available when the tips are hidden.
+The shared **Setup tips** control at the top defaults to **On**. It shows each section's setup instructions and Microsoft Learn links; **Off** hides those four help blocks without hiding the data, section headings, evidence limitations or operational warnings. **Open Compliance Over Time** remains available either way. Setup tips never runs history queries or changes Azure settings; **Query history** remains a separate, default-off opt-in.
 
 - **Regulatory-compliance reporting** counts standards returned by Azure Resource Graph and those with assessed controls. Missing results can reflect permissions, missing assignments, or reporting delays; they do not prove Defender for Cloud is disabled.
+- **Reported standards by subscription** names the standards actually returned, their observed assessment coverage, and a recommended next step. It includes a not-observed row for a selected subscription with no standard results. Invalid or missing assessed-control counts remain unknown, not zero or passed.
+  Reporting is not a complete assignment inventory: an assigned standard can have no relevant assessed resources and be absent. Confirm assignments, inherited scopes, exclusions and exemptions through **Manage compliance policies**. See [Assign regulatory compliance standards](https://learn.microsoft.com/en-us/azure/defender-for-cloud/assign-regulatory-compliance-standards).
+- **Observed subscription Defender plan settings** lists visible subscription-level `Microsoft.Security/pricings` resources, including the reported tier and subplan. **Standard** is a configured paid tier, not proof of installed agents or effective resource protection; **Free** is not automatically a failure. Missing configuration remains not observed, not disabled.
+  Resource-level overrides and monitoring-component health are not inventoried here. Review applicable permissions, regulatory-standard prerequisites and costs before changing plans; see [Configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security).
 - **Continuous-export configuration** groups `Microsoft.Security/automations` by source subscription and Log Analytics destination.
   A configuration pass requires enabled, subscription-wide, unfiltered `RegulatoryComplianceAssessment` streaming and `RegulatoryComplianceAssessmentSnapshot` events targeting the **same workspace**.
   A pass establishes configuration evidence only, not delivery, access, retention, or historical readiness. The chart counts each subscription once by its best observed destination; inspect every destination row and its additional findings.

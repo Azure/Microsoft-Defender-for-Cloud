@@ -134,7 +134,7 @@
             "id": "caa26946-e406-4efb-81fc-18c84af3d51c",
             "cellValue": "selectedTab",
             "linkTarget": "parameter",
-            "linkLabel": "Export & compliance history",
+            "linkLabel": "Regulatory Compliance Configuration",
             "subTarget": "Readiness",
             "style": "link"
           }
@@ -1000,7 +1000,7 @@
           {
             "type": 1,
             "content": {
-              "json": "## Export & compliance history"
+              "json": "## Regulatory Compliance Configuration"
             },
             "name": "ReadinessHeader"
           },
@@ -1015,14 +1015,14 @@
                   "name": "ShowSetupTips",
                   "label": "Setup tips",
                   "type": 10,
-                  "description": "Show or hide the continuous-export setup instructions.",
+                  "description": "Show or hide setup instructions and Microsoft Learn links in every section. This control does not change Azure configuration.",
                   "isRequired": true,
-                  "value": "Off",
+                  "value": "On",
                   "typeSettings": {
                     "additionalResourceOptions": [],
                     "showDefault": false
                   },
-                  "jsonData": "[{\"value\":\"Off\",\"label\":\"Off\",\"selected\":true},{\"value\":\"On\",\"label\":\"On\"}]"
+                  "jsonData": "[{\"value\":\"Off\",\"label\":\"Off\"},{\"value\":\"On\",\"label\":\"On\",\"selected\":true}]"
                 }
               ],
               "style": "above",
@@ -1034,89 +1034,28 @@
           {
             "type": 1,
             "content": {
-              "json": "### Setup and next steps\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the same workspace. [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export).\n2. Verify workspace read access, table availability, data retention and expected ingestion/retention costs. Configuration alone does not establish data delivery.\n3. Use **Open Compliance Over Time** below to open Microsoft's published template, then choose the workspace in that workbook. Alternatively, open the built-in workbook from the [Defender for Cloud workbooks gallery](https://portal.azure.com/#view/Microsoft_Azure_Security/SecurityMenuBlade/~/28) (commercial Azure), or follow the [Microsoft workbook guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook). In other clouds, open **Defender for Cloud > Workbooks** in that cloud's portal.\n\nThis view does not change settings, assign policies, create workspaces, or enable billable services."
-            },
-            "name": "ReadinessNextSteps",
-            "conditionalVisibility": {
-              "parameterName": "ShowSetupTips",
-              "comparison": "isEqualTo",
-              "value": "On"
-            }
-          },
-          {
-            "type": 11,
-            "content": {
-              "version": "LinkItem/1.0",
-              "style": "nav",
-              "links": [
-                {
-                  "linkTarget": "WorkbookTemplate",
-                  "linkLabel": "Open Compliance Over Time",
-                  "style": "secondary",
-                  "workbookContext": {
-                    "componentIdSource": "static",
-                    "componentId": "Azure Monitor",
-                    "resourceIdsSource": "workbook",
-                    "templateIdSource": "static",
-                    "templateId": "Community-Workbooks/Azure Security Center/Compliance",
-                    "typeSource": "default",
-                    "gallerySource": "default",
-                    "locationSource": "default",
-                    "passSpecificParams": true,
-                    "templateParameters": []
-                  }
-                }
-              ]
-            },
-            "name": "OpenComplianceOverTime"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "This read-only view checks regulatory-compliance reporting and continuous-export configuration per selected subscription. A **configuration pass** means an enabled, subscription-wide, unfiltered Regulatory compliance stream and snapshot target the **same Log Analytics workspace**. It does **not** prove delivery, workspace access, retention, or historical readiness.\n\n**Not observed** is not proof of a disabled configuration: Azure Resource Graph returns only resources you can read. Resource-group-only scope, filters, invalid destinations, disabled settings, or oversized configuration lists need review. The chart counts each subscription once by its best observed destination; inspect the table for additional findings. The compliance-standard filter does not scope these checks."
+              "json": "Review configuration in order: **standards and reporting > Defender plans > continuous export > workspace history**. This read-only view uses the selected subscriptions; the top **Compliance standard** filter does not restrict this tab.\n\n**Observed is not the same as fully configured or protected.** Standards below are returned reporting results, not a complete assignment inventory. Plan settings do not prove installed agents or resource coverage. Export configuration does not prove delivery, query access or retention. Missing evidence can reflect access, scope or reporting delays. This view does not change settings, assign policies, create workspaces, install components or enable billable services."
             },
             "name": "ReadinessIntroduction"
           },
           {
-            "type": 3,
+            "type": 1,
             "content": {
-              "version": "KqlItem/1.0",
-              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| summarize BestConfiguration = min(case(Configuration == 'Configuration pass', 0, Configuration == 'Unknown / not observed', 2, 1)) by subscriptionId\r\n| summarize Subscriptions = count() by BestConfiguration\r\n| extend Status = case(BestConfiguration == 0, 'Config pass', BestConfiguration == 1, 'Needs review', 'Not observed')\r\n| project Status, Subscriptions\r\n| order by Subscriptions desc\r\n",
-              "size": 0,
-              "title": "Continuous-export configuration overview",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscription}"
-              ],
-              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
-              "noDataMessageStyle": 2,
-              "visualization": "barchart",
-              "chartSettings": {
-                "seriesLabelSettings": [
-                  {
-                    "seriesName": "Config pass",
-                    "color": "green"
-                  },
-                  {
-                    "seriesName": "Needs review",
-                    "color": "orange"
-                  },
-                  {
-                    "seriesName": "Not observed",
-                    "color": "gray"
-                  }
-                ]
-              }
+              "json": "### 1. Standards rollout and reporting\nThe summary shows which subscriptions return standard results; the inventory names each reported standard. **These are reporting observations, not proof of every assigned standard.** Assigned standards without relevant assessed resources can be absent. Use Manage compliance policies to confirm assignments, including inherited scopes, and Compliance Detail to review control results."
             },
-            "name": "ReadinessConfigurationChart"
+            "name": "ReadinessStandardsGuidance"
           },
           {
             "type": 1,
             "content": {
-              "json": "### Regulatory-compliance reporting\nStandards and assessed-control results are evidence that Defender for Cloud has returned regulatory-compliance data. Missing results may also reflect access, assignment, or reporting delays; they do not prove that Defender for Cloud is disabled."
+              "json": "#### Setup instructions — standards\n1. In **Defender for Cloud > Regulatory compliance > Manage compliance policies**, select the subscription or applicable management group and open **Security policies**.\n2. Review the required standards, turn the relevant standard **On**, and supply its parameters. Review inherited assignments, exclusions and exemptions before changing scope; do not assume an absent reporting row means an unassigned standard.\n3. Confirm permissions and the plan prerequisites in the documentation, then allow time for assessment. A standard with no relevant assessed resources might not appear in reporting.\n\nMicrosoft Learn: [Assign regulatory compliance standards](https://learn.microsoft.com/en-us/azure/defender-for-cloud/assign-regulatory-compliance-standards) · [Understand standards and controls](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-regulatory-compliance-standards)."
             },
-            "name": "ReadinessStandardsGuidance"
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            },
+            "name": "ReadinessStandardsSetupTips"
           },
           {
             "type": 3,
@@ -1151,11 +1090,226 @@
             "name": "ReadinessStandards"
           },
           {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | extend subscriptionId = tolower(subscriptionId), Standard = name, Passed = tolong(properties.passedControls), Failed = tolong(properties.failedControls)\r\n    | extend AssessedControls = iff(isnotnull(Passed) and isnotnull(Failed) and Passed >= 0 and Failed >= 0, Passed + Failed, long(null))\r\n    | project subscriptionId, Standard, AssessedControls\r\n) on subscriptionId\r\n| extend Evidence = case(isempty(Standard), 'No standard results observed', isnull(AssessedControls), 'Incomplete counts / review', AssessedControls > 0, 'Assessed results observed', 'No assessed controls observed')\r\n| extend NextStep = case(isempty(Standard), 'Verify read access and assigned standards in Manage compliance policies; allow for assessment delays.', isnull(AssessedControls), 'Review this standard in Defender for Cloud; its assessed-control counts are incomplete.', AssessedControls > 0, 'Confirm the standard and assignment scope match your requirements; review control results in Compliance Detail.', 'Review relevant resources, assignment scope and assessment timing; no assessed controls were returned.')\r\n| extend Standard = iff(isempty(Standard), 'Not observed', Standard)\r\n| project Subscription, subscriptionId, Standard, Evidence, AssessedControls, NextStep\r\n| order by Subscription asc, Standard asc",
+              "size": 0,
+              "title": "Reported standards by subscription",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Standard|Plan)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "32ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Evidence|Configuration)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "28ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "NextStep",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "65ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  },
+                  {
+                    "columnId": "NextStep",
+                    "label": "Recommended next step"
+                  },
+                  {
+                    "columnId": "AssessedControls",
+                    "label": "Assessed controls"
+                  },
+                  {
+                    "columnId": "Standard",
+                    "label": "Reported standard"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessStandardInventory"
+          },
+          {
             "type": 1,
             "content": {
-              "json": "### Continuous export by subscription and destination\nStreaming and snapshots must both pass **on the same workspace row**. A pass can coexist with additional filtered, partial, disabled, or unknown configurations, which remain listed under Findings. Event Hub-only destinations do not meet the Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
+              "json": "### 2. Defender plan configuration\nThese are visible **subscription-level pricing settings**, not an installation or sensor-health inventory. **Standard** means a paid tier is configured, not that every resource is protected; **Free** is not automatically a failure. Resource-level overrides, inherited settings and monitoring-component health must be reviewed separately. Missing settings remain not observed, not disabled."
+            },
+            "name": "ReadinessPlansGuidance"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Setup instructions — Defender plans\n1. In **Defender for Cloud > Environment settings**, select the source subscription and review **Defender plans** and the relevant plan settings.\n2. Compare the configured tier and subplan with the workloads and regulatory-standard prerequisites you need. Review resource-level overrides and required monitoring components; a pricing row alone does not confirm component installation or protection.\n3. Review permissions, licensing, trial limits and expected charges before enabling or changing a paid plan. Do not enable all plans solely to make this workbook look complete.\n\nMicrosoft Learn: [Connect subscriptions and configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security) · [Coverage workbook](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#coverage-workbook)."
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            },
+            "name": "ReadinessPlansSetupTips"
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/pricings'\r\n    | where id =~ strcat('/subscriptions/', subscriptionId, '/providers/Microsoft.Security/pricings/', name)\r\n    | project subscriptionId = tolower(subscriptionId), Plan = name, PricingTier = tostring(properties.pricingTier), SubPlan = tostring(properties.subPlan)\r\n) on subscriptionId\r\n| extend Configuration = case(isempty(Plan), 'Not observed / verify', PricingTier =~ 'Standard', 'Paid tier configured', PricingTier =~ 'Free', 'Free tier configured', 'Unknown tier / review')\r\n| extend NextStep = case(isempty(Plan), 'Verify read access and review subscription Defender plan settings.', PricingTier =~ 'Standard', 'Review plan suitability, resource-level overrides, monitoring components and cost; configuration alone does not establish protection.', PricingTier =~ 'Free', 'Review whether the free capabilities meet your requirements; paid plans are an explicit cost decision.', 'Review the reported pricing tier in Defender for Cloud; no protection state is inferred.')\r\n| extend Plan = iff(isempty(Plan), 'Not observed', Plan), PricingTier = iff(isempty(PricingTier), 'Not reported', PricingTier), SubPlan = iff(isempty(SubPlan), 'Not reported', SubPlan)\r\n| project Subscription, subscriptionId, Plan, Configuration, PricingTier, SubPlan, NextStep\r\n| order by Subscription asc, Plan asc",
+              "size": 0,
+              "title": "Observed subscription Defender plan settings",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "showExportToExcel": true,
+              "exportToExcelOptions": "all",
+              "gridSettings": {
+                "filter": true,
+                "formatters": [
+                  {
+                    "columnMatch": "subscriptionId",
+                    "formatter": 5
+                  },
+                  {
+                    "columnMatch": "Subscription",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "24ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Standard|Plan)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "32ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "^(Evidence|Configuration)$",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "28ch"
+                    }
+                  },
+                  {
+                    "columnMatch": "NextStep",
+                    "formatter": 1,
+                    "formatOptions": {
+                      "customColumnWidthSetting": "65ch",
+                      "linkTarget": "CellDetails"
+                    }
+                  }
+                ],
+                "labelSettings": [
+                  {
+                    "columnId": "subscriptionId",
+                    "label": "Subscription ID"
+                  },
+                  {
+                    "columnId": "NextStep",
+                    "label": "Recommended next step"
+                  },
+                  {
+                    "columnId": "PricingTier",
+                    "label": "Reported pricing tier"
+                  },
+                  {
+                    "columnId": "SubPlan",
+                    "label": "Reported subplan"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessDefenderPlans"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### 3. Continuous export configuration\nA **configuration pass** requires enabled, subscription-wide, unfiltered Regulatory compliance streaming and snapshots targeting **the same valid Log Analytics workspace**. The chart counts each subscription once by its best observed destination; inspect every destination row and its findings. A pass can coexist with partial, disabled or unknown configurations and does not establish data delivery. Event Hub-only destinations do not meet this workbook's Log Analytics requirement. Narrow the subscription selection if Resource Graph reports a result limit."
             },
             "name": "ReadinessConfigurationGuidance"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Setup instructions — continuous export\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**.\n2. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the **same workspace**. Review enabled status, subscription-wide scope and source filters against the findings below.\n3. Verify destination permissions before saving configuration. A central destination can be in another subscription; a configuration pass is not proof that data has arrived.\n\nMicrosoft Learn: [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export) · [Configure continuous export at scale with Azure Policy](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export-azure-policy)."
+            },
+            "name": "ReadinessNextSteps",
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            }
+          },
+          {
+            "type": 3,
+            "content": {
+              "version": "KqlItem/1.0",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name\r\n| join kind=leftouter (\r\n    resources\r\n    | where type =~ 'microsoft.security/automations'\r\n    | extend ScopeCount = array_length(properties.scopes), ActionCount = array_length(properties.actions), SourceCount = array_length(properties.sources)\r\n    | mv-expand Scope = properties.scopes limit 2000\r\n    | mv-expand Action = properties.actions limit 2000\r\n    | mv-expand Source = properties.sources limit 2000\r\n    | where tostring(Action.actionType) =~ 'Workspace'\r\n    | extend EventSource = tolower(tostring(Source.eventSource))\r\n    | where EventSource in ('regulatorycomplianceassessment', 'regulatorycomplianceassessmentsnapshot')\r\n    | extend subscriptionId = tolower(subscriptionId), Enabled = tolower(tostring(properties.isEnabled)), ScopePath = trim_end('/+', tolower(tostring(Scope.scopePath))), Workspace = trim_end('/+', tolower(tostring(Action.workspaceResourceId)))\r\n    | extend FullScope = ScopePath == strcat('/subscriptions/', subscriptionId), ValidWorkspace = Workspace matches regex '^/subscriptions/[^/]+/resourcegroups/[^/]+/providers/microsoft[.]operationalinsights/workspaces/[^/]+$', Unfiltered = iff(isnull(Source.ruleSets), true, coalesce(array_length(Source.ruleSets) == 0, false)), ListsComplete = isnotnull(ScopeCount) and isnotnull(ActionCount) and isnotnull(SourceCount) and ScopeCount <= 2000 and ActionCount <= 2000 and SourceCount <= 2000\r\n    | extend Complete = Enabled == 'true' and FullScope and ValidWorkspace and Unfiltered and ListsComplete\r\n    | summarize ConfigurationRows = count(),\r\n        StreamingPass = countif(EventSource == 'regulatorycomplianceassessment' and Complete),\r\n        StreamingPartial = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'true' and not(Complete)),\r\n        StreamingDisabled = countif(EventSource == 'regulatorycomplianceassessment' and Enabled == 'false'),\r\n        StreamingUnknown = countif(EventSource == 'regulatorycomplianceassessment' and Enabled !in ('true', 'false')),\r\n        SnapshotPass = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Complete),\r\n        SnapshotPartial = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'true' and not(Complete)),\r\n        SnapshotDisabled = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled == 'false'),\r\n        SnapshotUnknown = countif(EventSource == 'regulatorycomplianceassessmentsnapshot' and Enabled !in ('true', 'false')),\r\n        ScopeIssues = countif(Enabled == 'true' and not(FullScope)),\r\n        FilterIssues = countif(Enabled == 'true' and not(Unfiltered)),\r\n        DestinationIssues = countif(Enabled == 'true' and not(ValidWorkspace)),\r\n        ExpansionIssues = countif(Enabled == 'true' and not(ListsComplete))\r\n      by subscriptionId, Workspace\r\n) on subscriptionId\r\n| extend ConfigurationRows = coalesce(ConfigurationRows, 0), StreamingPass = coalesce(StreamingPass, 0), StreamingPartial = coalesce(StreamingPartial, 0), StreamingDisabled = coalesce(StreamingDisabled, 0), StreamingUnknown = coalesce(StreamingUnknown, 0), SnapshotPass = coalesce(SnapshotPass, 0), SnapshotPartial = coalesce(SnapshotPartial, 0), SnapshotDisabled = coalesce(SnapshotDisabled, 0), SnapshotUnknown = coalesce(SnapshotUnknown, 0), ScopeIssues = coalesce(ScopeIssues, 0), FilterIssues = coalesce(FilterIssues, 0), DestinationIssues = coalesce(DestinationIssues, 0), ExpansionIssues = coalesce(ExpansionIssues, 0)\r\n| extend Streaming = case(StreamingPass > 0, 'Pass', StreamingPartial > 0, 'Partial / review', StreamingUnknown > 0, 'Unknown enabled state', StreamingDisabled > 0, 'Disabled observed', 'Not observed'), Snapshots = case(SnapshotPass > 0, 'Pass', SnapshotPartial > 0, 'Partial / review', SnapshotUnknown > 0, 'Unknown enabled state', SnapshotDisabled > 0, 'Disabled observed', 'Not observed')\r\n| extend Configuration = case(StreamingPass > 0 and SnapshotPass > 0, 'Configuration pass', StreamingPass > 0 or SnapshotPass > 0 or StreamingPartial > 0 or SnapshotPartial > 0, 'Partial / review', StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown / review', StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled / review', 'Unknown / not observed')\r\n| extend Findings = strcat(iff(ScopeIssues > 0, 'Partial or unknown scope; ', ''), iff(FilterIssues > 0, 'Source filters; ', ''), iff(DestinationIssues > 0, 'Invalid workspace ID; ', ''), iff(ExpansionIssues > 0, 'Large or invalid configuration lists; ', ''), iff(StreamingDisabled > 0 or SnapshotDisabled > 0, 'Disabled configuration observed; ', ''), iff(StreamingUnknown > 0 or SnapshotUnknown > 0, 'Unknown enabled state observed; ', ''))\r\n| extend Findings = iff(isempty(Findings), 'None observed', Findings)\r\n| extend Recommendation = case(Configuration == 'Configuration pass' and Findings != 'None observed', 'A complete configuration exists; review the other findings and verify workspace data, access, retention and cost.', Configuration == 'Configuration pass', 'Verify data in this workspace; review access, retention and cost.', ConfigurationRows == 0, 'Verify read access; if needed configure Regulatory compliance streaming and snapshots to one Log Analytics workspace.', DestinationIssues > 0, 'Review the workspace destination, scope and filters; configure both frequencies to the same workspace.', 'Review or enable subscription-wide, unfiltered streaming and snapshots to this same workspace; verify access.')\r\n| extend Workspace = case(ConfigurationRows == 0, 'No workspace observed', isempty(Workspace), 'Workspace ID missing', Workspace)\r\n| summarize BestConfiguration = min(case(Configuration == 'Configuration pass', 0, Configuration == 'Unknown / not observed', 2, 1)) by subscriptionId\r\n| summarize Subscriptions = count() by BestConfiguration\r\n| extend Status = case(BestConfiguration == 0, 'Config pass', BestConfiguration == 1, 'Needs review', 'Not observed')\r\n| project Status, Subscriptions\r\n| order by Subscriptions desc\r\n",
+              "size": 0,
+              "title": "Continuous-export configuration overview",
+              "queryType": 1,
+              "resourceType": "microsoft.resourcegraph/resources",
+              "crossComponentResources": [
+                "{Subscription}"
+              ],
+              "noDataMessage": "No selected subscriptions were returned. Check the subscription selection and Reader permissions.",
+              "noDataMessageStyle": 2,
+              "visualization": "barchart",
+              "chartSettings": {
+                "seriesLabelSettings": [
+                  {
+                    "seriesName": "Config pass",
+                    "color": "green"
+                  },
+                  {
+                    "seriesName": "Needs review",
+                    "color": "orange"
+                  },
+                  {
+                    "seriesName": "Not observed",
+                    "color": "gray"
+                  }
+                ]
+              }
+            },
+            "name": "ReadinessConfigurationChart"
           },
           {
             "type": 3,
@@ -1196,9 +1350,48 @@
           {
             "type": 1,
             "content": {
-              "json": "### Compliance history and data availability\nChoose one destination workspace and select **Run check**. Delivery evidence below examines all standards for the selected source subscriptions. The historical panels have their own **History standard** selector so standards present only in exported history remain available.\n\nA missing table or insufficient workspace access stays a query error, not a pass. No rows or snapshots can reflect a new export, retention, access, or an unmatched source scope. Snapshots are weekly; allow at least one week for the first snapshot and additional time to build history. Streaming occurs on change and is shown as delivery evidence only, not mixed into the snapshot charts. Queries read up to 90 days and can incur Log Analytics query costs."
+              "json": "### 4. History and workspace data\nChoose one destination workspace and select **Run check** to query up to 90 days of evidence. **Setup tips does not run this check**: history remains opt-in because Log Analytics queries can incur costs. Delivery evidence examines all standards for the selected source subscriptions; snapshot panels have a separate **History standard** selector.\n\nA missing table or insufficient workspace access stays a query error, not a pass. Missing rows can reflect export timing, retention, access or an unmatched source scope. Snapshots are weekly; allow at least one week for the first snapshot and additional time to build history. Streaming occurs on change and is used only as delivery evidence, not mixed into snapshot charts."
             },
             "name": "ReadinessHistoryGuidance"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "#### Setup instructions — workspace history\n1. Verify **workspace read/query access**, the **SecurityRegulatoryCompliance** table, data retention and expected ingestion/retention costs. Configuration alone does not establish data delivery.\n2. Choose the destination in **History workspace**, then set **Query history** to **Run check**. Review each source subscription's evidence before interpreting snapshot posture or trends. No rows or query errors are not a pass.\n3. Use **Open Compliance Over Time** below to open Microsoft's published template, then choose the workspace in that workbook. Alternatively, open the built-in workbook from the [Defender for Cloud workbooks gallery](https://portal.azure.com/#view/Microsoft_Azure_Security/SecurityMenuBlade/~/28) (commercial Azure). In other clouds, open **Defender for Cloud > Workbooks** in that cloud's portal.\n\nMicrosoft Learn: [Workspace access](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/manage-access) · [Data retention](https://learn.microsoft.com/en-us/azure/azure-monitor/logs/data-retention-configure) · [Compliance Over Time workbook guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook)."
+            },
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            },
+            "name": "ReadinessHistorySetupTips"
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "nav",
+              "links": [
+                {
+                  "linkTarget": "WorkbookTemplate",
+                  "linkLabel": "Open Compliance Over Time",
+                  "style": "secondary",
+                  "workbookContext": {
+                    "componentIdSource": "static",
+                    "componentId": "Azure Monitor",
+                    "resourceIdsSource": "workbook",
+                    "templateIdSource": "static",
+                    "templateId": "Community-Workbooks/Azure Security Center/Compliance",
+                    "typeSource": "default",
+                    "gallerySource": "default",
+                    "locationSource": "default",
+                    "passSpecificParams": true,
+                    "templateParameters": []
+                  }
+                }
+              ]
+            },
+            "name": "OpenComplianceOverTime"
           },
           {
             "type": 9,
