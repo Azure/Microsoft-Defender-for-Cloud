@@ -78,6 +78,8 @@ An Overview selection scopes this tab to the selected subscription and standard.
 
 This read-only tab examines regulatory-compliance reporting and Defender for Cloud continuous export for each selected subscription. It does not configure exports, assign policies, create workspaces, or change retention.
 
+At the top of the tab, set **Setup tips** to **On** to show the setup and next steps; it defaults to **Off**. **Open Compliance Over Time** remains available when the tips are hidden.
+
 - **Regulatory-compliance reporting** counts standards returned by Azure Resource Graph and those with assessed controls. Missing results can reflect permissions, missing assignments, or reporting delays; they do not prove Defender for Cloud is disabled.
 - **Continuous-export configuration** groups `Microsoft.Security/automations` by source subscription and Log Analytics destination.
   A configuration pass requires enabled, subscription-wide, unfiltered `RegulatoryComplianceAssessment` streaming and `RegulatoryComplianceAssessmentSnapshot` events targeting the **same workspace**.

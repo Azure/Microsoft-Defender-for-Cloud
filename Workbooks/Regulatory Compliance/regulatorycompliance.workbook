@@ -1000,7 +1000,80 @@
           {
             "type": 1,
             "content": {
-              "json": "## Export & compliance history\nThis read-only view checks regulatory-compliance reporting and continuous-export configuration per selected subscription. A **configuration pass** means an enabled, subscription-wide, unfiltered Regulatory compliance stream and snapshot target the **same Log Analytics workspace**. It does **not** prove delivery, workspace access, retention, or historical readiness.\n\n**Not observed** is not proof of a disabled configuration: Azure Resource Graph returns only resources you can read. Resource-group-only scope, filters, invalid destinations, disabled settings, or oversized configuration lists need review. The chart counts each subscription once by its best observed destination; inspect the table for additional findings. The compliance-standard filter does not scope these checks."
+              "json": "## Export & compliance history"
+            },
+            "name": "ReadinessHeader"
+          },
+          {
+            "type": 9,
+            "content": {
+              "version": "KqlParameterItem/1.0",
+              "parameters": [
+                {
+                  "id": "09dfa20e-9579-4c7b-8ec6-a161b013c321",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "ShowSetupTips",
+                  "label": "Setup tips",
+                  "type": 10,
+                  "description": "Show or hide the continuous-export setup instructions.",
+                  "isRequired": true,
+                  "value": "Off",
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  },
+                  "jsonData": "[{\"value\":\"Off\",\"label\":\"Off\",\"selected\":true},{\"value\":\"On\",\"label\":\"On\"}]"
+                }
+              ],
+              "style": "above",
+              "queryType": 0,
+              "resourceType": "microsoft.operationalinsights/workspaces"
+            },
+            "name": "ReadinessSetupTipsToggle"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "### Setup and next steps\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the same workspace. [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export).\n2. Verify workspace read access, table availability, data retention and expected ingestion/retention costs. Configuration alone does not establish data delivery.\n3. Use **Open Compliance Over Time** below to open Microsoft's published template, then choose the workspace in that workbook. Alternatively, open the built-in workbook from the [Defender for Cloud workbooks gallery](https://portal.azure.com/#view/Microsoft_Azure_Security/SecurityMenuBlade/~/28) (commercial Azure), or follow the [Microsoft workbook guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook). In other clouds, open **Defender for Cloud > Workbooks** in that cloud's portal.\n\nThis view does not change settings, assign policies, create workspaces, or enable billable services."
+            },
+            "name": "ReadinessNextSteps",
+            "conditionalVisibility": {
+              "parameterName": "ShowSetupTips",
+              "comparison": "isEqualTo",
+              "value": "On"
+            }
+          },
+          {
+            "type": 11,
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "nav",
+              "links": [
+                {
+                  "linkTarget": "WorkbookTemplate",
+                  "linkLabel": "Open Compliance Over Time",
+                  "style": "secondary",
+                  "workbookContext": {
+                    "componentIdSource": "static",
+                    "componentId": "Azure Monitor",
+                    "resourceIdsSource": "workbook",
+                    "templateIdSource": "static",
+                    "templateId": "Community-Workbooks/Azure Security Center/Compliance",
+                    "typeSource": "default",
+                    "gallerySource": "default",
+                    "locationSource": "default",
+                    "passSpecificParams": true,
+                    "templateParameters": []
+                  }
+                }
+              ]
+            },
+            "name": "OpenComplianceOverTime"
+          },
+          {
+            "type": 1,
+            "content": {
+              "json": "This read-only view checks regulatory-compliance reporting and continuous-export configuration per selected subscription. A **configuration pass** means an enabled, subscription-wide, unfiltered Regulatory compliance stream and snapshot target the **same Log Analytics workspace**. It does **not** prove delivery, workspace access, retention, or historical readiness.\n\n**Not observed** is not proof of a disabled configuration: Azure Resource Graph returns only resources you can read. Resource-group-only scope, filters, invalid destinations, disabled settings, or oversized configuration lists need review. The chart counts each subscription once by its best observed destination; inspect the table for additional findings. The compliance-standard filter does not scope these checks."
             },
             "name": "ReadinessIntroduction"
           },
@@ -1552,40 +1625,6 @@
               "value": "On"
             },
             "name": "ComplianceHistoryViews"
-          },
-          {
-            "type": 1,
-            "content": {
-              "json": "### Setup and next steps\n1. In **Defender for Cloud > Environment settings**, select the source subscription and open **Continuous export > Log Analytics workspace**. Export **Regulatory compliance** with both **Streaming updates** and **Snapshots** to the same workspace. [Continuous export setup and permissions](https://learn.microsoft.com/en-us/azure/defender-for-cloud/continuous-export).\n2. Verify workspace read access, table availability, data retention and expected ingestion/retention costs. Configuration alone does not establish data delivery.\n3. Use **Open Compliance Over Time** below to open Microsoft's published template, then choose the workspace in that workbook. Alternatively, open the built-in workbook from the [Defender for Cloud workbooks gallery](https://portal.azure.com/#view/Microsoft_Azure_Security/SecurityMenuBlade/~/28) (commercial Azure), or follow the [Microsoft workbook guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/custom-dashboards-azure-workbooks#compliance-over-time-workbook). In other clouds, open **Defender for Cloud > Workbooks** in that cloud's portal.\n\nThis view does not change settings, assign policies, create workspaces, or enable billable services."
-            },
-            "name": "ReadinessNextSteps"
-          },
-          {
-            "type": 11,
-            "content": {
-              "version": "LinkItem/1.0",
-              "style": "nav",
-              "links": [
-                {
-                  "linkTarget": "WorkbookTemplate",
-                  "linkLabel": "Open Compliance Over Time",
-                  "style": "secondary",
-                  "workbookContext": {
-                    "componentIdSource": "static",
-                    "componentId": "Azure Monitor",
-                    "resourceIdsSource": "workbook",
-                    "templateIdSource": "static",
-                    "templateId": "Community-Workbooks/Azure Security Center/Compliance",
-                    "typeSource": "default",
-                    "gallerySource": "default",
-                    "locationSource": "default",
-                    "passSpecificParams": true,
-                    "templateParameters": []
-                  }
-                }
-              ]
-            },
-            "name": "OpenComplianceOverTime"
           }
         ]
       },
