@@ -9,7 +9,6 @@ This workbook displays current Microsoft Defender for Cloud regulatory complianc
 - [Lior Arviv](https://github.com/liorarviv)
 
 Additional human contributors from this workbook folder's Git history, including this change set; the original author is credited above. Automated accounts and merge-only credits are excluded. Names use each verified GitHub profile's display name, or its username when no display name is set.
-Use the [attribution workflow](../../.github/skills/update-workbook-attribution/SKILL.md) when refreshing this list.
 
 ## Views and filters
 
