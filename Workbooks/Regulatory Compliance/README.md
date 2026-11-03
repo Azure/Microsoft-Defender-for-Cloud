@@ -122,18 +122,18 @@ All result grids support Excel export. Azure Resource Graph result-row limits al
 
 | File | Purpose |
 | --- | --- |
-| [regulatorycompliance.json](./regulatorycompliance.json) | Standalone, paste-ready `Notebook/1.0` workbook JSON for the portal Advanced Editor. |
+| [regulatorycompliance.workbook](./regulatorycompliance.workbook) | Standalone, paste-ready `Notebook/1.0` workbook JSON for the portal Advanced Editor. |
 | [armTemplate.json](./armTemplate.json) | ARM template for deploying the same definition as a saved workbook. |
 
-The standalone JSON replaces the former `.workbook` filename; it is not an ARM template. The two-file import/deployment layout follows the Defender for Storage workbook pattern.
+The standalone `.workbook` file contains plain JSON; it is not an ARM template. The two-file import/deployment layout follows the Defender for Storage workbook pattern while retaining the `.workbook` filename.
 
 ## Manual import with the Advanced Editor
 
-1. Open [regulatorycompliance.json](./regulatorycompliance.json), select **Raw**, and copy the entire JSON, or copy the contents of the local file.
+1. Open [regulatorycompliance.workbook](./regulatorycompliance.workbook), select **Raw**, and copy the entire JSON, or copy the contents of the local file.
 2. Open **Microsoft Defender for Cloud > Workbooks > New > Advanced Editor (</>)**, or **Edit > Advanced Editor** on an existing workbook. **Azure Monitor > Workbooks > New** is another entry point.
 3. Choose **Workbook Template** (**Gallery Template** in some portal versions), replace the editor contents, and select **Apply > Done Editing**. Select **Save** only when ready to persist the workbook.
 
-**No conversion, decoding, or extraction is required.** Paste `regulatorycompliance.json`, not `armTemplate.json`, a GitHub HTML page, or a quoted `serializedData` value. The first property is `"version": "Notebook/1.0"`. Importing JSON does not rename an existing saved workbook; update its saved name separately.
+**No conversion, decoding, or extraction is required.** Paste the contents of `regulatorycompliance.workbook`, not `armTemplate.json`, a GitHub HTML page, or a quoted `serializedData` value. The first property is `"version": "Notebook/1.0"`. Importing JSON does not rename an existing saved workbook; update its saved name separately.
 
 ## Deploy to Azure
 
@@ -162,21 +162,21 @@ The preview buttons read the PR branch; the published buttons read upstream `mai
 
 ## Maintaining the workbook JSON
 
-Edit [regulatorycompliance.json](./regulatorycompliance.json), then regenerate `variables.workbookDataBase64` in [armTemplate.json](./armTemplate.json). Keep the deployment's `base64ToString` expression intact. Do not remove workbook fields or disable ARM validation to satisfy envelope checks.
+Edit [regulatorycompliance.workbook](./regulatorycompliance.workbook), then regenerate `variables.workbookDataBase64` in [armTemplate.json](./armTemplate.json). Keep the deployment's `base64ToString` expression intact. Do not remove workbook fields or disable ARM validation to satisfy envelope checks.
 
 From this directory in PowerShell 7:
 
 ```powershell
-$workbookBytes = [IO.File]::ReadAllBytes((Resolve-Path .\regulatorycompliance.json).Path)
+$workbookBytes = [IO.File]::ReadAllBytes((Resolve-Path .\regulatorycompliance.workbook).Path)
 $null = [Text.Encoding]::UTF8.GetString($workbookBytes) | ConvertFrom-Json -Depth 100
 $template = Get-Content .\armTemplate.json -Raw | ConvertFrom-Json -Depth 100
 $template.variables.workbookDataBase64 = [Convert]::ToBase64String($workbookBytes)
 $template | ConvertTo-Json -Depth 100 | Set-Content .\armTemplate.json -Encoding utf8
 ```
 
-The folder's `.gitattributes` pins both deployment artifacts to LF line endings so Git checkout does not break exact-byte payload parity on Windows. Keep `regulatorycompliance.json` as UTF-8 without a BOM and preserve its LF endings before regenerating the payload.
+The folder's `.gitattributes` pins both deployment artifacts to LF line endings so Git checkout does not break exact-byte payload parity on Windows. Keep `regulatorycompliance.workbook` as UTF-8 without a BOM and preserve its LF endings before regenerating the payload.
 
-Validate the standalone JSON against the workbook schema, compare the decoded UTF-8 bytes with the standalone file, and validate the ARM envelope separately. Run `npm test` and `npm run tsc -- --noEmit` from the repository root; the packaging regressions guard the two-file layout and payload parity.
+Validate the standalone JSON against the workbook schema, compare the decoded UTF-8 bytes with the standalone file, and validate the ARM envelope separately. Run `npm test` and `npm run tsc -- --noEmit` from the repository root.
 
 ## Questions
 You can submit any questions or requests [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/issues). Please also refer to our [Wiki](https://github.com/Azure/Microsoft-Defender-for-Cloud/wiki#resources), as it will provide you with further information.
