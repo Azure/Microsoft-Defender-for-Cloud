@@ -80,11 +80,25 @@
             "id": "a8f3b011-c3aa-4ca5-aab5-77068eb42cc0",
             "version": "KqlParameterItem/1.0",
             "name": "DetailScope",
-            "type": 1,
+            "label": "Compliance Detail scope",
+            "type": 2,
             "isRequired": true,
             "isGlobal": true,
-            "isHiddenWhenLocked": true,
-            "value": "{}"
+            "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| where isnotempty(subscriptionId) and isnotempty(name)\r\n| distinct subscriptionId, name\r\n| join kind=leftouter (resourcecontainers | where type =~ 'microsoft.resources/subscriptions' | project subscriptionId, SubscriptionName = name) on subscriptionId\r\n| project value = tostring(pack('subscriptionId', subscriptionId, 'name', name)), label = strcat(coalesce(SubscriptionName, subscriptionId), ' - ', name, ' (', subscriptionId, ')')\r\n| order by label asc",
+            "crossComponentResources": [
+              "{Subscription}"
+            ],
+            "typeSettings": {
+              "additionalResourceOptions": [
+                "value::all"
+              ],
+              "selectAllValue": "{}",
+              "showDefault": false
+            },
+            "defaultValue": "value::all",
+            "value": "value::all",
+            "queryType": 1,
+            "resourceType": "microsoft.resourcegraph/resources"
           },
           {
             "id": "d2f061d1-08af-42bb-9aea-35cb6450fa3d",
@@ -116,7 +130,7 @@
     {
       "type": 1,
       "content": {
-        "json": "Explore Microsoft Defender for Cloud regulatory compliance by subscription, workload, and control. The subscription filter scopes all views. The compliance-standard filter applies to Overview, Workloads, and Compliance Detail; history has its own standard selector, while export and delivery checks examine all standards. Current posture and observed history are not certification evidence."
+        "json": "Explore Microsoft Defender for Cloud regulatory compliance by subscription, workload, and control. The subscription filter scopes all views. The compliance-standard filter applies to Overview, Workloads, and Compliance Detail; the separate Compliance Detail scope selects one subscription and standard for that tab only. History has its own standard selector, while export and delivery checks examine all standards. Current posture and observed history are not certification evidence."
       },
       "name": "abouttext"
     },
@@ -250,7 +264,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Compliance by subscription\nExpand a subscription, then select a **standard row** to open its controls in Compliance Detail. Subscriptions with failing standards appear first. Subscription status is the worst child result; a standard with no assessed controls or incomplete counts is not marked passed.\n\nCounts and pass percentages are **per standard**. Pass % = passed / (passed + failed); skipped and unsupported controls are excluded. No assessed controls is **N/A**. Overlapping standards are not combined into a subscription compliance percentage."
+              "json": "### Compliance by subscription\nExpand a subscription to compare its standards. To inspect controls, choose its subscription and standard in **Compliance Detail scope** above, then choose **Open selected standard in Compliance Detail** below the table. The current detail scope is shown there and can be cleared; expanding a subscription does not open the detail tab. Subscriptions with failing standards appear first. Subscription status is the worst child result; a standard with no assessed controls or incomplete counts is not marked passed.\n\nCounts and pass percentages are **per standard**. Pass % = passed / (passed + failed); skipped and unsupported controls are excluded. No assessed controls is **N/A**. Overlapping standards are not combined into a subscription compliance percentage."
             },
             "name": "OverviewGuidance"
           },
@@ -258,27 +272,13 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n| extend Passed = toint(properties.passedControls), Failed = toint(properties.failedControls), Skipped = toint(properties.skippedControls), Unsupported = toint(properties.unsupportedControls), StandardState = tostring(properties.state)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and Passed >= 0 and Failed >= 0, round(100.0 * Passed / Assessed, 1), real(null)), Status = case(Failed > 0 or StandardState =~ 'Failed', 2, isnull(Passed) or isnull(Failed) or Passed < 0 or Failed < 0 or Assessed == 0 or StandardState !~ 'Passed', 1, 0)\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n    | summarize SubscriptionFailingStandards = countif(toint(properties.failedControls) > 0), SubscriptionFailedResults = sum(toint(properties.failedControls)) by subscriptionId\r\n) on subscriptionId\r\n| project subscriptionId, name, Status, Failed, Passed, Skipped, Unsupported, PassPercent, SubscriptionFailingStandards, SubscriptionFailedResults, DetailTab = 'Detail'\r\n| order by SubscriptionFailingStandards desc, SubscriptionFailedResults desc, subscriptionId asc, Failed desc, name asc",
+              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n| where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n| extend Passed = toint(properties.passedControls), Failed = toint(properties.failedControls), Skipped = toint(properties.skippedControls), Unsupported = toint(properties.unsupportedControls), StandardState = tostring(properties.state)\r\n| extend Assessed = Passed + Failed\r\n| extend PassPercent = iff(Assessed > 0 and Passed >= 0 and Failed >= 0, round(100.0 * Passed / Assessed, 1), real(null)), Status = case(Failed > 0 or StandardState =~ 'Failed', 2, isnull(Passed) or isnull(Failed) or Passed < 0 or Failed < 0 or Assessed == 0 or StandardState !~ 'Passed', 1, 0)\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | where \"{Control:escapejson}\" == '*' or name == \"{Control:escapejson}\"\r\n    | summarize SubscriptionFailingStandards = countif(toint(properties.failedControls) > 0), SubscriptionFailedResults = sum(toint(properties.failedControls)) by subscriptionId\r\n) on subscriptionId\r\n| project subscriptionId, name, Status, Failed, Passed, Skipped, Unsupported, PassPercent, SubscriptionFailingStandards, SubscriptionFailedResults\r\n| order by SubscriptionFailingStandards desc, SubscriptionFailedResults desc, subscriptionId asc, Failed desc, name asc",
               "size": 0,
               "title": "Subscription and standard results",
               "noDataMessage": "No regulatory compliance standards were returned. Check the subscription/standard filters, Reader permissions, and enabled Microsoft Defender for Cloud compliance initiatives.",
               "noDataMessageStyle": 2,
               "showExportToExcel": true,
               "exportToExcelOptions": "all",
-              "exportedParameters": [
-                {
-                  "fieldName": "",
-                  "parameterName": "DetailScope",
-                  "parameterType": 1,
-                  "defaultValue": "{}"
-                },
-                {
-                  "fieldName": "DetailTab",
-                  "parameterName": "selectedTab",
-                  "parameterType": 1,
-                  "defaultValue": "Overview"
-                }
-              ],
               "queryType": 1,
               "resourceType": "microsoft.resourcegraph/resources",
               "crossComponentResources": [
@@ -307,6 +307,7 @@
                     "formatter": 18,
                     "formatOptions": {
                       "aggregation": "Max",
+                      "customColumnWidthSetting": "24ch",
                       "thresholdsOptions": "icons",
                       "thresholdsGrid": [
                         {
@@ -365,7 +366,8 @@
                       "palette": "green",
                       "min": 0,
                       "max": 100,
-                      "aggregation": "None"
+                      "aggregation": "None",
+                      "customColumnWidthSetting": "26ch"
                     },
                     "numberFormat": {
                       "options": {
@@ -382,7 +384,7 @@
                     }
                   },
                   {
-                    "columnMatch": "^(subscriptionId|DetailTab)$",
+                    "columnMatch": "subscriptionId",
                     "formatter": 5,
                     "formatOptions": {
                       "aggregation": "None"
@@ -448,6 +450,54 @@
               }
             },
             "name": "regulatorycompliancesummary"
+          },
+          {
+            "type": 12,
+            "name": "OverviewSelectedDetail",
+            "conditionalVisibility": {
+              "parameterName": "DetailScope",
+              "comparison": "isNotEqualTo",
+              "value": "{}"
+            },
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 1,
+                  "name": "OverviewSelectedDetailLabel",
+                  "content": {
+                    "json": "**Current detail scope:** {DetailScope:$.name}  \n**Subscription ID:** {DetailScope:$.subscriptionId}"
+                  }
+                },
+                {
+                  "type": 11,
+                  "name": "OverviewSelectedDetailActions",
+                  "content": {
+                    "version": "LinkItem/1.0",
+                    "style": "toolbar",
+                    "links": [
+                      {
+                        "id": "37de38e5-2565-4db4-bf37-54fda003be86",
+                        "cellValue": "selectedTab",
+                        "linkTarget": "parameter",
+                        "linkLabel": "Open selected standard in Compliance Detail",
+                        "subTarget": "Detail",
+                        "style": "link"
+                      },
+                      {
+                        "id": "c1b19d2a-3164-4715-aacd-77f423bf3b34",
+                        "cellValue": "DetailScope",
+                        "linkTarget": "parameter",
+                        "linkLabel": "Clear selected standard",
+                        "subTarget": "{}",
+                        "style": "link"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
           }
         ]
       },
@@ -1146,7 +1196,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### Control results - {Control:label}\nOverview drill-through restricts this tab to the selected subscription and standard. Use **Clear Overview drill-through** below to clear the selected subscription and standard; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Select an individual control row to list its mapped recommendations below; group rows do not select a control. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon.\n\nThe grid display limit is **10,000 rows**, the [Azure Workbooks maximum](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), instead of the default 250. Query and Resource Graph limits still apply. If a limit warning appears, narrow **Subscription**, **Compliance standard** or **Control state**, or drill into one subscription and standard from Overview. Grid search filters returned data only; it does not fetch omitted controls. Excel export includes returned data, not a guaranteed complete inventory. An empty Failed selection is not proof of complete coverage."
+              "json": "### Control results - {Control:label}\n**Compliance Detail scope** restricts this tab to the selected subscription and standard. Use **Clear detail scope** below to clear it; the top subscription and compliance-standard filters remain in effect.\n\nSelect one or more detected control states, or leave **All** selected. Expand a subscription and standard to see controls. Select a description to read its full text. Select an individual control row to list its mapped recommendations below; group rows do not select a control. Passed/failed/skipped counts here are **assessments per control**, not resource totals. Group rows do not inherit a success icon.\n\nThe grid display limit is **10,000 rows**, the [Azure Workbooks maximum](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), instead of the default 250. Query and Resource Graph limits still apply. If a limit warning appears, narrow **Subscription**, **Compliance standard** or **Control state**, or select one subscription and standard in **Compliance Detail scope**. Grid search filters returned data only; it does not fetch omitted controls. Excel export includes returned data, not a guaranteed complete inventory. An empty Failed selection is not proof of complete coverage."
             },
             "name": "text - 2"
           },
@@ -1160,7 +1210,7 @@
                   "id": "16ea38e1-4bbb-4c7b-8d81-bccdb30ce2dc",
                   "cellValue": "DetailScope",
                   "linkTarget": "parameter",
-                  "linkLabel": "Clear Overview drill-through",
+                  "linkLabel": "Clear detail scope",
                   "subTarget": "{}",
                   "style": "link"
                 },
@@ -1183,7 +1233,7 @@
               "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| extend DrillScope = parse_json(\"{DetailScope:escapejson}\")\r\n| where isempty(tostring(DrillScope.subscriptionId)) or subscriptionId == tostring(DrillScope.subscriptionId)\r\n| where isempty(tostring(DrillScope.name)) or ComplianceStandard == tostring(DrillScope.name)\r\n| extend Description = tostring(properties.description), RawState = tostring(properties.state), Passed = toint(properties.passedAssessments), Failed = toint(properties.failedAssessments), Skipped = toint(properties.skippedAssessments)\r\n| extend State = case(RawState =~ 'Failed', 'Failed', RawState =~ 'Passed', 'Passed', RawState =~ 'Skipped', 'Skipped', RawState =~ 'Unsupported', 'Unsupported', RawState =~ 'NotApplicable' or RawState =~ 'Not applicable', 'Not applicable', 'Unknown')\r\n| where '*' in ({DetailState}) or State in ({DetailState})\r\n| extend FailureOrder = iff(State == 'Failed', 1, 0)\r\n| project subscriptionId, ComplianceStandard, name, Description, State, Passed, Failed, Skipped, FailureOrder\r\n| order by FailureOrder desc, Failed desc, name asc",
               "size": 0,
               "title": "Controls - {Control:label}",
-              "noDataMessage": "No controls matched the selected standard, Overview drill-through scope, and state. Try All or Clear Overview drill-through, and verify compliance coverage and Reader permissions.",
+              "noDataMessage": "No controls matched the selected standard, detail scope, and state. Try All or Clear detail scope, and verify compliance coverage and Reader permissions.",
               "noDataMessageStyle": 2,
               "showExportToExcel": true,
               "exportToExcelOptions": "all",
@@ -1552,7 +1602,7 @@
           {
             "type": 1,
             "content": {
-              "json": "### 1. Standards rollout and reporting\nThe summary shows which subscriptions return standard results; the inventory names each reported standard. **These are reporting observations, not proof of every assigned standard.** Assigned standards without relevant assessed resources can be absent. Use Manage compliance policies to confirm assignments, including inherited scopes, and Compliance Detail to review control results.\n\nSelect a reported-standard row (outside the subscription link) to open its subscription and controls in Compliance Detail. A **Not observed** row does not open a standard. The top compliance-standard filter remains in effect."
+              "json": "### 1. Standards rollout and reporting\nThe summary shows which subscriptions return standard results; the inventory names each reported standard. **These are reporting observations, not proof of every assigned standard.** Assigned standards without relevant assessed resources can be absent. Use Manage compliance policies to confirm assignments, including inherited scopes, and Compliance Detail to review control results.\n\nTo inspect a reported standard, choose its subscription and standard in **Compliance Detail scope** above, then use **Open selected standard in Compliance Detail** below. **Not observed** is not a selectable standard. The top compliance-standard filter remains in effect."
             },
             "name": "ReadinessStandardsGuidance"
           },
@@ -1618,7 +1668,7 @@
             "type": 3,
             "content": {
               "version": "KqlItem/1.0",
-              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | extend subscriptionId = tolower(subscriptionId), Standard = name, Passed = tolong(properties.passedControls), Failed = tolong(properties.failedControls)\r\n    | extend AssessedControls = iff(isnotnull(Passed) and isnotnull(Failed) and Passed >= 0 and Failed >= 0, Passed + Failed, long(null))\r\n    | project subscriptionId, Standard, AssessedControls\r\n) on subscriptionId\r\n| extend Evidence = case(isempty(Standard), 'No standard results observed', isnull(AssessedControls), 'Incomplete counts / review', AssessedControls > 0, 'Assessed results observed', 'No assessed controls observed')\r\n| extend NextStep = case(isempty(Standard), 'Verify read access and assigned standards in Manage compliance policies; allow for assessment delays.', isnull(AssessedControls), 'Review this standard in Defender for Cloud; its assessed-control counts are incomplete.', AssessedControls > 0, 'Confirm the standard and assignment scope match your requirements; review control results in Compliance Detail.', 'Review relevant resources, assignment scope and assessment timing; no assessed controls were returned.')\r\n| extend HasStandard = isnotempty(Standard)\r\n| extend Standard = iff(HasStandard, Standard, 'Not observed')\r\n| extend DetailScopeValue = iff(HasStandard, tostring(pack('subscriptionId', subscriptionId, 'name', Standard)), '{}'), DetailTab = iff(HasStandard, 'Detail', 'Readiness')\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Standard, Evidence, AssessedControls, NextStep, DetailScopeValue, DetailTab\r\n| order by Subscription asc, Standard asc",
+              "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project subscriptionId = tolower(subscriptionId), Subscription = name, SubscriptionResourceId = id\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/regulatorycompliancestandards'\r\n    | extend subscriptionId = tolower(subscriptionId), Standard = name, Passed = tolong(properties.passedControls), Failed = tolong(properties.failedControls)\r\n    | extend AssessedControls = iff(isnotnull(Passed) and isnotnull(Failed) and Passed >= 0 and Failed >= 0, Passed + Failed, long(null))\r\n    | project subscriptionId, Standard, AssessedControls\r\n) on subscriptionId\r\n| extend Evidence = case(isempty(Standard), 'No standard results observed', isnull(AssessedControls), 'Incomplete counts / review', AssessedControls > 0, 'Assessed results observed', 'No assessed controls observed')\r\n| extend NextStep = case(isempty(Standard), 'Verify read access and assigned standards in Manage compliance policies; allow for assessment delays.', isnull(AssessedControls), 'Review this standard in Defender for Cloud; its assessed-control counts are incomplete.', AssessedControls > 0, 'Confirm the standard and assignment scope match your requirements; review control results in Compliance Detail.', 'Review relevant resources, assignment scope and assessment timing; no assessed controls were returned.')\r\n| extend Standard = iff(isempty(Standard), 'Not observed', Standard)\r\n| project Subscription, SubscriptionResourceId, subscriptionId, Standard, Evidence, AssessedControls, NextStep\r\n| order by Subscription asc, Standard asc",
               "size": 0,
               "title": "Reported standards by subscription",
               "queryType": 1,
@@ -1671,10 +1721,6 @@
                   {
                     "columnMatch": "SubscriptionResourceId",
                     "formatter": 5
-                  },
-                  {
-                    "columnMatch": "^(DetailScopeValue|DetailTab)$",
-                    "formatter": 5
                   }
                 ],
                 "labelSettings": [
@@ -1695,23 +1741,32 @@
                     "label": "Reported standard"
                   }
                 ]
-              },
-              "exportedParameters": [
-                {
-                  "fieldName": "DetailScopeValue",
-                  "parameterName": "DetailScope",
-                  "parameterType": 1,
-                  "defaultValue": "{}"
-                },
-                {
-                  "fieldName": "DetailTab",
-                  "parameterName": "selectedTab",
-                  "parameterType": 1,
-                  "defaultValue": "Readiness"
-                }
-              ]
+              }
             },
             "name": "ReadinessStandardInventory"
+          },
+          {
+            "type": 11,
+            "name": "ReadinessSelectedDetailAction",
+            "conditionalVisibility": {
+              "parameterName": "DetailScope",
+              "comparison": "isNotEqualTo",
+              "value": "{}"
+            },
+            "content": {
+              "version": "LinkItem/1.0",
+              "style": "toolbar",
+              "links": [
+                {
+                  "id": "e29d4fe9-9370-4700-839b-b866e5bc5e57",
+                  "cellValue": "selectedTab",
+                  "linkTarget": "parameter",
+                  "linkLabel": "Open selected standard in Compliance Detail",
+                  "subTarget": "Detail",
+                  "style": "link"
+                }
+              ]
+            }
           },
           {
             "type": 1,

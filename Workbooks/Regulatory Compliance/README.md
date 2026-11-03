@@ -12,7 +12,7 @@ Additional human contributors from this workbook folder's Git history, including
 
 ## Views and filters
 
-The **Subscription** selector scopes every tab. **Compliance standard** applies to Overview, Workloads, and Compliance Detail, but not to export configuration or delivery evidence. The single-select standard selector defaults to **All**. Exported snapshots have their own **History standard** selector so standards present only in history remain available.
+The **Subscription** selector scopes every tab. **Compliance standard** applies to Overview, Workloads, and Compliance Detail, but not to export configuration or delivery evidence. The single-select standard selector defaults to **All**. **Compliance Detail scope** optionally selects one subscription and standard for Compliance Detail only; it is still subject to the other filters. Exported snapshots have their own **History standard** selector so standards present only in history remain available.
 
 ### Overview
 
@@ -23,8 +23,8 @@ The **Subscription** selector scopes every tab. **Compliance standard** applies 
 - Counts remain numeric. Pass percentage is calculated separately for each standard as `100 * passed / (passed + failed)`, excluding skipped and unsupported controls. A zero denominator is shown as **N/A**; overlapping standards are not averaged into a subscription compliance score.
 - Subscription status is the worst child result: failed takes precedence, incomplete/unassessed results remain neutral, and passed is shown only when the child results support it.
 - Status values stay numeric for roll-up; their formatter thresholds are serialized as strings for compatibility with the current portal renderer.
-- Select a standard row to open **Compliance Detail** with that standard and subscription selected.
-- Row selection exports a separate drill-through scope, not the global standard filter consumed by the Overview query. This avoids a refresh cycle while keeping the main filters unchanged.
+- Choose a subscription and standard in **Compliance Detail scope**, then choose **Open selected standard in Compliance Detail** below the table. The current scope is displayed there and can be cleared. Expanding a subscription does not select a scope or navigate away from Overview.
+- The detail scope is separate from the global standard filter consumed by the Overview query and persists until cleared or changed. The main filters remain unchanged.
 
 ### Workloads
 
@@ -86,23 +86,23 @@ Native grid search and Excel export operate on returned data only; they cannot r
 
 ### Compliance Detail
 
-Control results are grouped by subscription and standard. The **Control state** selector uses checkboxes, defaults to **All**, and detects the normalized states present in the selected subscription, standard, and Overview drill-through scope, independently of the current state selection.
+Control results are grouped by subscription and standard. The **Control state** selector uses checkboxes, defaults to **All**, and detects the normalized states present in the selected subscription, standard, and detail scope, independently of the current state selection.
 Select one or more available states, which can include **Failed**, **Passed**, **Skipped**, **Unsupported**, **Not applicable**, and **Unknown**. Missing or unrecognized states remain **Unknown**, not passed.
 Changing scope refreshes the available states; a state absent from the scope is not offered as if matching results existed.
 
 Use **Failed** to prioritize remediation. Descriptions have more display space and open their full text when selected. Passed/failed/skipped values are assessment counts per control, not unique resource counts. Group rows do not default to a green success icon.
 
 Select an individual control row to show its mapped recommendations below the grid.
-The query requires its exact subscription, standard and control, and reapplies the current subscription, standard, Overview drill-through and state filters.
+The query requires its exact subscription, standard and control, and reapplies the current subscription, standard, detail scope and state filters.
 Group rows, missing identities and stale selections cannot open an unscoped recommendation list. **Clear control selection** removes only this selection.
 Recommendation names link to valid Defender destinations supplied by the assessment; their resource counts are not unique-resource totals across recommendations.
 The separate count shows the matching row budget; the grid, search and export remain subject to the 10,000-row and source limits.
 
 The grid explicitly sets the [Azure Workbooks maximum display limit of **10,000 rows**](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits), replacing the default 250-row cap.
-This does not bypass query or Resource Graph limits. If a limit warning appears, narrow the subscription, standard or control-state filters, or drill into one subscription and standard from Overview.
+This does not bypass query or Resource Graph limits. If a limit warning appears, narrow the subscription, standard or control-state filters, or select one subscription and standard in **Compliance Detail scope**.
 Grid search filters returned data only and cannot retrieve omitted controls; Excel export likewise includes returned data, not a guaranteed complete inventory.
 
-An Overview selection scopes this tab to the selected subscription and standard. **Clear Overview drill-through** clears that row selection's scope; the main subscription and standard filters remain active. If the main filters exclude the drilled selection, clear the drill-through scope rather than interpreting the empty result as compliance.
+**Compliance Detail scope** limits this tab to one subscription and standard. **Clear detail scope** clears that selection; the main subscription and standard filters remain active. If the main filters exclude the selection, clear the detail scope rather than interpreting the empty result as compliance.
 
 ### Regulatory Compliance Configuration
 
@@ -115,8 +115,8 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
 
 - **Regulatory-compliance reporting** counts standards returned by Azure Resource Graph and those with assessed controls. Missing results can reflect permissions, missing assignments, or reporting delays; they do not prove Defender for Cloud is disabled.
 - **Reported standards by subscription** names the standards actually returned, their observed assessment coverage, and a recommended next step.
-  Select a reported-standard row outside its subscription link to open its scoped controls in Compliance Detail; the top standard filter still applies.
-  A not-observed row does not open a standard. Invalid or missing assessed-control counts remain unknown, not zero or passed.
+  Choose a reported subscription and standard in **Compliance Detail scope**, then use **Open selected standard in Compliance Detail**; the top standard filter still applies.
+  A not-observed row is not a selectable standard. Invalid or missing assessed-control counts remain unknown, not zero or passed.
   Reporting is not a complete assignment inventory: an assigned standard can have no relevant assessed resources and be absent. Confirm assignments, inherited scopes, exclusions and exemptions through **Manage compliance policies**. See [Assign regulatory compliance standards](https://learn.microsoft.com/en-us/azure/defender-for-cloud/assign-regulatory-compliance-standards).
 - **Observed subscription Defender plan settings** lists visible subscription-level `Microsoft.Security/pricings` resources, including the reported tier and subplan. **Standard** is a configured paid tier, not proof of installed agents or effective resource protection; **Free** is not automatically a failure. Missing configuration remains not observed, not disabled.
   Resource-level overrides and monitoring-component health are not inventoried here. Review applicable permissions, regulatory-standard prerequisites and costs before changing plans; see [Configure Defender plans](https://learn.microsoft.com/en-us/azure/defender-for-cloud/enable-enhanced-security).
