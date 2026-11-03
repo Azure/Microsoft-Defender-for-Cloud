@@ -28,7 +28,7 @@ The **Subscription** selector scopes every tab. **Compliance standard** applies 
 
 ### Workloads
 
-Workload is an operational resource family, not a business application or a tag-based grouping. The resource hierarchy is **workload > subscription > resource > recommendation**.
+Workload is an operational resource family, not a business application or a tag-based grouping. Use the workload overview, choose one **Detail subscription**, then select a resource to load its recommendations.
 Azure resources are grouped by their canonical, case-insensitive ID. The reported resource ID remains available in resource detail and export; native cloud identities retain case.
 
 The **Workload** selector uses checkboxes. **All** is selected by default; select one or several workloads to apply the same workload scope to both the summary and resource findings.
@@ -63,6 +63,14 @@ The summary always includes all assessment states within the selected subscripti
 The **Resource detail state** selector uses checkboxes and defaults to **All**. Select one or more of **Unhealthy**, **Healthy**, **Not applicable**, **Unknown**, or **No resource assessment** to filter the resource detail grid only; the summary's coverage denominator remains unchanged.
 **Not applicable** corresponds to the `NotApplicable` assessment status. **Unknown** indicates a missing or unrecognized status; **No resource assessment** indicates a recommendation without a matching resource assessment.
 Findings without an identifiable resource are retained but excluded from resource totals. Workload results describe **resource posture**, not a regulatory compliance percentage or certification.
+
+Resource findings use a **resource-first browser**, not an unscoped resource-recommendation table that can exceed Workbooks' 10,000-result ceiling. **Detail subscription** starts unset; the resource browser is hidden until one selected source subscription is chosen, and recommendation queries remain hidden until a resource row is selected. **Resource contains** filters reported resource ID, resource group and provider-qualified type in the query, before output limits. These detail-only filters do not change the all-state workload summary.
+
+The resource list aggregates matching recommendation pairs to one row per workload, subscription and cloud-aware resource identity. Its counts follow the current detail-state filter; the overview remains all-state. Missing-identity and unmapped rows remain selectable identity groups. Selecting a resource exports a separate scope parameter; the resource-list query never reads its own exported parameter, avoiding a refresh cycle. Recommendation queries require the selected workload, subscription and exact resource key and reapply the current subscription, standard, workload, state and search filters. A stale selection excluded by those filters returns no matches, never a broader inventory; **Clear resource selection** clears only that selection.
+
+Two server-side count tables show the matching resource/identity-group and finding totals, and the selected resource's matching recommendation count, before output-row limits. They explicitly flag scopes above 10,000 resources or recommendations. Both grids have an explicit 10,000-row display limit. Narrow Workload or Resource contains for an oversized resource list; narrow standard or state for oversized selected-resource detail. A below-limit count is a row-budget observation, not proof of complete source visibility. Counts and lists use separate requests and can change between refreshes.
+
+Native grid search and Excel export operate on returned data only; they cannot retrieve omitted rows or provide an unlimited tenant inventory. The resource list exports resource aggregates; the selected-resource table exports that resource's returned recommendations. Query errors and native service-limit warnings remain visible.
 
 ### Compliance Detail
 

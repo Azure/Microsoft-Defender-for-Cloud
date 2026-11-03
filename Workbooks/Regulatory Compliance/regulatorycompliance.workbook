@@ -85,6 +85,16 @@
             "isGlobal": true,
             "isHiddenWhenLocked": true,
             "value": "{}"
+          },
+          {
+            "id": "d2f061d1-08af-42bb-9aea-35cb6450fa3d",
+            "version": "KqlParameterItem/1.0",
+            "name": "WorkloadResourceScope",
+            "type": 1,
+            "isRequired": true,
+            "isGlobal": true,
+            "isHiddenWhenLocked": true,
+            "value": "{}"
           }
         ],
         "style": "pills",
@@ -584,156 +594,487 @@
           {
             "type": 1,
             "content": {
-              "json": "### Resource findings\nExpand **workload > subscription > resource** to see recommendations. Azure Resource Graph result limits apply to detail grids and exports; exports contain returned rows, not an unlimited inventory. Narrow subscription, standard, workload, or state filters for large scopes. Summary counts are calculated before result-row limits."
+              "json": "### Resource findings - resource-first drill-down\nSelect **one Detail subscription** below, then select an individual resource row to load its recommendations. No subscription is selected by default, so this view does not request the entire resource-recommendation inventory at once. The workload summary above remains across the main selected subscriptions and all assessment states.\n\n**Resource contains** filters resource ID, resource group and provider-qualified type **in the query**, before results are returned. Workload and Resource detail state also restrict this browser; the main Compliance standard filter still applies. These detail-only filters do not change the workload summary.\n\nThe scope table counts matching resources/identity groups and findings before output limits. Both detail grids use the [Workbooks maximum of 10,000 rows](https://learn.microsoft.com/en-us/azure/azure-monitor/visualize/workbooks-limits). If the resource budget is exceeded, narrow Workload or Resource contains; if a selected resource exceeds the recommendation budget, narrow standard or state. Counts and lists refresh in separate requests and can change between them. Source visibility and service limits still apply.\n\nGrid search filters returned data only; **Excel exports are scoped to that table's returned rows**, not an unlimited tenant inventory. Missing identities and unmapped recommendations remain selectable groups rather than being dropped. Clear the resource selection below to stop showing recommendations; an empty filtered result is not proof of compliance."
             },
             "name": "WorkloadDetailGuidance"
           },
           {
-            "type": 3,
+            "type": 9,
+            "name": "WorkloadResourceFilters",
             "content": {
-              "version": "KqlItem/1.0",
-              "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Unhealthy', StatusCode =~ 'Healthy', 'Healthy', StatusCode =~ 'NotApplicable', 'NotApplicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Unhealthy', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'NotApplicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '*' in ({WorkloadState}) or State in ({WorkloadState})\r\n| project Workload, SubscriptionResourceId = strcat('/subscriptions/', subscriptionId), ResourceKey, ResourceDisplay, Recommendation, State, Severity, ResourceType, ResourceGroup, ResourceSource, ResourceId, AssessmentKey, RecommendationLink, StatusRank, SeverityRank\r\n| order by StatusRank desc, SeverityRank desc, Workload asc, SubscriptionResourceId asc, ResourceDisplay asc, Recommendation asc",
-              "size": 0,
-              "title": "Resource findings - {WorkloadState:label}",
-              "queryType": 1,
-              "resourceType": "microsoft.resourcegraph/resources",
-              "crossComponentResources": [
-                "{Subscription}"
-              ],
-              "showExportToExcel": true,
-              "exportToExcelOptions": "all",
-              "noDataMessage": "No resource findings matched the selected filters. Check the all-state summary and try All workloads / All states; an empty filtered view does not prove compliance.",
-              "noDataMessageStyle": 2,
-              "gridSettings": {
-                "formatters": [
-                  {
-                    "columnMatch": "$gen_group",
-                    "formatter": 13,
-                    "formatOptions": {
-                      "showIcon": true,
-                      "customColumnWidthSetting": "48ch"
+              "version": "KqlParameterItem/1.0",
+              "style": "pills",
+              "parameters": [
+                {
+                  "id": "5065562e-088b-4de8-907d-c37c353d6fc6",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "WorkloadDetailSubscription",
+                  "label": "Detail subscription",
+                  "type": 2,
+                  "isRequired": false,
+                  "value": "",
+                  "defaultValue": "",
+                  "query": "resourcecontainers\r\n| where type =~ 'microsoft.resources/subscriptions'\r\n| project value = subscriptionId, label = name\r\n| order by label asc",
+                  "queryType": 1,
+                  "resourceType": "microsoft.resourcegraph/resources",
+                  "crossComponentResources": [
+                    "{Subscription}"
+                  ],
+                  "typeSettings": {
+                    "additionalResourceOptions": [],
+                    "showDefault": false
+                  }
+                },
+                {
+                  "id": "bb3568f0-573e-40f8-a402-ea149bc96b67",
+                  "version": "KqlParameterItem/1.0",
+                  "name": "WorkloadResourceSearch",
+                  "label": "Resource contains",
+                  "type": 1,
+                  "isRequired": false,
+                  "value": ""
+                }
+              ]
+            }
+          },
+          {
+            "type": 12,
+            "name": "WorkloadResourceBrowser",
+            "conditionalVisibility": {
+              "parameterName": "WorkloadDetailSubscription",
+              "comparison": "isNotEqualTo",
+              "value": ""
+            },
+            "content": {
+              "version": "NotebookGroup/1.0",
+              "groupType": "editable",
+              "items": [
+                {
+                  "type": 3,
+                  "name": "WorkloadResourceCoverage",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Unhealthy', StatusCode =~ 'Healthy', 'Healthy', StatusCode =~ 'NotApplicable', 'NotApplicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Unhealthy', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'NotApplicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '*' in ({WorkloadState}) or State in ({WorkloadState})\r\n| where isempty(\"{WorkloadResourceSearch:escapejson}\") or ResourceDisplay contains \"{WorkloadResourceSearch:escapejson}\" or ResourceGroup contains \"{WorkloadResourceSearch:escapejson}\" or ResourceType contains \"{WorkloadResourceSearch:escapejson}\"\r\n| summarize MatchingFindings = count(), FailedFindings = countif(State == 'Unhealthy'),\r\n    HighSeverityFindings = countif(State == 'Unhealthy' and Severity == 'High'),\r\n    NotApplicableFindings = countif(State == 'NotApplicable'), UnknownFindings = countif(State == 'Unknown'),\r\n    UnmappedRecommendations = countif(State == 'Unmapped'), HasIdentity = max(iff(isnotempty(ResourceId), 1, 0)),\r\n    ResourceDisplay = any(ResourceDisplay), ResourceId = any(ResourceId), ResourceType = any(ResourceType),\r\n    ResourceGroup = any(ResourceGroup), ResourceSource = any(ResourceSource), StatusRank = max(StatusRank)\r\n  by Workload, subscriptionId, ResourceKey\r\n| summarize MatchingResources = count(), MatchingFindings = sum(MatchingFindings), GroupsWithoutIdentity = countif(HasIdentity == 0)\r\n| extend ResourceList = case(MatchingResources == 0, 'No matches / verify scope', MatchingResources > 10000, 'Over 10,000 resources / incomplete list', 'Within 10,000-resource row budget'),\r\n    NextStep = case(MatchingResources == 0, 'Review the detail subscription, workload, state and resource-search filters; missing results are not a compliance pass.',\r\n        MatchingResources > 10000, 'Narrow Workload or Resource contains before selecting a resource. The list and export cannot include all matching resources.',\r\n        'Select a resource row below to load its recommendations. Counts are query-time observations, not proof of complete source coverage.')\r\n| project MatchingResources, MatchingFindings, GroupsWithoutIdentity, ResourceList, NextStep\r\n",
+                    "size": 0,
+                    "title": "Matching resource scope and row budget",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "No matching data was returned. Check the detail subscription, current filters and Reader permissions.",
+                    "noDataMessageStyle": 2,
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "rowLimit": 10,
+                      "labelSettings": [
+                        {
+                          "columnId": "MatchingResources",
+                          "label": "Matching resources / identity groups"
+                        },
+                        {
+                          "columnId": "MatchingFindings",
+                          "label": "Matching findings"
+                        },
+                        {
+                          "columnId": "GroupsWithoutIdentity",
+                          "label": "Groups without resource identity"
+                        },
+                        {
+                          "columnId": "ResourceList",
+                          "label": "Resource-list row budget"
+                        },
+                        {
+                          "columnId": "NextStep",
+                          "label": "Next step"
+                        }
+                      ]
                     }
-                  },
-                  {
-                    "columnMatch": "Recommendation",
-                    "formatter": 1,
-                    "formatOptions": {
-                      "linkTarget": "Url",
-                      "linkColumn": "RecommendationLink",
-                      "customColumnWidthSetting": "60ch",
-                      "aggregation": "None"
+                  }
+                },
+                {
+                  "type": 3,
+                  "name": "WorkloadResources",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Unhealthy', StatusCode =~ 'Healthy', 'Healthy', StatusCode =~ 'NotApplicable', 'NotApplicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Unhealthy', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'NotApplicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '*' in ({WorkloadState}) or State in ({WorkloadState})\r\n| where isempty(\"{WorkloadResourceSearch:escapejson}\") or ResourceDisplay contains \"{WorkloadResourceSearch:escapejson}\" or ResourceGroup contains \"{WorkloadResourceSearch:escapejson}\" or ResourceType contains \"{WorkloadResourceSearch:escapejson}\"\r\n| summarize MatchingFindings = count(), FailedFindings = countif(State == 'Unhealthy'),\r\n    HighSeverityFindings = countif(State == 'Unhealthy' and Severity == 'High'),\r\n    NotApplicableFindings = countif(State == 'NotApplicable'), UnknownFindings = countif(State == 'Unknown'),\r\n    UnmappedRecommendations = countif(State == 'Unmapped'), HasIdentity = max(iff(isnotempty(ResourceId), 1, 0)),\r\n    ResourceDisplay = any(ResourceDisplay), ResourceId = any(ResourceId), ResourceType = any(ResourceType),\r\n    ResourceGroup = any(ResourceGroup), ResourceSource = any(ResourceSource), StatusRank = max(StatusRank)\r\n  by Workload, subscriptionId, ResourceKey\r\n| extend SubscriptionResourceId = strcat('/subscriptions/', subscriptionId),\r\n    WorstState = case(StatusRank == 4, 'Unhealthy', StatusRank == 3, 'Unknown', StatusRank == 2, 'Unmapped', StatusRank == 1, 'NotApplicable', 'Healthy')\r\n| project Workload, SubscriptionResourceId, ResourceDisplay, WorstState, MatchingFindings, FailedFindings, HighSeverityFindings,\r\n    NotApplicableFindings, UnknownFindings, UnmappedRecommendations, ResourceType, ResourceGroup, ResourceSource,\r\n    subscriptionId, ResourceKey, ResourceId, StatusRank\r\n| order by StatusRank desc, FailedFindings desc, HighSeverityFindings desc, Workload asc, subscriptionId asc, ResourceKey asc\r\n",
+                    "size": 0,
+                    "title": "Resources - {WorkloadState:label}",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "No resources matched the detail subscription, workload, state and resource-search filters. Check the all-state summary and scope; an empty filtered view is not proof of compliance.",
+                    "noDataMessageStyle": 2,
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "exportedParameters": [
+                      {
+                        "fieldName": "",
+                        "parameterName": "WorkloadResourceScope",
+                        "parameterType": 1,
+                        "defaultValue": "{}"
+                      }
+                    ],
+                    "gridSettings": {
+                      "rowLimit": 10000,
+                      "filter": true,
+                      "formatters": [
+                        {
+                          "columnMatch": "Workload",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "customColumnWidthSetting": "20ch",
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "ResourceDisplay",
+                          "formatter": 13,
+                          "formatOptions": {
+                            "showIcon": true,
+                            "customColumnWidthSetting": "42ch",
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "WorstState",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unhealthy",
+                                "representation": "3",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Healthy",
+                                "representation": "success",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "NotApplicable",
+                                "representation": "Unavailable",
+                                "text": "Not applicable"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unknown",
+                                "representation": "Unavailable",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unmapped",
+                                "representation": "warning",
+                                "text": "No resource assessment"
+                              },
+                              {
+                                "operator": "Default",
+                                "representation": "Blank",
+                                "text": ""
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "^(MatchingFindings|FailedFindings|HighSeverityFindings|NotApplicableFindings|UnknownFindings|UnmappedRecommendations)$",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "customColumnWidthSetting": "12ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "^(SubscriptionResourceId|subscriptionId|ResourceKey|ResourceId|StatusRank)$",
+                          "formatter": 5,
+                          "formatOptions": {
+                            "aggregation": "None"
+                          }
+                        }
+                      ],
+                      "sortBy": [
+                        {
+                          "itemKey": "StatusRank",
+                          "sortOrder": 2
+                        },
+                        {
+                          "itemKey": "FailedFindings",
+                          "sortOrder": 2
+                        }
+                      ],
+                      "labelSettings": [
+                        {
+                          "columnId": "ResourceDisplay",
+                          "label": "Select resource (reported ID)"
+                        },
+                        {
+                          "columnId": "WorstState",
+                          "label": "Worst matching state"
+                        },
+                        {
+                          "columnId": "MatchingFindings",
+                          "label": "Matching findings"
+                        },
+                        {
+                          "columnId": "FailedFindings",
+                          "label": "Failed findings"
+                        },
+                        {
+                          "columnId": "HighSeverityFindings",
+                          "label": "High-severity failures"
+                        },
+                        {
+                          "columnId": "NotApplicableFindings",
+                          "label": "Not applicable"
+                        },
+                        {
+                          "columnId": "UnknownFindings",
+                          "label": "Unknown"
+                        },
+                        {
+                          "columnId": "UnmappedRecommendations",
+                          "label": "Unmapped recommendations"
+                        },
+                        {
+                          "columnId": "ResourceType",
+                          "label": "Provider-qualified resource type"
+                        },
+                        {
+                          "columnId": "ResourceGroup",
+                          "label": "Resource group"
+                        },
+                        {
+                          "columnId": "ResourceSource",
+                          "label": "Cloud source"
+                        }
+                      ]
                     }
-                  },
-                  {
-                    "columnMatch": "ResourceDisplay",
-                    "formatter": 13,
-                    "formatOptions": {
-                      "showIcon": true,
-                      "customColumnWidthSetting": "24ch",
-                      "aggregation": "None"
-                    }
-                  },
-                  {
-                    "columnMatch": "State",
-                    "formatter": 18,
-                    "formatOptions": {
-                      "aggregation": "None",
-                      "thresholdsOptions": "icons",
-                      "thresholdsGrid": [
+                  }
+                },
+                {
+                  "type": 1,
+                  "name": "WorkloadSelectedResourceGuidance",
+                  "content": {
+                    "json": "### Recommendations for selected resource\nSelect an individual resource row above. Recommendations are queried only for that subscription and resource identity, within the current standard, workload, state and resource-search filters. Workload or subscription group rows never open an unscoped findings query."
+                  }
+                },
+                {
+                  "type": 11,
+                  "name": "ClearWorkloadResourceSelection",
+                  "content": {
+                    "version": "LinkItem/1.0",
+                    "style": "toolbar",
+                    "links": [
+                      {
+                        "id": "7fa8556c-07ff-4c12-934b-2207f4f07f0a",
+                        "cellValue": "WorkloadResourceScope",
+                        "linkTarget": "parameter",
+                        "linkLabel": "Clear resource selection",
+                        "subTarget": "{}",
+                        "style": "link"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "type": 3,
+                  "name": "WorkloadSelectedResourceCoverage",
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n| extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n| where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId)\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n    | extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n    | where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId)\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Unhealthy', StatusCode =~ 'Healthy', 'Healthy', StatusCode =~ 'NotApplicable', 'NotApplicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Unhealthy', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'NotApplicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '*' in ({WorkloadState}) or State in ({WorkloadState})\r\n| where isempty(\"{WorkloadResourceSearch:escapejson}\") or ResourceDisplay contains \"{WorkloadResourceSearch:escapejson}\" or ResourceGroup contains \"{WorkloadResourceSearch:escapejson}\" or ResourceType contains \"{WorkloadResourceSearch:escapejson}\"\r\n| extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n| where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId) and ResourceKey == tostring(SelectedResource.ResourceKey) and Workload == tostring(SelectedResource.Workload)\r\n| summarize MatchingRecommendations = count(), Resource = any(ResourceDisplay), FailedFindings = countif(State == 'Unhealthy')\r\n| extend Selection = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n| extend Coverage = case(isempty(tostring(Selection.ResourceKey)), 'Select a resource row, not a group',\r\n    MatchingRecommendations == 0, 'Selection has no matches in the current filters',\r\n    MatchingRecommendations > 10000, 'Over 10,000 recommendations / incomplete detail',\r\n    'Within 10,000-recommendation row budget'),\r\n    NextStep = case(isempty(tostring(Selection.ResourceKey)), 'Select an individual resource row in the resource list.',\r\n        MatchingRecommendations == 0, 'Select another resource or clear selection; current filters may exclude this resource.',\r\n        MatchingRecommendations > 10000, 'Narrow Compliance standard or Resource detail state. Export contains returned rows only.',\r\n        'Review the returned recommendations and their Defender links. Source permissions and query limits still apply.')\r\n| project Resource, MatchingRecommendations, FailedFindings, Coverage, NextStep\r\n",
+                    "size": 0,
+                    "title": "Selected resource - matching recommendation count",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "noDataMessage": "No matching data was returned. Check the detail subscription, current filters and Reader permissions.",
+                    "noDataMessageStyle": 2,
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "gridSettings": {
+                      "rowLimit": 10,
+                      "labelSettings": [
                         {
-                          "operator": "==",
-                          "thresholdValue": "Unhealthy",
-                          "representation": "3",
-                          "text": "{0}{1}"
+                          "columnId": "MatchingRecommendations",
+                          "label": "Matching recommendations"
                         },
                         {
-                          "operator": "==",
-                          "thresholdValue": "Healthy",
-                          "representation": "success",
-                          "text": "{0}{1}"
+                          "columnId": "FailedFindings",
+                          "label": "Failed findings"
                         },
                         {
-                          "operator": "==",
-                          "thresholdValue": "NotApplicable",
-                          "representation": "Unavailable",
-                          "text": "Not applicable"
+                          "columnId": "Coverage",
+                          "label": "Recommendation row budget"
                         },
                         {
-                          "operator": "==",
-                          "thresholdValue": "Unknown",
-                          "representation": "Unavailable",
-                          "text": "{0}{1}"
-                        },
-                        {
-                          "operator": "==",
-                          "thresholdValue": "Unmapped",
-                          "representation": "warning",
-                          "text": "No resource assessment"
-                        },
-                        {
-                          "operator": "Default",
-                          "representation": "Blank",
-                          "text": ""
+                          "columnId": "NextStep",
+                          "label": "Next step"
                         }
                       ]
                     }
                   },
-                  {
-                    "columnMatch": "^(Severity|ResourceType|ResourceGroup|ResourceSource)$",
-                    "formatter": 1,
-                    "formatOptions": {
-                      "aggregation": "None"
-                    }
-                  },
-                  {
-                    "columnMatch": "^(Workload|SubscriptionResourceId|ResourceKey|ResourceId|AssessmentKey|RecommendationLink|StatusRank|SeverityRank)$",
-                    "formatter": 5,
-                    "formatOptions": {
-                      "aggregation": "None"
-                    }
+                  "conditionalVisibility": {
+                    "parameterName": "WorkloadResourceScope",
+                    "comparison": "isNotEqualTo",
+                    "value": "{}"
                   }
-                ],
-                "filter": true,
-                "hierarchySettings": {
-                  "treeType": 1,
-                  "groupBy": [
-                    "Workload",
-                    "SubscriptionResourceId",
-                    "ResourceKey"
-                  ],
-                  "expandTopLevel": false
                 },
-                "sortBy": [
-                  {
-                    "itemKey": "StatusRank",
-                    "sortOrder": 2
+                {
+                  "type": 3,
+                  "content": {
+                    "version": "KqlItem/1.0",
+                    "query": "securityresources\r\n| where type =~ 'microsoft.security/regulatorycompliancestandards/regulatorycompliancecontrols/regulatorycomplianceassessments'\r\n| where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n| extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n| where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId)\r\n| extend ComplianceStandard = extract('(?i)/regulatorycompliancestandards/([^/]+)/', 1, id)\r\n| where \"{Control:escapejson}\" == '*' or ComplianceStandard == \"{Control:escapejson}\"\r\n| project subscriptionId, AssessmentKey = name, MappedRecommendation = tostring(properties.description), MappedLink = tostring(properties.assessmentDetailsLink)\r\n| summarize MappedRecommendation = any(MappedRecommendation), MappedLink = any(MappedLink) by subscriptionId, AssessmentKey\r\n| join kind=leftouter (\r\n    securityresources\r\n    | where type =~ 'microsoft.security/assessments'\r\n    | where subscriptionId == \"{WorkloadDetailSubscription:escapejson}\"\r\n    | extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n    | where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId)\r\n    | extend Source = tolower(tostring(properties.resourceDetails.Source))\r\n    | project subscriptionId, AssessmentKey = name, AssessmentId = id, Source, NativeResourceId = case(Source == 'aws', tostring(properties.resourceDetails.AwsResourceId), Source == 'gcp', tostring(properties.resourceDetails.GcpResourceId), tostring(properties.resourceDetails.Id)), NativeResourceType = tostring(properties.resourceDetails.ResourceType), AssessmentResourceGroup = resourceGroup, AssessmentRecommendation = tostring(properties.displayName), StatusCode = tostring(properties.status.code), AssessmentSeverity = tostring(properties.metadata.severity), AssessmentLink = tostring(properties.links.azurePortal)\r\n) on subscriptionId, AssessmentKey\r\n| extend ResourceId = case(isnotempty(NativeResourceId), NativeResourceId, isempty(Source) or Source == 'azure', extract('(?i)^(.+)/providers/microsoft.security/assessments/[^/]+$', 1, AssessmentId), '')\r\n| extend ResourceSource = case(isempty(AssessmentId), 'unmapped', isnotempty(Source), Source, ResourceId startswith '/subscriptions/', 'azure', 'unknown'), NormalizedId = tolower(ResourceId)\r\n| extend ProviderPath = tostring(split(NormalizedId, '/providers/')[-1])\r\n| extend ResourceType = case(NormalizedId startswith '/subscriptions/' and ProviderPath != NormalizedId, strcat(tostring(split(ProviderPath, '/')[0]), '/', strcat_array(extract_all(@'/([^/]+)/[^/]+', ProviderPath), '/')), NormalizedId matches regex '^/subscriptions/[^/]+$', 'microsoft.resources/subscriptions', isnotempty(NativeResourceType), NativeResourceType, 'Unmapped')\r\n| extend ResourceGroup = iff(ResourceSource == 'azure', extract('(?i)/resourcegroups/([^/]+)', 1, ResourceId), AssessmentResourceGroup), ResourceKey = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), strcat('Resource identity unavailable: ', AssessmentId), ResourceSource == 'azure', NormalizedId, strcat(ResourceSource, ':', ResourceId))\r\n| extend Workload = case(isempty(ResourceId), 'Other/unmapped', ResourceType =~ 'microsoft.resources/subscriptions', 'Subscription-level', ResourceType startswith 'microsoft.compute/' or ResourceType startswith 'microsoft.hybridcompute/', 'Compute', ResourceType startswith 'microsoft.containerservice/' or ResourceType startswith 'microsoft.containerregistry/' or ResourceType startswith 'microsoft.kubernetes/' or ResourceType startswith 'microsoft.app/containerapps' or ResourceType startswith 'microsoft.app/managedenvironments', 'Containers', ResourceType startswith 'microsoft.sql/' or ResourceType startswith 'microsoft.sqlvirtualmachine/' or ResourceType startswith 'microsoft.dbforpostgresql/' or ResourceType startswith 'microsoft.dbformysql/' or ResourceType startswith 'microsoft.dbformariadb/' or ResourceType startswith 'microsoft.documentdb/' or ResourceType startswith 'microsoft.cache/', 'Databases', ResourceType startswith 'microsoft.storage/', 'Storage', ResourceType startswith 'microsoft.keyvault/', 'Key Vault', ResourceType startswith 'microsoft.network/', 'Networking', ResourceType startswith 'microsoft.web/', 'App Services', 'Other/unmapped')\r\n| extend State = case(isempty(AssessmentId), 'Unmapped', StatusCode =~ 'Unhealthy', 'Unhealthy', StatusCode =~ 'Healthy', 'Healthy', StatusCode =~ 'NotApplicable', 'NotApplicable', 'Unknown'), Severity = case(AssessmentSeverity =~ 'High', 'High', AssessmentSeverity =~ 'Medium', 'Medium', AssessmentSeverity =~ 'Low', 'Low', 'Unknown'), Recommendation = coalesce(AssessmentRecommendation, MappedRecommendation, AssessmentKey), RecommendationLink = coalesce(AssessmentLink, MappedLink), ResourceDisplay = case(isempty(AssessmentId), 'No resource assessment', isempty(ResourceId), 'Resource identity unavailable', ResourceId)\r\n| extend StatusRank = case(State == 'Unhealthy', 4, State == 'Unknown', 3, State == 'Unmapped', 2, State == 'NotApplicable', 1, 0), SeverityRank = case(Severity == 'High', 3, Severity == 'Medium', 2, Severity == 'Low', 1, 0)\r\n| extend RowRank = StatusRank * 10 + SeverityRank\r\n| project Workload, subscriptionId, ResourceKey, AssessmentKey, ResourceId, ResourceDisplay, ResourceType, ResourceGroup, ResourceSource, Recommendation, State, Severity, RecommendationLink, AssessmentId, StatusRank, SeverityRank, RowRank\r\n| summarize arg_max(RowRank, *) by subscriptionId, ResourceKey, AssessmentKey\r\n| where '*' in ({Workload}) or Workload in ({Workload})\r\n| where '*' in ({WorkloadState}) or State in ({WorkloadState})\r\n| where isempty(\"{WorkloadResourceSearch:escapejson}\") or ResourceDisplay contains \"{WorkloadResourceSearch:escapejson}\" or ResourceGroup contains \"{WorkloadResourceSearch:escapejson}\" or ResourceType contains \"{WorkloadResourceSearch:escapejson}\"\r\n| extend SelectedResource = parse_json(\"{WorkloadResourceScope:escapejson}\")\r\n| where isnotempty(tostring(SelectedResource.ResourceKey)) and subscriptionId == tostring(SelectedResource.subscriptionId) and ResourceKey == tostring(SelectedResource.ResourceKey) and Workload == tostring(SelectedResource.Workload)\r\n| project Workload, SubscriptionResourceId = strcat('/subscriptions/', subscriptionId), ResourceKey, ResourceDisplay, Recommendation, State, Severity, ResourceType, ResourceGroup, ResourceSource, ResourceId, AssessmentKey, RecommendationLink, StatusRank, SeverityRank\r\n| order by StatusRank desc, SeverityRank desc, Workload asc, SubscriptionResourceId asc, ResourceDisplay asc, Recommendation asc",
+                    "size": 0,
+                    "title": "Recommendations for selected resource - {WorkloadState:label}",
+                    "queryType": 1,
+                    "resourceType": "microsoft.resourcegraph/resources",
+                    "crossComponentResources": [
+                      "{Subscription}"
+                    ],
+                    "showExportToExcel": true,
+                    "exportToExcelOptions": "all",
+                    "noDataMessage": "Select a resource row, not a workload/subscription group. If the selected resource no longer matches the current subscription, standard, workload, state or search filters, select another resource or clear the selection. Empty results do not prove compliance.",
+                    "noDataMessageStyle": 2,
+                    "gridSettings": {
+                      "formatters": [
+                        {
+                          "columnMatch": "$gen_group",
+                          "formatter": 13,
+                          "formatOptions": {
+                            "showIcon": true,
+                            "customColumnWidthSetting": "48ch"
+                          }
+                        },
+                        {
+                          "columnMatch": "Recommendation",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "linkTarget": "Url",
+                            "linkColumn": "RecommendationLink",
+                            "customColumnWidthSetting": "60ch",
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "ResourceDisplay",
+                          "formatter": 13,
+                          "formatOptions": {
+                            "showIcon": true,
+                            "customColumnWidthSetting": "24ch",
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "State",
+                          "formatter": 18,
+                          "formatOptions": {
+                            "aggregation": "None",
+                            "thresholdsOptions": "icons",
+                            "thresholdsGrid": [
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unhealthy",
+                                "representation": "3",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Healthy",
+                                "representation": "success",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "NotApplicable",
+                                "representation": "Unavailable",
+                                "text": "Not applicable"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unknown",
+                                "representation": "Unavailable",
+                                "text": "{0}{1}"
+                              },
+                              {
+                                "operator": "==",
+                                "thresholdValue": "Unmapped",
+                                "representation": "warning",
+                                "text": "No resource assessment"
+                              },
+                              {
+                                "operator": "Default",
+                                "representation": "Blank",
+                                "text": ""
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "columnMatch": "^(Severity|ResourceType|ResourceGroup|ResourceSource)$",
+                          "formatter": 1,
+                          "formatOptions": {
+                            "aggregation": "None"
+                          }
+                        },
+                        {
+                          "columnMatch": "^(Workload|SubscriptionResourceId|ResourceKey|ResourceId|AssessmentKey|RecommendationLink|StatusRank|SeverityRank)$",
+                          "formatter": 5,
+                          "formatOptions": {
+                            "aggregation": "None"
+                          }
+                        }
+                      ],
+                      "filter": true,
+                      "sortBy": [
+                        {
+                          "itemKey": "StatusRank",
+                          "sortOrder": 2
+                        },
+                        {
+                          "itemKey": "SeverityRank",
+                          "sortOrder": 2
+                        }
+                      ],
+                      "labelSettings": [
+                        {
+                          "columnId": "ResourceType",
+                          "label": "Provider-qualified resource type"
+                        },
+                        {
+                          "columnId": "ResourceGroup",
+                          "label": "Resource group"
+                        },
+                        {
+                          "columnId": "ResourceSource",
+                          "label": "Cloud source"
+                        },
+                        {
+                          "columnId": "ResourceDisplay",
+                          "label": "Resource (reported ID)"
+                        }
+                      ],
+                      "rowLimit": 10000
+                    }
                   },
-                  {
-                    "itemKey": "SeverityRank",
-                    "sortOrder": 2
+                  "name": "WorkloadResourceFindings",
+                  "conditionalVisibility": {
+                    "parameterName": "WorkloadResourceScope",
+                    "comparison": "isNotEqualTo",
+                    "value": "{}"
                   }
-                ],
-                "labelSettings": [
-                  {
-                    "columnId": "ResourceType",
-                    "label": "Provider-qualified resource type"
-                  },
-                  {
-                    "columnId": "ResourceGroup",
-                    "label": "Resource group"
-                  },
-                  {
-                    "columnId": "ResourceSource",
-                    "label": "Cloud source"
-                  },
-                  {
-                    "columnId": "ResourceDisplay",
-                    "label": "Resource (reported ID)"
-                  }
-                ]
-              }
-            },
-            "name": "WorkloadResourceFindings"
+                }
+              ]
+            }
           }
         ]
       },
