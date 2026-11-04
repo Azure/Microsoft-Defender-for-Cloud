@@ -114,7 +114,7 @@ Use **Failed** to prioritize remediation. Descriptions have more display space a
 Select an individual control row to show its mapped recommendations below the grid.
 The query requires its exact subscription, standard and control, and reapplies the current subscription, standard, detail scope and state filters.
 Group rows, missing identities and stale selections cannot open an unscoped recommendation list.
-To close the recommendations, expand the selected control's group if needed and deselect its checked row checkbox. Confirm the grid reports **Checked. 0 selected**, then select the checkbox again to reopen that control.
+To close the recommendations, expand the selected control's group if needed and deselect its checked row checkbox. Confirm the grid reports **Unchecked. 0 selected**, then select the checkbox again to reopen that control.
 Keyboard users can focus the checkbox and use its native toggle interaction. Expanding or collapsing a group is not deselection.
 The former **Clear control selection** action was removed: it changed only the exported parameter, left the grid row checked, and allowed group expansion to restore stale details. No parameter-only action is presented as a grid reset.
 These native checkbox instructions remain visible above the grid after deselection; no authenticated portal reset is claimed from offline checks.
