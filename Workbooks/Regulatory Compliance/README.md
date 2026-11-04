@@ -80,7 +80,8 @@ The four resource-browser queries send Resource Graph requests to that detail su
 The resource list aggregates matching recommendation pairs to one row per workload, subscription and cloud-aware resource identity. Its counts follow the current detail-state filter; the overview remains all-state.
 Missing-identity and unmapped rows remain selectable identity groups. Selecting a resource exports a separate scope parameter; the resource-list query never reads its own exported parameter, avoiding a refresh cycle.
 Recommendation queries require the selected workload, subscription and exact resource key and reapply the current subscription, standard, workload, state and search filters.
-A stale selection excluded by those filters returns no matches, never a broader inventory. **Hide resource details** clears only the exported detail scope; it does **not** deselect the grid row. To reopen the same resource, deselect its row checkbox and select it again. Keyboard users should focus that checkbox and use its native toggle interaction. This guidance stays visible after details are hidden.
+A stale selection excluded by those filters returns no matches, never a broader inventory.
+**Hide resource details** clears only the exported detail scope; it does **not** deselect the grid row. To reopen the same resource, deselect its row checkbox and select it again. Keyboard users should focus that checkbox and use its native toggle interaction. This guidance stays visible after details are hidden.
 Do not blank **Detail subscription** or rely on refreshing the grid to reset a row selection.
 
 Select a resource row outside its link to show its recommendations. Recognized Azure resource names open their Azure resource overview; AWS, Google Cloud, missing and malformed identities remain text.
@@ -157,6 +158,8 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
   A match establishes configuration evidence only, not delivery, access, retention, or historical readiness.
   For each event type, any known enabled automation takes precedence; otherwise unknown enablement takes precedence over disabled evidence. An Off result therefore never hides a relevant unknown automation.
   A visible workspace is retained even when its automation has an empty source list or only unrelated sources such as alerts. A complete source inventory without the relevant regulatory event shows **Not configured**, not On; missing or incomplete source inventory remains Unknown.
+  Export scope considers each enabled automation's own regulatory sources; known alerts-only or empty-source automations do not narrow it.
+  An incomplete source inventory remains **Unknown** unless an enabled regulatory source already establishes a narrower or unreported scope. Disabled automations do not narrow enabled export scope.
   Scope, source and action-type inventories expand together, then aggregate by automation ID before destinations expand. The settings query uses three `mv-expand` operators, never a scopes-by-sources-by-actions product, and does not combine sources, scope, filter or destination evidence from unrelated automations.
   Empty scopes remain visible for review. Missing, malformed or oversized lists produce bounded warning rows instead of disappearing or passing; lists over 2,000 entries are not partially accepted as complete.
   A malformed sibling action marks configuration list size incomplete for every workspace on that automation while retaining the warning row; recognized Event Hub and Logic App actions do not make the inventory incomplete.
