@@ -258,7 +258,6 @@ $template | ConvertTo-Json -Depth 100 | Set-Content .\armTemplate.json -Encoding
 The folder's `.gitattributes` pins both deployment artifacts to LF line endings so Git checkout does not break exact-byte payload parity on Windows. Keep `regulatorycompliance.workbook` as UTF-8 without a BOM and preserve its LF endings before regenerating the payload.
 
 Validate the standalone JSON against the workbook schema, compare the decoded UTF-8 bytes with the standalone file, and validate the ARM envelope separately. Run `npm test` and `npm run tsc -- --noEmit` from the repository root.
-For the focused scope, selection, outcome-filter, synthetic-fixture, and exact-byte packaging contracts, run `npm test -- --grep regulatoryComplianceInteractions`.
 These offline checks do not qualify authenticated portal behavior, keyboard rendering, or every asynchronous parameter transition.
 Validate the exact final source in a freshly confirmed tenant and non-production scope using a new unsaved workbook; never save it or change tenant settings as part of this check.
 
