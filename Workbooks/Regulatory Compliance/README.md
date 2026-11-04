@@ -15,6 +15,10 @@ Additional human contributors from this workbook folder's Git history, including
 The **Subscription** selector scopes every tab. **Compliance standard** applies to Overview, Workloads, and Compliance Detail, but not to export configuration or delivery evidence. The single-select standard selector defaults to **All**.
 **Compliance Detail scope** optionally selects one subscription and standard for Compliance Detail only; it is still subject to the other filters. Exported snapshots have their own **History standard** selector so standards present only in history remain available.
 
+The **Compliance Detail scope** picker can show at most 1,000 subscription-standard options;
+narrow **Subscription** if a choice is missing
+([parameter limits](https://learn.microsoft.com/azure/azure-monitor/visualize/workbooks-limits#parameter-limits)).
+
 ### Overview
 
 - Coverage cards show reporting versus selected subscriptions, assessed subscription-standard pairs, and subscription-standard pairs with failed controls. Repeated standards in different subscriptions are separate results.
