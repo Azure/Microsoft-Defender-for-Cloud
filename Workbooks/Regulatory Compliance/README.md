@@ -25,7 +25,7 @@ The **Subscription** selector scopes every tab. **Compliance standard** applies 
   **Clear outcome filter (show all)** is also available when the chart is empty and changes only this filter. A legend highlight can remain after this parameter-only clear; deselect it before selecting it again.
 - Expand a subscription to compare its standards. Subscriptions with failing standards are sorted first.
 - Counts remain numeric. Pass percentage is calculated separately for each standard as `100 * passed / (passed + failed)`, excluding skipped and unsupported controls. A zero denominator is shown as **N/A**; overlapping standards are not averaged into a subscription compliance score.
-- Subscription status is the worst child result: failed takes precedence, incomplete/unassessed results remain neutral, and passed is shown only when the child results support it.
+- Subscription status is the worst child result: failed takes precedence, incomplete/unassessed results remain neutral, and passed requires all four counts to be present and nonnegative. **All** keeps incomplete rows visible without marking them passed.
 - Status values stay numeric for roll-up; their formatter thresholds are serialized as strings for compatibility with the current portal renderer.
 - Choose a subscription and standard in **Compliance Detail scope**, then choose **Open selected standard in Compliance Detail** below the table. The current scope is displayed there and can be cleared. Expanding a subscription does not select a scope or navigate away from Overview.
 - The detail scope is separate from the global standard filter consumed by the Overview query and persists until cleared or changed. The main filters remain unchanged.
@@ -53,7 +53,7 @@ Classification uses the provider-qualified type derived from Azure resource IDs,
 
 The queries join regulatory compliance assessments to resource assessments on **subscription ID and assessment key**.
 Control/standard mappings are collapsed before joining, and findings are deduplicated by **subscription, cloud-aware resource identity, and assessment key** afterward.
-Azure identities are case-normalized; native cloud identities retain case. Multiple controls referencing one recommendation do not inflate resource or finding counts.
+Azure identities are case-normalized; native cloud identities retain case. AWS connector identities use the reported `resourceDetails.Id` when `ConnectorId` and `Id` are present, with legacy `AwsResourceId` support otherwise. The summary, resource counts, search, resource list and exact-resource recommendations share this identity rule. Multiple controls referencing one recommendation do not inflate resource or finding counts.
 
 The summary always includes all assessment states within the selected subscription, standard, and workload scope:
 
@@ -151,6 +151,9 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
   Each row shows the observed value, the recommended value (enabled, subscription-wide, unfiltered `RegulatoryComplianceAssessment` and `RegulatoryComplianceAssessmentSnapshot` events to the **same valid workspace**) and a result: green check (matches), red X (does not match) or a neutral marker (not observed or unknown, never treated as Off).
   Setup tips explain what each setting checks and why the value is recommended.
   A match establishes configuration evidence only, not delivery, access, retention, or historical readiness.
+  For each event type, any known enabled automation takes precedence; otherwise unknown enablement takes precedence over disabled evidence. An Off result therefore never hides a relevant unknown automation.
+  Scope and source arrays expand together, then aggregate by automation ID before destinations expand. The settings query uses three `mv-expand` operators, never a scopes-by-sources-by-actions product, and does not combine scope, filter or destination evidence from unrelated automations.
+  Empty scopes remain visible for review. Missing, malformed or oversized lists produce bounded warning rows instead of disappearing or passing; lists over 2,000 entries are not partially accepted as complete. Destination and same-workspace matches require a GUID-qualified Log Analytics workspace resource ID.
 - **Export data types by automation** lists each visible automation against Security recommendations, Secure score, Security alerts, Regulatory compliance and Security attack paths, with separate **Streaming updates** and **Snapshots** configuration states.
   These show **On**, **Off**, **Partially on**, **On (filtered)**, **Unknown / review**, **Not observed**, or **Not applicable**.
   The master **Automation enabled** switch is separate: selected data types under a disabled automation are not active export.
@@ -179,7 +182,7 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
 - **Matched change (pp)** compares the latest and previous observed UTC snapshot days using only controls that are Passed or Failed in both. The table shows both actual dates and the matched-control count.
   This is not a guaranteed seven-day comparison, and it is not the difference between two differently scoped overall percentages. No earlier snapshot, no common assessed controls, or incomplete identifiers makes the change **N/A**.
 - The two full-width **weekly** point charts show assessed-control pass percentage and assessed-control count, with one series per subscription-standard pair. Each UTC week uses its latest observed snapshot day.
-  Missing weeks and unusable rates are omitted rather than plotted as zero; observed zero assessed-control coverage is retained. Points are not connected across missing history.
+  Missing weeks and unusable rates are omitted rather than plotted as zero. After selecting each week's latest observed day, incomplete control or recommendation identifiers suppress its coverage point too; an earlier complete day does not replace it. A complete all-unassessed snapshot retains genuine zero assessed-control coverage. Points are not connected across missing history.
   Chart timestamps can display in your local time zone; the comparison tables show literal UTC dates. Changing assessed-control coverage can affect rates; inspect both charts, scope narrowly for readable legends, and respect native query/chart limits.
   A day bucket is an observation, not proof of an atomic or complete export batch.
 - **Control changes** lists changed states, newly observed controls, and controls not observed in the latest snapshot. These are observations between the two available days, not proof that a control was created, deleted, or remediated. Only Failed-to-Passed is labeled recovered. A no-change/empty grid is not proof of no change when history is absent.
