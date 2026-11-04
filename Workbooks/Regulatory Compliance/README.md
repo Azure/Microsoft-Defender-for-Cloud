@@ -158,8 +158,10 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
   A match establishes configuration evidence only, not delivery, access, retention, or historical readiness.
   For each event type, any known enabled automation takes precedence; otherwise unknown enablement takes precedence over disabled evidence. An Off result therefore never hides a relevant unknown automation.
   A visible workspace is retained even when its automation has an empty source list or only unrelated sources such as alerts. A complete source inventory without the relevant regulatory event shows **Not configured**, not On; missing or incomplete source inventory remains Unknown.
-  Export scope considers each enabled automation's own regulatory sources; known alerts-only or empty-source automations do not narrow it.
-  An incomplete source inventory remains **Unknown** unless an enabled regulatory source already establishes a narrower or unreported scope. Disabled automations do not narrow enabled export scope.
+  Export scope and source filters consider each automation's own regulatory sources. Known enabled narrow or filtered regulatory evidence takes precedence as a mismatch.
+  Without a known failure, a regulatory automation with unknown enablement and a narrow or unreported scope or a source filter leaves the corresponding check **Unknown**, even when another automation matches.
+  Missing, malformed or oversized source inventories on potentially enabled automations leave both checks **Unknown** unless the relevant known failure already takes precedence.
+  Known disabled automations and complete alerts-only or empty-source inventories do not affect valid regulatory scope/filter matches.
   Scope, source and action-type inventories expand together, then aggregate by automation ID before destinations expand. The settings query uses three `mv-expand` operators, never a scopes-by-sources-by-actions product, and does not combine sources, scope, filter or destination evidence from unrelated automations.
   Empty scopes remain visible for review. Missing, malformed or oversized lists produce bounded warning rows instead of disappearing or passing; lists over 2,000 entries are not partially accepted as complete.
   A malformed sibling action marks configuration list size incomplete for every workspace on that automation while retaining the warning row; recognized Event Hub and Logic App actions do not make the inventory incomplete.
