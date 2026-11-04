@@ -54,7 +54,8 @@ Classification uses the provider-qualified type derived from Azure resource IDs,
 The queries join regulatory compliance assessments to resource assessments on **subscription ID and assessment key**.
 Control/standard mappings are collapsed before joining, and findings are deduplicated by **subscription, cloud-aware resource identity, and assessment key** afterward.
 Azure identities are case-normalized; native cloud identities retain case.
-AWS connector identities use the reported `resourceDetails.Id` when `ConnectorId` and `Id` are present, with legacy `AwsResourceId` support otherwise.
+AWS and GCP connector identities use the reported `resourceDetails.Id` when `ConnectorId` and `Id` are present.
+Otherwise, they use the legacy `AwsResourceId` and `GcpResourceId` fields respectively.
 The summary, resource counts, search, resource list and exact-resource recommendations share this identity rule.
 Multiple controls referencing one recommendation do not inflate resource or finding counts.
 
