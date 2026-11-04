@@ -171,8 +171,9 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
 - **Export data types by automation** lists each visible automation against Security recommendations, Secure score, Security alerts, Regulatory compliance and Security attack paths, with separate **Streaming updates** and **Snapshots** configuration states.
   These show **On**, **Off**, **Partially on**, **On (filtered)**, **Unknown / review**, **Not observed**, or **Not applicable**.
   The master **Automation enabled** switch is separate: selected data types under a disabled automation are not active export.
+  An explicitly empty, valid source list shows **Off** for applicable data types. Recognized event-source identities are matched case-insensitively for streaming, snapshots and filters.
   Missing, malformed or oversized source lists remain unknown, not Off; Security alerts have no snapshot source.
-  This is configuration evidence, not delivery proof.
+  This is configuration evidence, not delivery proof. Snapshots are weekly point-in-time records for selected data and do not by themselves prove complete coverage or delivery.
 - Three detailed inventories show **all visible security automations**, including non-compliance sources and non-workspace destinations. Match Automation ID across the tables to inspect the automation switch, location, description, scope paths and descriptions, source/destination counts, workspace/Event Hub/Logic App resource IDs, and Event Hub trusted-service switch.
   **On / Off** comes only from the reported automation or trusted-service Boolean; unknown and not-observed values are distinct. These are configuration settings, not delivery checks. Source rows show configured API event names, streaming or weekly snapshot frequency, and individual filter properties, types, operators and expected values. Rule sets use OR; rules within each numbered set use AND.
   The detailed source inventory lists configured sources; use **Export data types by automation** above it to see unconfigured items as Off when the source list is complete, or Unknown when inventory is incomplete.
