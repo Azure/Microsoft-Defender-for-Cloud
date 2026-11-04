@@ -20,6 +20,9 @@ The **Subscription** selector scopes every tab. **Compliance standard** applies 
 - Coverage cards show reporting versus selected subscriptions, assessed subscription-standard pairs, and subscription-standard pairs with failed controls. Repeated standards in different subscriptions are separate results.
 - The coverage panel fits its tile content instead of reserving a fixed chart height. Page and result-grid scrolling use the portal's native scroll regions; close an open filter popup before scrolling the workbook.
 - The control-outcomes chart adds the four standard-reported counts across subscription-standard results. It excludes rows with missing or negative counts and is not a compliance score or a count of unique controls: standards and subscriptions can overlap. Other control states are available in Compliance Detail.
+- Select **Failed**, **Passed**, **Skipped**, or **Unsupported** in the chart to filter the table to subscription-standard rows with a positive count for that outcome. A selected outcome requires the same complete, nonnegative four-count guard as the chart. **All** retains incomplete rows; the chart and coverage cards keep their full current scope.
+- The visible **Active table outcome filter** text shows the table's current state. Focus a chart legend item and press **Enter** to select or deselect it; selecting it again restores **All**. Space may not activate the legend.
+  **Clear outcome filter (show all)** is also available when the chart is empty and changes only this filter. A legend highlight can remain after this parameter-only clear; deselect it before selecting it again.
 - Expand a subscription to compare its standards. Subscriptions with failing standards are sorted first.
 - Counts remain numeric. Pass percentage is calculated separately for each standard as `100 * passed / (passed + failed)`, excluding skipped and unsupported controls. A zero denominator is shown as **N/A**; overlapping standards are not averaged into a subscription compliance score.
 - Subscription status is the worst child result: failed takes precedence, incomplete/unassessed results remain neutral, and passed is shown only when the child results support it.
@@ -66,13 +69,15 @@ The **Resource detail state** selector uses checkboxes and defaults to **All**. 
 Findings without an identifiable resource are retained but excluded from resource totals. Workload results describe **resource posture**, not a regulatory compliance percentage or certification.
 
 Resource findings use a **resource-first browser**, not an unscoped resource-recommendation table that can exceed Workbooks' 10,000-result ceiling.
-**Detail subscription** starts unset; the resource browser is hidden until one selected source subscription is chosen, and recommendation queries remain hidden until a resource row is selected.
+**Detail subscription** is a single native subscription picker, starts unset, and offers subscriptions in the main **Subscription** scope. The resource browser is hidden unless the detail selection is nonempty and included in that main scope; recommendation queries also require a resource-row selection.
+The four resource-browser queries send Resource Graph requests to that detail subscription only. Both inputs of their joins additionally intersect the detail subscription with the main subscription filter. The workload summary remains globally scoped.
 **Resource contains** filters reported resource ID, resource group and provider-qualified type in the query, before output limits. These detail-only filters do not change the all-state workload summary.
 
 The resource list aggregates matching recommendation pairs to one row per workload, subscription and cloud-aware resource identity. Its counts follow the current detail-state filter; the overview remains all-state.
 Missing-identity and unmapped rows remain selectable identity groups. Selecting a resource exports a separate scope parameter; the resource-list query never reads its own exported parameter, avoiding a refresh cycle.
 Recommendation queries require the selected workload, subscription and exact resource key and reapply the current subscription, standard, workload, state and search filters.
-A stale selection excluded by those filters returns no matches, never a broader inventory; **Clear resource selection** clears only that selection.
+A stale selection excluded by those filters returns no matches, never a broader inventory. **Hide resource details** clears only the exported detail scope; it does **not** deselect the grid row. To reopen the same resource, deselect its row checkbox and select it again. Keyboard users should focus that checkbox and use its native toggle interaction. This guidance stays visible after details are hidden.
+Do not blank **Detail subscription** or rely on refreshing the grid to reset a row selection.
 
 Select a resource row outside its link to show its recommendations. Recognized Azure resource names open their Azure resource overview; AWS, Google Cloud, missing and malformed identities remain text.
 Recommendation names open the resource-specific Defender destination when a valid source-provided link is available, or the reported general recommendation otherwise.
@@ -84,6 +89,7 @@ Narrow Workload or Resource contains for an oversized resource list; narrow stan
 A below-limit count is a row-budget observation, not proof of complete source visibility. Counts and lists use separate requests and can change between refreshes.
 
 Native grid search and Excel export operate on returned data only; they cannot retrieve omitted rows or provide an unlimited tenant inventory. The resource list exports resource aggregates; the selected-resource table exports that resource's returned recommendations. Query errors and native service-limit warnings remain visible.
+Narrowing request scope and gating excluded detail selections do not guarantee complete results or exports, or prove that every parameter-update race is prevented. The previously reported **Query partially succeeded** service warning was not reproduced and its cause remains unknown; affected results and exports may be incomplete or incorrect.
 
 ### Compliance Detail
 
@@ -252,6 +258,9 @@ $template | ConvertTo-Json -Depth 100 | Set-Content .\armTemplate.json -Encoding
 The folder's `.gitattributes` pins both deployment artifacts to LF line endings so Git checkout does not break exact-byte payload parity on Windows. Keep `regulatorycompliance.workbook` as UTF-8 without a BOM and preserve its LF endings before regenerating the payload.
 
 Validate the standalone JSON against the workbook schema, compare the decoded UTF-8 bytes with the standalone file, and validate the ARM envelope separately. Run `npm test` and `npm run tsc -- --noEmit` from the repository root.
+For the focused scope, selection, outcome-filter, synthetic-fixture, and exact-byte packaging contracts, run `npm test -- --grep regulatoryComplianceInteractions`.
+These offline checks do not qualify authenticated portal behavior, keyboard rendering, or every asynchronous parameter transition.
+Validate the exact final source in a freshly confirmed tenant and non-production scope using a new unsaved workbook; never save it or change tenant settings as part of this check.
 
 ## Questions
 You can submit any questions or requests [here](https://github.com/Azure/Microsoft-Defender-for-Cloud/issues). Please also refer to our [Wiki](https://github.com/Azure/Microsoft-Defender-for-Cloud/wiki#resources), as it will provide you with further information.
