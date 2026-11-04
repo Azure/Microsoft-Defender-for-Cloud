@@ -113,7 +113,11 @@ Use **Failed** to prioritize remediation. Descriptions have more display space a
 
 Select an individual control row to show its mapped recommendations below the grid.
 The query requires its exact subscription, standard and control, and reapplies the current subscription, standard, detail scope and state filters.
-Group rows, missing identities and stale selections cannot open an unscoped recommendation list. **Clear control selection** removes only this selection.
+Group rows, missing identities and stale selections cannot open an unscoped recommendation list.
+To close the recommendations, expand the selected control's group if needed and deselect its checked row checkbox. Confirm the grid reports **Checked. 0 selected**, then select the checkbox again to reopen that control.
+Keyboard users can focus the checkbox and use its native toggle interaction. Expanding or collapsing a group is not deselection.
+The former **Clear control selection** action was removed: it changed only the exported parameter, left the grid row checked, and allowed group expansion to restore stale details. No parameter-only action is presented as a grid reset.
+These native checkbox instructions remain visible above the grid after deselection; no authenticated portal reset is claimed from offline checks.
 Recommendation names link to valid Defender destinations supplied by the assessment; their resource counts are not unique-resource totals across recommendations.
 The separate count shows the matching row budget; the grid, search and export remain subject to the 10,000-row and source limits.
 
@@ -125,6 +129,7 @@ Unlike **Control contains**, native grid search filters returned data only and c
 Selected-control recommendations reapply the control search so an excluded stale selection cannot show recommendations from outside that search.
 
 **Compliance Detail scope** limits this tab to one subscription and standard. **Clear detail scope** clears that selection; the main subscription and standard filters remain active. If the main filters exclude the selection, clear the detail scope rather than interpreting the empty result as compliance.
+The neutral **Control results** and **Controls in current detail scope** headings do not label the global compliance-standard filter's **All** value as the effective detail scope or control-state selection.
 
 ### Regulatory Compliance Configuration
 
@@ -146,7 +151,10 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
   Neither a pricing record nor an enabled feature establishes installed agents, completed scans, effective protection or compliance. See [CSPM levels and capabilities](https://learn.microsoft.com/en-us/azure/defender-for-cloud/concept-cloud-security-posture-management).
 - **CSPM feature settings** keeps eight expected components visible: agentless machine scanning, Kubernetes API access/discovery, registry access/image vulnerability assessment, sensitive data discovery, CIEM, API posture, serverless protection and serverless containers. It also retains additional reported extensions.
   **Enabled / Disabled** comes only from each reported `isEnabled` switch and is shown separately from the paid parent plan. **Not reported** is not Disabled. An enabled switch under a disabled parent plan is flagged, not treated as active Defender CSPM coverage. Other plans can supply overlapping capabilities; a disabled CSPM switch does not establish an absence of equivalent protection.
-  VM-scanning `ExclusionTags` values and additional-property **names** are shown for review; arbitrary property values are not projected. Missing exclusions are not proof that no exclusions exist.
+  VM-scanning `ExclusionTags` JSON strings are parsed before display. A valid explicit empty array is **None (explicit empty array)**; populated arrays show validated **Key / Value** pairs without an extra enclosing array. Use cell details for the full list.
+  Empty output is accepted only with one unambiguous, recognized setting switch and a complete settings inventory. Missing, malformed, duplicate/conflicting or incomplete evidence stays **Unknown / review**, never no exclusions.
+  Each tag must contain only a nonempty string `Key` and a string `Value`; an explicitly empty string value is retained. Arrays exceeding 2,000 tags are unknown, not partially accepted as complete.
+  Only validated tag keys/values and additional-property **names** are projected; arbitrary other property values are not exposed. An explicitly empty reported tag array does not establish the absence of effective resource, inherited or connector exclusions.
   Malformed/missing arrays, unknown or duplicate setting rows and arrays exceeding the expansion budget are review findings, not passes. Eight expected entries share Resource Graph's 2,000-entry expansion budget, leaving room for 1,992 reported entries per subscription.
   Grids explicitly allow up to 10,000 rows, subject to Resource Graph limits. Narrow the subscription selection when warnings appear; client-side search and Excel export cannot recover omitted data.
   Setup tips explains each monitored component's purpose, portal steps, machine exclusions, Subscription Owner permissions, workload/cloud/region prerequisites, data-access implications and costs, with [component setup guidance](https://learn.microsoft.com/en-us/azure/defender-for-cloud/tutorial-enable-cspm-plan) and feature-specific Microsoft Learn links.
@@ -195,6 +203,8 @@ The shared **Setup tips** control at the top defaults to **On**. It shows each s
   No snapshot can mean a new export, absent data, retention, or access issues. Snapshots are weekly; allow at least one week for the first snapshot and additional time to build history. No snapshot in eight days is a review signal.
   A span of at least six days between snapshot records is an observation, not proof of complete snapshots or a valid trend. Streaming occurs on changes, so no recent stream alone is not a failure.
 - With **Run check** enabled, **History standard** offers the standards present in the selected source subscriptions' snapshots in that workspace over the last 90 days. It does not depend on the current ARG standard list. Delivery evidence remains across all standards; the selector scopes the historical posture, trend, coverage, and control-change panels only.
+  Those four dependent panels remain hidden while **History standard** is unset, avoiding secondary parameter-not-set errors after a failed standard lookup. The original delivery query/error and workspace/table/access guidance remain visible.
+  **All** remains available with a usable selector. This guard does not turn a table/access failure into a pass or enable queries while **Query history** is **Not checked**.
 - **Latest observed snapshot by standard** keeps each source subscription and standard separate. Records are grouped by UTC snapshot day and deduplicated by control, recommendation, assessed resource, and timestamp.
   The latest record wins within that identity; conflicting states at the same timestamp prefer failed evidence. A failed assessment makes the control Failed, otherwise unknown evidence blocks Passed, otherwise a passed assessment makes it Passed.
   Skipped, not-applicable, and unsupported results are not assessed passes.
