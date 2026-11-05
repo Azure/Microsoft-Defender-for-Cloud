@@ -159,6 +159,8 @@ Check [current pricing](https://azure.microsoft.com/pricing/details/defender-for
 - Transactions cover Blob and File services; scanning uses **Blob upload ingress only** (1 GB = 1,073,741,824 bytes).
   The upload API filter matches the workbook: `PutBlob`, `CopyBlob`, `PutBlock`, `PutBlockList`,
   `PutBlockFromURL`, `AppendFile`, `FlushFile`, and `CreatePathFile`.
+  Filtered requests disable dimension-value validation so APIs absent on an account do not
+  cause HTTP 400; missing metric observations still produce incomplete estimates, not zero.
   Ingress is a proxy: repeated commits, copies, exclusions, and unsupported blobs can change actual scan volume.
 - The script excludes on-demand scanning and additional Storage read, blob-index, and Event Grid charges.
   See [scanning behavior](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning).

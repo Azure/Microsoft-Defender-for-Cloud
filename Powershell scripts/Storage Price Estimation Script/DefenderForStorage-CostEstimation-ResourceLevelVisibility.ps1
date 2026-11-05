@@ -100,7 +100,7 @@ function Get-StorageAccountCostEstimate {
             "&metricnames=$MetricName&aggregation=Total&metricnamespace=$namespace"
         if ($ApiNames.Count -gt 0) {
             $filter = ($ApiNames | ForEach-Object { "ApiName eq '$_'" }) -join ' or '
-            $path += '&$filter=' + [uri]::EscapeDataString($filter)
+            $path += '&validatedimensions=false&$filter=' + [uri]::EscapeDataString($filter)
         }
 
         $response = Invoke-StorageEstimationGet -Path $path -Context $MetricContext
