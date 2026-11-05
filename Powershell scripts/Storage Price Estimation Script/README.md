@@ -142,6 +142,9 @@ Use numeric byte/GB values, not the display string, for sorting and totals. Appl
 Missing or incomplete upload metrics leave both new volume fields blank, not `0 B`.
 
 Missing metrics produce warnings, blank affected costs, and `MetricsStatus=Incomplete`. Such subtotals are **not complete scope totals**.
+The known-cost subtotal sums each available `StorageAccountCost` and `MalwareScanningCost`
+independently, even when the other component is unknown. An incomplete account's
+`EstimatedMonthlyCost` remains blank; the warning still says a complete scoped total is unavailable.
 Any returned empty series or missing/null total makes that entire metric unavailable, even when other observations contain numeric totals. Partial sums are not projected as complete estimates; numeric zero totals remain valid observations.
 HTTP/authentication failures stop the script without exporting a new report.
 
@@ -166,5 +169,7 @@ Check [current pricing](https://azure.microsoft.com/pricing/details/defender-for
   See [scanning behavior](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning).
 - Scanning is modeled as uncapped by default (`-MalwareScanningCapGB -1`). Setting a cap changes the estimate, not Azure settings.
   This is a scenario input, not discovery of configured per-account caps or a guaranteed invoice ceiling.
+  Configured scanning can exceed its threshold by up to 20 GB; the nominal model does not add that deviation.
+  See [scanning cap behavior](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning#cost-control-for-on-upload-malware-scanning).
 
 For manual import or ARM deployment, see the [workbook README](../../Workbooks/Microsoft%20Defender%20for%20Storage%20Price%20Estimation/README.md).

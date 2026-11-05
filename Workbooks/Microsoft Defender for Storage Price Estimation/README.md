@@ -32,9 +32,47 @@ Eager initialization can require more initial work. Scope changes can refresh bo
 **Estimated monthly uploaded** uses automatic size units (MB/GB/TB). **Malware scanning cap (GB/month)** is the monthly limit per storage account.
 Display units do not change numeric sorting, totals, or the GB-based scanning-cost calculation.
 
+**Modeled cap (GB/month/account; -1 = uncapped)** is an explicit scenario input, not a
+discovered setting. The default preserves the uncapped scenario. A nonnegative whole number
+limits projected scanning GB separately for each account before costing, without reducing the
+reported upload forecast. A zero cap models zero scanning cost only when ingress is observed;
+missing ingress stays unknown. Configured account overrides and disabled scanning are not
+discovered or applied. Filter and model accounts with different caps separately.
+This is a nominal scenario, not a guaranteed billing ceiling: configured scanning can exceed
+its threshold by up to 20 GB, which this model does not add. See
+[scanning cap behavior](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning#cost-control-for-on-upload-malware-scanning).
+
+Missing Blob/File transaction, ingress, event, or index metrics remain blank, not zero.
+An observed numeric zero remains valid. **Metrics status** flags affected account rows, and
+grouped sums are **known-value subtotals**, not complete scope totals if any input is missing.
+The associated-cost view uses a left outer join so missing index metrics do not discard
+accounts with activity metrics. Accounts absent from the activity source cannot be listed;
+missing service metrics are conservatively unknown because the workbook does not discover
+which service endpoints apply. Use the endpoint-aware PowerShell estimator for such accounts.
+
+Coverage matches `OnUploadMalwareScanning` and `SensitiveDataDiscovery` extensions by name,
+not array order. Missing extensions remain blank, including when the extension array is empty.
+
 **Monthly activity monitoring cost** and **Monthly malware scanning cost** are monthly estimates displayed as USD with two decimal places, matching the storage account cost and overage charge columns.
 
 Associated-cost columns use USD with **2-7 decimal places**, not automatic count units. This preserves readable sub-cent amounts: one modeled read operation is **$0.0000005**. Account values, subscription subtotals, and grand totals remain numeric; formatting does not change usage, rates, or aggregation precision.
+
+**Gross Event Grid cost (sample, before allowance)** multiplies the sampled upload-operation
+count by $0.60/million. It does not deduct a monthly allowance from each account's seven-day
+sample. The free allowance is shared monthly, and other usage is unknown. Operation counts,
+payload size, usage outside the scope, agreement pricing, and billing can differ: this gross
+proxy is neither an invoice nor a strict upper bound.
+
+The event/read-cost proxy uses `PutBlob`, `CopyBlob`, `PutBlockList`, `FlushFile`, and
+`CreatePathFile` transactions. The ingress-byte filter still includes incremental writes
+(`PutBlock`, `PutBlockFromURL`, and `AppendFile`); these no longer count as independent
+scan-trigger events. Azure Monitor's `FlushFile` dimension cannot identify flush-with-close;
+asynchronous copies, renames, repeated commits, exclusions, unsuccessful operations, and event
+delivery can also differ from this proxy. These are not measured scans or billable events.
+Associated-cost proxies are not reduced by the modeled scanning-GB cap because the number of
+blobs actually scanned after a cap, filters, or disabled scanning is unknown.
+See [on-upload scan triggers](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning#on-upload-malware-scanning-flow)
+and [Blob Storage events](https://learn.microsoft.com/azure/event-grid/event-schema-blob-storage).
 
 ## Workbook files
 
@@ -110,7 +148,8 @@ See its [README](../../Powershell%20scripts/Storage%20Price%20Estimation%20Scrip
 
 - Estimates are not invoices or quotes; check [current pricing](https://azure.microsoft.com/pricing/details/defender-for-cloud/) and your agreement.
 - Upload ingress is a proxy for scanned volume, not measured scanning or billing data. Review incomplete or errored results before using totals.
-- The coverage cap is informational; workbook scanning-cost estimates do not apply it. The PowerShell estimator offers a separate modeled cap.
+- The coverage cap describes subscription configuration, not necessarily effective account settings.
+  The workbook and PowerShell estimator apply only their explicit modeled per-account cap inputs.
 - Large scopes can be truncated or time out. Narrow the selection or use PowerShell; partial results are not tenant-wide totals.
 
 ## Troubleshooting
@@ -119,8 +158,9 @@ See its [README](../../Powershell%20scripts/Storage%20Price%20Estimation%20Scrip
 Earlier copies wrapped the entire read-operation expression in square brackets, incorrectly requesting a matrix instead of a numeric cost.
 Both affected calculated columns now use `(["eventgrid"] / 10000) * 0.005`; the brackets around the column reference are required.
 
-Only rows that evaluate the faulty expression show the error. Rows that take the existing empty-metric fallback can show `$0.00` instead; small calculated amounts can also round to `$0.00`.
-Neither an empty-metric fallback nor a rounded display confirms zero billable usage.
+Only rows that evaluate the faulty expression show the error. Older copies defaulted empty metrics
+to `$0.00`; this copy keeps them unknown. Small observed amounts can still round to `$0.00`.
+A rounded display does not confirm zero billable usage.
 
 If a saved workbook still shows the message, reimport the updated [standalone workbook JSON](./D4StorageDeployment.json), or redeploy the updated [ARM template](./armTemplate.json).
 Until corrected, treat affected costs as **Not calculated**, not zero, and related totals as incomplete.
@@ -128,12 +168,17 @@ Until corrected, treat affected costs as **Not calculated**, not zero, and relat
 ### Long read-operation totals or scientific notation
 
 Older copies mixed text `"0"` results with numeric costs, causing grouped sums to concatenate values into long strings, sometimes containing `e-7`. Those strings are not valid charges.
-All Event Grid, read-operation, and index-tag zero-cost branches now return numeric expressions before aggregation. Both merge surfaces use consistent USD formatting with up to seven decimals, while retaining full numeric values for sums.
+Observed zero Event Grid, read-operation, and index-tag values return numeric costs before aggregation;
+missing values remain null. Both merge surfaces use consistent USD formatting with up to seven
+decimals, while retaining full numeric values for sums.
 The scientific value `5e-7` by itself is only **$0.0000005**, not a large cost. Reimport the updated workbook or redeploy the ARM template to correct existing saved copies.
 
 ## Overview
 
 ![Workbook overview](WorkbookSample.png)
+
+The overview and previously committed expanded screenshots predate the missing-metric,
+modeled-cap, and gross Event Grid changes; they are not validation evidence for those changes.
 
 **Credits:** [Eitan Shteinberg](https://www.linkedin.com/in/eitan-shteinberg/), [Fernanda Vela](https://www.linkedin.com/in/mfvelah/), [Shay Amar](https://www.linkedin.com/in/shay-amar/)
 

@@ -335,8 +335,11 @@ $ordered | Export-Csv -LiteralPath $OutputPath -NoTypeInformation -Encoding utf8
 $incomplete = @($ordered | Where-Object { $_.MetricsStatus -ne 'Complete' })
 $total = [decimal]0
 foreach ($row in $ordered) {
-    if ($null -ne $row.EstimatedMonthlyCost) {
-        $total += $row.EstimatedMonthlyCost
+    if ($null -ne $row.StorageAccountCost) {
+        $total += $row.StorageAccountCost
+    }
+    if ($null -ne $row.MalwareScanningCost) {
+        $total += $row.MalwareScanningCost
     }
 }
 $total = [math]::Round($total, 2)
