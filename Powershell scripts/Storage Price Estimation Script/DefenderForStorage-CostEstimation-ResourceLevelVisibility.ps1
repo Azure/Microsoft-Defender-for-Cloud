@@ -337,6 +337,8 @@ $total = [decimal]0
 foreach ($row in $ordered) {
     if ($null -ne $row.StorageAccountCost) {
         $total += $row.StorageAccountCost
+    } else {
+        $total += $CostPerStorageAccount
     }
     if ($null -ne $row.MalwareScanningCost) {
         $total += $row.MalwareScanningCost

@@ -143,7 +143,10 @@ Missing or incomplete upload metrics leave both new volume fields blank, not `0 
 
 Missing metrics produce warnings, blank affected costs, and `MetricsStatus=Incomplete`. Such subtotals are **not complete scope totals**.
 The known-cost subtotal sums each available `StorageAccountCost` and `MalwareScanningCost`
-independently, even when the other component is unknown. An incomplete account's
+independently. When transaction metrics are missing, `StorageAccountCost` stays null, but the
+subtotal still includes the configured fixed `CostPerStorageAccount` once for that account;
+only its overage is unknown. A known storage cost already includes the fixed fee and is not
+charged a second base fee. Missing scanning cost remains unknown, not zero. An incomplete account's
 `EstimatedMonthlyCost` remains blank; the warning still says a complete scoped total is unavailable.
 Any returned empty series or missing/null total makes that entire metric unavailable, even when other observations contain numeric totals. Partial sums are not projected as complete estimates; numeric zero totals remain valid observations.
 HTTP/authentication failures stop the script without exporting a new report.
