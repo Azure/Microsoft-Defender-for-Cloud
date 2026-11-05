@@ -42,8 +42,9 @@ Associated-cost columns use USD with **2-7 decimal places**, not automatic count
 | --- | --- |
 | [D4StorageDeployment.json](./D4StorageDeployment.json) | Paste-ready workbook JSON for the Advanced Editor. |
 | [armTemplate.json](./armTemplate.json) | ARM template for deploying a saved workbook. |
+| [D4StorageARMTemplate.json](./D4StorageARMTemplate.json) | Backward-compatible ARM deployment path; identical copy of `armTemplate.json`. |
 
-The workbook header links to the published GitHub README for usage guidance and version history. Before this PR is merged, use this branch's README for the latest changes.
+The workbook header links to the published GitHub README for usage guidance and version history.
 
 ## Manual import with the Advanced Editor
 
@@ -55,17 +56,9 @@ The workbook header links to the published GitHub README for usage guidance and 
 
 ## Deploy to Azure
 
-**PR preview - current v4.3 changes**
-
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fbillmcilhargey%2FMicrosoft-Defender-for-Cloud%2Frefs%2Fheads%2Ffix%2Fstorage-estimator-v4-2%2FWorkbooks%2FMicrosoft%2520Defender%2520for%2520Storage%2520Price%2520Estimation%2FarmTemplate.json" target="_blank">
-  <img src="https://aka.ms/deploytoazurebutton" alt="Deploy PR preview to Azure"/>
-</a>
-
-**Published workbook - available after merge**
-
 <a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2FMicrosoft-Defender-for-Cloud%2Frefs%2Fheads%2Fmain%2FWorkbooks%2FMicrosoft%2520Defender%2520for%2520Storage%2520Price%2520Estimation%2FarmTemplate.json" target="_blank"><img src="https://aka.ms/deploytoazurebutton" alt="Deploy to Azure"/></a>
 
-1. Select the appropriate button, sign in, and choose a subscription, resource group, and region.
+1. Select the button, sign in, and choose a subscription, resource group, and region.
 2. Keep `workbookSourceId` as `azure security center`, then select **Review + create > Create**.
 3. Open the saved workbook under **Microsoft Defender for Cloud > Workbooks** and select your scope.
 
@@ -73,13 +66,13 @@ Importing JSON does not rename an existing saved workbook; update its saved name
 
 **Permissions:** workbook deployment/write access to the resource group, plus read access to selected subscriptions, storage accounts, and metrics.
 
-The preview button uses this PR's branch; the published button uses upstream `main`. Alternatively, upload [armTemplate.json](./armTemplate.json) through **Deploy a custom template > Build your own template in the editor**.
+The button uses upstream `main`. Previously published links to `D4StorageARMTemplate.json` remain supported and deploy the same workbook. Alternatively, upload either ARM template through **Deploy a custom template > Build your own template in the editor**.
 
 ## Maintaining the workbook JSON
 
-Keep the standalone workbook JSON identical to the decoded JSON in `variables.workbookDataBase64` in the ARM template.
+Keep the standalone workbook JSON structurally equivalent to the decoded JSON in `variables.workbookDataBase64` in both ARM templates. JSON whitespace differs; byte-for-byte identity with the standalone file is not required.
 ARM decodes that UTF-8 payload into `resources[0].properties.serializedData` with `base64ToString` during deployment. This keeps valid workbook `null` values and empty arrays separate from ARM-template validation without removing them or suppressing checks.
-The two-file layout is intentional: retain the paste-ready workbook and separate ARM template so manual import never requires extracting `serializedData`.
+The separate workbook/deployment layout is intentional: retain the paste-ready workbook so manual import never requires extracting `serializedData`. `armTemplate.json` is the canonical deployment envelope; `D4StorageARMTemplate.json` is its byte-identical compatibility copy. Update both in the same change; never replace the legacy path with standalone workbook JSON or a redirect that ARM cannot deploy.
 
 For maintainers only, regenerate the encoded payload from this directory after editing the standalone workbook; keep the deployment's `base64ToString` expression intact:
 
@@ -88,9 +81,15 @@ $workbookJson = Get-Content .\D4StorageDeployment.json -Raw | ConvertFrom-Json -
 $template = Get-Content .\armTemplate.json -Raw | ConvertFrom-Json -Depth 100
 $template.variables.workbookDataBase64 = [Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($workbookJson))
 $template | ConvertTo-Json -Depth 100 | Set-Content .\armTemplate.json -Encoding utf8
+Copy-Item .\armTemplate.json .\D4StorageARMTemplate.json
 ```
 
 Validate the standalone workbook against the workbook schema, decode the payload and compare its JSON, and validate the ARM envelope separately.
+
+Run the repository's existing checks from the repository root with `npm test`.
+For workbook changes, also verify both ARM paths, decoded payload parity, and upload API parity with
+the PowerShell estimator. Exercise sub-cent component and multi-account cost aggregation with mocked
+metrics before publishing; offline checks do not replace authenticated portal validation.
 
 ## PowerShell estimation at scale
 

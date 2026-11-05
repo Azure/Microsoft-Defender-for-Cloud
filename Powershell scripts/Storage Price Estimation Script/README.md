@@ -125,6 +125,11 @@ Output has one row per account, with totals printed separately.
 `StorageAccountCost` is base plus overage; `MalwareScanningCost` is separate; `EstimatedMonthlyCost` includes both. `OldEstimateCost` is the legacy-plan comparison.
 
 Existing CSV column names and order are retained; the new upload-volume fields are appended.
+All monetary CSV fields retain raw decimal precision, including `OverageCost`, so sub-cent charges
+are not lost when accounts are aggregated. Round only the final account or scope amount for display,
+not the components before summing. The console rounds the final scope total (or known-cost subtotal)
+to two decimal places. For example, 1,000 accounts with 10,000 overage transactions each at
+$0.1492/million total $10,001.49 including the $10/account base charge, not $10,000.00.
 
 | Field | Meaning |
 | --- | --- |
@@ -152,6 +157,8 @@ Override `-CostPerStorageAccount`, `-PricePer1MOverageTransactions`, and `-Malwa
 Check [current pricing](https://azure.microsoft.com/pricing/details/defender-for-cloud/); estimates are not invoices or quotes.
 
 - Transactions cover Blob and File services; scanning uses **Blob upload ingress only** (1 GB = 1,073,741,824 bytes).
+  The upload API filter matches the workbook: `PutBlob`, `CopyBlob`, `PutBlock`, `PutBlockList`,
+  `PutBlockFromURL`, `AppendFile`, `FlushFile`, and `CreatePathFile`.
   Ingress is a proxy: repeated commits, copies, exclusions, and unsupported blobs can change actual scan volume.
 - The script excludes on-demand scanning and additional Storage read, blob-index, and Event Grid charges.
   See [scanning behavior](https://learn.microsoft.com/azure/defender-for-cloud/on-upload-malware-scanning).

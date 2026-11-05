@@ -169,11 +169,9 @@ function Get-StorageAccountCostEstimate {
     if ($hasTransactionData) {
         $monthlyTransactions = $sampleTransactions * $scale
         $overageTransactions = [math]::Max($monthlyTransactions - [decimal]73000000, [decimal]0)
-        $overageCost = [math]::Round(
-            $overageTransactions / 1000000 * $Configuration.PricePer1MOverageTransactions, 2
-        )
-        $storageCost = [math]::Round($Configuration.CostPerStorageAccount + $overageCost, 2)
-        $oldEstimateCost = [math]::Round($monthlyTransactions / 10000 * [decimal]0.02, 2)
+        $overageCost = $overageTransactions / 1000000 * $Configuration.PricePer1MOverageTransactions
+        $storageCost = $Configuration.CostPerStorageAccount + $overageCost
+        $oldEstimateCost = $monthlyTransactions / 10000 * [decimal]0.02
     }
 
     $monthlyIngressBytes = [decimal]0
@@ -182,7 +180,7 @@ function Get-StorageAccountCostEstimate {
     $malwareCost = [decimal]0
     if ($hasBlob) {
         $uploadApis = @(
-            'PutBlob', 'CopyBlob', 'PutBlock', 'PutBlockFromURL',
+            'PutBlob', 'CopyBlob', 'PutBlock', 'PutBlockList', 'PutBlockFromURL',
             'AppendFile', 'FlushFile', 'CreatePathFile'
         )
         $ingress = Get-MetricTotal -Service blobServices -MetricName Ingress -ApiNames $uploadApis -MetricContext $Context
@@ -198,14 +196,14 @@ function Get-StorageAccountCostEstimate {
             if ($Configuration.MalwareScanningCapGB -ge 0) {
                 $billableGB = [math]::Min($billableGB, [decimal]$Configuration.MalwareScanningCapGB)
             }
-            $malwareCost = [math]::Round($billableGB * $Configuration.MalwareScanningPricePerGB, 2)
+            $malwareCost = $billableGB * $Configuration.MalwareScanningPricePerGB
         }
     }
 
     $totalCost = $null
     $status = 'Incomplete'
     if ($null -ne $storageCost -and $null -ne $malwareCost) {
-        $totalCost = [math]::Round($storageCost + $malwareCost, 2)
+        $totalCost = $storageCost + $malwareCost
         $status = 'Complete'
     }
     [pscustomobject]@{
@@ -341,6 +339,7 @@ foreach ($row in $ordered) {
         $total += $row.EstimatedMonthlyCost
     }
 }
+$total = [math]::Round($total, 2)
 if ($incomplete.Count -gt 0) {
     Write-Warning "$($incomplete.Count) accounts have missing metrics. The known-cost subtotal is $total; a complete scoped total is unavailable."
 } else {
