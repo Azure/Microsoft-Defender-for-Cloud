@@ -177,8 +177,10 @@ The scientific value `5e-7` by itself is only **$0.0000005**, not a large cost. 
 
 ![Workbook overview](WorkbookSample.png)
 
-The overview and previously committed expanded screenshots predate the missing-metric,
-modeled-cap, and gross Event Grid changes; they are not validation evidence for those changes.
+The overview image predates the missing-metric, modeled-cap, and gross Event Grid changes.
+The expanded [storage](StorageCostsExpanded.png) and [scanning](ScanningCostsExpanded.png)
+captures were refreshed from workbook revision `e9cfc21` in an unsaved, read-only demo view,
+with identifying subscription and storage-account links masked.
 
 **Credits:** [Eitan Shteinberg](https://www.linkedin.com/in/eitan-shteinberg/), [Fernanda Vela](https://www.linkedin.com/in/mfvelah/), [Shay Amar](https://www.linkedin.com/in/shay-amar/)
 
