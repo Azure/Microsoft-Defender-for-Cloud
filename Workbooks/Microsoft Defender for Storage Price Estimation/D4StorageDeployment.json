@@ -6,14 +6,14 @@
       "content": {
         "json": "# Microsoft Defender for Storage - Price Estimation\r\n\r\n**Version 4.3** - Separate views for coverage, storage costs, and scanning costs.\r\n\r\n[Workbook guide and version history on GitHub](https://github.com/Azure/Microsoft-Defender-for-Cloud/tree/main/Workbooks/Microsoft%20Defender%20for%20Storage%20Price%20Estimation#readme)"
       },
-      "name": "text - 3"
+      "name": "Workbook introduction"
     },
     {
       "type": 1,
       "content": {
         "json": "## This workbook is designed to provide a cost estimate for Microsoft Defender for Storage. The estimate includes the estimated cost of scanning for malware upon upload."
       },
-      "name": "text - 14"
+      "name": "Estimation scope"
     },
     {
       "type": 1,
@@ -21,14 +21,14 @@
         "json": "### Cost of Microsoft Defender for storage\r\n\r\nThe cost is $10 per storage account per month. However, storage accounts with an exceptionally high transaction volume (above 73 million monthly transactions) will incur an overage charge of $0.1492 per 1 million transactions for transactions that exceed the 73 million threshold.\r\n\r\nPlease note that the actual pricing may vary based on the type of agreement made with Microsoft, the date of purchase, and the currency exchange rate. For more detailed information, please visit the [Defender for Cloud pricing](https://azure.microsoft.com/pricing/details/defender-for-cloud/) page.",
         "style": "info"
       },
-      "name": "text - 11"
+      "name": "Pricing assumptions"
     },
     {
       "type": 1,
       "content": {
         "json": "\r\n\r\n#### Please select the scope:\r\nDue to Azure Monitor’s limitations, please limit your selection of subscriptions and storage accounts as it can only display up to 250 rows."
       },
-      "name": "text - 11"
+      "name": "Scope selection guidance"
     },
     {
       "type": 9,
@@ -42,6 +42,7 @@
             "id": "2896eab7-cf93-43e5-bc43-92eba7c6bd80",
             "version": "KqlParameterItem/1.0",
             "name": "Subscriptions",
+            "label": "Subscriptions",
             "type": 6,
             "description": "Please select one or several subscriptions to allow the workbook to calculate Defender for Cloud cost.",
             "isRequired": true,
@@ -65,6 +66,7 @@
             "id": "ab6fe485-f740-432f-b879-d612178179fd",
             "version": "KqlParameterItem/1.0",
             "name": "Storage",
+            "label": "Storage accounts",
             "type": 5,
             "description": "Please select one or several storage accounts to calculate the estimated cost for Defender for Storage",
             "isRequired": true,
@@ -95,7 +97,7 @@
         "queryType": 1,
         "resourceType": "microsoft.resourcegraph/resources"
       },
-      "name": "parameters - 1"
+      "name": "Scope selection"
     },
     {
       "type": 11,
@@ -147,7 +149,7 @@
             "content": {
               "json": "## Microsoft Defender for Storage coverage by subscriptions"
             },
-            "name": "text - 1"
+            "name": "Coverage heading"
           },
           {
             "type": 1,
@@ -159,7 +161,7 @@
               "comparison": "isEqualTo",
               "value": "On"
             },
-            "name": "text - 2"
+            "name": "Coverage guidance"
           },
           {
             "type": 3,
@@ -293,7 +295,7 @@
               "comparison": "isEqualTo",
               "value": "Overview"
             },
-            "name": "query - 4"
+            "name": "Subscription coverage"
           }
         ],
         "loadType": "always"
@@ -350,7 +352,7 @@
         "comparison": "isNotEqualTo",
         "value": "Overview"
       },
-      "name": "parameters - 3"
+      "name": "Sampling period"
     },
     {
       "type": 12,
@@ -499,6 +501,10 @@
                     "label": "Subscription"
                   },
                   {
+                    "columnId": "Name",
+                    "label": "Storage account"
+                  },
+                  {
                     "columnId": "microsoft.storage/storageaccounts/blobservices-Transaction-Transactions",
                     "label": "Transactions (Sum)"
                   },
@@ -545,7 +551,7 @@
               "comparison": "isEqualTo",
               "value": "0"
             },
-            "name": "metric - 0"
+            "name": "Shared activity metrics"
           },
           {
             "type": 1,
@@ -553,7 +559,7 @@
               "json": "#### Please be aware that the provided estimate is based on the telemetry data from your resources and standard retail pricing. It’s important to understand that this does not represent your actual billed amount and it does not account for any discounts in your environment. For accurate cost information, please refer to your actual billing information.\r\n\r\n**Read-operation calculation errors:** `No \"matrix\" implementation available` is a workbook expression error, not a malware finding. This workbook fixes the array-wrapped read-operation formula; reimport the updated JSON if a saved copy still shows it. Until corrected, affected read-operation estimates and their totals are incomplete, not zero. `$0.00` can also reflect rounding or an empty-metric fallback; it does not confirm zero billable usage.\r\n\r\nThis workbook estimates malware scanning costs based on the total volume of blobs uploaded, as indicated by Blob Ingress metrics. Please consider the following:\r\n\r\n- **Multiple scans:** Specific upload methods, such as `PutBlockList` operations, may trigger multiple scans for a single blob (e.g., when writing logs to the same blob). This tool does not accurately capture the additional costs from multiple scans triggered by such operations.\r\n- **Blob size:** The estimation accounts for all uploaded blobs; however, only blobs smaller than 50GB are actually scanned.\r\n\r\n**Associated-cost amounts:** Event Grid, read-operation, and index-tag amounts are numeric USD estimates, displayed with 2-7 decimal places to show sub-cent costs. Older copies could concatenate numeric values with text zeros in grouped totals; those long strings are not valid costs. Reimport the updated workbook to apply the numeric-total fix.\r\n\r\n**Associated costs to Malware Protection**\r\n- **Index Tag costs:** The estimation is based on a 7 day sample. Learn more on index tags costs in the [Azure Storage Blobs Pricing](https://azure.microsoft.com/en-us/pricing/details/storage/blobs/ \"https://azure.microsoft.com/en-us/pricing/details/storage/blobs/\") page.\r\n- **Read Operations**: The estimation, based on a 7 day sample, accounts for the read operations that happen when EventGrid events are triggered. The price used in this calculation, is Read operations (per 10,000) in Hot tier. \r\n- **EventGrid**: The estimation is based on a 7 day sample, and accounts for the EventGrid events triggered when blobs are scanned for malware.\r\n\r\n\r\n",
               "style": "warning"
             },
-            "name": "text - 12"
+            "name": "Estimation limitations"
           },
           {
             "type": 12,
@@ -594,20 +600,20 @@
                     "comparison": "isEqualTo",
                     "value": "Storage"
                   },
-                  "name": "parameters - 17"
+                  "name": "Pricing plan selection"
                 },
                 {
                   "type": 1,
                   "content": {
                     "json": "### 🧮 Storage costs\r\n\r\nMonthly estimates for activity monitoring and on-upload malware scanning. Additional Event Grid, read-operation, and index-tag estimates are on the **Scanning costs** tab."
                   },
-                  "name": "text - 10"
+                  "name": "Storage cost explanation"
                 },
                 {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"da4af50d-362d-4790-887e-ff04153716f5\",\"mergeType\":\"table\",\"leftTable\":\"metric - 0\"}],\"projectRename\":[{\"originalName\":\"[metric - 0].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[metric - 0].Name\",\"mergedName\":\"Name\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions\",\"mergedName\":\"BlolbsTransactionsOriginal\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions\",\"mergedName\":\"FilesTransactionsOriginal\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress\",\"mergedName\":\"IngressBytesOriginal\",\"fromId\":\"unknown\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"BlobTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"BlolbsTransactionsOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"BlolbsTransactionsOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"FileTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"FilesTransactionsOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"FilesTransactionsOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"TotalTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"BlobTransactions\\\"]+[\\\"FileTransactions\\\"]\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"TotalTransactions\\\"])/({TimeRange:seconds}/86400)*30)\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"OverageTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"EstimatedMonthlyTransactions\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"73000000\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyTransactions\\\"] - 73000000\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"StorageAccountCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"10\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"OverageFee\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"OverageTransactions\\\"]/1000000)*0.1492\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"StorageAccountCost\\\"] + [\\\"OverageFee\\\"]\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Cost\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"IngressBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"IngressBytesOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"IngressBytesOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'0'\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyGigaBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"((([\\\"IngressBytes\\\"])/({TimeRange:seconds}/86400)*30))/1073741824\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyUploadedBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyGigaBytes\\\"]*1073741824\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated malware scanning cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyGigaBytes\\\"]*0.15\"}}]},{\"originalName\":\"[metric - 0].eventgrid\",\"mergedName\":\"eventgrid\",\"fromId\":\"unknown\"},{\"originalName\":\"[metric - 0].eventgrid Timeline\",\"mergedName\":\"eventgrid Timeline\",\"fromId\":\"unknown\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Event Grid associated cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"100000\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"eventgrid\\\"] - 100000) * 0.60) / 1000000 \"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Read Operations associated cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"eventgrid\\\"] / 10000) * 0.005\"}}]},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions Timeline\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions Timeline\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress Timeline\"}]}",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"da4af50d-362d-4790-887e-ff04153716f5\",\"mergeType\":\"table\",\"leftTable\":\"Shared activity metrics\"}],\"projectRename\":[{\"originalName\":\"[Shared activity metrics].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[Shared activity metrics].Name\",\"mergedName\":\"Name\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions\",\"mergedName\":\"BlolbsTransactionsOriginal\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions\",\"mergedName\":\"FilesTransactionsOriginal\",\"fromId\":\"da4af50d-362d-4790-887e-ff04153716f5\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress\",\"mergedName\":\"IngressBytesOriginal\",\"fromId\":\"unknown\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"BlobTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"BlolbsTransactionsOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"BlolbsTransactionsOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"FileTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"FilesTransactionsOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"FilesTransactionsOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"TotalTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"BlobTransactions\\\"]+[\\\"FileTransactions\\\"]\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"TotalTransactions\\\"])/({TimeRange:seconds}/86400)*30)\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"OverageTransactions\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"EstimatedMonthlyTransactions\",\"operator\":\">=\",\"rightValType\":\"static\",\"rightVal\":\"73000000\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyTransactions\\\"] - 73000000\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"StorageAccountCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"10\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"OverageFee\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"OverageTransactions\\\"]/1000000)*0.1492\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyCost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"StorageAccountCost\\\"] + [\\\"OverageFee\\\"]\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Cost\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"IngressBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"IngressBytesOriginal\",\"operator\":\"isNotNull\",\"rightValType\":\"column\",\"resultValType\":\"column\",\"resultVal\":\"IngressBytesOriginal\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"'0'\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyGigaBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"((([\\\"IngressBytes\\\"])/({TimeRange:seconds}/86400)*30))/1073741824\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"EstimatedMonthlyUploadedBytes\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyGigaBytes\\\"]*1073741824\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated malware scanning cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"[\\\"EstimatedMonthlyGigaBytes\\\"]*0.15\"}}]},{\"originalName\":\"[Shared activity metrics].eventgrid\",\"mergedName\":\"eventgrid\",\"fromId\":\"unknown\"},{\"originalName\":\"[Shared activity metrics].eventgrid Timeline\",\"mergedName\":\"eventgrid Timeline\",\"fromId\":\"unknown\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Event Grid associated cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"100000\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"eventgrid\\\"] - 100000) * 0.60) / 1000000 \"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Estimated Read Operations associated cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"eventgrid\\\"] / 10000) * 0.005\"}}]},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions Timeline\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions Timeline\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress Timeline\"}]}",
                     "size": 3,
                     "showExportToExcel": true,
                     "exportToExcelOptions": "all",
@@ -973,7 +979,7 @@
                       }
                     ]
                   },
-                  "name": "query - 1"
+                  "name": "Storage cost estimates"
                 }
               ]
             },
@@ -1097,6 +1103,26 @@
                           "label": "Subscription"
                         },
                         {
+                          "columnId": "Name",
+                          "label": "Storage account"
+                        },
+                        {
+                          "columnId": "microsoft.storage/storageaccounts/blobservices-Transaction-Transactions",
+                          "label": "Blob transactions"
+                        },
+                        {
+                          "columnId": "microsoft.storage/storageaccounts/fileservices-Transaction-Transactions",
+                          "label": "File transactions"
+                        },
+                        {
+                          "columnId": "microsoft.storage/storageaccounts/blobservices-Transaction-Ingress",
+                          "label": "Blob ingress"
+                        },
+                        {
+                          "columnId": "microsoft.storage/storageaccounts/blobservices-Capacity-BlobCount",
+                          "label": "Blob count"
+                        },
+                        {
                           "columnId": "indextags",
                           "label": "indextags"
                         },
@@ -1119,20 +1145,20 @@
                     "comparison": "isEqualTo",
                     "value": "0"
                   },
-                  "name": "metric - indextags"
+                  "name": "Index tag metrics"
                 },
                 {
                   "type": 1,
                   "content": {
                     "json": "### 🐞 Scanning costs\r\n\r\nEvent Grid, read-operation, and index-tag estimates use the seven-day sample. Monthly estimates for activity monitoring and on-upload malware scanning are on the **Storage costs** tab."
                   },
-                  "name": "text - 7"
+                  "name": "Scanning cost explanation"
                 },
                 {
                   "type": 3,
                   "content": {
                     "version": "KqlItem/1.0",
-                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"abff2505-843b-4dac-a451-c87a5f2be312\",\"mergeType\":\"innerunique\",\"leftTable\":\"metric - 0\",\"rightTable\":\"metric - indextags\",\"leftColumn\":\"Name\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions Timeline\",\"mergedName\":\"Transactions Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions Timeline\",\"mergedName\":\"Transactions Timeline1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress Timeline\",\"mergedName\":\"Ingress Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].eventgrid Timeline\",\"mergedName\":\"eventgrid Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - indextags].indextags Timeline\",\"mergedName\":\"indextags Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].Name\",\"mergedName\":\"Name\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions\",\"mergedName\":\"Transactions (Sum)\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions\",\"mergedName\":\"Transactions (Sum)1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress\",\"mergedName\":\"Ingress (Sum)\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - 0].eventgrid\",\"mergedName\":\"eventgrid\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - indextags].Subscription\",\"mergedName\":\"Subscription1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - indextags].Name\",\"mergedName\":\"Name1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[metric - indextags].indextags\",\"mergedName\":\"indextags\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Event Grid Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"100000\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"eventgrid\\\"] - 100000) * 0.60) / 1000000 \"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Read Operations Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"eventgrid\\\"] / 10000) * 0.005\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Index Tags Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"indextags\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"indextags\\\"]/10000)*0.03)*2\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Associated Cost\"}}]}]}",
+                    "query": "{\"version\":\"Merge/1.0\",\"merges\":[{\"id\":\"abff2505-843b-4dac-a451-c87a5f2be312\",\"mergeType\":\"innerunique\",\"leftTable\":\"Shared activity metrics\",\"rightTable\":\"Index tag metrics\",\"leftColumn\":\"Name\",\"rightColumn\":\"Name\"}],\"projectRename\":[{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions Timeline\",\"mergedName\":\"Transactions Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions Timeline\",\"mergedName\":\"Transactions Timeline1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress Timeline\",\"mergedName\":\"Ingress Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].eventgrid Timeline\",\"mergedName\":\"eventgrid Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Index tag metrics].indextags Timeline\",\"mergedName\":\"indextags Timeline\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].Subscription\",\"mergedName\":\"Subscription\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].Name\",\"mergedName\":\"Name\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Transactions\",\"mergedName\":\"Transactions (Sum)\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/fileservices-Transaction-Transactions\",\"mergedName\":\"Transactions (Sum)1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].microsoft.storage/storageaccounts/blobservices-Transaction-Ingress\",\"mergedName\":\"Ingress (Sum)\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Shared activity metrics].eventgrid\",\"mergedName\":\"eventgrid\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Index tag metrics].Subscription\",\"mergedName\":\"Subscription1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Index tag metrics].Name\",\"mergedName\":\"Name1\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Index tag metrics].indextags\",\"mergedName\":\"indextags\",\"fromId\":\"abff2505-843b-4dac-a451-c87a5f2be312\"},{\"originalName\":\"[Added column]\",\"mergedName\":\"Event Grid Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"<=\",\"rightValType\":\"static\",\"rightVal\":\"100000\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"eventgrid\\\"] - 100000) * 0.60) / 1000000 \"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Read Operations Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"eventgrid\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"([\\\"eventgrid\\\"] / 10000) * 0.005\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Index Tags Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"leftOperand\":\"indextags\",\"operator\":\"is Empty\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"0\"}},{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"expression\",\"resultVal\":\"(([\\\"indextags\\\"]/10000)*0.03)*2\"}}]},{\"originalName\":\"[Added column]\",\"mergedName\":\"Total Estimated Associated Cost\",\"fromId\":null,\"isNewItem\":true,\"newItemData\":[{\"criteriaContext\":{\"operator\":\"Default\",\"rightValType\":\"column\",\"resultValType\":\"static\",\"resultVal\":\"Total Estimated Associated Cost\"}}]}]}",
                     "size": 0,
                     "showExportToExcel": true,
                     "exportToExcelOptions": "all",
@@ -1271,6 +1297,26 @@
                         {
                           "columnId": "Name",
                           "label": "Storage Account"
+                        },
+                        {
+                          "columnId": "Subscription",
+                          "label": "Subscription"
+                        },
+                        {
+                          "columnId": "Event Grid Associated Cost",
+                          "label": "Event Grid Associated Cost"
+                        },
+                        {
+                          "columnId": "Read Operations Associated Cost",
+                          "label": "Read Operations Associated Cost"
+                        },
+                        {
+                          "columnId": "Index Tags Associated Cost",
+                          "label": "Index Tags Associated Cost"
+                        },
+                        {
+                          "columnId": "Total Estimated Associated Cost",
+                          "label": "Total Estimated Associated Cost"
                         }
                       ]
                     }
@@ -1316,7 +1362,7 @@
       "content": {
         "json": "### For more information:\r\n- #### [Capabilities and benefits of Defender for Storage](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-storage-introduction)\r\n- #### [Malware scanning in Defender for Storage](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-storage-malware-scan)\r\n- #### [Sensitive data threat detection in Defender for Storage](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-storage-data-sensitivity)\r\n- #### [List of security threats and security alerts](https://learn.microsoft.com/azure/defender-for-cloud/defender-for-storage-threats-alerts)\r\n- #### [Enable and configure Defender for Storage](https://learn.microsoft.com/azure/defender-for-cloud/tutorial-enable-storage-plan)"
       },
-      "name": "text - 13"
+      "name": "Documentation links"
     }
   ],
   "isLocked": false,

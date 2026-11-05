@@ -46,6 +46,15 @@ Associated-cost columns use USD with **2-7 decimal places**, not automatic count
 
 The workbook header links to the published GitHub README for usage guidance and version history.
 
+Workbook steps use unique, meaningful names. The cost-table merge definitions reference
+`Shared activity metrics` and `Index tag metrics`; update every linked reference when renaming
+either source. Parameter and grid labels are display metadata and do not change calculations.
+
+This source/deployment copy retains its existing `fromTemplateId` provenance value
+`DefenderForCloudPriceEstimation`. It is not the ARM resource identity: deployment still uses
+`workbookId` and `workbookSourceId`. A gallery submission can omit saved-template provenance;
+when comparing the two copies, allow only that intentional metadata difference.
+
 ## Manual import with the Advanced Editor
 
 1. Open [D4StorageDeployment.json](./D4StorageDeployment.json), select **Raw**, and copy the entire JSON.
