@@ -25,7 +25,7 @@ function Invoke-AzRestMethod {
 }
 
 $quoted = 'Security!*[System[Provider[@Name="Microsoft-Windows-Security-Auditing"]]]'
-$backslash = 'Security!*[EventData[Data[@Name="ObjectName"]="C:\Windows\System32"]]'
+$backslash = "Security!*[EventData[Data[@Name='ObjectName']='C:\Windows\System32']]"
 $plain = 'Security!*[System[(EventID=4624)]]'
 $failures = 0
 foreach ($case in @(
