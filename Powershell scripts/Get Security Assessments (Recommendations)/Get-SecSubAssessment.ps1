@@ -29,6 +29,9 @@ function Get-SecSubAssessment {
 
   process {
     $token = (Get-AzAccessToken -ErrorAction Stop).Token
+    if ($token -is [securestring]) {
+      $token = [System.Net.NetworkCredential]::new('', $token).Password
+    }
 
     $invokeRestMethodArgs = @{
       Header = @{'Authorization' = "Bearer $token" }
