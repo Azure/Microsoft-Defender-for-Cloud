@@ -216,7 +216,7 @@ try
     }
 
     if($remediationErrors.IsEmpty) {
-        Write-Host "Remediation steps created successfully."
+        Write-Host "Remediation steps created and executed successfully."
     }
     else {
         throw ($remediationErrors -join [Environment]::NewLine)

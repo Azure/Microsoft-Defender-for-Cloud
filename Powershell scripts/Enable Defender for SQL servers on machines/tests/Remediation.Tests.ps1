@@ -37,7 +37,7 @@ try {
         @{ Name = 'all succeed'; Ids = @('ok-first', 'ok-last'); FailIds = @() },
         @{ Name = 'one fails'; Ids = @('ok-first', 'fail-one', 'ok-last'); FailIds = @('fail-one') },
         @{ Name = 'all fail'; Ids = @('fail-one', 'fail-two'); FailIds = @('fail-one', 'fail-two') },
-        @{ Name = 'nonterminating error'; Ids = @('ok-first', 'error-one'); FailIds = @('error-one') }
+        @{ Name = 'nonterminating error'; Ids = @('error-one', 'ok-a', 'ok-b', 'ok-c', 'ok-d'); FailIds = @('error-one') }
     )) {
         $policyDefinitionReferenceIds = $case.Ids
         $policyAssignment = @{ PolicyAssignmentId = '/offline/assignment' }
