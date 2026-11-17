@@ -194,8 +194,7 @@ try
 
     # Create and run remediation step
     Write-Host "Creating and running remediation steps..."
-    $remediationSuccess = $true
-    $exceptionMessage = ""
+    $remediationErrors = [System.Collections.Concurrent.ConcurrentBag[string]]::new()
     $policyDefinitionReferenceIds | Foreach-Object -Parallel {
         try {
             $remediationParams = @{
@@ -207,20 +206,20 @@ try
             }
         
             # Run remediation step
-            Start-AzPolicyRemediation @remediationParams
+            Start-AzPolicyRemediation @remediationParams -ErrorAction Stop
         }
         catch {
-            Write-Host "Failed to create and run remediation step for policy assignment $policyAssignmentName. Exception: $($_.Exception.Message)"
-            $remediationSuccess = $false
-            $exceptionMessage = $_.Exception.Message
+            Write-Host "Failed to create and run remediation step for policy assignment $using:policyAssignmentName. Exception: $($_.Exception.Message)"
+            $errors = $using:remediationErrors
+            $errors.Add($_.Exception.Message)
         }
     }
 
-    if($remediationSuccess) {
+    if($remediationErrors.IsEmpty) {
         Write-Host "Remediation steps created and executed successfully."
     }
     else {
-        throw $exceptionMessage
+        throw ($remediationErrors -join [Environment]::NewLine)
     }
 
     # Register SQL VMs for bulk registration / sql vm checkbox
