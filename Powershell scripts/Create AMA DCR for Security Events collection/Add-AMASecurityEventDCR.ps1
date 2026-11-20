@@ -111,7 +111,7 @@ $body = @'
                     "streams": [
                         "Microsoft-SecurityEvent"
                     ],
-                    "xPathQueries": [ <XPath Queries> ],
+                    "xPathQueries": <XPath Queries>,
                     "name": "eventLogsDataSource"
                 }
             ]
@@ -143,7 +143,7 @@ $body = @'
 }
 '@
 
-$body = $body.Replace("<XPath Queries>", '"' + ($xPathQueries -join '","') + '"')
+$body = $body.Replace("<XPath Queries>", (ConvertTo-Json -InputObject @($xPathQueries) -Compress))
 $body = $body.Replace("<Log Analytics Workspace ARM Id>", $LogAnalyticsWorkspaceARMId)
 $body = $body.Replace("<Log Analytics Workspace Id>", $logAnalyticsWorkspaceId)
 $body = $body.Replace("<Azure Region>", $Region)
